@@ -1,0 +1,1535 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TechGeekPH NAP Box Port Checker</title>
+  <style>
+    :root {
+      --blue: #064f83;
+      --blue-strong: #023d6b;
+      --crimson: #c91448;
+      --ink: #16202f;
+      --muted: #64748b;
+      --line: #d9e1ec;
+      --soft: #f5f7fb;
+      --surface: #ffffff;
+      --ok: #1f8a66;
+      --warn: #b7791f;
+      --danger: #c91448;
+      --shadow: 0 10px 28px rgba(14, 34, 55, 0.06);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background: var(--soft);
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    input,
+    select,
+    textarea,
+    button {
+      font-size: 16px;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding: 18px;
+      overflow-y: auto;
+      color: #fff;
+      background: linear-gradient(180deg, var(--blue-strong), var(--blue) 58%, #083453);
+    }
+
+    .brand {
+      display: grid;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .brand-logo {
+      display: grid;
+      place-items: center;
+      width: 136px;
+      min-height: 50px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .brand-logo img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .brand strong, .brand span { display: block; }
+    .brand strong { font-size: 0.96rem; }
+    .brand span {
+      margin-top: 4px;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 0.78rem;
+      line-height: 1.35;
+    }
+
+    .nav {
+      display: grid;
+      gap: 6px;
+    }
+
+    .nav a, .nav button, .nav summary {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      min-height: 40px;
+      border: 0;
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.82);
+      background: transparent;
+      padding: 0 12px;
+      text-align: left;
+      text-decoration: none;
+      font-weight: 750;
+      list-style: none;
+      user-select: none;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .nav summary::-webkit-details-marker { display: none; }
+    .nav summary::after {
+      content: "▾";
+      margin-left: auto;
+      font-size: 0.78rem;
+      opacity: 0.72;
+      transition: transform 160ms ease;
+    }
+
+    .nav details:not([open]) summary::after { transform: rotate(-90deg); }
+
+    .nav a:hover,
+    .nav a.is-active,
+    .nav button:hover,
+    .nav summary:hover,
+    .nav details[open] > summary {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .nav-group {
+      display: grid;
+      gap: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 6px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .nav-group summary {
+      min-height: 38px;
+      padding: 0 10px;
+      font-size: 0.82rem;
+      font-weight: 900;
+    }
+
+    .nav-sub {
+      display: grid;
+      gap: 4px;
+      margin: 2px 0 2px 10px;
+      padding-left: 10px;
+      border-left: 1px solid rgba(255, 255, 255, 0.20);
+    }
+
+    .nav-sub a {
+      min-height: 34px;
+      padding: 0 10px;
+      font-size: 0.78rem;
+      font-weight: 780;
+    }
+
+    @media (max-width: 920px) {
+      .nav { grid-template-columns: 1fr !important; }
+      .nav-group { width: 100%; }
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      display: grid;
+      gap: 10px;
+    }
+
+    .logout {
+      min-height: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 8px;
+      color: #fff;
+      background: transparent;
+      font-weight: 800;
+    }
+
+    .main {
+      min-width: 0;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 72px;
+      padding: 14px clamp(18px, 3vw, 30px);
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(14px);
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.25rem, 2vw, 1.75rem);
+    }
+
+    .title-block p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .avatar {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      color: #fff;
+      background: linear-gradient(135deg, var(--crimson), var(--blue));
+      font-weight: 900;
+    }
+
+    .user-chip strong, .user-chip span { display: block; }
+    .user-chip strong { font-size: 0.92rem; }
+    .user-chip span { margin-top: 2px; color: var(--muted); font-size: 0.78rem; }
+
+    .content {
+      min-width: 0;
+      display: grid;
+      gap: 18px;
+      padding: clamp(18px, 3vw, 30px);
+    }
+
+    @media (min-width: 1280px) {
+      .content {
+        max-width: 1680px;
+        width: 100%;
+        margin: 0 auto;
+      }
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .card, .panel {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .card {
+      min-height: 98px;
+      padding: 16px;
+    }
+
+    .card span, .card strong, .card small { display: block; }
+    .card span { color: var(--muted); font-size: 0.78rem; font-weight: 800; }
+    .card strong { margin-top: 10px; color: var(--blue); font-size: 1.65rem; }
+    .card small { margin-top: 7px; color: #7d8b9d; font-size: 0.72rem; }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .panel-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .checker-form {
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      color: #334155;
+      font-size: 0.76rem;
+      font-weight: 850;
+    }
+
+    .field input, .field select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 0 11px;
+      color: var(--ink);
+      outline: none;
+    }
+
+    .field input:focus, .field select:focus {
+      border-color: #9bc7e9;
+      box-shadow: 0 0 0 3px rgba(6, 79, 131, 0.10);
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfdff;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-left, .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .search, .filter {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 0 12px;
+      color: var(--ink);
+      outline: none;
+    }
+
+    .search {
+      width: min(100vw - 70px, 380px);
+    }
+
+    .primary-btn, .ghost-btn, .danger-btn, .small-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      border-radius: 8px;
+      padding: 0 14px;
+      font-weight: 850;
+      text-decoration: none;
+    }
+
+    .small-btn {
+      min-height: 32px;
+      padding: 0 10px;
+      font-size: 0.78rem;
+    }
+
+    .primary-btn {
+      border: 1px solid var(--blue);
+      color: #fff;
+      background: var(--blue);
+    }
+
+    .ghost-btn, .small-btn {
+      border: 1px solid var(--line);
+      color: var(--blue);
+      background: #fff;
+    }
+
+    .danger-btn {
+      border: 1px solid #f0b5c3;
+      color: var(--danger);
+      background: #fff5f7;
+    }
+
+    .primary-btn:disabled, .ghost-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .notice {
+      margin: 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(183, 121, 31, 0.22);
+      border-radius: 8px;
+      background: #fff8ea;
+      color: #7a4e10;
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    .notice.ok {
+      border-color: rgba(31, 138, 102, 0.28);
+      color: #126247;
+      background: #eefaf5;
+    }
+
+    .notice.error {
+      border-color: rgba(201, 20, 72, 0.26);
+      color: #98113b;
+      background: #fff1f5;
+    }
+
+    .mode-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid #cde4f6;
+      background: #f0f8ff;
+      color: var(--blue);
+      font-size: 0.76rem;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .mode-chip.ok {
+      border-color: rgba(31, 138, 102, 0.24);
+      background: #eefaf5;
+      color: var(--ok);
+    }
+
+    .mode-chip.warn {
+      border-color: rgba(183, 121, 31, 0.24);
+      background: #fff8ea;
+      color: var(--warn);
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      min-width: 980px;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+
+    th, td {
+      padding: 12px 13px;
+      border-bottom: 1px solid #edf1f6;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #475569;
+      background: #f9fbfd;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.035em;
+      white-space: nowrap;
+    }
+
+    td { color: #263244; }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      min-height: 25px;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: #edf6f2;
+      color: var(--ok);
+      font-size: 0.74rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .status.is-warn { background: #fff7e8; color: var(--warn); }
+    .status.is-alert { background: #fff0f4; color: var(--danger); }
+    .status.is-muted { background: #eef2f7; color: #64748b; }
+
+    .empty-state {
+      display: grid;
+      place-items: center;
+      min-height: 210px;
+      padding: 28px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .empty-state strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--ink);
+      font-size: 1rem;
+    }
+
+    .is-hidden { display: none !important; }
+
+    @media (max-width: 1180px) {
+      .app { grid-template-columns: 210px minmax(0, 1fr); }
+      .sidebar { padding: 14px; }
+      .content { padding: 18px; }
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 860px) {
+      .app { display: block; }
+      .sidebar {
+        position: relative;
+        height: auto;
+        min-height: auto;
+        padding: 12px;
+        gap: 12px;
+      }
+      .brand {
+        grid-template-columns: auto 1fr;
+        align-items: center;
+        gap: 10px;
+        padding-bottom: 10px;
+      }
+      .brand-logo {
+        width: 110px;
+        min-height: 42px;
+      }
+      .nav a, .nav button, .nav summary, .logout {
+        min-height: 38px;
+        justify-content: center;
+        padding: 0 8px;
+        font-size: 0.8rem;
+        text-align: center;
+      }
+      .sidebar-footer { margin-top: 0; }
+      .topbar {
+        position: relative;
+        min-height: auto;
+        padding: 14px 16px;
+      }
+      .content { padding: 14px; gap: 14px; }
+      .panel-head, .toolbar { padding: 14px; }
+    }
+
+    @media (max-width: 680px) {
+      body { background: #f2f5f9; }
+      .brand { grid-template-columns: 1fr; }
+      .brand-logo { width: 124px; }
+      .topbar { display: grid; gap: 12px; }
+      .user-chip {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #fff;
+      }
+      .summary-grid, .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .toolbar, .toolbar-left, .toolbar-right {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+      .search, .filter, .primary-btn, .ghost-btn, .danger-btn, .small-btn { width: 100%; }
+      .card { min-height: auto; }
+      .card strong { font-size: 1.45rem; }
+
+      .table-wrap { overflow: visible; }
+      table {
+        min-width: 0;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 12px;
+      }
+      thead { display: none; }
+      tbody { display: grid; gap: 12px; }
+      tr {
+        display: grid;
+        gap: 0;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 8px 20px rgba(14, 34, 55, 0.05);
+        overflow: hidden;
+      }
+      td {
+        display: grid;
+        grid-template-columns: 118px minmax(0, 1fr);
+        gap: 10px;
+        align-items: start;
+        width: 100%;
+        padding: 10px 12px;
+        border-bottom: 1px solid #edf1f6;
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+      td:last-child { border-bottom: 0; }
+      td::before {
+        content: attr(data-label);
+        color: var(--muted);
+        font-size: 0.72rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .content { padding: 10px; }
+      td { grid-template-columns: 1fr; gap: 5px; }
+      .title-block h1 { font-size: 1.25rem; }
+      .title-block p, .panel-head p { font-size: 0.76rem; }
+    }
+  
+
+    /* ==========================================================
+       STANDARD ADMIN SIDEBAR FORMAT
+       This overrides old sidebar/nav rules so all admin pages match.
+       ========================================================== */
+    .app {
+      min-height: 100vh !important;
+      display: grid !important;
+      grid-template-columns: 240px minmax(0, 1fr) !important;
+    }
+
+    .sidebar {
+      position: sticky !important;
+      top: 0 !important;
+      height: 100vh !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 18px !important;
+      padding: 18px !important;
+      overflow-y: auto !important;
+      color: #fff !important;
+      background: linear-gradient(180deg, var(--blue-strong), var(--blue) 58%, #083453) !important;
+    }
+
+    .brand {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 12px !important;
+      padding-bottom: 16px !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16) !important;
+    }
+
+    .brand-logo {
+      display: grid !important;
+      place-items: center !important;
+      width: 124px !important;
+      min-height: 52px !important;
+      padding: 8px 10px !important;
+      border-radius: 7px !important;
+      background: #fff !important;
+    }
+
+    .brand-logo img {
+      display: block !important;
+      width: 100% !important;
+      height: auto !important;
+      object-fit: contain !important;
+    }
+
+    .brand strong,
+    .brand span {
+      display: block !important;
+    }
+
+    .brand strong {
+      font-size: 0.96rem !important;
+      font-weight: 900 !important;
+    }
+
+    .brand span {
+      margin-top: 4px !important;
+      color: rgba(255, 255, 255, 0.78) !important;
+      font-size: 0.78rem !important;
+      line-height: 1.38 !important;
+    }
+
+    .nav {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 8px !important;
+      width: 100% !important;
+    }
+
+    .nav a,
+    .nav-toggle {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      width: 100% !important;
+      min-height: 42px !important;
+      border: 0 !important;
+      border-radius: 8px !important;
+      color: rgba(255, 255, 255, 0.92) !important;
+      background: transparent !important;
+      padding: 0 12px !important;
+      text-align: left !important;
+      text-decoration: none !important;
+      font-size: 0.88rem !important;
+      font-weight: 850 !important;
+      cursor: pointer !important;
+    }
+
+    .nav a:hover,
+    .nav a.is-active,
+    .nav-toggle:hover,
+    .nav-toggle.is-active {
+      color: #fff !important;
+      background: rgba(255, 255, 255, 0.13) !important;
+    }
+
+    .nav-group {
+      display: grid !important;
+      gap: 6px !important;
+      border: 1px solid rgba(255, 255, 255, 0.14) !important;
+      border-radius: 8px !important;
+      padding: 6px !important;
+      background: rgba(255, 255, 255, 0.06) !important;
+      margin: 0 !important;
+    }
+
+    .nav-toggle {
+      min-height: 38px !important;
+      background: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .nav-toggle::after {
+      content: "›" !important;
+      margin-left: auto !important;
+      font-size: 0.95rem !important;
+      opacity: 0.75 !important;
+      transform: rotate(0deg) !important;
+      transition: transform 160ms ease !important;
+    }
+
+    .nav-group.is-open .nav-toggle::after {
+      transform: rotate(90deg) !important;
+    }
+
+    .nav-panel {
+      display: none !important;
+      gap: 4px !important;
+      padding: 2px 0 0 10px !important;
+      margin-left: 6px !important;
+      border-left: 1px solid rgba(255, 255, 255, 0.22) !important;
+    }
+
+    .nav-group.is-open .nav-panel {
+      display: grid !important;
+    }
+
+    .nav-panel a {
+      min-height: 34px !important;
+      padding: 0 10px !important;
+      border-radius: 7px !important;
+      font-size: 0.8rem !important;
+      font-weight: 820 !important;
+      line-height: 1.15 !important;
+      white-space: normal !important;
+    }
+
+    .nav-panel a.is-active {
+      background: rgba(255, 255, 255, 0.19) !important;
+      color: #fff !important;
+    }
+
+    .sidebar-footer {
+      margin-top: auto !important;
+      display: grid !important;
+      gap: 10px !important;
+    }
+
+    .logout {
+      min-height: 40px !important;
+      border: 1px solid rgba(255, 255, 255, 0.28) !important;
+      border-radius: 8px !important;
+      color: #fff !important;
+      background: transparent !important;
+      font-weight: 850 !important;
+      text-align: left !important;
+      padding: 0 12px !important;
+      cursor: pointer !important;
+    }
+
+    .logout:hover {
+      background: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    @media (max-width: 860px) {
+      .app {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+      }
+
+      .sidebar {
+        position: relative !important;
+        height: auto !important;
+        min-height: auto !important;
+      }
+
+      .nav {
+        grid-template-columns: 1fr !important;
+      }
+
+      .brand {
+        grid-template-columns: 1fr !important;
+      }
+
+      .nav a,
+      .nav-toggle,
+      .logout {
+        justify-content: flex-start !important;
+        text-align: left !important;
+      }
+    }
+
+  </style>
+  <link rel="stylesheet" href="assets/admin-shell.css">
+</head>
+<body>
+  <main class="app">
+      <aside class="sidebar" data-admin-sidebar>
+    <div class="brand">
+      <div class="brand-logo">
+        <img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH">
+      </div>
+      <div>
+        <strong>TechGeekPH Admin</strong>
+        <span>Admin portal for clients, tickets, attendance, expenses, stock, assets, payroll, SOA, and investor reports.</span>
+      </div>
+    </div>
+
+    <nav class="nav" aria-label="Admin navigation">
+      <a href="dashboard.html">Dashboard</a>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Operations</button>
+        <div class="nav-panel">
+          <a href="application_form.html">Application Form</a>
+          <a href="clients.html">Clients</a>
+          <a href="tickets.html">Tickets</a>
+          <a href="nap-checker.html">NAP Checker</a>
+          <a href="statement_of_account.html">Statement of Account</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Attendance &amp; Expenses</button>
+        <div class="nav-panel">
+          <a href="daily_time_record.html">My Time Record</a>
+          <a href="daily_time_record_admin.html">Admin Time Records</a>
+          <a href="my_expense_request.html">My Expense Request</a>
+          <a href="expense_approval.html">Expense Approval</a>
+          <a href="payslip_generator.html">Payslip Generator</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Stock &amp; Assets</button>
+        <div class="nav-panel">
+          <a href="consumable_stock.html">Consumable Stock</a>
+          <a href="company_assets.html">Company Assets</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Investor</button>
+        <div class="nav-panel">
+          <a href="investor_morwin_gapud.html">Morwin Gapud</a>
+          <a href="investor_marivie_viana_gapud.html">Marivie Viana Gapud</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="logout" type="button" id="logoutBtn">Log out</button>
+    </div>
+  </aside>
+
+    <section class="main">
+      <header class="topbar">
+        <div class="title-block">
+          <h1>NAP Box Port Checker</h1>
+          <p>Select LP and NP to show clients listed on that box with Client Port.</p>
+        </div>
+        <div class="user-chip">
+          <div class="avatar" id="avatar">TG</div>
+          <div>
+            <strong id="userName">TechGeekPH User</strong>
+            <span id="userRole">Portal access</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+        <p class="notice is-hidden" id="notice"></p>
+
+        <div class="summary-grid">
+          <article class="card">
+            <span>Total Clients Loaded</span>
+            <strong id="totalClients">--</strong>
+            <small>From Clients sheet</small>
+          </article>
+          <article class="card">
+            <span>Matched Clients</span>
+            <strong id="matchedClients">--</strong>
+            <small>LP + NP filter result</small>
+          </article>
+          <article class="card">
+            <span>With CP Number</span>
+            <strong id="withCp">--</strong>
+            <small>Client Port available</small>
+          </article>
+          <article class="card">
+            <span>No CP Number</span>
+            <strong id="withoutCp">--</strong>
+            <small>Need CP tagging</small>
+          </article>
+        </div>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Port Selection</h2>
+              <p>Example: select <b>LP01</b> and <b>NP02</b> to view clients on that box.</p>
+            </div>
+            <span class="mode-chip" id="loadStatus">Waiting</span>
+          </div>
+
+          <form class="checker-form" id="checkerForm">
+            <div class="form-grid">
+              <div class="field">
+                <label for="linePortSelect">LP - Line Port</label>
+                <select id="linePortSelect" name="linePort">
+                  <option value="">Select LP</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="networkPortSelect">NP - Network Port</label>
+                <select id="networkPortSelect" name="networkPort">
+                  <option value="">Select NP</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="searchInput">Search Result</label>
+                <input id="searchInput" name="search" placeholder="Search name, account, IP, status, CP">
+              </div>
+
+              <div class="field">
+                <label>&nbsp;</label>
+                <button class="primary-btn" type="submit" id="checkBtn">Check Box</button>
+              </div>
+            </div>
+
+            <div class="toolbar" style="border: 0; padding: 0; background: transparent;">
+              <div class="toolbar-left">
+                <button class="ghost-btn" type="button" id="resetBtn">Clear Filter</button>
+                <button class="ghost-btn" type="button" id="refreshBtn">Refresh Clients</button>
+                <button class="ghost-btn" type="button" id="copyBtn">Copy Result</button>
+              </div>
+              <div class="toolbar-right">
+                <span class="mode-chip" id="selectedBox">No box selected</span>
+                <span class="mode-chip" id="rowCount">0 records</span>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Client List in Selected Box</h2>
+              <p>Showing Client Port, Name, Account No., IP Address, and Status.</p>
+            </div>
+            <a class="ghost-btn" href="clients.html">Open Clients</a>
+          </div>
+
+          <div class="table-wrap" id="tableWrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Client Port</th>
+                  <th>Name</th>
+                  <th>Account No.</th>
+                  <th>IP Address</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="resultRows">
+                <tr><td data-label="Status" colspan="5">Select LP and NP to check clients.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxDY5TsonrB58YaN8LGbrrrc_ZD1QVpF1WK0p6jToIR2FBSqGaHfsgaE1CCiH1MvukV/exec";
+    const SESSION_KEY = "techgeekph_admin_session";
+    const LEGACY_SESSION_KEY = "techgeekph_admin_session";
+
+    const fields = {
+      notice: document.querySelector("#notice"),
+      avatar: document.querySelector("#avatar"),
+      userName: document.querySelector("#userName"),
+      userRole: document.querySelector("#userRole"),
+      totalClients: document.querySelector("#totalClients"),
+      matchedClients: document.querySelector("#matchedClients"),
+      withCp: document.querySelector("#withCp"),
+      withoutCp: document.querySelector("#withoutCp"),
+      loadStatus: document.querySelector("#loadStatus"),
+      checkerForm: document.querySelector("#checkerForm"),
+      linePortSelect: document.querySelector("#linePortSelect"),
+      networkPortSelect: document.querySelector("#networkPortSelect"),
+      searchInput: document.querySelector("#searchInput"),
+      checkBtn: document.querySelector("#checkBtn"),
+      resetBtn: document.querySelector("#resetBtn"),
+      refreshBtn: document.querySelector("#refreshBtn"),
+      copyBtn: document.querySelector("#copyBtn"),
+      selectedBox: document.querySelector("#selectedBox"),
+      rowCount: document.querySelector("#rowCount"),
+      resultRows: document.querySelector("#resultRows"),
+      logoutBtn: document.querySelector("#logoutBtn")
+    };
+
+    let clientRecords = [];
+    let currentRows = [];
+
+    function loadSession() {
+      try {
+        const adminSession = JSON.parse(localStorage.getItem(SESSION_KEY) || "{}");
+        if (adminSession && (adminSession.token || adminSession.sessionToken || adminSession.accessToken || adminSession.user || adminSession.email)) {
+          return adminSession;
+        }
+
+        const legacySession = JSON.parse(localStorage.getItem(LEGACY_SESSION_KEY) || "{}");
+        if (legacySession && (legacySession.token || legacySession.sessionToken || legacySession.accessToken || legacySession.user || legacySession.email)) {
+          return legacySession;
+        }
+
+        return {};
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function getSessionToken() {
+      const session = loadSession();
+      return session.token || session.sessionToken || session.accessToken || "";
+    }
+
+    function initialsFrom(value) {
+      return String(value || "TG")
+        .replace(/@.*/, "")
+        .split(/[.\s_-]+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(function(part) { return part[0].toUpperCase(); })
+        .join("") || "TG";
+    }
+
+    function setUser(session) {
+      const user = session.user || {};
+      const name = user.fullName || user.name || user.email || session.email || "TechGeekPH User";
+      const role = user.role || session.role || "portal";
+
+      fields.userName.textContent = name;
+      fields.userRole.textContent = String(role).charAt(0).toUpperCase() + String(role).slice(1).toLowerCase() + " access";
+      fields.avatar.textContent = initialsFrom(name);
+    }
+
+    function keyValue(row, names) {
+      for (let index = 0; index < names.length; index += 1) {
+        const key = names[index];
+        if (row && Object.prototype.hasOwnProperty.call(row, key)) return row[key];
+      }
+      return "";
+    }
+
+    function normalize(value) {
+      return String(value || "").trim().toLowerCase();
+    }
+
+    function portKey(value) {
+      return String(value || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function formatMetric(value) {
+      if (value === undefined || value === null || value === "") return "--";
+      return Number.isFinite(Number(value)) ? Number(value).toLocaleString() : String(value);
+    }
+
+    function getLinePort(row) {
+      return keyValue(row, ["Line Port", "linePort", "LP", "LP - Line Port"]);
+    }
+
+    function getNetworkPort(row) {
+      return keyValue(row, ["Network Port", "networkPort", "NP", "NP - Network Port"]);
+    }
+
+    function getClientPort(row) {
+      return keyValue(row, ["Client Port", "CP Client Port", "clientPort", "cpClientPort", "NAP Box", "napBox", "NAP"]);
+    }
+
+    function getName(row) {
+      return keyValue(row, ["Client Name", "clientName", "Name"]);
+    }
+
+    function getAccountNo(row) {
+      return keyValue(row, ["Account No.", "accountNo", "Account Number", "ClientID"]);
+    }
+
+    function getIpAddress(row) {
+      return keyValue(row, [
+        "IP Address",
+        "IP address",
+        "Ip Address",
+        "ipAddress",
+        "Client IP",
+        "Client IP Address",
+        "Remote Address",
+        "remoteAddress",
+        "IP"
+      ]);
+    }
+
+    function getStatus(row) {
+      const accountStatus = keyValue(row, ["Account Status", "accountStatus", "Status"]);
+      const serviceStatus = keyValue(row, ["Service Status", "serviceStatus"]);
+
+      if (accountStatus && serviceStatus && normalize(accountStatus) !== normalize(serviceStatus)) {
+        return accountStatus + " / " + serviceStatus;
+      }
+
+      return serviceStatus || accountStatus || "";
+    }
+
+    function statusClass(value) {
+      const text = normalize(value);
+      if (!text) return "status is-muted";
+      if (text.indexOf("active") !== -1 || text.indexOf("installed") !== -1) return "status";
+      if (text.indexOf("pending") !== -1 || text.indexOf("for installation") !== -1 || text.indexOf("checking") !== -1) return "status is-warn";
+      if (text.indexOf("disconnect") !== -1 || text.indexOf("cancel") !== -1 || text.indexOf("suspend") !== -1 || text.indexOf("no signal") !== -1) return "status is-alert";
+      return "status is-muted";
+    }
+
+    function showNotice(message, type) {
+      fields.notice.textContent = message;
+      fields.notice.classList.remove("is-hidden", "ok", "error");
+      if (type === "ok") fields.notice.classList.add("ok");
+      if (type === "error") fields.notice.classList.add("error");
+    }
+
+    function hideNotice() {
+      fields.notice.textContent = "";
+      fields.notice.classList.add("is-hidden");
+      fields.notice.classList.remove("ok", "error");
+    }
+
+    async function callBackend(action, payload) {
+      const data = Object.assign({}, payload || {});
+      data.action = action;
+      data.method = action;
+
+      if (!data.token && !data.sessionToken) {
+        data.token = getSessionToken();
+      }
+
+      const params = new URLSearchParams();
+      Object.keys(data).forEach(function(key) {
+        if (data[key] !== undefined && data[key] !== null) {
+          params.set(key, data[key]);
+        }
+      });
+
+      const url = BACKEND_URL + "?" + params.toString();
+
+      const response = await fetch(url, {
+        method: "GET",
+        redirect: "follow"
+      });
+
+      const text = await response.text();
+      const type = response.headers.get("content-type") || "";
+
+      if (type.indexOf("application/json") !== -1 || /^[\s\r\n]*[\[{]/.test(text)) {
+        return JSON.parse(text);
+      }
+
+      if (/<html[\s>]/i.test(text) || /sandboxFrame/i.test(text)) {
+        return {
+          ok: false,
+          success: false,
+          htmlResponse: true,
+          message: "Apps Script returned HTML instead of JSON. Check Web App deployment and access settings."
+        };
+      }
+
+      return {
+        ok: false,
+        success: false,
+        message: text.trim() || "Unexpected response from backend."
+      };
+    }
+
+    function uniquePortValues(records, getter) {
+      const map = new Map();
+
+      records.forEach(function(row) {
+        const raw = String(getter(row) || "").trim();
+        const key = portKey(raw);
+        if (!raw || !key) return;
+        if (!map.has(key)) map.set(key, raw);
+      });
+
+      return Array.from(map.values()).sort(function(a, b) {
+        return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: "base" });
+      });
+    }
+
+    function setSelectOptions(select, values, placeholder) {
+      const current = select.value;
+      select.innerHTML = '<option value="">' + escapeHtml(placeholder) + '</option>';
+
+      values.forEach(function(value) {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = value;
+        select.appendChild(option);
+      });
+
+      if (values.some(function(value) { return portKey(value) === portKey(current); })) {
+        select.value = values.find(function(value) { return portKey(value) === portKey(current); }) || "";
+      }
+    }
+
+    function populatePortFilters() {
+      const linePorts = uniquePortValues(clientRecords, getLinePort);
+      const selectedLine = fields.linePortSelect.value;
+
+      let networkSource = clientRecords;
+      if (selectedLine) {
+        networkSource = clientRecords.filter(function(row) {
+          return portKey(getLinePort(row)) === portKey(selectedLine);
+        });
+      }
+
+      const networkPorts = uniquePortValues(networkSource, getNetworkPort);
+
+      setSelectOptions(fields.linePortSelect, linePorts, "Select LP");
+      if (selectedLine) fields.linePortSelect.value = linePorts.find(function(value) { return portKey(value) === portKey(selectedLine); }) || "";
+
+      setSelectOptions(fields.networkPortSelect, networkPorts, "Select NP");
+    }
+
+    function searchText(row) {
+      return [
+        getClientPort(row),
+        getName(row),
+        getAccountNo(row),
+        getIpAddress(row),
+        getStatus(row),
+        getLinePort(row),
+        getNetworkPort(row)
+      ].join(" ").toLowerCase();
+    }
+
+    function filterRows() {
+      const selectedLp = fields.linePortSelect.value;
+      const selectedNp = fields.networkPortSelect.value;
+      const query = normalize(fields.searchInput.value);
+
+      if (!selectedLp && !selectedNp) return [];
+
+      return clientRecords.filter(function(row) {
+        const matchLp = !selectedLp || portKey(getLinePort(row)) === portKey(selectedLp);
+        const matchNp = !selectedNp || portKey(getNetworkPort(row)) === portKey(selectedNp);
+        const matchSearch = !query || searchText(row).indexOf(query) !== -1;
+        return matchLp && matchNp && matchSearch;
+      });
+    }
+
+    function updateStats(rows) {
+      const resultRows = Array.isArray(rows) ? rows : [];
+      const withCp = resultRows.filter(function(row) {
+        return String(getClientPort(row) || "").trim() !== "";
+      }).length;
+
+      fields.totalClients.textContent = formatMetric(clientRecords.length);
+      fields.matchedClients.textContent = formatMetric(resultRows.length);
+      fields.withCp.textContent = formatMetric(withCp);
+      fields.withoutCp.textContent = formatMetric(resultRows.length - withCp);
+      fields.rowCount.textContent = resultRows.length + " record" + (resultRows.length === 1 ? "" : "s");
+    }
+
+    function updateSelectedBoxLabel() {
+      const lp = fields.linePortSelect.value;
+      const np = fields.networkPortSelect.value;
+
+      if (lp && np) {
+        fields.selectedBox.textContent = lp + " + " + np;
+        fields.selectedBox.classList.remove("warn");
+        fields.selectedBox.classList.add("ok");
+        return;
+      }
+
+      if (lp || np) {
+        fields.selectedBox.textContent = (lp || "All LP") + " + " + (np || "All NP");
+        fields.selectedBox.classList.remove("ok");
+        fields.selectedBox.classList.add("warn");
+        return;
+      }
+
+      fields.selectedBox.textContent = "No box selected";
+      fields.selectedBox.classList.remove("ok", "warn");
+    }
+
+    function renderRows() {
+      currentRows = filterRows();
+      updateSelectedBoxLabel();
+      updateStats(currentRows);
+
+      if (!fields.linePortSelect.value && !fields.networkPortSelect.value) {
+        fields.resultRows.innerHTML = '<tr><td data-label="Status" colspan="5">Select LP and NP to check clients.</td></tr>';
+        return;
+      }
+
+      if (!currentRows.length) {
+        fields.resultRows.innerHTML = '<tr><td data-label="Status" colspan="5">No client found for selected LP/NP.</td></tr>';
+        return;
+      }
+
+      fields.resultRows.innerHTML = currentRows.map(function(row) {
+        const cp = getClientPort(row) || "No CP yet";
+        const name = getName(row) || "-";
+        const accountNo = getAccountNo(row) || "-";
+        const ip = getIpAddress(row) || "-";
+        const status = getStatus(row) || "-";
+
+        return "<tr>" +
+          '<td data-label="Client Port">' + escapeHtml(cp) + "</td>" +
+          '<td data-label="Name">' + escapeHtml(name) + "</td>" +
+          '<td data-label="Account No.">' + escapeHtml(accountNo) + "</td>" +
+          '<td data-label="IP Address">' + escapeHtml(ip) + "</td>" +
+          '<td data-label="Status"><span class="' + statusClass(status) + '">' + escapeHtml(status) + "</span></td>" +
+        "</tr>";
+      }).join("");
+    }
+
+    async function loadClients() {
+      showNotice("Loading clients from Clients sheet...");
+      fields.loadStatus.textContent = "Loading";
+      fields.loadStatus.classList.remove("ok", "warn");
+      fields.refreshBtn.disabled = true;
+      fields.checkBtn.disabled = true;
+
+      try {
+        const response = await callBackend("listClients", {});
+
+        if (!response || (!response.ok && !response.success)) {
+          clientRecords = [];
+          populatePortFilters();
+          renderRows();
+          fields.loadStatus.textContent = "Error";
+          fields.loadStatus.classList.remove("ok");
+          fields.loadStatus.classList.add("warn");
+          showNotice((response && response.message) || "Unable to load clients. Please login again or check backend deployment.", "error");
+          return;
+        }
+
+        clientRecords = response.data || response.clients || response.rows || [];
+        populatePortFilters();
+        renderRows();
+        fields.loadStatus.textContent = "Loaded";
+        fields.loadStatus.classList.remove("warn");
+        fields.loadStatus.classList.add("ok");
+        hideNotice();
+
+      } catch (error) {
+        clientRecords = [];
+        populatePortFilters();
+        renderRows();
+        fields.loadStatus.textContent = "Error";
+        fields.loadStatus.classList.remove("ok");
+        fields.loadStatus.classList.add("warn");
+        showNotice("Unable to load clients. " + (error && error.message ? error.message : ""), "error");
+      } finally {
+        fields.refreshBtn.disabled = false;
+        fields.checkBtn.disabled = false;
+      }
+    }
+
+    function resetFilters() {
+      fields.linePortSelect.value = "";
+      fields.networkPortSelect.value = "";
+      fields.searchInput.value = "";
+      populatePortFilters();
+      renderRows();
+    }
+
+    function copyResults() {
+      const header = ["Client Port", "Name", "Account No.", "IP Address", "Status"];
+      const rows = currentRows.map(function(row) {
+        return [
+          getClientPort(row) || "",
+          getName(row) || "",
+          getAccountNo(row) || "",
+          getIpAddress(row) || "",
+          getStatus(row) || ""
+        ];
+      });
+
+      const text = [header].concat(rows).map(function(cols) {
+        return cols.map(function(value) {
+          return String(value || "").replace(/\t/g, " ").replace(/\r?\n/g, " ");
+        }).join("\t");
+      }).join("\n");
+
+      if (!rows.length) {
+        showNotice("No result to copy.", "error");
+        return;
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() {
+          showNotice("Result copied. You can paste it to Google Sheets.", "ok");
+        }).catch(function() {
+          fallbackCopy(text);
+        });
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+
+      try {
+        document.execCommand("copy");
+        showNotice("Result copied. You can paste it to Google Sheets.", "ok");
+      } catch (error) {
+        showNotice("Unable to copy result.", "error");
+      }
+
+      document.body.removeChild(textarea);
+    }
+
+    fields.checkerForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+      renderRows();
+    });
+
+    fields.linePortSelect.addEventListener("change", function() {
+      populatePortFilters();
+      renderRows();
+    });
+
+    fields.networkPortSelect.addEventListener("change", renderRows);
+    fields.searchInput.addEventListener("input", renderRows);
+    fields.resetBtn.addEventListener("click", resetFilters);
+    fields.refreshBtn.addEventListener("click", loadClients);
+    fields.copyBtn.addEventListener("click", copyResults);
+
+    fields.logoutBtn.addEventListener("click", function() {
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(LEGACY_SESSION_KEY);
+      window.location.href = "index.html";
+    });
+
+    setUser(loadSession());
+    loadClients();
+  </script>
+
+
+  <script>
+    document.querySelectorAll(".nav-toggle").forEach(function(button) {
+      button.addEventListener("click", function() {
+        const group = button.closest(".nav-group");
+        if (!group) return;
+        group.classList.toggle("is-open");
+      });
+    });
+  </script>
+
+  <script src="assets/admin-shell.js"></script>
+</body>
+</html>

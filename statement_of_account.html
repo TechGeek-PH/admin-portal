@@ -1,0 +1,3366 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TechGeekPH SOA & Acknowledgement Receipt</title>
+
+  <!-- PNG download library -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <style>
+    :root {
+      --blue: #064f83;
+      --blue-dark: #023d6b;
+      --red: #c91448;
+      --yellow: #ffe45c;
+      --ink: #101827;
+      --muted: #5c6b7c;
+      --line: #111827;
+      --soft-line: #d9e4ef;
+      --paper: #ffffff;
+      --bg: #f3f6fb;
+      --shadow: 0 16px 38px rgba(12, 34, 58, 0.10);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin: 0; background: var(--bg); color: var(--ink); }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    img { max-width: 100%; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding: 18px;
+      color: #ffffff;
+      background: linear-gradient(180deg, var(--blue-dark), var(--blue));
+      overflow-y: auto;
+    }
+
+    .brand {
+      display: grid;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255,255,255,.18);
+    }
+
+    .brand-logo {
+      width: 136px;
+      min-height: 50px;
+      display: grid;
+      place-items: center;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .brand-logo img { display: block; width: 100%; height: auto; }
+    .brand strong, .brand span { display: block; }
+    .brand strong { font-size: .96rem; }
+    .brand span { margin-top: 4px; color: rgba(255,255,255,.72); font-size: .78rem; line-height: 1.35; }
+
+    .nav { display: grid; gap: 6px; }
+    .nav a, .nav button {
+      width: 100%;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      border: 0;
+      border-radius: 8px;
+      padding: 0 12px;
+      color: rgba(255,255,255,.84);
+      background: transparent;
+      text-align: left;
+      text-decoration: none;
+      font-weight: 800;
+    }
+    .nav a:hover, .nav a.is-active, .nav button:hover { color: #fff; background: rgba(255,255,255,.13); }
+
+
+    /* Admin dropdown navigation */
+    .nav a, .nav button, .nav summary {
+      width: 100%;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      border: 0;
+      border-radius: 8px;
+      padding: 0 12px;
+      color: rgba(255,255,255,.84);
+      background: transparent;
+      text-align: left;
+      text-decoration: none;
+      font-weight: 800;
+      list-style: none;
+      cursor: pointer;
+    }
+
+    .nav summary::-webkit-details-marker { display: none; }
+    .nav summary::after {
+      content: "▾";
+      margin-left: auto;
+      transition: transform 160ms ease;
+      opacity: 0.8;
+    }
+
+    .nav details:not([open]) summary::after { transform: rotate(-90deg); }
+
+    .nav a:hover,
+    .nav a.is-active,
+    .nav button:hover,
+    .nav summary:hover,
+    .nav details[open] > summary {
+      color: #fff;
+      background: rgba(255,255,255,.13);
+    }
+
+    .nav-group {
+      display: grid;
+      gap: 6px;
+      padding: 8px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 12px;
+      background: rgba(255,255,255,.06);
+    }
+
+    .nav-group summary {
+      min-height: 38px;
+      padding: 0 10px;
+      font-weight: 900;
+    }
+
+    .nav-sub {
+      display: grid;
+      gap: 4px;
+      margin-left: 10px;
+      padding-left: 10px;
+      border-left: 1px solid rgba(255,255,255,.22);
+    }
+
+    .nav-sub a {
+      min-height: 34px;
+      padding: 0 10px;
+      font-size: .82rem;
+      font-weight: 800;
+    }
+    .sidebar-footer { margin-top: auto; display: grid; gap: 10px; }
+    .logout { min-height: 40px; border: 1px solid rgba(255,255,255,.28); border-radius: 8px; color: #fff; background: transparent; font-weight: 800; }
+
+    .main { min-width: 0; display: grid; grid-template-rows: auto 1fr; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 14px clamp(18px, 3vw, 30px);
+      border-bottom: 1px solid var(--soft-line);
+      background: rgba(255,255,255,.94);
+      backdrop-filter: blur(14px);
+    }
+    .title-block h1 { margin: 0; color: var(--blue-dark); font-size: clamp(1.28rem, 2vw, 1.78rem); }
+    .title-block p { margin: 4px 0 0; color: var(--muted); font-size: .86rem; }
+    .user-chip { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .avatar { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: linear-gradient(135deg, var(--red), var(--blue)); font-weight: 900; }
+    .user-chip strong, .user-chip span { display: block; }
+    .user-chip strong { font-size: .92rem; }
+    .user-chip span { margin-top: 2px; color: var(--muted); font-size: .78rem; }
+
+    .content {
+      display: grid;
+      grid-template-columns: minmax(300px, 420px) minmax(0, 1fr);
+      gap: 16px;
+      padding: clamp(16px, 2.5vw, 26px);
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--soft-line);
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--soft-line);
+    }
+    .panel-head h2 { margin: 0; color: var(--blue-dark); font-size: 1rem; }
+    .panel-head p { margin: 4px 0 0; color: var(--muted); font-size: .8rem; }
+
+    .notice {
+      margin: 0 0 12px;
+      padding: 11px 13px;
+      border: 1px solid rgba(6,79,131,.18);
+      border-radius: 8px;
+      background: #eef7ff;
+      color: var(--blue-dark);
+      font-size: .84rem;
+      line-height: 1.45;
+    }
+    .notice.ok { border-color: rgba(31,138,102,.28); color: #126247; background: #eefaf5; }
+    .notice.error { border-color: rgba(201,20,72,.26); color: #98113b; background: #fff1f5; }
+    .is-hidden { display: none !important; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 11px;
+      padding: 14px;
+    }
+    .field.full, .divider, .actions { grid-column: 1 / -1; }
+    .divider {
+      margin-top: 3px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      color: #ffffff;
+      background: var(--blue);
+      font-weight: 900;
+      font-size: .8rem;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+    .field label {
+      display: block;
+      margin-bottom: 5px;
+      color: #334155;
+      font-size: .76rem;
+      font-weight: 850;
+    }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      min-height: 39px;
+      border: 1px solid var(--soft-line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 0 10px;
+      color: var(--ink);
+      outline: none;
+      font-size: 15px;
+    }
+    .field textarea { min-height: 70px; padding: 9px 10px; resize: vertical; }
+    .field input[readonly] { background: #f7fafc; color: #475569; font-weight: 800; }
+
+    .primary-btn, .ghost-btn, .danger-btn {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 8px;
+      padding: 0 14px;
+      font-weight: 850;
+      text-decoration: none;
+    }
+    .primary-btn { border: 1px solid var(--blue); color: #fff; background: var(--blue); }
+    .ghost-btn { border: 1px solid var(--soft-line); color: var(--blue); background: #fff; }
+    .danger-btn { border: 1px solid #f0b5c3; color: var(--red); background: #fff5f7; }
+    .primary-btn:disabled, .ghost-btn:disabled { opacity: .65; cursor: not-allowed; }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .preview-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .preview-area { min-width: 0; }
+    .soa-paper-wrap {
+      width: 100%;
+      overflow: auto;
+      padding-bottom: 12px;
+    }
+
+    /* =========================
+       A4 SOA PAPER DESIGN - CONVERGE-STYLE PRINTABLE
+       ========================= */
+    .soa-sheet {
+      position: relative;
+      width: 210mm;
+      height: 297mm;
+      margin: 0 auto;
+      padding: 12mm 14mm 10mm;
+      background: #ffffff;
+      color: #000000;
+      box-shadow: 0 12px 30px rgba(0,0,0,.14);
+      overflow: hidden;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 10px;
+      line-height: 1.15;
+    }
+
+    .soa-sheet, .soa-sheet * {
+      color: #000000;
+    }
+
+    .company-header {
+      display: grid;
+      grid-template-columns: 56mm 1fr;
+      align-items: center;
+      column-gap: 8mm;
+      min-height: 23mm;
+      border: 0;
+      padding: 0 0 1.5mm;
+    }
+
+    .soa-logo-box img {
+      width: 50mm;
+      height: auto;
+      display: block;
+      filter: grayscale(100%);
+    }
+
+    .contact-box {
+      text-align: center;
+      font-size: 8.4px;
+      line-height: 1.15;
+      letter-spacing: .01em;
+    }
+
+    .contact-box strong {
+      display: block;
+      margin-bottom: 1mm;
+      font-size: 10px;
+      line-height: 1.05;
+      text-transform: uppercase;
+    }
+
+    .soa-main-title {
+      margin: 2mm 0 4.5mm;
+      text-align: center;
+      font-size: 18px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .soa-top-grid {
+      display: grid;
+      grid-template-columns: 1.16fr .94fr;
+      border: 1.4px solid #000;
+    }
+
+    .subscriber-box {
+      min-height: 22mm;
+      padding: 2.4mm 4mm;
+      border-right: 1.4px solid #000;
+      font-size: 10.2px;
+      line-height: 1.18;
+      text-transform: uppercase;
+    }
+
+    .subscriber-box strong,
+    .subscriber-box span {
+      display: block;
+      overflow-wrap: anywhere;
+    }
+
+    .subscriber-box .client-name {
+      margin-bottom: .8mm;
+      font-weight: 900;
+    }
+
+    .account-matrix {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .matrix-cell {
+      min-height: 7.4mm;
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      border-bottom: 1.4px solid #000;
+      padding: 1mm;
+      text-align: center;
+      font-size: 9.2px;
+    }
+
+    .matrix-cell:nth-child(odd) {
+      border-right: 1.4px solid #000;
+    }
+
+    .matrix-cell .label {
+      display: block;
+      margin-bottom: .6mm;
+      font-weight: 900;
+      font-size: 8.2px;
+      letter-spacing: .02em;
+    }
+
+    .matrix-cell strong {
+      display: block;
+      min-height: 3mm;
+      font-weight: 400;
+      overflow-wrap: anywhere;
+    }
+
+    .billing-summary-table {
+      width: 100%;
+      margin-top: 1.5mm;
+      border-collapse: collapse;
+      table-layout: fixed;
+      border: 1.4px solid #000;
+      font-size: 9.4px;
+      text-align: center;
+    }
+
+    .billing-summary-table th,
+    .billing-summary-table td {
+      border: 1.4px solid #000;
+      padding: 1.8mm 1mm;
+      vertical-align: middle;
+    }
+
+    .billing-summary-table th {
+      font-weight: 900;
+      font-size: 8.8px;
+      letter-spacing: .02em;
+    }
+
+    .billing-summary-table td {
+      min-height: 9mm;
+    }
+
+    .billing-summary-table .plan-cell {
+      font-size: 8.6px;
+      line-height: 1.18;
+      text-transform: uppercase;
+      overflow-wrap: anywhere;
+    }
+
+    .soa-body-area {
+      position: relative;
+      min-height: 99mm;
+      padding: 6.5mm 10mm 3mm 5mm;
+    }
+
+    .soa-watermark {
+      position: absolute;
+      top: 12mm;
+      right: -7mm;
+      height: 86mm;
+      display: grid;
+      place-items: center;
+      color: rgba(0,0,0,.20) !important;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .soa-charges {
+      width: 138mm;
+      max-width: calc(100% - 16mm);
+      font-size: 9.2px;
+    }
+
+    .charge-title,
+    .total-due-label {
+      margin: 0 0 1.2mm;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .02em;
+    }
+
+    .charge-section {
+      margin-bottom: 4mm;
+    }
+
+    .charge-line {
+      display: grid;
+      grid-template-columns: 1fr 34mm;
+      gap: 4mm;
+      align-items: baseline;
+      min-height: 4.1mm;
+    }
+
+    .charge-line span:first-child {
+      overflow-wrap: anywhere;
+    }
+
+    .charge-line strong {
+      display: block;
+      min-height: 3.4mm;
+      border-bottom: 1.1px solid transparent;
+      text-align: right;
+      font-weight: 400;
+      white-space: nowrap;
+    }
+
+    .charge-line.subtotal strong,
+    .charge-line.total strong {
+      border-top: 1.1px solid #000;
+      padding-top: .8mm;
+      font-weight: 400;
+    }
+
+    .charge-line.total {
+      margin-top: 2.5mm;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .charge-line.total strong {
+      border-top: 1.4px solid #000;
+      font-weight: 900;
+    }
+
+    .important-reminders {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border: 1.4px solid #000;
+    }
+
+    .important-reminders .reminder-head {
+      padding: 1.5mm 4mm;
+      border-bottom: 1.4px solid #000;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+    }
+
+    .important-reminders .reminder-body {
+      min-height: 16mm;
+      padding: 2mm 4mm;
+      font-size: 8.6px;
+      line-height: 1.2;
+      text-align: justify;
+    }
+
+    .cut-line {
+      position: relative;
+      margin: 5.4mm 0 2mm;
+      border-top: 1.2px dashed #000;
+      text-align: center;
+      font-size: 8px;
+      line-height: 1;
+    }
+
+    .cut-line::before {
+      content: "✂";
+      position: absolute;
+      left: -1mm;
+      top: -3.2mm;
+      font-size: 16px;
+      background: #fff;
+      padding-right: 1mm;
+    }
+
+    .cut-line span {
+      position: relative;
+      top: -2mm;
+      display: inline-block;
+      padding: 0 2mm;
+      background: #fff;
+      font-style: italic;
+    }
+
+    .payment-stub {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 14mm;
+      row-gap: 2.5mm;
+      min-height: 38mm;
+      font-size: 9px;
+    }
+
+    .stub-col {
+      display: grid;
+      align-content: start;
+      gap: .8mm;
+    }
+
+    .stub-row {
+      display: grid;
+      grid-template-columns: 28mm 1fr;
+      gap: 1.5mm;
+      align-items: baseline;
+    }
+
+    .stub-row b {
+      font-weight: 900;
+    }
+
+    .barcode-box {
+      grid-column: 1 / -1;
+      width: 82mm;
+      height: 11mm;
+      margin-top: 3mm;
+      background: repeating-linear-gradient(90deg, #000 0 1px, transparent 1px 2px, #000 2px 4px, transparent 4px 7px, #000 7px 8px, transparent 8px 11px);
+    }
+
+    .barcode-number {
+      grid-column: 1 / -1;
+      width: 82mm;
+      margin-top: -1.8mm;
+      text-align: center;
+      font-size: 6.7px;
+      letter-spacing: .04em;
+    }
+
+    .receipt-cut {
+      position: relative;
+      margin: 3.5mm 0 2.5mm;
+      border-top: 1.2px dashed #000;
+    }
+
+    .receipt-cut::after {
+      content: "✂";
+      position: absolute;
+      right: -1mm;
+      top: -3.4mm;
+      font-size: 16px;
+      background: #fff;
+      padding-left: 1mm;
+    }
+
+    .receipt-stub {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 14mm;
+      row-gap: 7mm;
+      font-size: 9px;
+    }
+
+    .receipt-field {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 2mm;
+      align-items: end;
+    }
+
+    .receipt-field.full {
+      grid-column: 1 / -1;
+    }
+
+    .receipt-line {
+      min-height: 8mm;
+      border-bottom: 1.1px solid #000;
+    }
+
+    .receipt-label-under {
+      display: block;
+      margin-top: .8mm;
+      text-align: center;
+      font-size: 6.6px;
+    }
+
+    .banner,
+    .soa-title-strip,
+    .summary-row,
+    .period-reminder-row,
+    .charges-table,
+    .bottom-row,
+    .signature-row,
+    .soa-footer,
+    .box,
+    .amount-box,
+    .payment-img-wrap,
+    .remarks-text,
+    .sig-line,
+    .sig-label {
+      /* Old colored SOA pieces are not used by the new printable layout. */
+    }
+
+    @media (max-width: 1180px) {
+      .app { grid-template-columns: 210px minmax(0, 1fr); }
+      .content { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 820px) {
+      .app { display: block; }
+      .sidebar { position: relative; height: auto; }
+      .nav { grid-template-columns: repeat(2, minmax(0, 1fr)); display: grid; }
+
+      .nav-group {
+        display: grid;
+        grid-column: auto;
+      }
+      .nav-sub {
+        margin-left: 0;
+        padding-left: 0;
+        border-left: 0;
+      }
+      .topbar { position: relative; display: grid; gap: 12px; }
+      .content { padding: 12px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .preview-actions { justify-content: stretch; }
+      .preview-actions button, .actions button { width: 100%; }
+      .soa-paper-wrap { transform-origin: top left; }
+    }
+
+    
+
+    /* ==========================================================
+       ADMIN SAME FORMAT FIX
+       Same sidebar/dropdown/spacing as Application Form, Clients,
+       Tickets, and NAP Checker admin pages.
+       ========================================================== */
+    :root {
+      --blue-strong: var(--blue-dark);
+      --crimson: var(--red);
+      --admin-line: #d9e1ec;
+      --admin-soft: #f5f7fb;
+      --admin-surface: #ffffff;
+      --admin-shadow: 0 10px 28px rgba(14, 34, 55, 0.06);
+    }
+
+    body {
+      background: var(--admin-soft);
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding: 18px;
+      overflow-y: auto;
+      color: #fff;
+      background: linear-gradient(180deg, var(--blue-dark), var(--blue) 58%, #083453);
+    }
+
+    .brand {
+      display: grid;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .brand-logo {
+      display: grid;
+      place-items: center;
+      width: 136px;
+      min-height: 50px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .brand-logo img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .brand strong, .brand span { display: block; }
+    .brand strong { font-size: 0.96rem; }
+    .brand span {
+      margin-top: 4px;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 0.78rem;
+      line-height: 1.35;
+    }
+
+    .nav {
+      display: grid;
+      gap: 6px;
+    }
+
+    .nav a, .nav button, .nav summary {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      min-height: 40px;
+      border: 0;
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.82);
+      background: transparent;
+      padding: 0 12px;
+      text-align: left;
+      text-decoration: none;
+      font-weight: 750;
+      list-style: none;
+      user-select: none;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .nav summary::-webkit-details-marker { display: none; }
+    .nav summary::after {
+      content: "▾";
+      margin-left: auto;
+      font-size: 0.78rem;
+      opacity: 0.72;
+      transition: transform 160ms ease;
+    }
+
+    .nav details:not([open]) summary::after { transform: rotate(-90deg); }
+
+    .nav a:hover,
+    .nav a.is-active,
+    .nav button:hover,
+    .nav summary:hover,
+    .nav details[open] > summary {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .nav-group {
+      display: grid;
+      gap: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 6px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .nav-group summary {
+      min-height: 38px;
+      padding: 0 10px;
+      font-size: 0.82rem;
+      font-weight: 900;
+    }
+
+    .nav-sub {
+      display: grid;
+      gap: 4px;
+      margin: 2px 0 2px 10px;
+      padding-left: 10px;
+      border-left: 1px solid rgba(255, 255, 255, 0.20);
+    }
+
+    .nav-sub a {
+      min-height: 34px;
+      padding: 0 10px;
+      font-size: 0.78rem;
+      font-weight: 780;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      display: grid;
+      gap: 10px;
+    }
+
+    .logout {
+      min-height: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 8px;
+      color: #fff;
+      background: transparent;
+      font-weight: 800;
+    }
+
+    .main {
+      min-width: 0;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 72px;
+      padding: 14px clamp(18px, 3vw, 30px);
+      border-bottom: 1px solid var(--admin-line);
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(14px);
+    }
+
+    .title-block h1 {
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(1.25rem, 2vw, 1.75rem);
+    }
+
+    .title-block p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .avatar {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      color: #fff;
+      background: linear-gradient(135deg, var(--red), var(--blue));
+      font-weight: 900;
+      flex: 0 0 auto;
+    }
+
+    .user-chip strong, .user-chip span { display: block; }
+    .user-chip strong { font-size: 0.92rem; }
+    .user-chip span { margin-top: 2px; color: var(--muted); font-size: 0.78rem; }
+
+    .content {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: minmax(300px, 420px) minmax(0, 1fr);
+      gap: 18px;
+      padding: clamp(18px, 3vw, 30px);
+      align-items: start;
+    }
+
+    .panel {
+      min-width: 0;
+      border: 1px solid var(--admin-line);
+      border-radius: 12px;
+      background: var(--admin-surface);
+      box-shadow: var(--admin-shadow);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 16px;
+      border-bottom: 1px solid var(--admin-line);
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 1rem;
+    }
+
+    .panel-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.4;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      color: #334155;
+      font-size: 0.76rem;
+      font-weight: 850;
+    }
+
+    .field input, .field select, .field textarea {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid var(--admin-line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 0 11px;
+      color: var(--ink);
+      outline: none;
+      font-size: 16px;
+    }
+
+    .field textarea {
+      min-height: 74px;
+      padding: 9px 11px;
+      resize: vertical;
+    }
+
+    .primary-btn, .ghost-btn, .danger-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      border-radius: 8px;
+      padding: 0 14px;
+      font-weight: 850;
+      text-decoration: none;
+    }
+
+    .preview-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .preview-area, .soa-paper-wrap {
+      min-width: 0;
+    }
+
+    .soa-paper-wrap {
+      width: 100%;
+      overflow: auto;
+      padding-bottom: 12px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    @media (min-width: 1280px) {
+      .content {
+        max-width: 1680px;
+        width: 100%;
+        margin: 0 auto;
+      }
+    }
+
+    @media (max-width: 1180px) {
+      .app { grid-template-columns: 210px minmax(0, 1fr); }
+      .sidebar { padding: 14px; }
+      .content {
+        grid-template-columns: 1fr;
+        padding: 18px;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .app { display: block; }
+      .sidebar {
+        position: relative;
+        height: auto;
+        min-height: auto;
+        padding: 12px;
+        gap: 12px;
+      }
+      .brand {
+        grid-template-columns: auto 1fr;
+        align-items: center;
+        gap: 10px;
+        padding-bottom: 10px;
+      }
+      .brand-logo { width: 110px; min-height: 42px; }
+      .nav { grid-template-columns: 1fr !important; }
+      .nav a, .nav button, .logout {
+        min-height: 38px;
+        justify-content: center;
+        padding: 0 8px;
+        font-size: 0.8rem;
+        text-align: center;
+      }
+      .nav summary {
+        min-height: 38px;
+        font-size: 0.8rem;
+      }
+      .nav-sub a {
+        justify-content: flex-start;
+        text-align: left;
+      }
+      .sidebar-footer { margin-top: 0; }
+      .topbar {
+        position: relative;
+        min-height: auto;
+        padding: 14px 16px;
+      }
+      .content { padding: 14px; gap: 14px; }
+      .panel-head { padding: 14px; }
+    }
+
+    @media (max-width: 680px) {
+      body { background: #f2f5f9; }
+      .brand { grid-template-columns: 1fr; }
+      .brand-logo { width: 124px; }
+      .topbar { display: grid; gap: 12px; }
+      .user-chip {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--admin-line);
+        border-radius: 12px;
+        background: #fff;
+      }
+      .form-grid { grid-template-columns: 1fr; }
+      .field.full, .divider, .actions { grid-column: auto; }
+      .actions, .preview-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+      .preview-actions button,
+      .actions button,
+      .primary-btn,
+      .ghost-btn,
+      .danger-btn {
+        width: 100%;
+      }
+      .soa-paper-wrap { overflow: auto; }
+    }
+
+    @media (max-width: 420px) {
+      .content { padding: 10px; }
+      .title-block h1 { font-size: 1.25rem; }
+      .title-block p, .panel-head p { font-size: 0.76rem; }
+    }
+
+
+    /* ==========================================================
+       STANDARD ADMIN SIDEBAR - FINAL FORMAT
+       User-selected standard for all admin pages.
+       ========================================================== */
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr) !important;
+    }
+
+    .sidebar {
+      position: sticky !important;
+      top: 0;
+      height: 100vh !important;
+      display: flex !important;
+      flex-direction: column;
+      gap: 18px !important;
+      padding: 18px !important;
+      overflow-y: auto;
+      color: #fff;
+      background: linear-gradient(180deg, var(--blue-dark), var(--blue) 58%, #083453) !important;
+    }
+
+    .brand {
+      display: grid !important;
+      gap: 12px !important;
+      padding-bottom: 16px !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16) !important;
+    }
+
+    .brand-logo {
+      display: grid !important;
+      place-items: center;
+      width: 124px !important;
+      min-height: 52px !important;
+      padding: 8px 10px !important;
+      border-radius: 7px !important;
+      background: #fff !important;
+    }
+
+    .brand-logo img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .brand strong,
+    .brand span {
+      display: block;
+    }
+
+    .brand strong {
+      font-size: 0.96rem !important;
+      font-weight: 900 !important;
+    }
+
+    .brand span {
+      margin-top: 4px;
+      color: rgba(255, 255, 255, 0.78) !important;
+      font-size: 0.78rem !important;
+      line-height: 1.38 !important;
+    }
+
+    .nav {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 8px !important;
+      width: 100%;
+    }
+
+    .nav a,
+    .nav-toggle {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      width: 100% !important;
+      min-height: 42px !important;
+      border: 0 !important;
+      border-radius: 8px !important;
+      color: rgba(255, 255, 255, 0.92) !important;
+      background: transparent !important;
+      padding: 0 12px !important;
+      text-align: left !important;
+      text-decoration: none !important;
+      font-size: 0.88rem !important;
+      font-weight: 850 !important;
+      cursor: pointer;
+      white-space: normal;
+    }
+
+    .nav a:hover,
+    .nav a.is-active,
+    .nav-toggle:hover,
+    .nav-toggle.is-active {
+      color: #fff !important;
+      background: rgba(255, 255, 255, 0.13) !important;
+    }
+
+    .nav-group {
+      display: grid !important;
+      gap: 6px !important;
+      border: 1px solid rgba(255, 255, 255, 0.14) !important;
+      border-radius: 8px !important;
+      padding: 6px !important;
+      background: rgba(255, 255, 255, 0.06) !important;
+      margin: 0 !important;
+      width: 100% !important;
+    }
+
+    .nav-toggle {
+      min-height: 38px !important;
+      background: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .nav-toggle::after {
+      content: "›";
+      margin-left: auto;
+      font-size: 0.95rem;
+      opacity: 0.75;
+      transform: rotate(0deg);
+    }
+
+    .nav-group.is-open .nav-toggle::after {
+      transform: rotate(90deg);
+    }
+
+    .nav-panel {
+      display: none;
+      gap: 4px;
+      padding: 2px 0 0 10px;
+      margin-left: 6px;
+      border-left: 1px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .nav-group.is-open .nav-panel {
+      display: grid;
+    }
+
+    .nav-panel a {
+      min-height: 34px !important;
+      padding: 0 10px !important;
+      border-radius: 7px !important;
+      font-size: 0.8rem !important;
+      font-weight: 820 !important;
+      line-height: 1.15;
+      white-space: normal;
+    }
+
+    .nav-panel a.is-active {
+      background: rgba(255, 255, 255, 0.19) !important;
+      color: #fff !important;
+    }
+
+    .sidebar-footer {
+      margin-top: auto !important;
+      display: grid !important;
+      gap: 10px !important;
+    }
+
+    .logout {
+      min-height: 40px !important;
+      border: 1px solid rgba(255, 255, 255, 0.28) !important;
+      border-radius: 8px !important;
+      color: #fff !important;
+      background: transparent !important;
+      font-weight: 850 !important;
+      text-align: left !important;
+      padding: 0 12px !important;
+      cursor: pointer;
+    }
+
+    .logout:hover {
+      background: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    .main {
+      min-width: 0;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    @media (max-width: 860px) {
+      .app {
+        display: block !important;
+        grid-template-columns: 1fr !important;
+      }
+
+      .sidebar {
+        position: relative !important;
+        height: auto !important;
+        min-height: auto !important;
+        padding: 12px !important;
+        gap: 12px !important;
+      }
+
+      .brand {
+        grid-template-columns: auto minmax(0, 1fr) !important;
+        align-items: center !important;
+        gap: 10px !important;
+        padding-bottom: 10px !important;
+      }
+
+      .brand-logo {
+        width: 110px !important;
+        min-height: 42px !important;
+      }
+
+      .nav {
+        grid-template-columns: 1fr !important;
+      }
+
+      .nav a,
+      .nav-toggle,
+      .logout {
+        justify-content: flex-start !important;
+        text-align: left !important;
+        min-height: 38px !important;
+        padding: 0 10px !important;
+        font-size: 0.82rem !important;
+      }
+
+      .nav-panel {
+        margin-left: 6px !important;
+        padding-left: 10px !important;
+        border-left: 1px solid rgba(255, 255, 255, 0.22) !important;
+      }
+
+      .sidebar-footer {
+        margin-top: 0 !important;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .brand {
+        grid-template-columns: 1fr !important;
+      }
+
+      .brand-logo {
+        width: 124px !important;
+      }
+    }
+
+
+
+    /* ==========================================================
+       ACKNOWLEDGEMENT RECEIPT - HALF A4 PRINTABLE
+       ========================================================== */
+    .receipt-sheet {
+      width: 210mm;
+      min-height: 100mm;
+      margin: 16px auto 0;
+      padding: 8mm 9mm;
+      background: #fff;
+      color: #000;
+      box-shadow: 0 12px 30px rgba(0,0,0,.14);
+      font-family: Arial, Helvetica, sans-serif;
+      overflow: hidden;
+    }
+
+    .receipt-sheet, .receipt-sheet * { color: #000; }
+
+    .ack-receipt {
+      display: grid;
+      grid-template-columns: 62mm 1fr;
+      gap: 7mm;
+      min-height: 101mm;
+      border-left: 0.5px dashed #777;
+      padding-left: 7mm;
+    }
+
+    .ack-settlement {
+      border: 1.6px solid #000;
+      align-self: start;
+      font-size: 10px;
+    }
+
+    .ack-settlement-title {
+      padding: 2.2mm 1mm;
+      border-bottom: 1.6px solid #000;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .ack-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .ack-table th, .ack-table td {
+      height: 6.3mm;
+      border: 1.25px solid #000;
+      padding: 1mm;
+      vertical-align: middle;
+    }
+
+    .ack-table th {
+      height: 7mm;
+      text-align: center;
+      font-weight: 900;
+    }
+
+    .ack-table td:last-child,
+    .ack-table th:last-child {
+      width: 26mm;
+      text-align: right;
+    }
+
+    .ack-table .ack-total-row td {
+      font-weight: 900;
+      text-align: right;
+    }
+
+    .ack-payment-title {
+      padding: 2mm 1mm;
+      border-top: 1.6px solid #000;
+      border-bottom: 1.6px solid #000;
+      text-align: center;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .ack-payment-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      border-bottom: 1.2px solid #000;
+      text-transform: uppercase;
+    }
+
+    .ack-check {
+      display: flex;
+      align-items: center;
+      gap: 1mm;
+      min-height: 6mm;
+      padding: 1mm;
+      border-right: 1.2px solid #000;
+      font-size: 9px;
+    }
+
+    .ack-check:last-child { border-right: 0; }
+    .ack-box {
+      width: 3mm;
+      height: 3mm;
+      display: inline-grid;
+      place-items: center;
+      border: 1.1px solid #000;
+      font-size: 8px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .ack-payment-grid {
+      display: grid;
+      grid-template-columns: 20mm 1fr;
+    }
+
+    .ack-payment-grid div {
+      min-height: 6.2mm;
+      border-right: 1.2px solid #000;
+      border-bottom: 1.2px solid #000;
+      padding: 1.3mm;
+      overflow-wrap: anywhere;
+    }
+
+    .ack-payment-grid div:nth-child(even) { border-right: 0; }
+    .ack-payment-grid div:nth-last-child(-n+2) { border-bottom: 0; }
+
+    .ack-main { min-width: 0; }
+
+    .ack-header {
+      display: grid;
+      grid-template-columns: 1fr 54mm;
+      gap: 5mm;
+      align-items: start;
+    }
+
+    .ack-logo-row {
+      display: flex;
+      align-items: center;
+      gap: 5mm;
+    }
+
+    .ack-logo-row img {
+      width: 73mm;
+      max-height: 22mm;
+      object-fit: contain;
+      filter: grayscale(100%);
+    }
+
+    .ack-company-contact {
+      text-align: right;
+      font-size: 9px;
+      line-height: 1.35;
+    }
+
+    .ack-title-row {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 8mm;
+      margin-top: 7mm;
+    }
+
+    .ack-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .01em;
+    }
+
+    .ack-number {
+      min-width: 42mm;
+      border: none !important;
+      padding: 1.2mm 2mm;
+      font-size: 10px;
+      text-align: center;
+      font-weight: 900;
+    }
+
+    .ack-body {
+      margin-top: 11mm;
+      display: grid;
+      gap: 4mm;
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .ack-line-row {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1.5mm;
+      align-items: end;
+    }
+
+    .ack-line-row.date-line {
+      grid-template-columns: 1fr auto 50mm;
+    }
+
+    .ack-line {
+      display: inline-block;
+      min-height: 6mm;
+      border-bottom: 1.2px solid #000;
+      padding: 0 1.5mm .5mm;
+      font-weight: 500;
+      overflow-wrap: anywhere;
+    }
+
+    .ack-line.strong { font-weight: 900; }
+    .ack-peso-row { grid-template-columns: 1fr auto 36mm auto; }
+
+    .ack-signatures {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18mm;
+      margin: 9mm 3mm 0;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .ack-sig-line {
+      height: 8mm;
+      border-bottom: 1.8px solid #000;
+    }
+
+    .ack-sig-label { margin-top: 1.2mm; }
+    .ack-received-by { margin-top: -2mm; font-size: 12px; }
+
+    .ack-footer-note {
+      margin-top: 3mm;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    @media print {
+      .receipt-sheet { width: 210mm; min-height: 100mm; margin: 0; box-shadow: none; page-break-before: always; }
+    }
+
+
+@page { size: A4; margin: 0; }
+
+
+    .asset-tools {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin: 0 0 10px;
+      padding: 10px;
+      border: 1px solid #d9e1ec;
+      border-radius: 10px;
+      background: #ffffff;
+      font-size: 12px;
+    }
+    .asset-tools strong {
+      grid-column: 1 / -1;
+      color: #064f83;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .asset-tools label {
+      display: grid;
+      gap: 5px;
+      color: #334155;
+      font-weight: 800;
+    }
+    .asset-tools input {
+      width: 100%;
+      padding: 7px;
+      border: 1px solid #d9e1ec;
+      border-radius: 8px;
+      background: #f8fafc;
+      font-size: 12px;
+    }
+    .asset-note {
+      grid-column: 1 / -1;
+      color: #64748b;
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 780px) {
+      .asset-tools { grid-template-columns: 1fr; }
+    }
+    @media print {
+      body { background: #fff; }
+      .sidebar, .topbar, .control-panel, .preview-actions, .notice { display: none !important; }
+      .app, .main, .content, .preview-area { display: block; padding: 0; margin: 0; }
+      .soa-paper-wrap { overflow: visible; padding: 0; }
+      .soa-sheet { width: 210mm; height: 297mm; margin: 0; box-shadow: none; }
+    }
+
+
+    /* ==========================================================
+       ACKNOWLEDGEMENT RECEIPT - SINGLE FRAME FIT FINAL
+       Keeps the whole ACK receipt inside one clean half-A4 frame.
+       ========================================================== */
+    .receipt-sheet {
+      width: 210mm !important;
+      height: 100mm !important;
+      min-height: 0 !important;
+      padding: 5.5mm 6.5mm !important;
+      overflow: hidden !important;
+    }
+
+    .ack-receipt {
+      height: 95mm !important;
+      min-height: 0 !important;
+      grid-template-columns: 60mm minmax(0, 1fr) !important;
+      gap: 5mm !important;
+      padding-left: 5mm !important;
+      overflow: hidden !important;
+    }
+
+    .ack-settlement { font-size: 8.5px !important; }
+
+    .ack-settlement-title {
+      padding: 1.45mm .8mm !important;
+      font-size: 8.5px !important;
+      line-height: 1.1 !important;
+    }
+
+    .ack-table th,
+    .ack-table td {
+      height: 4.9mm !important;
+      padding: .5mm .7mm !important;
+      font-size: 8.4px !important;
+      line-height: 1.05 !important;
+    }
+
+    .ack-table th { height: 5.4mm !important; }
+
+    .ack-table td:last-child,
+    .ack-table th:last-child {
+      width: 23mm !important;
+    }
+
+    .ack-payment-title {
+      padding: 1.1mm .8mm !important;
+      font-size: 8.5px !important;
+      line-height: 1.05 !important;
+    }
+
+    .ack-check {
+      min-height: 4.6mm !important;
+      padding: .55mm !important;
+      gap: .7mm !important;
+      font-size: 7.8px !important;
+      line-height: 1 !important;
+    }
+
+    .ack-box {
+      width: 2.5mm !important;
+      height: 2.5mm !important;
+      font-size: 7px !important;
+    }
+
+    .ack-payment-grid {
+      grid-template-columns: 17.5mm 1fr !important;
+    }
+
+    .ack-payment-grid div {
+      min-height: 4.65mm !important;
+      padding: .65mm .8mm !important;
+      font-size: 8.1px !important;
+      line-height: 1.08 !important;
+    }
+
+    .ack-header {
+      grid-template-columns: minmax(0, 1fr) 55mm !important;
+      gap: 3mm !important;
+    }
+
+    .ack-logo-row img {
+      width: 66mm !important;
+      max-height: 17mm !important;
+    }
+
+    .ack-company-contact {
+      font-size: 9px !important;
+      line-height: 1.15 !important;
+    }
+
+    .ack-title-row {
+      margin-top: 4mm !important;
+      gap: 4mm !important;
+      align-items: end !important;
+    }
+
+    .ack-title {
+      font-size: 15px !important;
+      line-height: 1 !important;
+      letter-spacing: 0 !important;
+      white-space: nowrap !important;
+    }
+
+    .ack-number {
+      min-width: 37mm !important;
+      padding: .8mm 1.2mm !important;
+      font-size: 8.8px !important;
+      line-height: 1.05 !important;
+    }
+
+    .ack-body {
+      margin-top: 6mm !important;
+      gap: 2.2mm !important;
+      font-size: 12px !important;
+      line-height: 1.18 !important;
+    }
+
+    .ack-line-row { gap: 1mm !important; }
+
+    .ack-line-row.date-line {
+      grid-template-columns: 1fr auto 42mm !important;
+    }
+
+    .ack-line {
+      min-height: 4.6mm !important;
+      padding: 0 1mm .25mm !important;
+      line-height: 1.1 !important;
+    }
+
+    .ack-peso-row {
+      grid-template-columns: 1fr auto 31mm auto !important;
+    }
+
+    .ack-signatures {
+      gap: 14mm !important;
+      margin: 5mm 2mm 0 !important;
+      font-size: 10px !important;
+    }
+
+    .ack-sig-line {
+      height: 5.8mm !important;
+      border-bottom-width: 1.5px !important;
+    }
+
+    .ack-sig-label { margin-top: .7mm !important; }
+    .ack-received-by { margin-top: -1mm !important; font-size: 10px !important; }
+
+    .ack-footer-note {
+      margin-top: 1.8mm !important;
+      font-size: 8.6px !important;
+      line-height: 1.05 !important;
+    }
+
+    @media print {
+      .receipt-sheet {
+        width: 210mm !important;
+        height: 100mm !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        page-break-before: always;
+      }
+    }
+
+  </style>
+  <link rel="stylesheet" href="assets/admin-shell.css">
+</head>
+<body>
+  <main class="app">
+      <aside class="sidebar" data-admin-sidebar>
+    <div class="brand">
+      <div class="brand-logo">
+        <img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH">
+      </div>
+      <div>
+        <strong>TechGeekPH Admin</strong>
+        <span>Admin portal for clients, tickets, attendance, expenses, stock, assets, payroll, SOA, and investor reports.</span>
+      </div>
+    </div>
+
+    <nav class="nav" aria-label="Admin navigation">
+      <a href="dashboard.html">Dashboard</a>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Operations</button>
+        <div class="nav-panel">
+          <a href="application_form.html">Application Form</a>
+          <a href="clients.html">Clients</a>
+          <a href="tickets.html">Tickets</a>
+          <a href="nap-checker.html">NAP Checker</a>
+          <a href="statement_of_account.html">Statement of Account</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Attendance &amp; Expenses</button>
+        <div class="nav-panel">
+          <a href="daily_time_record.html">My Time Record</a>
+          <a href="daily_time_record_admin.html">Admin Time Records</a>
+          <a href="my_expense_request.html">My Expense Request</a>
+          <a href="expense_approval.html">Expense Approval</a>
+          <a href="payslip_generator.html">Payslip Generator</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Stock &amp; Assets</button>
+        <div class="nav-panel">
+          <a href="consumable_stock.html">Consumable Stock</a>
+          <a href="company_assets.html">Company Assets</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Investor</button>
+        <div class="nav-panel">
+          <a href="investor_morwin_gapud.html">Morwin Gapud</a>
+          <a href="investor_marivie_viana_gapud.html">Marivie Viana Gapud</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="logout" type="button" id="logoutBtn">Log out</button>
+    </div>
+  </aside>
+
+    <section class="main">
+      <header class="topbar">
+        <div class="title-block">
+          <h1>SOA &amp; Acknowledgement Receipt</h1>
+          <p>Create monthly SOA and acknowledgement receipt for print, client reminder, or PNG download.</p>
+        </div>
+        <div class="user-chip">
+          <div class="avatar" id="avatar">TG</div>
+          <div>
+            <strong id="userName">TechGeekPH User</strong>
+            <span id="userRole">Portal access</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="panel control-panel">
+          <div class="panel-head">
+            <div>
+              <h2>SOA Details</h2>
+              <p>Select client then generate SOA.</p>
+            </div>
+          </div>
+
+          <form class="form-grid" id="soaForm">
+            <p class="notice is-hidden" id="notice"></p>
+
+            <div class="field full">
+              <label for="clientSelect">Existing Client</label>
+              <select id="clientSelect">
+                <option value="">Loading clients...</option>
+              </select>
+            </div>
+
+            <div class="divider">Subscriber Information</div>
+            <div class="field"><label for="accountNo">Account #</label><input id="accountNo" placeholder="SATR0003"></div>
+            <div class="field"><label for="clientName">Name</label><input id="clientName" placeholder="Client name"></div>
+            <div class="field"><label for="phoneNumber">Phone</label><input id="phoneNumber" placeholder="639xxxxxxxxx"></div>
+            <div class="field"><label for="status">Status</label><select id="status"><option>Unpaid</option><option>Partial</option><option>Paid</option><option>Overdue</option></select></div>
+            <div class="field full"><label for="serviceAddress">Service Address</label><textarea id="serviceAddress" placeholder="Client service address"></textarea></div>
+            <div class="field"><label for="plan">Plan</label><input id="plan" placeholder="Budget Plan"></div>
+            <div class="field"><label for="speed">Speed</label><input id="speed" placeholder="75Mbps"></div>
+            <div class="field"><label for="monthlyBill">Monthly Bill</label><input id="monthlyBill" inputmode="decimal" placeholder="799"></div>
+            <div class="field"><label for="dueDay">Due Day</label><input id="dueDay" inputmode="numeric" value="10"></div>
+
+            <div class="divider">Billing Information</div>
+            <div class="field"><label for="billingMonth">Billing Month</label><input id="billingMonth" type="month"></div>
+            <div class="field"><label for="statementDate">Statement Date</label><input id="statementDate" type="date"></div>
+            <div class="field"><label for="periodFrom">Period From</label><input id="periodFrom" type="date"></div>
+            <div class="field"><label for="periodTo">Period To</label><input id="periodTo" type="date"></div>
+            <div class="field"><label for="dueDate">Due Date</label><input id="dueDate" type="date"></div>
+            <div class="field"><label for="statementNo">SOA #</label><input id="statementNo" placeholder="SOA-YYYYMM-ACCOUNT"></div>
+
+            <div class="divider">Charges / Payment</div>
+            <div class="field"><label for="previousBalance">Previous Balance</label><input id="previousBalance" inputmode="decimal" value="0"></div>
+            <div class="field"><label for="currentBill">Current Monthly Bill</label><input id="currentBill" inputmode="decimal" value="0"></div>
+            <div class="field"><label for="reconnectionFee">Reconnection / Extension Fee</label><input id="reconnectionFee" inputmode="decimal" value="0"></div>
+            <div class="field"><label for="otherCharges">Other Charges</label><input id="otherCharges" inputmode="decimal" value="0"></div>
+            <div class="field"><label for="discount">Discount / Rebate</label><input id="discount" inputmode="decimal" value="0"></div>
+            <div class="field"><label for="amountPaid">Amount Paid</label><input id="amountPaid" inputmode="decimal" value="0"></div>
+            <div class="field"><label for="totalDue">Total Charges</label><input id="totalDue" readonly value="0"></div>
+            <div class="field"><label for="balance">Remaining Balance</label><input id="balance" readonly value="0"></div>
+
+            <div class="divider">Remarks / Authorization</div>
+            <div class="field full">
+              <label for="remarks">Remarks / Payment Instruction</label>
+              <textarea id="remarks">Please settle your account on or before the due date to avoid service interruption. For questions, contact TechGeekPH support.</textarea>
+            </div>
+            <div class="field full">
+              <label for="preparedBy">Prepared By / Authorized Representative</label>
+              <select id="preparedBy">
+                <option>Mark C. De Mesa</option>
+                <option>Kimberly Jill V. De Mesa</option>
+              </select>
+            </div>
+
+            <div class="divider">Acknowledgement Receipt</div>
+            <div class="field"><label for="receiptNo">AR / Receipt #</label><input id="receiptNo" readonly placeholder="AR-YYYYMM-0001"></div>
+            <div class="field"><label for="receiptDate">Receipt Date</label><input id="receiptDate" type="date"></div>
+            <div class="field"><label for="receiptAmount">Amount Received / Reminder Amount</label><input id="receiptAmount" inputmode="decimal" placeholder="Auto from balance"></div>
+            <div class="field"><label for="paymentType">Payment Type</label><select id="paymentType"><option>Full Payment</option><option>Partial Payment</option><option>Advance Payment</option></select></div>
+            <div class="field"><label for="paymentMethod">Form of Payment</label><select id="paymentMethod"><option>Cash</option><option>GCash</option><option>Bank Transfer</option><option>Check</option><option>Others</option></select></div>
+            <div class="field"><label for="paymentReference">Reference / Check No.</label><input id="paymentReference" placeholder="GCash ref, bank ref, or check no."></div>
+            <div class="field"><label for="paymentBank">Bank / Payment Channel</label><input id="paymentBank" placeholder="GCash / BPI / BDO / Cash"></div>
+            <div class="field"><label for="clientEmail">Client Email for Copy</label><input id="clientEmail" type="email" placeholder="client@email.com"></div>
+            <div class="field full"><label for="receiptParticulars">Payment For / Particulars</label><textarea id="receiptParticulars">Monthly internet subscription</textarea></div>
+
+            <div class="actions full">
+              <button class="ghost-btn" type="button" id="newReceiptNoBtn">New AR Number</button>
+              <button class="primary-btn" type="button" id="generateReceiptBtn">Generate Receipt</button>
+            </div>
+
+            <div class="actions full">
+              <button class="primary-btn" type="button" id="generateBtn">Generate SOA</button>
+              <button class="ghost-btn" type="button" id="clearBtn">Clear</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="preview-area">
+          <div class="preview-actions">
+            <button class="ghost-btn" type="button" id="copyMessageBtn">Copy SOA Message</button>
+            <button class="ghost-btn" type="button" id="copyReminderBtn">Copy Client Reminder</button>
+            <button class="ghost-btn" type="button" id="smsReminderBtn">Open SMS Reminder</button>
+            <button class="ghost-btn" type="button" id="emailReminderBtn">Open Email Reminder</button>
+            <button class="ghost-btn" type="button" id="copyReceiptMessageBtn">Copy Receipt Message</button>
+            <button class="ghost-btn" type="button" id="downloadPngBtn">Download SOA as PNG</button>
+            <button class="ghost-btn" type="button" id="downloadReceiptPngBtn">Download Receipt as PNG</button>
+            <button class="primary-btn" type="button" id="printBtn">Print / Save as PDF</button>
+          </div>
+
+          <div class="soa-paper-wrap">
+            <article class="soa-sheet" id="soaSheet">
+              <header class="company-header">
+                <div class="soa-logo-box">
+                  <img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH" data-capture-img data-asset="logo">
+                </div>
+                <div class="contact-box">
+                  <strong>TECHGEEKPH SOLUTIONS &amp; SERVICES INC.</strong>
+                  <div>Lt. 74, Road 4, Purok 1, ABNAI Street</div>
+                  <div>Barangay Santa Ana, Taytay, Rizal</div>
+                  <div>Contact No.: +63 965 075 3950 / +63 993 741 8007</div>
+                  <div>Email: contactus.taytay@gmail.com</div>
+                  <div>Website: https://techgeekph.net</div>
+                </div>
+              </header>
+
+              <h2 class="soa-main-title">Statement of Account</h2>
+
+              <section class="soa-top-grid">
+                <div class="subscriber-box">
+                  <strong class="client-name" id="pvClientName">--</strong>
+                  <span id="pvAddress">--</span>
+                  <span>Contact No.: <b id="pvPhone">--</b></span>
+                </div>
+
+                <div class="account-matrix">
+                  <div class="matrix-cell">
+                    <span class="label">Account Number</span>
+                    <strong id="pvAccountNo">--</strong>
+                  </div>
+                  <div class="matrix-cell">
+                    <span class="label">SOA Number</span>
+                    <strong id="pvStatementNo">--</strong>
+                  </div>
+                  <div class="matrix-cell">
+                    <span class="label">Statement Date</span>
+                    <strong id="pvStatementDate">--</strong>
+                  </div>
+                  <div class="matrix-cell">
+                    <span class="label">Billing Period</span>
+                    <strong id="pvBillingPeriod">--</strong>
+                  </div>
+                </div>
+              </section>
+
+              <table class="billing-summary-table">
+                <thead>
+                  <tr>
+                    <th>Minimum Due</th>
+                    <th>Total Amount</th>
+                    <th>Due Date</th>
+                    <th>Plan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td id="pvMinimumDue">₱ 0.00</td>
+                    <td id="pvTotalAmountDue">₱ 0.00</td>
+                    <td id="pvDueDate">--</td>
+                    <td class="plan-cell" id="pvPlanSpeed">--</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <section class="soa-body-area">
+                <div class="soa-watermark">NOT VALID AS RECEIPT</div>
+
+                <div class="soa-charges">
+                  <div class="charge-section">
+                    <div class="charge-title">Previous Charges:</div>
+                    <div class="charge-line"><span>Previous Bill Balance</span><strong id="pvPreviousBalance">₱ 0.00</strong></div>
+                    <div class="charge-line"><span>Payments received (Thank you)</span><strong id="pvAmountPaid">₱ 0.00</strong></div>
+                    <div class="charge-line"><span>Add Adjustment</span><strong id="pvAddAdjustment">₱ 0.00</strong></div>
+                    <div class="charge-line subtotal"><span>Remaining balance from Previous Bill</span><strong id="pvRemainingFromPrevious">₱ 0.00</strong></div>
+                  </div>
+
+                  <div class="charge-section">
+                    <div class="charge-title">Current Charges:</div>
+                    <div class="charge-line"><span>Monthly Internet Fee <b id="pvCurrentChargeDate">--</b></span><strong id="pvCurrentBill">₱ 0.00</strong></div>
+                    <div class="charge-line"><span>Reconnection / Extension Fee</span><strong id="pvReconnectionFee">₱ 0.00</strong></div>
+                    <div class="charge-line"><span>Other Charges</span><strong id="pvOtherCharges">₱ 0.00</strong></div>
+                    <div class="charge-line"><span>Discount / Rebate</span><strong id="pvDiscount">₱ 0.00</strong></div>
+                    <div class="charge-line subtotal"><span>Total Current Charges</span><strong id="pvTotalCharges">₱ 0.00</strong></div>
+                  </div>
+
+                  <div class="charge-line total"><span class="total-due-label">Total Amount Due:</span><strong id="pvBalance">₱ 0.00</strong></div>
+                </div>
+
+                <div class="important-reminders">
+                  <div class="reminder-head">Important Reminders</div>
+                  <div class="reminder-body" id="pvRemarks">Please settle your account on or before the due date to avoid service interruption. For questions, contact TechGeekPH support.</div>
+                </div>
+              </section>
+
+              <div class="cut-line"><span>Please attach this billing stub when making payments</span></div>
+
+              <section class="payment-stub">
+                <div class="stub-col">
+                  <div class="stub-row"><b>Account number:</b><span id="pvStubAccountNo">--</span></div>
+                  <div class="stub-row"><b>Name:</b><span id="pvStubName">--</span></div>
+                </div>
+                <div class="stub-col">
+                  <div class="stub-row"><b>Due Date:</b><span id="pvStubDueDate">--</span></div>
+                  <div class="stub-row"><b>Total Amount Due:</b><span id="pvStubTotalAmountDue">₱ 0.00</span></div>
+                  <div class="stub-row"><b>SOA number:</b><span id="pvStubStatementNo">--</span></div>
+                  <div class="stub-row"><b>Contact no.:</b><span id="pvStubPhone">--</span></div>
+                </div>
+                <div class="barcode-box" aria-label="barcode"></div>
+                <div class="barcode-number" id="pvBarcodeNumber">--</div>
+              </section>
+
+              <div class="receipt-cut"></div>
+
+              <section class="receipt-stub">
+                <div class="stub-row"><b>SOA number:</b><span id="pvReceiptSoaNo">--</span></div>
+                <div class="stub-row"><b>Due Date:</b><span id="pvReceiptDueDate">--</span></div>
+                <div class="receipt-field full">
+                  <b>Received by:</b>
+                  <span>
+                    <span class="receipt-line"></span>
+                    <span class="receipt-label-under">Signature over Printed Name</span>
+                  </span>
+                </div>
+                <div class="receipt-field full">
+                  <span></span>
+                  <span>
+                    <span class="receipt-line"></span>
+                    <span class="receipt-label-under">Date and Time</span>
+                  </span>
+                </div>
+              </section>
+            </article>
+
+            <article class="receipt-sheet" id="ackReceiptSheet">
+              <section class="ack-receipt">
+                <aside class="ack-settlement">
+                  <div class="ack-settlement-title">In Settlement of the Following:</div>
+                  <table class="ack-table">
+                    <thead><tr><th>Particulars</th><th>Amount</th></tr></thead>
+                    <tbody>
+                      <tr><td>Monthly Internet Fee</td><td id="arMonthlyBill">₱ 0.00</td></tr>
+                      <tr><td>Previous Balance</td><td id="arPreviousBalance">₱ 0.00</td></tr>
+                      <tr><td>Reconnection / Extension Fee</td><td id="arReconnectFee">₱ 0.00</td></tr>
+                      <tr><td>Other Charges</td><td id="arOtherCharges">₱ 0.00</td></tr>
+                      <tr><td>Discount / Rebate</td><td id="arDiscount">₱ 0.00</td></tr>
+                      <tr><td>Amount Paid</td><td id="arAmountPaid">₱ 0.00</td></tr>
+                      <tr><td>Remaining Balance</td><td id="arRemainingBalance">₱ 0.00</td></tr>
+                      <tr><td>Billing Month</td><td id="arBillingMonth">--</td></tr>
+                      <tr class="ack-total-row"><td>Total</td><td id="arReceiptTotal">₱ 0.00</td></tr>
+                    </tbody>
+                  </table>
+
+                  <div class="ack-payment-title">Form of Payment</div>
+                  <div class="ack-payment-options">
+                    <div class="ack-check"><span class="ack-box" id="arCashBox"></span>Cash</div>
+                    <div class="ack-check"><span class="ack-box" id="arCheckBox"></span>Check</div>
+                    <div class="ack-check"><span class="ack-box" id="arOtherBox"></span>Others</div>
+                  </div>
+                  <div class="ack-payment-grid">
+                    <div>Cash</div><div id="arCashValue">--</div>
+                    <div>Check</div><div id="arCheckValue">--</div>
+                    <div>Bank</div><div id="arBankValue">--</div>
+                    <div>Check No.</div><div id="arCheckNoValue">--</div>
+                  </div>
+                </aside>
+
+                <section class="ack-main">
+                  <header class="ack-header">
+                    <div class="ack-logo-row">
+                      <img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH" data-capture-img data-asset="logo">
+                    </div>
+                    <div class="ack-company-contact">
+                      <div>Lt. 74, Road 4, Purok 1,</div>
+                      <div>ABNAI Street Barangay Santa Ana, Taytay Rizal</div>
+                      <div>Contact No.: +63 965 075 3950 / +63 993 741 8007</div>
+                      <div>Email: contactus.taytay@gmail.com</div>
+                      <div>Website: https://techgeekph.net</div>
+                    </div>
+                  </header>
+
+                  <div class="ack-title-row">
+                    <h2 class="ack-title">Acknowledgement Receipt</h2>
+                    <div class="ack-number">AR #: <span id="arReceiptNo">--</span></div>
+                  </div>
+
+                  <div class="ack-body">
+                    <div class="ack-line-row date-line"><span></span><span>Date:</span><span class="ack-line" id="arDate">--</span></div>
+                    <div class="ack-line-row"><span>Received from</span><span class="ack-line strong" id="arReceivedFrom">--</span></div>
+                    <div class="ack-line-row"><span>and address at</span><span class="ack-line" id="arAddress">--</span></div>
+                    <div class="ack-line-row"><span>The sum of</span><span class="ack-line" id="arAmountWords">--</span></div>
+                    <div class="ack-line-row ack-peso-row"><span></span><span>Pesos (₱</span><span class="ack-line strong" id="arAmountNumber">0.00</span><span>)</span></div>
+                    <div class="ack-line-row"><span>in full/partial payment of</span><span class="ack-line" id="arParticulars">--</span></div>
+                  </div>
+
+                  <div class="ack-signatures">
+                    <div>
+                      <div class="ack-sig-line"></div>
+                      <div class="ack-sig-label">Payor’s Signature</div>
+                    </div>
+                    <div>
+                      <div class="ack-received-by">Payment Received by: <strong id="arReceivedBy">--</strong></div>
+                      <div class="ack-sig-line"></div>
+                      <div class="ack-sig-label">Authorized Signature</div>
+                    </div>
+                  </div>
+                  <div class="ack-footer-note">“THIS DOCUMENT IS NOT VALID FOR CLAIMING INPUT TAXES”</div>
+                </section>
+              </section>
+            </article>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxDY5TsonrB58YaN8LGbrrrc_ZD1QVpF1WK0p6jToIR2FBSqGaHfsgaE1CCiH1MvukV/exec";
+    const SESSION_KEY = "techgeekph_admin_session";
+    const LEGACY_SESSION_KEY = "techgeekph_admin_session";
+
+    let clientRecords = [];
+
+    const fields = {
+      notice: document.querySelector("#notice"),
+      avatar: document.querySelector("#avatar"),
+      userName: document.querySelector("#userName"),
+      userRole: document.querySelector("#userRole"),
+      logoutBtn: document.querySelector("#logoutBtn"),
+      clientSelect: document.querySelector("#clientSelect"),
+      accountNo: document.querySelector("#accountNo"),
+      clientName: document.querySelector("#clientName"),
+      phoneNumber: document.querySelector("#phoneNumber"),
+      serviceAddress: document.querySelector("#serviceAddress"),
+      plan: document.querySelector("#plan"),
+      speed: document.querySelector("#speed"),
+      monthlyBill: document.querySelector("#monthlyBill"),
+      dueDay: document.querySelector("#dueDay"),
+      status: document.querySelector("#status"),
+      billingMonth: document.querySelector("#billingMonth"),
+      statementDate: document.querySelector("#statementDate"),
+      periodFrom: document.querySelector("#periodFrom"),
+      periodTo: document.querySelector("#periodTo"),
+      dueDate: document.querySelector("#dueDate"),
+      statementNo: document.querySelector("#statementNo"),
+      previousBalance: document.querySelector("#previousBalance"),
+      currentBill: document.querySelector("#currentBill"),
+      reconnectionFee: document.querySelector("#reconnectionFee"),
+      otherCharges: document.querySelector("#otherCharges"),
+      discount: document.querySelector("#discount"),
+      amountPaid: document.querySelector("#amountPaid"),
+      totalDue: document.querySelector("#totalDue"),
+      balance: document.querySelector("#balance"),
+      remarks: document.querySelector("#remarks"),
+      preparedBy: document.querySelector("#preparedBy"),
+      generateBtn: document.querySelector("#generateBtn"),
+      clearBtn: document.querySelector("#clearBtn"),
+      copyMessageBtn: document.querySelector("#copyMessageBtn"),
+      downloadPngBtn: document.querySelector("#downloadPngBtn"),
+      printBtn: document.querySelector("#printBtn"),
+      soaSheet: document.querySelector("#soaSheet"),
+      logoAssetInput: document.querySelector("#logoAssetInput"),
+      bannerAssetInput: document.querySelector("#bannerAssetInput"),
+      paymentAssetInput: document.querySelector("#paymentAssetInput"),
+      assetStatus: document.querySelector("#assetStatus"),
+      clientEmail: document.querySelector("#clientEmail"),
+      receiptNo: document.querySelector("#receiptNo"),
+      receiptDate: document.querySelector("#receiptDate"),
+      receiptAmount: document.querySelector("#receiptAmount"),
+      receiptParticulars: document.querySelector("#receiptParticulars"),
+      paymentType: document.querySelector("#paymentType"),
+      paymentMethod: document.querySelector("#paymentMethod"),
+      paymentReference: document.querySelector("#paymentReference"),
+      paymentBank: document.querySelector("#paymentBank"),
+      newReceiptNoBtn: document.querySelector("#newReceiptNoBtn"),
+      generateReceiptBtn: document.querySelector("#generateReceiptBtn"),
+      copyReminderBtn: document.querySelector("#copyReminderBtn"),
+      smsReminderBtn: document.querySelector("#smsReminderBtn"),
+      emailReminderBtn: document.querySelector("#emailReminderBtn"),
+      copyReceiptMessageBtn: document.querySelector("#copyReceiptMessageBtn"),
+      downloadReceiptPngBtn: document.querySelector("#downloadReceiptPngBtn"),
+      ackReceiptSheet: document.querySelector("#ackReceiptSheet")
+    };
+
+    function showNotice(message, type) {
+      fields.notice.textContent = message;
+      fields.notice.classList.remove("is-hidden", "ok", "error");
+      if (type === "ok") fields.notice.classList.add("ok");
+      if (type === "error") fields.notice.classList.add("error");
+    }
+
+    function hideNotice() {
+      fields.notice.textContent = "";
+      fields.notice.classList.add("is-hidden");
+      fields.notice.classList.remove("ok", "error");
+    }
+
+
+    const SOA_ASSET_STORAGE = "techgeekph_soa_image_assets_v1";
+
+    function readAssetStore() {
+      try {
+        return JSON.parse(localStorage.getItem(SOA_ASSET_STORAGE) || "{}");
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function writeAssetStore(store) {
+      try {
+        localStorage.setItem(SOA_ASSET_STORAGE, JSON.stringify(store || {}));
+      } catch (error) {
+        if (fields.assetStatus) {
+          fields.assetStatus.textContent = "Image loaded, but browser storage is full. It will still work for this session.";
+        }
+      }
+    }
+
+    function setAssetImage(assetKey, dataUrl) {
+      if (!assetKey || !dataUrl) return;
+
+      document.querySelectorAll('img[data-asset="' + assetKey + '"]').forEach(function(img) {
+        img.src = dataUrl;
+        img.style.display = "block";
+
+        const next = img.nextElementSibling;
+        if (next && next.classList.contains("banner-fallback")) {
+          next.style.display = "none";
+        }
+        if (next && next.classList.contains("remarks-text")) {
+          next.style.display = "none";
+        }
+      });
+    }
+
+    function loadStoredAssets() {
+      const store = readAssetStore();
+      ["logo", "banner", "payment"].forEach(function(key) {
+        if (store[key]) setAssetImage(key, store[key]);
+      });
+    }
+
+    function handleAssetFile(assetKey, input) {
+      const file = input && input.files ? input.files[0] : null;
+      if (!file) return;
+      if (!file.type || file.type.indexOf("image/") !== 0) {
+        alert("Please select an image file only.");
+        input.value = "";
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function() {
+        const dataUrl = reader.result;
+        setAssetImage(assetKey, dataUrl);
+        const store = readAssetStore();
+        store[assetKey] = dataUrl;
+        writeAssetStore(store);
+        if (fields.assetStatus) {
+          fields.assetStatus.textContent = "Loaded " + assetKey + " image. It will now be included in PNG download.";
+        }
+      };
+      reader.onerror = function() {
+        alert("Unable to read selected image.");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function loadSession() {
+      try {
+        const adminSession = JSON.parse(localStorage.getItem(SESSION_KEY) || "{}");
+        if (adminSession && Object.keys(adminSession).length) return adminSession;
+        return JSON.parse(localStorage.getItem(LEGACY_SESSION_KEY) || "{}");
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function getSessionToken() {
+      const session = loadSession();
+      return session.token || session.sessionToken || session.accessToken || "";
+    }
+
+    function initialsFrom(value) {
+      return String(value || "TG")
+        .replace(/@.*/, "")
+        .split(/[.\s_-]+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(part => part[0].toUpperCase())
+        .join("") || "TG";
+    }
+
+    function setUser(session) {
+      const user = session.user || {};
+      const name = user.fullName || user.name || user.email || session.email || "TechGeekPH User";
+      const role = user.role || session.role || "portal";
+      fields.userName.textContent = name;
+      fields.userRole.textContent = String(role).charAt(0).toUpperCase() + String(role).slice(1).toLowerCase() + " access";
+      fields.avatar.textContent = initialsFrom(name);
+    }
+
+    function keyValue(row, names) {
+      for (let i = 0; i < names.length; i += 1) {
+        const key = names[i];
+        if (row && Object.prototype.hasOwnProperty.call(row, key) && row[key] !== null && row[key] !== undefined && String(row[key]).trim() !== "") return row[key];
+      }
+      return "";
+    }
+
+    function normalize(value) { return String(value || "").trim().toLowerCase(); }
+    function moneyNumber(value) { return String(value || "").replace(/[^0-9.-]/g, ""); }
+    function num(value) { const n = Number(moneyNumber(value)); return Number.isFinite(n) ? n : 0; }
+
+    function formatMoney(value) {
+      const n = num(value);
+      return "₱ " + n.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function formatDate(value) {
+      if (!value) return "--";
+      const d = new Date(value + "T00:00:00");
+      if (Number.isNaN(d.getTime())) return String(value || "--");
+      return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    }
+
+    function formatMonth(value) {
+      if (!value) return "--";
+      const d = new Date(value + "-01T00:00:00");
+      if (Number.isNaN(d.getTime())) return String(value || "--");
+      return d.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    }
+
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    }
+
+    async function callBackend(action, payload) {
+      const data = Object.assign({}, payload || {});
+      data.action = action;
+      data.method = action;
+      if (!data.token && !data.sessionToken) data.token = getSessionToken();
+
+      const params = new URLSearchParams();
+      Object.keys(data).forEach(key => {
+        if (data[key] !== undefined && data[key] !== null) params.set(key, data[key]);
+      });
+
+      const response = await fetch(BACKEND_URL + "?" + params.toString(), { method: "GET", redirect: "follow" });
+      const text = await response.text();
+      const type = response.headers.get("content-type") || "";
+      if (type.includes("application/json") || /^[\s\r\n]*[\[{]/.test(text)) return JSON.parse(text);
+      return { ok: false, success: false, message: text.trim() || "Unexpected response from backend." };
+    }
+
+    async function loadClients() {
+      showNotice("Loading clients...");
+      try {
+        const response = await callBackend("listClients", {});
+        if (!response || (!response.ok && !response.success)) {
+          clientRecords = [];
+          fields.clientSelect.innerHTML = '<option value="">Unable to load clients</option>';
+          showNotice((response && response.message) || "Unable to load clients.", "error");
+          return;
+        }
+
+        clientRecords = response.data || response.clients || response.rows || [];
+        fields.clientSelect.innerHTML = '<option value="">Select client</option>' + clientRecords.map((row, index) => {
+          const account = keyValue(row, ["Account No.", "Account Number", "accountNo", "ClientID"]);
+          const name = keyValue(row, ["Client Name", "clientName", "Name"]);
+          return `<option value="${index}">${account || "No Account"} - ${name || "No Name"}</option>`;
+        }).join("");
+        hideNotice();
+      } catch (error) {
+        clientRecords = [];
+        fields.clientSelect.innerHTML = '<option value="">Unable to load clients</option>';
+        showNotice("Unable to load clients. " + (error && error.message ? error.message : ""), "error");
+      }
+    }
+
+    function fillFromClient(row) {
+      fields.accountNo.value = keyValue(row, ["Account No.", "Account Number", "accountNo", "ClientID"]);
+      fields.clientName.value = keyValue(row, ["Client Name", "clientName", "Name"]);
+      fields.phoneNumber.value = keyValue(row, ["Phone Number", "Phone", "Contact Number", "phoneNumber"]);
+      fields.clientEmail.value = keyValue(row, ["Email Address", "Email", "email", "clientEmail"]);
+      fields.serviceAddress.value = keyValue(row, ["Service Address", "Address", "serviceAddress"]);
+      fields.plan.value = keyValue(row, ["Plan", "plan"]);
+      fields.speed.value = keyValue(row, ["Speed", "speed"]);
+      fields.monthlyBill.value = moneyNumber(keyValue(row, ["Monthly Bill", "Bill / Month", "Monthly Fee", "monthlyBill"]));
+      fields.currentBill.value = fields.monthlyBill.value || "0";
+      const due = keyValue(row, ["Due Date", "dueDate"]);
+      if (due) fields.dueDay.value = String(due).replace(/[^0-9]/g, "") || "10";
+      generateStatementNo();
+      updateDates();
+      calculateTotals();
+    }
+
+    function todayISO() {
+      const d = new Date();
+      return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    }
+
+    function currentMonthValue() {
+      const d = new Date();
+      return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+    }
+
+    function monthDate(monthValue, day) {
+      const parts = String(monthValue || currentMonthValue()).split("-");
+      const y = Number(parts[0]);
+      const m = Number(parts[1]) - 1;
+      const last = new Date(y, m + 1, 0).getDate();
+      const safeDay = Math.min(Math.max(Number(day) || 10, 1), last);
+      const d = new Date(y, m, safeDay);
+      return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    }
+
+    function addDays(dateValue, days) {
+      const d = new Date(dateValue + "T00:00:00");
+      d.setDate(d.getDate() + days);
+      return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    }
+
+    function generateStatementNo() {
+      const account = String(fields.accountNo.value || "ACCOUNT").replace(/[^A-Za-z0-9]/g, "").toUpperCase() || "ACCOUNT";
+      const ym = String(fields.billingMonth.value || currentMonthValue()).replace("-", "");
+      fields.statementNo.value = "SOA-" + ym + "-" + account;
+    }
+
+
+    const RECEIPT_SERIES_PREFIX = "techgeekph_ack_receipt_series_";
+
+    function receiptSeriesMonth() {
+      const dateValue = (fields.receiptDate && fields.receiptDate.value) || todayISO();
+      return String(dateValue).slice(0, 7).replace("-", "") || String(currentMonthValue()).replace("-", "");
+    }
+
+    function receiptSeriesKey() {
+      return RECEIPT_SERIES_PREFIX + receiptSeriesMonth();
+    }
+
+    function formatReceiptNo(numberValue) {
+      return "AR-" + receiptSeriesMonth() + "-" + String(numberValue || 1).padStart(4, "0");
+    }
+
+    function getLastReceiptNumber() {
+      const raw = localStorage.getItem(receiptSeriesKey()) || "0";
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function peekNextReceiptNo() {
+      return formatReceiptNo(getLastReceiptNumber() + 1);
+    }
+
+    function parseReceiptNumber(value) {
+      const match = String(value || "").match(/(\d+)$/);
+      return match ? Number(match[1]) : 0;
+    }
+
+    function refreshReceiptNumberPreview() {
+      if (!fields.receiptNo) return;
+      if (fields.receiptNo.dataset.reserved === "true") return;
+      fields.receiptNo.value = peekNextReceiptNo();
+    }
+
+    function reserveReceiptNumber(forceNew) {
+      if (!fields.receiptNo) return "";
+      const last = getLastReceiptNumber();
+      const current = parseReceiptNumber(fields.receiptNo.value);
+      let next = current || (last + 1);
+
+      if (forceNew || fields.receiptNo.dataset.reserved === "true" || next <= last) {
+        next = last + 1;
+      }
+
+      fields.receiptNo.value = formatReceiptNo(next);
+      localStorage.setItem(receiptSeriesKey(), String(next));
+      fields.receiptNo.dataset.reserved = "true";
+      updateReceiptPreview();
+      return fields.receiptNo.value;
+    }
+
+    function numberWordsUnderThousand(n) {
+      const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+      const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+      let parts = [];
+      if (n >= 100) {
+        parts.push(ones[Math.floor(n / 100)] + " Hundred");
+        n %= 100;
+      }
+      if (n >= 20) {
+        parts.push(tens[Math.floor(n / 10)] + (n % 10 ? " " + ones[n % 10] : ""));
+      } else if (n > 0) {
+        parts.push(ones[n]);
+      }
+      return parts.join(" ");
+    }
+
+    function numberToWords(value) {
+      let n = Math.floor(Math.abs(num(value)));
+      if (n === 0) return "Zero";
+      const groups = [
+        { value: 1000000, label: "Million" },
+        { value: 1000, label: "Thousand" },
+        { value: 1, label: "" }
+      ];
+      const words = [];
+      groups.forEach(group => {
+        const count = Math.floor(n / group.value);
+        if (count > 0) {
+          words.push(numberWordsUnderThousand(count) + (group.label ? " " + group.label : ""));
+          n %= group.value;
+        }
+      });
+      return words.join(" ");
+    }
+
+    function amountInWords(value) {
+      const n = num(value);
+      const pesos = Math.floor(Math.abs(n));
+      const cents = Math.round((Math.abs(n) - pesos) * 100);
+      return numberToWords(pesos) + " Pesos" + (cents ? " and " + String(cents).padStart(2, "0") + "/100" : " Only");
+    }
+
+    function receiptAmountValue() {
+      const manual = fields.receiptAmount ? num(fields.receiptAmount.value) : 0;
+      if (manual > 0) return manual;
+      const paid = num(fields.amountPaid.value);
+      if (paid > 0) return paid;
+      const balance = num(fields.balance.value);
+      if (balance > 0) return balance;
+      return num(fields.currentBill.value);
+    }
+
+    function updateReceiptPreview() {
+      if (!fields.ackReceiptSheet) return;
+      const amount = receiptAmountValue();
+      const method = (fields.paymentMethod && fields.paymentMethod.value) || "Cash";
+      const isCash = normalize(method) === "cash";
+      const isCheck = normalize(method) === "check";
+      const isOther = !isCash && !isCheck;
+
+      setText("arReceiptNo", fields.receiptNo.value || "--");
+      setText("arDate", formatDate(fields.receiptDate.value));
+      setText("arReceivedFrom", fields.clientName.value || "--");
+      setText("arAddress", fields.serviceAddress.value || "--");
+      setText("arAmountWords", amountInWords(amount));
+      setText("arAmountNumber", amount.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+      setText("arParticulars", ((fields.paymentType && fields.paymentType.value) || "Full Payment") + " - " + ((fields.receiptParticulars && fields.receiptParticulars.value) || "Monthly internet subscription"));
+      setText("arReceivedBy", fields.preparedBy.value || "Mark C. De Mesa");
+
+      setText("arMonthlyBill", formatMoney(fields.currentBill.value));
+      setText("arPreviousBalance", formatMoney(fields.previousBalance.value));
+      setText("arReconnectFee", formatMoney(fields.reconnectionFee.value));
+      setText("arOtherCharges", formatMoney(fields.otherCharges.value));
+      setText("arDiscount", formatMoney(fields.discount.value));
+      setText("arAmountPaid", formatMoney(fields.amountPaid.value));
+      setText("arRemainingBalance", formatMoney(fields.balance.value));
+      setText("arBillingMonth", formatMonth(fields.billingMonth.value));
+      setText("arReceiptTotal", formatMoney(amount));
+
+      setText("arCashBox", isCash ? "✓" : "");
+      setText("arCheckBox", isCheck ? "✓" : "");
+      setText("arOtherBox", isOther ? "✓" : "");
+      setText("arCashValue", isCash ? formatMoney(amount) : "--");
+      setText("arCheckValue", isCheck ? formatMoney(amount) : "--");
+      setText("arBankValue", (fields.paymentBank && fields.paymentBank.value) || (isCash ? "Cash" : method));
+      setText("arCheckNoValue", (fields.paymentReference && fields.paymentReference.value) || "--");
+    }
+
+    function updateDates() {
+      const dueDay = fields.dueDay.value || "10";
+      const due = monthDate(fields.billingMonth.value, dueDay);
+      fields.dueDate.value = due;
+      fields.periodFrom.value = due;
+      fields.periodTo.value = addDays(due, 29);
+      generateStatementNo();
+      updatePreview();
+    }
+
+    function calculateTotals() {
+      const previous = num(fields.previousBalance.value);
+      const current = num(fields.currentBill.value);
+      const reconnect = num(fields.reconnectionFee.value);
+      const other = num(fields.otherCharges.value);
+      const discount = num(fields.discount.value);
+      const paid = num(fields.amountPaid.value);
+      const total = Math.max(previous + current + reconnect + other - discount, 0);
+      const balance = Math.max(total - paid, 0);
+      fields.totalDue.value = total.toFixed(2);
+      fields.balance.value = balance.toFixed(2);
+      updatePreview();
+    }
+
+    function updatePreview() {
+      setText("pvStatementNo", fields.statementNo.value || "--");
+      setText("pvStatementDate", formatDate(fields.statementDate.value));
+      setText("pvAccountNo", fields.accountNo.value || "--");
+      setText("pvClientName", fields.clientName.value || "--");
+      setText("pvPhone", fields.phoneNumber.value || "--");
+      setText("pvAddress", fields.serviceAddress.value || "--");
+      setText("pvPlanSpeed", [fields.plan.value, fields.speed.value].filter(Boolean).join(" / ") || "--");
+      setText("pvTotalAmountDue", formatMoney(fields.balance.value));
+      setText("pvDueDate", formatDate(fields.dueDate.value));
+      setText("pvStatus", fields.status.value || "Unpaid");
+      setText("pvBillingMonth", formatMonth(fields.billingMonth.value));
+      setText("pvCoverage", (formatDate(fields.periodFrom.value) + " to " + formatDate(fields.periodTo.value)).replace("-- to --", "--"));
+      setText("pvReminder", "Please settle the balance on or before the due date to avoid service interruption.");
+      setText("pvPreviousBalance", formatMoney(fields.previousBalance.value));
+      setText("pvCurrentBill", formatMoney(fields.currentBill.value));
+      setText("pvReconnectionFee", formatMoney(fields.reconnectionFee.value));
+      setText("pvOtherCharges", formatMoney(fields.otherCharges.value));
+      setText("pvDiscount", formatMoney(fields.discount.value));
+      setText("pvTotalCharges", formatMoney(fields.totalDue.value));
+      setText("pvAmountPaid", formatMoney(fields.amountPaid.value));
+      setText("pvBalance", formatMoney(fields.balance.value));
+      setText("pvRemarks", fields.remarks.value || "--");
+      setText("pvPreparedBy", fields.preparedBy.value || "Mark C. De Mesa");
+
+      const previousValue = num(fields.previousBalance.value);
+      const currentValue = num(fields.currentBill.value);
+      const reconnectValue = num(fields.reconnectionFee.value);
+      const otherValue = num(fields.otherCharges.value);
+      const discountValue = num(fields.discount.value);
+      const paidValue = num(fields.amountPaid.value);
+      const adjustmentValue = otherValue - discountValue;
+      const remainingPreviousValue = Math.max(previousValue - paidValue, 0);
+      const dueDateText = formatDate(fields.dueDate.value);
+      const statementText = fields.statementNo.value || "--";
+      const accountText = fields.accountNo.value || "--";
+      const clientText = fields.clientName.value || "--";
+      const phoneText = fields.phoneNumber.value || "--";
+      const amountText = formatMoney(fields.balance.value);
+
+      setText("pvBillingPeriod", formatMonth(fields.billingMonth.value));
+      setText("pvMinimumDue", amountText);
+      setText("pvCurrentChargeDate", formatMonth(fields.billingMonth.value));
+      setText("pvAddAdjustment", formatMoney(adjustmentValue));
+      setText("pvRemainingFromPrevious", formatMoney(remainingPreviousValue));
+      setText("pvStubAccountNo", accountText);
+      setText("pvStubName", clientText);
+      setText("pvStubDueDate", dueDateText);
+      setText("pvStubTotalAmountDue", amountText);
+      setText("pvStubStatementNo", statementText);
+      setText("pvStubPhone", phoneText);
+      setText("pvBarcodeNumber", (accountText + "-" + statementText).replace(/\s+/g, ""));
+      setText("pvReceiptSoaNo", statementText);
+      setText("pvReceiptDueDate", dueDateText);
+      updateReceiptPreview();
+    }
+
+    function setDefaults() {
+      fields.statementDate.value = todayISO();
+      fields.billingMonth.value = currentMonthValue();
+      fields.dueDay.value = "10";
+      fields.status.value = "Unpaid";
+      if (fields.receiptDate) fields.receiptDate.value = todayISO();
+      if (fields.paymentMethod) fields.paymentMethod.value = "Cash";
+      if (fields.paymentType) fields.paymentType.value = "Full Payment";
+      if (fields.receiptParticulars && !fields.receiptParticulars.value) fields.receiptParticulars.value = "Monthly internet subscription";
+      if (fields.receiptNo) {
+        delete fields.receiptNo.dataset.reserved;
+        refreshReceiptNumberPreview();
+      }
+      updateDates();
+      calculateTotals();
+    }
+
+    function clearForm() {
+      document.querySelector("#soaForm").reset();
+      setDefaults();
+      hideNotice();
+    }
+
+    async function copyMessage() {
+      calculateTotals();
+      const message = [
+        "TECHGEEKPH STATEMENT OF ACCOUNT",
+        "Account #: " + (fields.accountNo.value || "-"),
+        "Name: " + (fields.clientName.value || "-"),
+        "Billing Month: " + formatMonth(fields.billingMonth.value),
+        "Due Date: " + formatDate(fields.dueDate.value),
+        "Monthly Bill: " + formatMoney(fields.currentBill.value),
+        "Previous Balance: " + formatMoney(fields.previousBalance.value),
+        "Other Charges: " + formatMoney(num(fields.reconnectionFee.value) + num(fields.otherCharges.value)),
+        "Discount / Rebate: " + formatMoney(fields.discount.value),
+        "Amount Paid: " + formatMoney(fields.amountPaid.value),
+        "Total Amount Due: " + formatMoney(fields.balance.value),
+        "Status: " + (fields.status.value || "Unpaid"),
+        "Please settle on or before the due date to avoid service interruption."
+      ].join("\n");
+
+      try {
+        await navigator.clipboard.writeText(message);
+        showNotice("SOA message copied.", "ok");
+      } catch (error) {
+        showNotice("Unable to copy automatically. Please copy manually.", "error");
+      }
+    }
+
+
+
+    function buildReminderMessage() {
+      calculateTotals();
+      return [
+        "Magandang araw " + (fields.clientName.value || "Ka-TechGeek") + ",",
+        "",
+        "Payment reminder po para sa inyong internet account.",
+        "Account #: " + (fields.accountNo.value || "-"),
+        "Billing Month: " + formatMonth(fields.billingMonth.value),
+        "Due Date: " + formatDate(fields.dueDate.value),
+        "Amount Due: " + formatMoney(fields.balance.value),
+        "",
+        "Kindly settle on or before the due date to avoid service interruption.",
+        "For payment confirmation, please send proof of payment with your Account #.",
+        "",
+        "Thank you,",
+        "TechGeekPH Solutions & Services Inc."
+      ].join("\n");
+    }
+
+    function buildReceiptMessage() {
+      const amount = receiptAmountValue();
+      return [
+        "TECHGEEKPH ACKNOWLEDGEMENT RECEIPT",
+        "AR #: " + (fields.receiptNo.value || "-"),
+        "Date: " + formatDate(fields.receiptDate.value),
+        "Received from: " + (fields.clientName.value || "-"),
+        "Account #: " + (fields.accountNo.value || "-"),
+        "Amount: " + formatMoney(amount),
+        "Payment Type: " + ((fields.paymentType && fields.paymentType.value) || "Full Payment"),
+        "Payment Method: " + ((fields.paymentMethod && fields.paymentMethod.value) || "Cash"),
+        "Reference: " + ((fields.paymentReference && fields.paymentReference.value) || "-"),
+        "Payment For: " + ((fields.receiptParticulars && fields.receiptParticulars.value) || "Monthly internet subscription"),
+        "Received by: " + (fields.preparedBy.value || "Mark C. De Mesa")
+      ].join("\n");
+    }
+
+    async function copyReminderMessage() {
+      const message = buildReminderMessage();
+      try {
+        await navigator.clipboard.writeText(message);
+        showNotice("Client payment reminder copied.", "ok");
+      } catch (error) {
+        showNotice("Unable to copy reminder automatically. Please copy manually.", "error");
+      }
+    }
+
+    async function copyReceiptMessage() {
+      reserveReceiptNumber(false);
+      const message = buildReceiptMessage();
+      try {
+        await navigator.clipboard.writeText(message);
+        showNotice("Acknowledgement receipt message copied.", "ok");
+      } catch (error) {
+        showNotice("Unable to copy receipt message automatically. Please copy manually.", "error");
+      }
+    }
+
+    function normalizePhoneForLink(value) {
+      let phone = String(value || "").replace(/[^0-9+]/g, "");
+      if (/^09\d{9}$/.test(phone)) phone = "+63" + phone.slice(1);
+      if (/^63\d{10}$/.test(phone)) phone = "+" + phone;
+      return phone;
+    }
+
+    function openSmsReminder() {
+      const phone = normalizePhoneForLink(fields.phoneNumber.value);
+      if (!phone) {
+        showNotice("No client phone number found.", "error");
+        return;
+      }
+      const body = encodeURIComponent(buildReminderMessage());
+      window.location.href = "sms:" + encodeURIComponent(phone) + "?&body=" + body;
+    }
+
+    function openEmailReminder() {
+      const email = String((fields.clientEmail && fields.clientEmail.value) || "").trim();
+      if (!email) {
+        showNotice("No client email found. You can still use Copy Client Reminder.", "error");
+        return;
+      }
+      const subject = encodeURIComponent("TechGeekPH Payment Reminder - " + (fields.accountNo.value || "Account"));
+      const body = encodeURIComponent(buildReminderMessage());
+      window.location.href = "mailto:" + encodeURIComponent(email) + "?subject=" + subject + "&body=" + body;
+    }
+
+    function safeFileName(value) {
+      return String(value || "SOA")
+        .replace(/[^A-Za-z0-9_-]+/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "") || "SOA";
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    async function waitForImages(root) {
+      const images = Array.from(root.querySelectorAll("img"));
+      await Promise.all(images.map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      }));
+      if (document.fonts && document.fonts.ready) {
+        try { await document.fonts.ready; } catch (error) {}
+      }
+    }
+
+    function loadScriptOnce(src) {
+      return new Promise((resolve, reject) => {
+        const existing = Array.from(document.scripts).find(script => script.src === src);
+        if (existing && window.html2canvas) {
+          resolve();
+          return;
+        }
+
+        const script = document.createElement("script");
+        script.src = src;
+        script.async = true;
+        script.onload = resolve;
+        script.onerror = () => reject(new Error("Unable to load " + src));
+        document.head.appendChild(script);
+      });
+    }
+
+    async function ensureHtml2Canvas() {
+      if (window.html2canvas) return;
+
+      const sources = [
+        "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js",
+        "https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"
+      ];
+
+      for (const src of sources) {
+        try {
+          await loadScriptOnce(src);
+          if (window.html2canvas) return;
+        } catch (error) {}
+      }
+
+      throw new Error("html2canvas library failed to load. Internet connection may be blocked.");
+    }
+
+    async function srcToDataUrl(src) {
+      if (!src || src.startsWith("data:")) return src;
+
+      const absoluteUrl = new URL(src, window.location.href).href;
+
+      if (absoluteUrl.startsWith("file:")) {
+        throw new Error("Local file image cannot be read directly by the browser. Use the PNG Image Assets file pickers.");
+      }
+
+      const response = await fetch(absoluteUrl, { cache: "force-cache" });
+
+      if (!response.ok) {
+        throw new Error("Unable to read image asset: " + absoluteUrl);
+      }
+
+      const blob = await response.blob();
+      return await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    async function prepareCaptureClone(sourceNode) {
+      const clone = sourceNode.cloneNode(true);
+      const width = sourceNode.offsetWidth || 794;
+      const height = sourceNode.offsetHeight || sourceNode.scrollHeight || 1123;
+
+      clone.id = "soaSheetCaptureClone";
+      clone.querySelectorAll("[id]").forEach((el, index) => {
+        el.id = el.id + "_capture_" + index;
+      });
+
+      clone.style.width = width + "px";
+      clone.style.minHeight = height + "px";
+      clone.style.height = height + "px";
+      clone.style.margin = "0";
+      clone.style.boxShadow = "none";
+      clone.style.transform = "none";
+      clone.style.background = "#ffffff";
+
+      const originalImages = Array.from(sourceNode.querySelectorAll("img"));
+      const cloneImages = Array.from(clone.querySelectorAll("img"));
+      let skippedImages = 0;
+
+      for (let i = 0; i < cloneImages.length; i += 1) {
+        const original = originalImages[i];
+        const img = cloneImages[i];
+        const src = original ? (original.currentSrc || original.src || img.src) : img.src;
+
+        try {
+          const dataUrl = await srcToDataUrl(src);
+          if (dataUrl) {
+            img.removeAttribute("crossorigin");
+            img.src = dataUrl;
+          }
+        } catch (error) {
+          skippedImages += 1;
+          // Keep the original image visible so html2canvas can still try to capture it
+          // when the page is hosted. If this page is opened as file://, use the
+          // PNG Image Assets file pickers so images become safe base64 data URLs.
+        }
+      }
+
+      const wrapper = document.createElement("div");
+      wrapper.id = "soaCaptureWrapper";
+      wrapper.style.cssText = [
+        "position: fixed",
+        "left: -10000px",
+        "top: 0",
+        "width: " + width + "px",
+        "height: " + height + "px",
+        "overflow: hidden",
+        "background: #ffffff",
+        "z-index: -1",
+        "pointer-events: none"
+      ].join(";");
+
+      wrapper.appendChild(clone);
+      document.body.appendChild(wrapper);
+      await waitForImages(clone);
+
+      return { clone, wrapper, width, height, skippedImages };
+    }
+
+    function getDocumentStyles() {
+      let css = "";
+      Array.from(document.styleSheets).forEach(sheet => {
+        try {
+          Array.from(sheet.cssRules || []).forEach(rule => {
+            css += rule.cssText + "\n";
+          });
+        } catch (error) {}
+      });
+      return css;
+    }
+
+    async function downloadPngViaSvgFallback(sourceNode, fileName) {
+      const capture = await prepareCaptureClone(sourceNode);
+
+      try {
+        const styles = getDocumentStyles();
+        const html = new XMLSerializer().serializeToString(capture.clone);
+        const svg = [
+          '<svg xmlns="http://www.w3.org/2000/svg" width="' + capture.width + '" height="' + capture.height + '" viewBox="0 0 ' + capture.width + ' ' + capture.height + '">',
+          '<foreignObject width="100%" height="100%">',
+          '<div xmlns="http://www.w3.org/1999/xhtml">',
+          '<style>' + styles.replace(/<\/style/gi, '<\\/style') + '</style>',
+          html,
+          '</div>',
+          '</foreignObject>',
+          '</svg>'
+        ].join("");
+
+        const svgBlob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+        const svgUrl = URL.createObjectURL(svgBlob);
+
+        const pngBlob = await new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => {
+            try {
+              const scale = 3;
+              const canvas = document.createElement("canvas");
+              canvas.width = Math.round(capture.width * scale);
+              canvas.height = Math.round(capture.height * scale);
+
+              const ctx = canvas.getContext("2d");
+              ctx.fillStyle = "#ffffff";
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+              ctx.setTransform(scale, 0, 0, scale, 0, 0);
+              ctx.drawImage(img, 0, 0, capture.width, capture.height);
+
+              canvas.toBlob(blob => {
+                if (blob) resolve(blob);
+                else reject(new Error("SVG fallback PNG generation failed"));
+              }, "image/png", 1);
+            } catch (error) {
+              reject(error);
+            } finally {
+              URL.revokeObjectURL(svgUrl);
+            }
+          };
+          img.onerror = () => {
+            URL.revokeObjectURL(svgUrl);
+            reject(new Error("SVG fallback image failed to load"));
+          };
+          img.src = svgUrl;
+        });
+
+        downloadBlob(pngBlob, fileName);
+        return capture.skippedImages;
+      } finally {
+        capture.wrapper.remove();
+      }
+    }
+
+    async function downloadSoaAsPng() {
+      calculateTotals();
+
+      const node = fields.soaSheet;
+      const btn = fields.downloadPngBtn;
+      const oldText = btn.textContent;
+      const fileName = safeFileName(fields.statementNo.value || fields.accountNo.value || "SOA") + ".png";
+      let capture = null;
+
+      try {
+        btn.disabled = true;
+        btn.textContent = "Preparing PNG...";
+        await waitForImages(node);
+
+        const missingDataImages = Array.from(node.querySelectorAll("img[data-asset]")).filter(function(img) {
+          return !(img.currentSrc || img.src || "").startsWith("data:");
+        });
+        if (window.location.protocol === "file:" && missingDataImages.length) {
+          showNotice("Logo/banner/payment image may not appear in PNG because this page is opened as local file. Use the PNG Image Assets file pickers above, then click Download again.", "error");
+        }
+
+        btn.textContent = "Loading PNG engine...";
+        await ensureHtml2Canvas();
+
+        btn.textContent = "Generating PNG...";
+        capture = await prepareCaptureClone(node);
+
+        const canvas = await window.html2canvas(capture.clone, {
+          scale: 3,
+          useCORS: true,
+          allowTaint: false,
+          backgroundColor: "#ffffff",
+          logging: false,
+          width: capture.width,
+          height: capture.height,
+          windowWidth: capture.width,
+          windowHeight: capture.height,
+          scrollX: 0,
+          scrollY: 0,
+          imageTimeout: 20000,
+          removeContainer: true
+        });
+
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png", 1));
+        if (!blob) throw new Error("PNG generation failed");
+
+        downloadBlob(blob, fileName);
+        const msg = capture.skippedImages
+          ? "SOA PNG downloaded. Note: some image assets were not readable by the browser, so fallback text may appear."
+          : "SOA PNG image downloaded.";
+        showNotice(msg, "ok");
+
+      } catch (error) {
+        console.error("Primary PNG download failed:", error);
+
+        try {
+          btn.textContent = "Trying fallback PNG...";
+          const skipped = await downloadPngViaSvgFallback(node, fileName);
+          const msg = skipped
+            ? "SOA PNG downloaded using fallback. Some image assets were not readable by this browser."
+            : "SOA PNG image downloaded using fallback.";
+          showNotice(msg, "ok");
+        } catch (fallbackError) {
+          console.error("Fallback PNG download failed:", fallbackError);
+          showNotice(
+            "Unable to download PNG because the browser cannot read one or more image assets. Use the PNG Image Assets file pickers above for Logo, Banner, and Payment Method, then download again.",
+            "error"
+          );
+        }
+      } finally {
+        if (capture && capture.wrapper) capture.wrapper.remove();
+        btn.disabled = false;
+        btn.textContent = oldText || "Download SOA as PNG";
+      }
+    }
+
+
+
+    async function downloadAckReceiptAsPng() {
+      calculateTotals();
+      reserveReceiptNumber(false);
+
+      const node = fields.ackReceiptSheet;
+      const btn = fields.downloadReceiptPngBtn;
+      const oldText = btn.textContent;
+      const fileName = safeFileName(fields.receiptNo.value || fields.accountNo.value || "Acknowledgement-Receipt") + ".png";
+      let capture = null;
+
+      try {
+        btn.disabled = true;
+        btn.textContent = "Preparing PNG...";
+        await waitForImages(node);
+
+        btn.textContent = "Loading PNG engine...";
+        await ensureHtml2Canvas();
+
+        btn.textContent = "Generating PNG...";
+        capture = await prepareCaptureClone(node);
+
+        const canvas = await window.html2canvas(capture.clone, {
+          scale: 3,
+          useCORS: true,
+          allowTaint: false,
+          backgroundColor: "#ffffff",
+          logging: false,
+          width: capture.width,
+          height: capture.height,
+          windowWidth: capture.width,
+          windowHeight: capture.height,
+          scrollX: 0,
+          scrollY: 0,
+          imageTimeout: 20000,
+          removeContainer: true
+        });
+
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png", 1));
+        if (!blob) throw new Error("PNG generation failed");
+
+        downloadBlob(blob, fileName);
+        showNotice("Acknowledgement receipt PNG image downloaded.", "ok");
+      } catch (error) {
+        console.error("Receipt PNG download failed:", error);
+        try {
+          btn.textContent = "Trying fallback PNG...";
+          await downloadPngViaSvgFallback(node, fileName);
+          showNotice("Acknowledgement receipt PNG image downloaded using fallback.", "ok");
+        } catch (fallbackError) {
+          console.error("Receipt fallback PNG download failed:", fallbackError);
+          showNotice("Unable to download receipt PNG. Check if the logo image is accessible, or upload the image asset as base64 using the existing asset picker.", "error");
+        }
+      } finally {
+        if (capture && capture.wrapper) capture.wrapper.remove();
+        btn.disabled = false;
+        btn.textContent = oldText || "Download Receipt as PNG";
+      }
+    }
+
+    fields.clientSelect.addEventListener("change", function() {
+      const index = Number(fields.clientSelect.value);
+      if (Number.isFinite(index) && clientRecords[index]) fillFromClient(clientRecords[index]);
+    });
+
+    [
+      fields.accountNo,
+      fields.clientName,
+      fields.phoneNumber,
+      fields.serviceAddress,
+      fields.status,
+      fields.plan,
+      fields.speed,
+      fields.monthlyBill,
+      fields.statementDate,
+      fields.dueDate,
+      fields.statementNo,
+      fields.periodFrom,
+      fields.periodTo,
+      fields.preparedBy,
+      fields.remarks,
+      fields.clientEmail,
+      fields.receiptNo,
+      fields.receiptDate,
+      fields.receiptAmount,
+      fields.receiptParticulars,
+      fields.paymentType,
+      fields.paymentMethod,
+      fields.paymentReference,
+      fields.paymentBank
+    ].filter(Boolean).forEach(input => {
+      input.addEventListener("input", function() {
+        if (input === fields.accountNo) generateStatementNo();
+        if (input === fields.receiptDate) {
+          delete fields.receiptNo.dataset.reserved;
+          refreshReceiptNumberPreview();
+        }
+        if (input === fields.monthlyBill && (!fields.currentBill.value || Number(fields.currentBill.value) === 0)) fields.currentBill.value = moneyNumber(fields.monthlyBill.value) || 0;
+        calculateTotals();
+      });
+      input.addEventListener("change", calculateTotals);
+    });
+
+    [fields.billingMonth, fields.dueDay].forEach(input => {
+      input.addEventListener("input", updateDates);
+      input.addEventListener("change", updateDates);
+    });
+
+    [fields.previousBalance, fields.currentBill, fields.reconnectionFee, fields.otherCharges, fields.discount, fields.amountPaid].forEach(input => {
+      input.addEventListener("input", calculateTotals);
+      input.addEventListener("change", calculateTotals);
+    });
+
+    fields.generateBtn.addEventListener("click", function() {
+      calculateTotals();
+      showNotice("SOA generated. A4 layout is ready for PNG or PDF.", "ok");
+      document.querySelector(".soa-paper-wrap").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    fields.clearBtn.addEventListener("click", clearForm);
+    fields.printBtn.addEventListener("click", function() { calculateTotals(); window.print(); });
+    fields.downloadPngBtn.addEventListener("click", downloadSoaAsPng);
+    fields.downloadReceiptPngBtn.addEventListener("click", downloadAckReceiptAsPng);
+    fields.copyMessageBtn.addEventListener("click", copyMessage);
+    fields.copyReminderBtn.addEventListener("click", copyReminderMessage);
+    fields.smsReminderBtn.addEventListener("click", openSmsReminder);
+    fields.emailReminderBtn.addEventListener("click", openEmailReminder);
+    fields.copyReceiptMessageBtn.addEventListener("click", copyReceiptMessage);
+    fields.newReceiptNoBtn.addEventListener("click", function() {
+      reserveReceiptNumber(true);
+      showNotice("New acknowledgement receipt number reserved: " + fields.receiptNo.value, "ok");
+    });
+    fields.generateReceiptBtn.addEventListener("click", function() {
+      calculateTotals();
+      reserveReceiptNumber(false);
+      showNotice("Acknowledgement receipt generated. AR number: " + fields.receiptNo.value, "ok");
+      fields.ackReceiptSheet.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    fields.logoutBtn.addEventListener("click", function() {
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(LEGACY_SESSION_KEY);
+      window.location.href = "index.html";
+    });
+
+
+    document.querySelectorAll(".nav-toggle").forEach(function(button) {
+      button.addEventListener("click", function() {
+        const group = button.closest(".nav-group");
+        if (!group) return;
+        group.classList.toggle("is-open");
+      });
+    });
+
+    setUser(loadSession());
+    setDefaults();
+    loadClients();
+  </script>
+  <script src="assets/admin-shell.js"></script>
+</body>
+</html>

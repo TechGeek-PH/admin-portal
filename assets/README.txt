@@ -1,0 +1,1 @@
+Copy your real TechGeekPH assets here, especially: TechGeekPH - logo.png, Banner.png, Payment Method.png, module.css, and module.js if your old pages use them.

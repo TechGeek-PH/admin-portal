@@ -1,0 +1,2009 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TechGeekPH Tickets</title>
+<style>
+    :root {
+      --blue: #064f83;
+      --blue-strong: #023d6b;
+      --crimson: #c91448;
+      --ink: #16202f;
+      --muted: #64748b;
+      --line: #d9e1ec;
+      --soft: #f5f7fb;
+      --surface: #ffffff;
+      --ok: #1f8a66;
+      --warn: #b7791f;
+      --danger: #c91448;
+      --shadow: 0 10px 28px rgba(14, 34, 55, 0.06);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background: var(--soft);
+    }
+
+    button, input, select, textarea { font: inherit; }
+    input, select, textarea, button { font-size: 16px; }
+    button { cursor: pointer; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding: 18px;
+      overflow-y: auto;
+      color: #fff;
+      background: linear-gradient(180deg, var(--blue-strong), var(--blue) 58%, #083453);
+    }
+
+    .brand {
+      display: grid;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .brand-logo {
+      display: grid;
+      place-items: center;
+      width: 136px;
+      min-height: 50px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .brand-logo img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .brand strong, .brand span { display: block; }
+    .brand strong { font-size: 0.96rem; }
+    .brand span {
+      margin-top: 4px;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 0.78rem;
+      line-height: 1.35;
+    }
+
+    .nav {
+      display: grid;
+      gap: 6px;
+    }
+
+    .nav a, .nav button {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      min-height: 40px;
+      border: 0;
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.82);
+      background: transparent;
+      padding: 0 12px;
+      text-align: left;
+      text-decoration: none;
+      font-weight: 750;
+    }
+
+    .nav a:hover, .nav a.is-active, .nav button:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+
+
+    /* Admin dropdown navigation */
+    .nav a, .nav button, .nav summary {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      min-height: 40px;
+      border: 0;
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.82);
+      background: transparent;
+      padding: 0 12px;
+      text-align: left;
+      text-decoration: none;
+      font-weight: 750;
+      list-style: none;
+      user-select: none;
+      gap: 8px;
+    }
+
+    .nav summary::-webkit-details-marker { display: none; }
+    .nav summary::after {
+      content: "▾";
+      margin-left: auto;
+      font-size: 0.78rem;
+      opacity: 0.72;
+      transition: transform 160ms ease;
+    }
+
+    .nav details:not([open]) summary::after { transform: rotate(-90deg); }
+
+    .nav a:hover,
+    .nav a.is-active,
+    .nav button:hover,
+    .nav summary:hover,
+    .nav details[open] > summary {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .nav-group {
+      display: grid;
+      gap: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 6px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .nav-group summary {
+      min-height: 38px;
+      padding: 0 10px;
+      font-size: 0.82rem;
+      font-weight: 900;
+    }
+
+    .nav-sub {
+      display: grid;
+      gap: 4px;
+      margin: 2px 0 2px 10px;
+      padding-left: 10px;
+      border-left: 1px solid rgba(255, 255, 255, 0.20);
+    }
+
+    .nav-sub a {
+      min-height: 34px;
+      padding: 0 10px;
+      font-size: 0.78rem;
+      font-weight: 780;
+    }
+
+    @media (max-width: 920px) {
+      .nav { grid-template-columns: 1fr !important; }
+      .nav-group { width: 100%; }
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      display: grid;
+      gap: 10px;
+    }
+
+    .logout {
+      min-height: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 8px;
+      color: #fff;
+      background: transparent;
+      font-weight: 800;
+    }
+
+    .main {
+      min-width: 0;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 72px;
+      padding: 14px clamp(18px, 3vw, 30px);
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(14px);
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.25rem, 2vw, 1.75rem);
+    }
+
+    .title-block p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .avatar {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      color: #fff;
+      background: linear-gradient(135deg, var(--crimson), var(--blue));
+      font-weight: 900;
+      flex: 0 0 auto;
+    }
+
+    .user-chip strong, .user-chip span { display: block; }
+    .user-chip strong { font-size: 0.92rem; }
+    .user-chip span { margin-top: 2px; color: var(--muted); font-size: 0.78rem; }
+
+    .content {
+      min-width: 0;
+      display: grid;
+      gap: 18px;
+      padding: clamp(18px, 3vw, 30px);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .card, .panel {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .card {
+      min-height: 98px;
+      padding: 16px;
+    }
+
+    .card span, .card strong, .card small { display: block; }
+    .card span { color: var(--muted); font-size: 0.78rem; font-weight: 800; }
+    .card strong { margin-top: 10px; color: var(--blue); font-size: 1.65rem; }
+    .card small { margin-top: 7px; color: #7d8b9d; font-size: 0.72rem; }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .panel-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.4;
+    }
+
+    .notice {
+      margin: 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(183, 121, 31, 0.22);
+      border-radius: 8px;
+      background: #fff8ea;
+      color: #7a4e10;
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    .notice.ok {
+      border-color: rgba(31, 138, 102, 0.28);
+      color: #126247;
+      background: #eefaf5;
+    }
+
+    .notice.error {
+      border-color: rgba(201, 20, 72, 0.26);
+      color: #98113b;
+      background: #fff1f5;
+    }
+
+    .is-hidden { display: none !important; }
+
+    .form-wrap {
+      display: grid;
+      gap: 16px;
+      padding: 16px;
+    }
+
+    .section {
+      border: 1px solid #e5ebf3;
+      border-radius: 12px;
+      background: #fbfdff;
+      overflow: hidden;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid #e5ebf3;
+      background: #ffffff;
+    }
+
+    .section-title h3 {
+      margin: 0;
+      color: var(--blue);
+      font-size: 0.92rem;
+      text-transform: uppercase;
+      letter-spacing: 0.035em;
+    }
+
+    .section-title span {
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      padding: 14px;
+    }
+
+    .field { min-width: 0; }
+    .field.wide { grid-column: span 2; }
+    .field.full { grid-column: 1 / -1; }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      color: #334155;
+      font-size: 0.76rem;
+      font-weight: 850;
+    }
+
+    .field small {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      line-height: 1.35;
+    }
+
+    .file-note {
+      min-height: 22px;
+      overflow-wrap: anywhere;
+    }
+
+    .file-ready {
+      color: var(--ok) !important;
+      font-weight: 800;
+    }
+
+    .field input, .field select, .field textarea {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 0 11px;
+      color: var(--ink);
+      outline: none;
+    }
+
+    .field textarea {
+      min-height: 76px;
+      padding: 9px 11px;
+      resize: vertical;
+    }
+
+    .field input[type="checkbox"] {
+      width: 18px;
+      min-height: 18px;
+      height: 18px;
+      padding: 0;
+    }
+
+    .checkline {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      min-height: 40px;
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .checkline span {
+      color: var(--ink);
+      font-size: 0.86rem;
+      line-height: 1.35;
+    }
+
+    .form-actions {
+      position: sticky;
+      bottom: 0;
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 14px 16px;
+      border-top: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+    }
+
+    .primary-btn, .ghost-btn, .danger-btn, .small-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      border-radius: 8px;
+      padding: 0 14px;
+      font-weight: 850;
+      text-decoration: none;
+    }
+
+    .small-btn {
+      min-height: 32px;
+      padding: 0 10px;
+      font-size: 0.78rem;
+    }
+
+    .primary-btn {
+      border: 1px solid var(--blue);
+      color: #fff;
+      background: var(--blue);
+    }
+
+    .ghost-btn, .small-btn {
+      border: 1px solid var(--line);
+      color: var(--blue);
+      background: #fff;
+    }
+
+    .danger-btn {
+      border: 1px solid #f0b5c3;
+      color: var(--danger);
+      background: #fff5f7;
+    }
+
+    .primary-btn:disabled, .ghost-btn:disabled, .danger-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfdff;
+      flex-wrap: wrap;
+    }
+
+    .search, .filter {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 0 12px;
+      color: var(--ink);
+      outline: none;
+    }
+
+    .search { width: min(100vw - 70px, 420px); }
+
+    .mode-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid #cde4f6;
+      background: #f0f8ff;
+      color: var(--blue);
+      font-size: 0.76rem;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1180px;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+
+    th, td {
+      padding: 12px 13px;
+      border-bottom: 1px solid #edf1f6;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #475569;
+      background: #f9fbfd;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.035em;
+      white-space: nowrap;
+    }
+
+    td { color: #263244; }
+    .address-cell { min-width: 260px; white-space: normal; line-height: 1.35; }
+
+    @media (min-width: 1280px) {
+      .content {
+        max-width: 1680px;
+        width: 100%;
+        margin: 0 auto;
+      }
+    }
+
+    @media (max-width: 1180px) {
+      .app { grid-template-columns: 210px minmax(0, 1fr); }
+      .sidebar { padding: 14px; }
+      .content { padding: 18px; }
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 860px) {
+      .app { display: block; }
+      .sidebar {
+        position: relative;
+        height: auto;
+        min-height: auto;
+        padding: 12px;
+        gap: 12px;
+      }
+      .brand {
+        grid-template-columns: auto 1fr;
+        align-items: center;
+        gap: 10px;
+        padding-bottom: 10px;
+      }
+      .brand-logo { width: 110px; min-height: 42px; }
+      .nav { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+      .nav a, .nav button, .logout {
+        min-height: 38px;
+        justify-content: center;
+        padding: 0 8px;
+        font-size: 0.8rem;
+        text-align: center;
+      }
+      .sidebar-footer { margin-top: 0; }
+      .topbar { position: relative; min-height: auto; padding: 14px 16px; }
+      .content { padding: 14px; gap: 14px; }
+      .panel-head, .toolbar { padding: 14px; }
+    }
+
+    @media (max-width: 680px) {
+      body { background: #f2f5f9; }
+      .brand { grid-template-columns: 1fr; }
+      .brand-logo { width: 124px; }
+      .nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .topbar { display: grid; gap: 12px; }
+      .user-chip {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #fff;
+      }
+      .summary-grid, .form-grid { grid-template-columns: 1fr; }
+      .field.wide, .field.full { grid-column: auto; }
+      .section-title, .panel-head, .toolbar, .form-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+      .search, .filter, .primary-btn, .ghost-btn, .danger-btn, .small-btn { width: 100%; }
+      .form-actions { position: relative; }
+      .card { min-height: auto; }
+      .card strong { font-size: 1.45rem; }
+      .table-wrap { overflow: visible; }
+      table {
+        min-width: 0;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 12px;
+      }
+      thead { display: none; }
+      tbody { display: grid; gap: 12px; }
+      tr {
+        display: grid;
+        gap: 0;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 8px 20px rgba(14, 34, 55, 0.05);
+        overflow: hidden;
+      }
+      td {
+        display: grid;
+        grid-template-columns: 120px minmax(0, 1fr);
+        gap: 10px;
+        align-items: start;
+        width: 100%;
+        padding: 10px 12px;
+        border-bottom: 1px solid #edf1f6;
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+      td:last-child { border-bottom: 0; }
+      td::before {
+        content: attr(data-label);
+        color: var(--muted);
+        font-size: 0.72rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+      td.address-cell { min-width: 0; }
+    }
+
+    @media (max-width: 420px) {
+      .content { padding: 10px; }
+      .nav { grid-template-columns: 1fr; }
+      td { grid-template-columns: 1fr; gap: 5px; }
+      .title-block h1 { font-size: 1.25rem; }
+      .title-block p, .panel-head p { font-size: 0.76rem; }
+    }
+
+    .check-line {
+      display: flex !important;
+      align-items: center;
+      gap: 10px;
+      min-height: 40px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #f8fbff;
+      color: var(--ink) !important;
+      font-size: 0.88rem !important;
+      text-transform: none !important;
+      letter-spacing: 0 !important;
+    }
+
+    .check-line input {
+      width: 18px;
+      min-height: 18px;
+      padding: 0;
+      margin: 0;
+      accent-color: var(--blue);
+    }
+
+    .computed-field input {
+      background: #f8fafc;
+      font-weight: 850;
+      color: var(--blue);
+    }
+
+    .payment-note {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.35;
+    }
+
+
+    .terms-paper {
+      display: grid;
+      gap: 14px;
+      max-height: 520px;
+      overflow: auto;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: inset 0 0 0 1px rgba(6, 79, 131, 0.03);
+      line-height: 1.55;
+    }
+
+    .terms-header {
+      text-align: center;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--blue);
+    }
+
+    .terms-header h2,
+    .terms-header h3 {
+      margin: 0;
+      color: var(--blue-strong);
+    }
+
+    .terms-header h2 {
+      font-size: clamp(1rem, 2vw, 1.3rem);
+      letter-spacing: 0.03em;
+    }
+
+    .terms-header h3 {
+      margin-top: 6px;
+      font-size: 0.95rem;
+      color: var(--crimson);
+    }
+
+    .terms-section {
+      padding: 12px;
+      border: 1px solid #edf1f6;
+      border-radius: 10px;
+      background: #fbfdff;
+      color: #263244;
+      font-size: 0.88rem;
+    }
+
+    .terms-section strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--blue);
+      font-size: 0.9rem;
+    }
+
+    .terms-reminder {
+      margin: 0;
+      padding: 12px;
+      border: 1px solid rgba(201, 20, 72, 0.18);
+      border-radius: 10px;
+      background: #fff5f7;
+      color: #98113b;
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    @media print {
+      .sidebar,
+      .topbar,
+      .summary-grid,
+      .recent-panel,
+      .form-actions,
+      .notice,
+      .no-print {
+        display: none !important;
+      }
+
+      .app,
+      .main,
+      .content {
+        display: block !important;
+        min-height: auto !important;
+        padding: 0 !important;
+        background: #fff !important;
+      }
+
+      .panel,
+      .section,
+      .terms-paper {
+        box-shadow: none !important;
+        border-color: #111827 !important;
+      }
+
+      .terms-paper {
+        max-height: none !important;
+        overflow: visible !important;
+      }
+    }
+
+  
+
+    /* Keep dropdown navigation as one column on tablets/phones */
+    @media (max-width: 920px) {
+      .nav { grid-template-columns: 1fr !important; }
+      .nav-group { width: 100%; }
+      .nav summary { justify-content: flex-start !important; text-align: left !important; }
+      .nav-sub a { justify-content: flex-start !important; text-align: left !important; }
+    }
+
+  
+
+    /* ==========================================================
+       Tickets page adjustments - same sizing/layout as Clients and Application Form
+       ========================================================== */
+    .ticket-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.85fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .workspace,
+    .ticket-forms,
+    .ticket-layout {
+      min-width: 0;
+    }
+
+    .ticket-forms {
+      display: grid;
+      gap: 18px;
+    }
+
+    .client-preview {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border-top: 1px solid var(--line);
+      background: #fbfdff;
+    }
+
+    .client-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .client-info-item {
+      min-height: 58px;
+      border: 1px solid #e6edf5;
+      border-radius: 10px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .client-info-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 0.035em;
+    }
+
+    .client-info-item strong {
+      display: block;
+      margin-top: 5px;
+      color: var(--ink);
+      font-size: 0.86rem;
+      overflow-wrap: anywhere;
+    }
+
+    .mini-toolbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfdff;
+    }
+
+    .ticket-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfdff;
+    }
+
+    .tab-btn {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--blue);
+      font-weight: 850;
+    }
+
+    .tab-btn.is-active {
+      border-color: var(--blue);
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .ticket-panel { display: none; }
+    .ticket-panel.is-active { display: block; }
+
+    .form-actions.stack {
+      justify-content: stretch;
+    }
+
+    .form-actions.stack .primary-btn,
+    .form-actions.stack .ghost-btn {
+      width: 100%;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 25px;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: #eef2f7;
+      color: #64748b;
+      font-size: 0.74rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .status-pill.pending { background: #fff7e8; color: var(--warn); }
+    .status-pill.assigned,
+    .status-pill.ongoing,
+    .status-pill.checking { background: #f0f8ff; color: var(--blue); }
+    .status-pill.done { background: #eefaf5; color: var(--ok); }
+    .status-pill.cancelled { background: #fff1f5; color: var(--danger); }
+
+    .issue-cell {
+      max-width: 320px;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    .ticket-update-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      min-width: 220px;
+    }
+
+    .ticket-update-actions .small-btn {
+      min-height: 30px;
+      padding: 0 9px;
+      font-size: 0.74rem;
+      white-space: nowrap;
+    }
+
+    .small-btn.take-btn { border-color: #cde4f6; background: #f0f8ff; color: var(--blue); }
+    .small-btn.start-btn { border-color: #d8dfea; background: #fff; color: #334155; }
+    .small-btn.check-btn { border-color: #fee6ad; background: #fff8ea; color: #9a5b00; }
+    .small-btn.resolve-btn { border-color: #c8eadb; background: #eefaf5; color: var(--ok); }
+    .small-btn.cancel-btn { border-color: #f0b5c3; background: #fff1f5; color: var(--danger); }
+
+    table {
+      min-width: 1180px;
+    }
+
+    @media (max-width: 1180px) {
+      .ticket-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .client-preview-grid,
+      .mini-toolbar,
+      .ticket-tabs {
+        grid-template-columns: 1fr;
+      }
+
+      .ticket-layout,
+      .ticket-forms {
+        gap: 14px;
+      }
+
+      .ticket-update-actions {
+        min-width: 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        width: 100%;
+      }
+
+      .ticket-update-actions .small-btn {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .ticket-update-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+
+  
+
+    /* ==========================================================
+       STANDARD ADMIN SIDEBAR FORMAT - DO NOT CHANGE PER PAGE
+       ========================================================== */
+    .app {
+      min-height: 100vh !important;
+      display: grid !important;
+      grid-template-columns: 240px minmax(0, 1fr) !important;
+    }
+
+    .sidebar {
+      position: sticky !important;
+      top: 0 !important;
+      height: 100vh !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 18px !important;
+      padding: 18px !important;
+      overflow-y: auto !important;
+      color: #fff !important;
+      background: linear-gradient(180deg, var(--blue-strong), var(--blue) 58%, #083453) !important;
+    }
+
+    .brand {
+      display: grid !important;
+      gap: 12px !important;
+      padding-bottom: 16px !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16) !important;
+    }
+
+    .brand-logo {
+      display: grid !important;
+      place-items: center !important;
+      width: 124px !important;
+      min-height: 52px !important;
+      padding: 8px 10px !important;
+      border-radius: 7px !important;
+      background: #fff !important;
+    }
+
+    .brand-logo img {
+      display: block !important;
+      width: 100% !important;
+      height: auto !important;
+    }
+
+    .brand strong,
+    .brand span {
+      display: block !important;
+    }
+
+    .brand strong {
+      font-size: 0.96rem !important;
+      font-weight: 900 !important;
+    }
+
+    .brand span {
+      margin-top: 4px !important;
+      color: rgba(255, 255, 255, 0.78) !important;
+      font-size: 0.78rem !important;
+      line-height: 1.38 !important;
+    }
+
+    .nav {
+      display: grid !important;
+      gap: 8px !important;
+      width: 100% !important;
+      grid-template-columns: 1fr !important;
+    }
+
+    .nav a,
+    .nav-toggle {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      width: 100% !important;
+      min-height: 42px !important;
+      border: 0 !important;
+      border-radius: 8px !important;
+      color: rgba(255, 255, 255, 0.92) !important;
+      background: transparent !important;
+      padding: 0 12px !important;
+      text-align: left !important;
+      text-decoration: none !important;
+      font-size: 0.88rem !important;
+      font-weight: 850 !important;
+      cursor: pointer !important;
+      line-height: 1.2 !important;
+      white-space: normal !important;
+    }
+
+    .nav a:hover,
+    .nav a.is-active,
+    .nav-toggle:hover,
+    .nav-toggle.is-active {
+      color: #fff !important;
+      background: rgba(255, 255, 255, 0.13) !important;
+    }
+
+    .nav-group {
+      display: grid !important;
+      gap: 6px !important;
+      border: 1px solid rgba(255, 255, 255, 0.14) !important;
+      border-radius: 8px !important;
+      padding: 6px !important;
+      background: rgba(255, 255, 255, 0.06) !important;
+      margin: 0 !important;
+    }
+
+    .nav-toggle {
+      min-height: 38px !important;
+      background: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .nav-toggle::after {
+      content: "›" !important;
+      margin-left: auto !important;
+      font-size: 0.95rem !important;
+      opacity: 0.75 !important;
+      transform: rotate(0deg) !important;
+    }
+
+    .nav-group.is-open .nav-toggle::after {
+      transform: rotate(90deg) !important;
+    }
+
+    .nav-panel {
+      display: none !important;
+      gap: 4px !important;
+      padding: 2px 0 0 10px !important;
+      margin-left: 6px !important;
+      border-left: 1px solid rgba(255, 255, 255, 0.22) !important;
+    }
+
+    .nav-group.is-open .nav-panel {
+      display: grid !important;
+    }
+
+    .nav-panel a {
+      min-height: 34px !important;
+      padding: 0 10px !important;
+      border-radius: 7px !important;
+      font-size: 0.8rem !important;
+      font-weight: 820 !important;
+      line-height: 1.15 !important;
+      white-space: normal !important;
+    }
+
+    .nav-panel a.is-active {
+      background: rgba(255, 255, 255, 0.19) !important;
+      color: #fff !important;
+    }
+
+    .sidebar-footer {
+      margin-top: auto !important;
+      display: grid !important;
+      gap: 10px !important;
+    }
+
+    .logout {
+      min-height: 40px !important;
+      border: 1px solid rgba(255, 255, 255, 0.28) !important;
+      border-radius: 8px !important;
+      color: #fff !important;
+      background: transparent !important;
+      font-weight: 850 !important;
+      text-align: left !important;
+      padding: 0 12px !important;
+      cursor: pointer !important;
+    }
+
+    .logout:hover {
+      background: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    @media (max-width: 860px) {
+      .app {
+        grid-template-columns: 1fr !important;
+        display: grid !important;
+      }
+
+      .sidebar {
+        position: relative !important;
+        height: auto !important;
+        min-height: auto !important;
+      }
+
+      .nav {
+        grid-template-columns: 1fr !important;
+      }
+
+      .nav a,
+      .nav-toggle,
+      .logout {
+        justify-content: flex-start !important;
+        text-align: left !important;
+      }
+    }
+
+  </style>
+  <link rel="stylesheet" href="assets/admin-shell.css">
+</head>
+<body>
+  <main class="app">
+      <aside class="sidebar" data-admin-sidebar>
+    <div class="brand">
+      <div class="brand-logo">
+        <img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH">
+      </div>
+      <div>
+        <strong>TechGeekPH Admin</strong>
+        <span>Admin portal for clients, tickets, attendance, expenses, stock, assets, payroll, SOA, and investor reports.</span>
+      </div>
+    </div>
+
+    <nav class="nav" aria-label="Admin navigation">
+      <a href="dashboard.html">Dashboard</a>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Operations</button>
+        <div class="nav-panel">
+          <a href="application_form.html">Application Form</a>
+          <a href="clients.html">Clients</a>
+          <a href="tickets.html">Tickets</a>
+          <a href="nap-checker.html">NAP Checker</a>
+          <a href="statement_of_account.html">Statement of Account</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Attendance &amp; Expenses</button>
+        <div class="nav-panel">
+          <a href="daily_time_record.html">My Time Record</a>
+          <a href="daily_time_record_admin.html">Admin Time Records</a>
+          <a href="my_expense_request.html">My Expense Request</a>
+          <a href="expense_approval.html">Expense Approval</a>
+          <a href="payslip_generator.html">Payslip Generator</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Stock &amp; Assets</button>
+        <div class="nav-panel">
+          <a href="consumable_stock.html">Consumable Stock</a>
+          <a href="company_assets.html">Company Assets</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Investor</button>
+        <div class="nav-panel">
+          <a href="investor_morwin_gapud.html">Morwin Gapud</a>
+          <a href="investor_marivie_viana_gapud.html">Marivie Viana Gapud</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="logout" type="button" id="logoutBtn">Log out</button>
+    </div>
+  </aside>
+
+    <section class="main">
+      <header class="topbar">
+        <div class="title-block"><h1>Tickets</h1><p>Repair, installation, relocation, and service requests.</p></div>
+        <div class="user-chip"><div class="avatar" id="avatar">TG</div><div><strong id="userName">TechGeekPH User</strong><span id="userRole">Portal access</span></div></div>
+      </header>
+
+      <div class="content">
+        <p class="notice is-hidden" id="notice"></p>
+
+        <div class="summary-grid">
+          <article class="card"><span>Total Tickets</span><strong id="metricTotal">--</strong><small>All ticket records</small></article>
+          <article class="card"><span>Open Work</span><strong id="metricOpen">--</strong><small>Pending, assigned, ongoing</small></article>
+          <article class="card"><span>Done</span><strong id="metricDone">--</strong><small>Completed tickets</small></article>
+          <article class="card"><span>Urgent</span><strong id="metricUrgent">--</strong><small>High priority work</small></article>
+        </div>
+
+        <div class="ticket-layout">
+          <section class="workspace">
+            <section class="panel">
+              <div class="panel-head">
+                <div><h2>Ticket Work Queue</h2><p>New installation and old client concern tickets show in the same list.</p></div>
+                <button class="ghost-btn" type="button" id="refreshBtn">Refresh</button>
+              </div>
+              <div class="toolbar">
+                <input class="search" id="searchInput" placeholder="Search ticket, account, client, tech, issue">
+                <select class="filter" id="statusFilter">
+                  <option value="">All status</option>
+                  <option>Pending</option>
+                  <option>Assigned</option>
+                  <option>On Going</option>
+                  <option>For Checking</option>
+                  <option>Done</option>
+                  <option>Cancelled</option>
+                </select>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Ticket ID</th>
+                      <th>Date Created</th>
+                      <th>Account #</th>
+                      <th>Client</th>
+                      <th>Phone</th>
+                      <th>Ticket Type</th>
+                      <th>Issue / Purpose</th>
+                      <th>Priority</th>
+                      <th>Assigned Tech</th>
+                      <th>Status</th>
+                      <th>Schedule Date</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ticketRows"><tr><td colspan="12">Waiting for ticket data...</td></tr></tbody>
+                </table>
+              </div>
+            </section>
+          </section>
+
+          <aside class="ticket-forms">
+            <section class="panel">
+              <div class="panel-head"><div><h2>Create Ticket</h2><p>Choose ticket type first.</p></div></div>
+              <div class="ticket-tabs">
+                <button class="tab-btn is-active" type="button" data-tab="newInstallPanel">New Installation</button>
+                <button class="tab-btn" type="button" data-tab="oldConcernPanel">Old Client Concern</button>
+              </div>
+
+              <div class="ticket-panel is-active" id="newInstallPanel">
+                <form class="form-grid" id="newInstallForm">
+                  <div class="field"><label for="newAccountNo">Account #</label><input id="newAccountNo" name="clientId" placeholder="Optional / Auto from admin"></div>
+                  <div class="field"><label for="newClientName">Client Name</label><input id="newClientName" name="clientName" placeholder="Juan Dela Cruz" required></div>
+                  <div class="field"><label for="newContactNumber">Phone</label><input id="newContactNumber" name="contactNumber" placeholder="639xxxxxxxxx"></div>
+                  <div class="field"><label for="newRdBlk">RD/BLK</label><input id="newRdBlk" name="rdBlk" placeholder="BLK19"></div>
+                  <div class="field"><label for="newAddress">Service Address</label><textarea id="newAddress" name="address" placeholder="Complete installation address"></textarea></div>
+                  <div class="field"><label for="newMapsLink">Google Maps Link</label><input id="newMapsLink" name="googleMapsLink" placeholder="https://maps.google.com/..."></div>
+                  <div class="field"><label for="newPriority">Priority</label><select id="newPriority" name="priority"><option>Normal</option><option>Low</option><option>High</option><option>Urgent</option></select></div>
+                  <div class="field"><label for="newAssignedTech">Assigned Tech</label><input id="newAssignedTech" name="assignedTech" placeholder="Technician name"></div>
+                  <div class="field"><label for="newScheduleDate">Schedule Date</label><input id="newScheduleDate" name="scheduleDate" type="date"></div>
+                  <div class="field"><label for="newIssue">Installation Notes</label><textarea id="newIssue" name="issuePurpose" placeholder="Plan, landmark, installation instruction, or notes"></textarea></div>
+                  <input type="hidden" name="ticketType" value="Installation">
+                  <input type="hidden" name="status" value="Pending">
+                  <div class="form-actions stack"><button class="primary-btn" type="submit">Save New Installation Ticket</button></div>
+                </form>
+              </div>
+
+              <div class="ticket-panel" id="oldConcernPanel">
+                <div class="mini-toolbar">
+                  <input class="search" id="clientSearchInput" placeholder="Search existing client: account, name, phone, RD/BLK">
+                  <button class="ghost-btn" type="button" id="clearSelectedClientBtn">Clear</button>
+                </div>
+
+                <form class="form-grid" id="oldConcernForm">
+                  <div class="field">
+                    <label for="existingClientSelect">Existing Client</label>
+                    <select id="existingClientSelect" name="existingClient">
+                      <option value="">Select existing client</option>
+                    </select>
+                  </div>
+
+                  <div class="client-preview" id="clientPreview">
+                    <p class="notice">Select existing client para lumabas dito ang Account #, Name, RD/BLK, Phone, Bill / Month, Due Date, Service Address, at Google Maps Link.</p>
+                  </div>
+
+                  <div class="field"><label for="oldTicketType">Ticket Type</label><select id="oldTicketType" name="ticketType"><option>Repair</option><option>No Internet</option><option>Slow Connection</option><option>Relocation</option><option>Change Router</option><option>Fiber Cut</option><option>Payment Concern</option><option>Others</option></select></div>
+                  <div class="field"><label for="oldPriority">Priority</label><select id="oldPriority" name="priority"><option>Normal</option><option>Low</option><option>High</option><option>Urgent</option></select></div>
+                  <div class="field"><label for="oldAssignedTech">Assigned Tech</label><input id="oldAssignedTech" name="assignedTech" placeholder="Technician name"></div>
+                  <div class="field"><label for="oldScheduleDate">Schedule Date</label><input id="oldScheduleDate" name="scheduleDate" type="date"></div>
+                  <div class="field"><label for="oldIssue">Concern / Issue</label><textarea id="oldIssue" name="issuePurpose" placeholder="Describe the client concern" required></textarea></div>
+                  <input type="hidden" name="clientId" id="oldClientId">
+                  <input type="hidden" name="clientName" id="oldClientName">
+                  <input type="hidden" name="contactNumber" id="oldContactNumber">
+                  <input type="hidden" name="address" id="oldAddress">
+                  <input type="hidden" name="status" value="Pending">
+                  <div class="form-actions stack"><button class="primary-btn" type="submit">Save Old Client Concern Ticket</button></div>
+                </form>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head"><div><h2>Workflow</h2><p>Recommended ticket flow</p></div></div>
+              <div class="form-grid"><p class="notice">Pending → Assigned → On Going → For Checking → Done. Use Cancelled only when the request should no longer continue.</p></div>
+            </section>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxDY5TsonrB58YaN8LGbrrrc_ZD1QVpF1WK0p6jToIR2FBSqGaHfsgaE1CCiH1MvukV/exec";
+    const SESSION_KEY = "techgeekph_admin_session";
+    const FALLBACK_SESSION_KEY = "techgeekph_admin_session";
+
+    let tickets = [];
+    let clients = [];
+    let selectedClient = null;
+
+    const fields = {
+      notice: document.querySelector("#notice"),
+      avatar: document.querySelector("#avatar"),
+      userName: document.querySelector("#userName"),
+      userRole: document.querySelector("#userRole"),
+      metricTotal: document.querySelector("#metricTotal"),
+      metricOpen: document.querySelector("#metricOpen"),
+      metricDone: document.querySelector("#metricDone"),
+      metricUrgent: document.querySelector("#metricUrgent"),
+      refreshBtn: document.querySelector("#refreshBtn"),
+      logoutBtn: document.querySelector("#logoutBtn"),
+      ticketRows: document.querySelector("#ticketRows"),
+      searchInput: document.querySelector("#searchInput"),
+      statusFilter: document.querySelector("#statusFilter"),
+      newInstallForm: document.querySelector("#newInstallForm"),
+      oldConcernForm: document.querySelector("#oldConcernForm"),
+      clientSearchInput: document.querySelector("#clientSearchInput"),
+      existingClientSelect: document.querySelector("#existingClientSelect"),
+      clientPreview: document.querySelector("#clientPreview"),
+      clearSelectedClientBtn: document.querySelector("#clearSelectedClientBtn"),
+      oldClientId: document.querySelector("#oldClientId"),
+      oldClientName: document.querySelector("#oldClientName"),
+      oldContactNumber: document.querySelector("#oldContactNumber"),
+      oldAddress: document.querySelector("#oldAddress")
+    };
+
+    function loadSession() {
+      try {
+        return JSON.parse(localStorage.getItem(SESSION_KEY) || localStorage.getItem(FALLBACK_SESSION_KEY) || "{}");
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function getSessionToken() {
+      const session = loadSession();
+      return session.token || session.sessionToken || session.accessToken || "";
+    }
+
+    function initialsFrom(value) {
+      return String(value || "TG")
+        .replace(/@.*/, "")
+        .split(/[.\s_-]+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(function(part) { return part[0].toUpperCase(); })
+        .join("") || "TG";
+    }
+
+    function setUser(session) {
+      const user = session.user || {};
+      const name = user.fullName || user.name || user.email || session.email || "TechGeekPH User";
+      const role = user.role || session.role || "portal";
+      fields.userName.textContent = name;
+      fields.userRole.textContent = String(role).charAt(0).toUpperCase() + String(role).slice(1).toLowerCase() + " access";
+      fields.avatar.textContent = initialsFrom(name);
+    }
+
+    function normalize(value) {
+      return String(value || "").trim().toLowerCase();
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function keyValue(row, keys) {
+      for (let i = 0; i < keys.length; i += 1) {
+        const key = keys[i];
+        if (row && Object.prototype.hasOwnProperty.call(row, key) && String(row[key] || "").trim() !== "") {
+          return row[key];
+        }
+      }
+      return "";
+    }
+
+    function moneyNumber(value) {
+      const cleaned = String(value || "").replace(/[^0-9.-]/g, "");
+      return cleaned ? cleaned : "";
+    }
+
+    function formatMoney(value) {
+      const cleaned = moneyNumber(value);
+      if (!cleaned) return "";
+      const number = Number(cleaned);
+      if (!Number.isFinite(number)) return String(value || "");
+      return "₱ " + number.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function formatMetric(value) {
+      return Number.isFinite(Number(value)) ? Number(value).toLocaleString() : "0";
+    }
+
+    function getTicketId(row) {
+      return keyValue(row, ["TicketID", "ticketId", "Ticket ID"]);
+    }
+
+    function getTicketStatus(row) {
+      return keyValue(row, ["Status", "status"]) || "Pending";
+    }
+
+    function getTicketText(row) {
+      return [
+        keyValue(row, ["TicketID", "ticketId", "Ticket ID"]),
+        keyValue(row, ["ClientID", "clientId", "Account No.", "Account #"]),
+        keyValue(row, ["Client Name", "clientName"]),
+        keyValue(row, ["Contact Number", "contactNumber", "Phone Number", "phone"]),
+        keyValue(row, ["Ticket Type", "ticketType"]),
+        keyValue(row, ["Issue/Purpose", "issuePurpose", "Issue", "Purpose"]),
+        keyValue(row, ["Assigned Tech", "assignedTech"]),
+        keyValue(row, ["Status", "status"])
+      ].join(" ").toLowerCase();
+    }
+
+    function getClientAccountNo(row) {
+      return keyValue(row, ["Account No.", "Account Number", "accountNo", "clientId", "ClientID"]);
+    }
+
+    function getClientName(row) {
+      return keyValue(row, ["Client Name", "clientName", "Name"]);
+    }
+
+    function getClientPhone(row) {
+      return keyValue(row, ["Phone Number", "phoneNumber", "Contact Number", "Phone"]);
+    }
+
+    function getClientAddress(row) {
+      return keyValue(row, ["Service Address", "serviceAddress", "Address"]);
+    }
+
+    function getClientSearchText(row) {
+      return [
+        getClientAccountNo(row),
+        getClientName(row),
+        keyValue(row, ["RD / BLK", "RD/BLK", "rdBlk", "Block/Lot"]),
+        getClientPhone(row),
+        getClientAddress(row)
+      ].join(" ").toLowerCase();
+    }
+
+    async function callBackend(action, payload) {
+      const data = Object.assign({}, payload || {});
+      data.action = action;
+      data.method = action;
+
+      if (!data.token && !data.sessionToken) {
+        data.token = getSessionToken();
+      }
+
+      const params = new URLSearchParams();
+      Object.keys(data).forEach(function(key) {
+        if (data[key] !== undefined && data[key] !== null) {
+          params.set(key, data[key]);
+        }
+      });
+
+      const response = await fetch(BACKEND_URL + "?" + params.toString(), {
+        method: "GET",
+        redirect: "follow"
+      });
+
+      const text = await response.text();
+      const type = response.headers.get("content-type") || "";
+
+      if (type.indexOf("application/json") !== -1 || /^[\s\r\n]*[\[{]/.test(text)) {
+        return JSON.parse(text);
+      }
+
+      if (/<html[\s>]/i.test(text) || /sandboxFrame/i.test(text)) {
+        return {
+          ok: false,
+          success: false,
+          htmlResponse: true,
+          message: "Apps Script returned HTML instead of JSON. Check Web App deployment and access settings."
+        };
+      }
+
+      return {
+        ok: false,
+        success: false,
+        message: text.trim() || "Unexpected response from backend."
+      };
+    }
+
+    function showNotice(message, type) {
+      fields.notice.textContent = message;
+      fields.notice.classList.remove("is-hidden", "ok", "error");
+      if (type === "ok") fields.notice.classList.add("ok");
+      if (type === "error") fields.notice.classList.add("error");
+    }
+
+    function hideNotice() {
+      fields.notice.textContent = "";
+      fields.notice.classList.add("is-hidden");
+      fields.notice.classList.remove("ok", "error");
+    }
+
+    function statusClass(status) {
+      const text = normalize(status).replace(/\s+/g, "");
+      if (text === "pending") return "pending";
+      if (text === "assigned") return "assigned";
+      if (text === "ongoing") return "ongoing";
+      if (text === "forchecking") return "checking";
+      if (text === "done") return "done";
+      if (text === "cancelled" || text === "canceled") return "cancelled";
+      return "";
+    }
+
+    function setMetrics() {
+      const openStatuses = ["pending", "assigned", "on going", "ongoing", "for checking"];
+      fields.metricTotal.textContent = formatMetric(tickets.length);
+      fields.metricOpen.textContent = formatMetric(tickets.filter(function(row) {
+        return openStatuses.indexOf(normalize(getTicketStatus(row))) !== -1;
+      }).length);
+      fields.metricDone.textContent = formatMetric(tickets.filter(function(row) {
+        return normalize(getTicketStatus(row)) === "done";
+      }).length);
+      fields.metricUrgent.textContent = formatMetric(tickets.filter(function(row) {
+        const p = normalize(keyValue(row, ["Priority", "priority"]));
+        return p === "urgent" || p === "high";
+      }).length);
+    }
+
+    function filteredTickets() {
+      const query = normalize(fields.searchInput.value);
+      const status = normalize(fields.statusFilter.value);
+      return tickets.filter(function(row) {
+        const matchesQuery = !query || getTicketText(row).indexOf(query) !== -1;
+        const matchesStatus = !status || normalize(getTicketStatus(row)) === status;
+        return matchesQuery && matchesStatus;
+      });
+    }
+
+    function actionButton(label, action, ticketId, extraClass) {
+      return '<button class="small-btn ' + escapeHtml(extraClass || "") + '" type="button" data-ticket-action="' + escapeHtml(action) + '" data-ticket-id="' + escapeHtml(ticketId) + '">' + escapeHtml(label) + '</button>';
+    }
+
+    function ticketActionButtons(row) {
+      const ticketId = getTicketId(row);
+      const statusRaw = getTicketStatus(row);
+      const status = normalize(statusRaw);
+
+      if (!ticketId) return "-";
+      if (status === "done") return '<span class="status-pill done">Resolved</span>';
+      if (status === "cancelled" || status === "canceled") return '<span class="status-pill cancelled">Cancelled</span>';
+
+      const buttons = [];
+
+      if (!status || status === "pending") {
+        buttons.push(actionButton("Take", "takeTicket", ticketId, "take-btn"));
+      }
+
+      if (status === "assigned") {
+        buttons.push(actionButton("Start", "startTicket", ticketId, "start-btn"));
+      }
+
+      if (status === "on going" || status === "ongoing") {
+        buttons.push(actionButton("For Checking", "forCheckingTicket", ticketId, "check-btn"));
+        buttons.push(actionButton("Resolve", "resolveTicket", ticketId, "resolve-btn"));
+      }
+
+      if (status === "for checking") {
+        buttons.push(actionButton("Resolve", "resolveTicket", ticketId, "resolve-btn"));
+      }
+
+      buttons.push(actionButton("Cancel", "cancelTicket", ticketId, "cancel-btn"));
+
+      return '<div class="ticket-update-actions">' + buttons.join("") + '</div>';
+    }
+
+    function renderTickets() {
+      setMetrics();
+      const rows = filteredTickets();
+
+      if (!rows.length) {
+        fields.ticketRows.innerHTML = '<tr><td data-label="Status" colspan="12">No tickets found.</td></tr>';
+        return;
+      }
+
+      fields.ticketRows.innerHTML = rows.map(function(row) {
+        const status = getTicketStatus(row);
+        const accountNo = keyValue(row, ["ClientID", "clientId", "Account No.", "Account #"]);
+        const phone = keyValue(row, ["Contact Number", "contactNumber", "Phone Number", "phone"]);
+        return "<tr>" +
+          '<td data-label="Ticket ID">' + escapeHtml(getTicketId(row)) + "</td>" +
+          '<td data-label="Date Created">' + escapeHtml(keyValue(row, ["Date Created", "dateCreated"])) + "</td>" +
+          '<td data-label="Account #">' + escapeHtml(accountNo) + "</td>" +
+          '<td data-label="Client">' + escapeHtml(keyValue(row, ["Client Name", "clientName"])) + "</td>" +
+          '<td data-label="Phone">' + escapeHtml(phone) + "</td>" +
+          '<td data-label="Ticket Type">' + escapeHtml(keyValue(row, ["Ticket Type", "ticketType"])) + "</td>" +
+          '<td data-label="Issue / Purpose" class="issue-cell">' + escapeHtml(keyValue(row, ["Issue/Purpose", "issuePurpose", "Issue", "Purpose"])) + "</td>" +
+          '<td data-label="Priority">' + escapeHtml(keyValue(row, ["Priority", "priority"])) + "</td>" +
+          '<td data-label="Assigned Tech">' + escapeHtml(keyValue(row, ["Assigned Tech", "assignedTech"])) + "</td>" +
+          '<td data-label="Status"><span class="status-pill ' + statusClass(status) + '">' + escapeHtml(status) + "</span></td>" +
+          '<td data-label="Schedule Date">' + escapeHtml(keyValue(row, ["Schedule Date", "scheduleDate"])) + "</td>" +
+          '<td data-label="Action">' + ticketActionButtons(row) + "</td>" +
+        "</tr>";
+      }).join("");
+    }
+
+    function renderClientOptions() {
+      const query = normalize(fields.clientSearchInput.value);
+      const currentValue = fields.existingClientSelect.value;
+      const filtered = clients.filter(function(row) {
+        return !query || getClientSearchText(row).indexOf(query) !== -1;
+      }).slice(0, 250);
+
+      fields.existingClientSelect.innerHTML = '<option value="">Select existing client</option>' + filtered.map(function(row) {
+        const accountNo = getClientAccountNo(row);
+        const name = getClientName(row);
+        const rdBlk = keyValue(row, ["RD / BLK", "RD/BLK", "rdBlk", "Block/Lot"]);
+        const phone = getClientPhone(row);
+        return '<option value="' + escapeHtml(accountNo) + '">' + escapeHtml(accountNo + " - " + name + (rdBlk ? " - " + rdBlk : "") + (phone ? " - " + phone : "")) + '</option>';
+      }).join("");
+
+      if (currentValue) fields.existingClientSelect.value = currentValue;
+    }
+
+    function setSelectedClient(row) {
+      selectedClient = row || null;
+
+      if (!selectedClient) {
+        fields.oldClientId.value = "";
+        fields.oldClientName.value = "";
+        fields.oldContactNumber.value = "";
+        fields.oldAddress.value = "";
+        fields.clientPreview.innerHTML = '<p class="notice">Select existing client para lumabas dito ang Account #, Name, RD/BLK, Phone, Bill / Month, Due Date, Service Address, at Google Maps Link.</p>';
+        return;
+      }
+
+      const accountNo = getClientAccountNo(selectedClient);
+      const name = getClientName(selectedClient);
+      const rdBlk = keyValue(selectedClient, ["RD / BLK", "RD/BLK", "rdBlk", "Block/Lot"]);
+      const phone = getClientPhone(selectedClient);
+      const bill = keyValue(selectedClient, ["Monthly Bill", "monthlyBill", "Monthly Fee", "Bill / Month"]);
+      const due = keyValue(selectedClient, ["Due Date", "dueDate"]);
+      const address = getClientAddress(selectedClient);
+      const maps = keyValue(selectedClient, ["Google Maps Link", "googleMapsLink", "Maps Link"]);
+
+      fields.oldClientId.value = accountNo;
+      fields.oldClientName.value = name;
+      fields.oldContactNumber.value = phone;
+      fields.oldAddress.value = address;
+
+      fields.clientPreview.innerHTML = '<div class="client-preview-grid">' +
+        clientInfoItem("Account #", accountNo) +
+        clientInfoItem("Name", name) +
+        clientInfoItem("RD/BLK", rdBlk) +
+        clientInfoItem("Phone", phone) +
+        clientInfoItem("Bill / Month", formatMoney(bill)) +
+        clientInfoItem("Due Date", due) +
+        clientInfoItem("Service Address", address) +
+        clientInfoItem("Google Maps Link", maps ? '<a href="' + escapeHtml(maps) + '" target="_blank" rel="noopener">Open Maps</a>' : "") +
+      '</div>';
+    }
+
+    function clientInfoItem(label, value) {
+      return '<div class="client-info-item"><span>' + escapeHtml(label) + '</span><strong>' + (String(value || "").indexOf("<a ") === 0 ? value : escapeHtml(value || "-")) + '</strong></div>';
+    }
+
+    async function loadTickets() {
+      showNotice("Loading ticket records...");
+      try {
+        const response = await callBackend("listTickets", {});
+        if (!response || (!response.ok && !response.success)) {
+          tickets = [];
+          renderTickets();
+          showNotice((response && response.message) || "Unable to load tickets. Please login again or check backend deployment.", "error");
+          return;
+        }
+
+        tickets = response.data || response.tickets || response.rows || [];
+        hideNotice();
+        renderTickets();
+      } catch (error) {
+        tickets = [];
+        renderTickets();
+        showNotice("Unable to load tickets. " + (error && error.message ? error.message : ""), "error");
+      }
+    }
+
+    async function loadClients() {
+      try {
+        const response = await callBackend("listClients", {});
+        if (!response || (!response.ok && !response.success)) {
+          clients = [];
+          renderClientOptions();
+          return;
+        }
+        clients = response.data || response.clients || response.rows || [];
+        renderClientOptions();
+      } catch (error) {
+        clients = [];
+        renderClientOptions();
+      }
+    }
+
+    function formPayload(form) {
+      const data = {};
+      new FormData(form).forEach(function(value, key) {
+        data[key] = value;
+      });
+
+      if (!data.status) data.status = "Pending";
+      if (!data.priority) data.priority = "Normal";
+      if (!data.ticketType) data.ticketType = "Repair";
+
+      const session = loadSession();
+      const user = session.user || {};
+      data.createdBy = user.fullName || user.name || user.email || session.email || "Portal User";
+
+      return data;
+    }
+
+    async function submitTicket(form, successMessage) {
+      const submitBtn = form.querySelector("button[type='submit']");
+      const oldText = submitBtn ? submitBtn.textContent : "";
+      const data = formPayload(form);
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Saving...";
+      }
+
+      showNotice("Saving ticket to Tickets sheet...");
+
+      try {
+        const response = await callBackend("saveTicket", data);
+        if (response && (response.ok || response.success)) {
+          showNotice(successMessage || "Ticket saved.", "ok");
+          form.reset();
+          setSelectedClient(null);
+          await loadTickets();
+        } else {
+          showNotice((response && response.message) || "Unable to save ticket.", "error");
+        }
+      } catch (error) {
+        showNotice("Unable to save ticket. " + (error && error.message ? error.message : ""), "error");
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = oldText;
+        }
+      }
+    }
+
+    async function updateTicketAction(action, ticketId) {
+      if (!ticketId) {
+        showNotice("Ticket ID is missing.", "error");
+        return;
+      }
+
+      const actionNames = {
+        takeTicket: "take this ticket",
+        startTicket: "start this ticket",
+        forCheckingTicket: "mark this ticket for checking",
+        resolveTicket: "resolve this ticket",
+        cancelTicket: "cancel this ticket"
+      };
+
+      if (!confirm("Proceed to " + (actionNames[action] || "update this ticket") + "?")) return;
+
+      let techRemarks = "";
+
+      if (action === "startTicket") {
+        techRemarks = "Work started.";
+      }
+
+      if (action === "forCheckingTicket") {
+        techRemarks = prompt("Tech remarks / checking notes:", "For checking / verification.") || "For checking / verification.";
+      }
+
+      if (action === "resolveTicket") {
+        techRemarks = prompt("Resolution remarks:", "Resolved.") || "Resolved.";
+      }
+
+      if (action === "cancelTicket") {
+        techRemarks = prompt("Reason for cancellation:", "Cancelled.") || "Cancelled.";
+      }
+
+      showNotice("Updating ticket status...");
+
+      try {
+        const response = await callBackend(action, {
+          ticketId: ticketId,
+          techRemarks: techRemarks,
+          remarks: techRemarks
+        });
+
+        if (response && (response.ok || response.success)) {
+          showNotice("Ticket updated successfully.", "ok");
+          await loadTickets();
+        } else {
+          showNotice((response && response.message) || "Unable to update ticket.", "error");
+        }
+      } catch (error) {
+        showNotice("Unable to update ticket. " + (error && error.message ? error.message : ""), "error");
+      }
+    }
+
+    document.querySelectorAll(".tab-btn").forEach(function(button) {
+      button.addEventListener("click", function() {
+        document.querySelectorAll(".tab-btn").forEach(function(btn) { btn.classList.remove("is-active"); });
+        document.querySelectorAll(".ticket-panel").forEach(function(panel) { panel.classList.remove("is-active"); });
+        button.classList.add("is-active");
+        document.querySelector("#" + button.dataset.tab).classList.add("is-active");
+      });
+    });
+
+    fields.ticketRows.addEventListener("click", function(event) {
+      const button = event.target.closest("button[data-ticket-action]");
+      if (!button) return;
+      updateTicketAction(button.dataset.ticketAction, button.dataset.ticketId);
+    });
+
+    fields.searchInput.addEventListener("input", renderTickets);
+    fields.statusFilter.addEventListener("change", renderTickets);
+    fields.refreshBtn.addEventListener("click", function() {
+      loadTickets();
+      loadClients();
+    });
+
+    fields.clientSearchInput.addEventListener("input", renderClientOptions);
+    fields.existingClientSelect.addEventListener("change", function() {
+      const accountNo = fields.existingClientSelect.value;
+      const row = clients.find(function(client) {
+        return normalize(getClientAccountNo(client)) === normalize(accountNo);
+      }) || null;
+      setSelectedClient(row);
+    });
+
+    fields.clearSelectedClientBtn.addEventListener("click", function() {
+      fields.clientSearchInput.value = "";
+      fields.existingClientSelect.value = "";
+      renderClientOptions();
+      setSelectedClient(null);
+    });
+
+    fields.newInstallForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+      submitTicket(fields.newInstallForm, "New installation ticket saved.");
+    });
+
+    fields.oldConcernForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+      if (!selectedClient) {
+        showNotice("Please select an existing client first.", "error");
+        return;
+      }
+      submitTicket(fields.oldConcernForm, "Old client concern ticket saved.");
+    });
+
+    fields.logoutBtn.addEventListener("click", function() {
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(FALLBACK_SESSION_KEY);
+      window.location.href = "index.html";
+    });
+
+    setUser(loadSession());
+    loadTickets();
+    loadClients();
+  </script>
+
+  <script>
+    document.querySelectorAll(".nav-toggle").forEach(function(button) {
+      button.addEventListener("click", function() {
+        const group = button.closest(".nav-group");
+        if (!group) return;
+        group.classList.toggle("is-open");
+      });
+    });
+  </script>
+  <script src="assets/admin-shell.js"></script>
+</body>
+</html>

@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TechGeekPH Company Assets</title>
+  <style>
+    :root {
+      --blue:#064f83; --blue2:#023d6b; --crimson:#c91448; --ink:#172033; --muted:#64748b; --line:#d9e1ec; --soft:#f4f7fb; --surface:#fff; --ok:#16855f; --warn:#b7791f; --danger:#c91448;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    *{box-sizing:border-box} html,body{width:100%;max-width:100%;overflow-x:hidden} body{margin:0;min-height:100vh;color:var(--ink);background:var(--soft)} button,input,select,textarea{font:inherit} button{cursor:pointer}
+    .app{min-height:100vh;display:grid;grid-template-columns:280px minmax(0,1fr)}
+    .sidebar{position:sticky;top:0;height:100vh;overflow:auto;padding:16px;color:#fff;background:linear-gradient(180deg,var(--blue2),var(--blue) 62%,#073653);display:flex;flex-direction:column;gap:18px}
+    .brand{display:grid;gap:12px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.18)} .brand-logo{width:165px;min-height:68px;border-radius:10px;background:#fff;display:grid;place-items:center;padding:10px} .brand-logo img{max-width:100%;height:auto;display:block}
+    .brand strong{font-size:1rem} .brand span{display:block;color:rgba(255,255,255,.78);font-size:.82rem;line-height:1.45;margin-top:5px}
+    .nav{display:grid;gap:8px} .nav a,.logout{min-height:42px;border:0;border-radius:10px;padding:0 13px;text-decoration:none;color:rgba(255,255,255,.86);background:transparent;font-weight:850;display:flex;align-items:center} .nav a:hover,.nav a.is-active{color:#fff;background:rgba(255,255,255,.13)}
+    .nav-group{display:grid;gap:6px;padding:9px;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:rgba(255,255,255,.07)} .nav-parent{display:flex;align-items:center;gap:8px;min-height:36px;padding:0 10px;border-radius:9px;background:rgba(255,255,255,.13);font-weight:950} .nav-parent::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--crimson)} .nav-sub{display:grid;gap:5px;margin-left:18px;padding-left:10px;border-left:1px solid rgba(255,255,255,.24)} .nav-sub a{min-height:36px;font-size:.84rem}
+    .sidebar-footer{margin-top:auto} .logout{width:100%;justify-content:center;border:1px solid rgba(255,255,255,.3);color:#fff}
+    .main{min-width:0} .topbar{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:14px;min-height:76px;padding:15px clamp(16px,3vw,30px);background:rgba(255,255,255,.95);border-bottom:1px solid var(--line);backdrop-filter:blur(12px)} .title-block h1{margin:0;font-size:clamp(1.35rem,2.4vw,2rem)} .title-block p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
+    .user-chip{display:flex;align-items:center;gap:10px;min-width:0} .avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--crimson),var(--blue));color:#fff;font-weight:950} .user-chip strong,.user-chip span{display:block} .user-chip strong{font-size:.92rem} .user-chip span{color:var(--muted);font-size:.78rem}
+    .content{display:grid;gap:16px;padding:clamp(14px,3vw,28px);min-width:0;max-width:1700px;width:100%;margin:0 auto}
+    .summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px} .card,.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 28px rgba(14,34,55,.06);min-width:0} .card{padding:16px;min-height:104px} .card span{display:block;color:var(--muted);font-size:.78rem;font-weight:850} .card strong{display:block;margin-top:10px;color:var(--blue);font-size:1.65rem} .card small{display:block;margin-top:6px;color:#7a8799;font-size:.72rem}
+    .panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px;border-bottom:1px solid var(--line)} .panel-head h2{margin:0;font-size:1rem} .panel-head p{margin:4px 0 0;color:var(--muted);font-size:.82rem;line-height:1.4}
+    .toolbar,.form-grid{display:grid;gap:12px;padding:15px} .toolbar{grid-template-columns:minmax(220px,1fr) 180px 180px auto;align-items:center;border-bottom:1px solid var(--line);background:#fbfdff} .form-grid{grid-template-columns:repeat(4,minmax(0,1fr))} .field.wide{grid-column:span 2} .field.full{grid-column:1/-1}
+    .field label{display:block;margin-bottom:6px;color:#334155;font-size:.76rem;font-weight:900} input,select,textarea{width:100%;min-width:0;min-height:42px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);padding:0 12px;outline:none} textarea{min-height:82px;padding:9px 12px;resize:vertical} input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(6,79,131,.12)}
+    .primary-btn,.ghost-btn,.danger-btn,.small-btn{display:inline-flex;align-items:center;justify-content:center;border-radius:10px;min-height:42px;padding:0 14px;font-weight:900;text-decoration:none} .primary-btn{border:1px solid var(--blue);color:#fff;background:var(--blue)} .ghost-btn,.small-btn{border:1px solid var(--line);color:var(--blue);background:#fff} .danger-btn{border:1px solid #efb0c2;color:var(--danger);background:#fff5f7} .small-btn{min-height:30px;padding:0 9px;font-size:.76rem} button:disabled{opacity:.65;cursor:not-allowed}
+    .notice{margin:0;padding:12px 14px;border-radius:10px;border:1px solid rgba(183,121,31,.25);background:#fff8ea;color:#7a4e10;font-size:.84rem;line-height:1.45} .notice.ok{background:#eefaf5;color:#126247;border-color:rgba(31,138,102,.28)} .notice.error{background:#fff1f5;color:#98113b;border-color:rgba(201,20,72,.26)} .is-hidden{display:none!important}
+    .table-wrap{width:100%;overflow:auto;-webkit-overflow-scrolling:touch} table{width:100%;min-width:1280px;border-collapse:collapse;font-size:.84rem} th,td{padding:11px 12px;border-bottom:1px solid #edf1f6;text-align:left;vertical-align:top} th{background:#f9fbfd;color:#475569;font-size:.72rem;text-transform:uppercase;letter-spacing:.035em;white-space:nowrap} td{overflow-wrap:anywhere} .money{font-weight:900;text-align:right} .status{display:inline-flex;align-items:center;min-height:24px;padding:0 8px;border-radius:999px;font-size:.73rem;font-weight:900;background:#eefaf5;color:#126247;white-space:nowrap} .status.warn{background:#fff8ea;color:#7a4e10} .status.danger{background:#fff1f5;color:#98113b} .actions{display:flex;gap:8px;flex-wrap:wrap}
+    @media(max-width:1120px){.app{grid-template-columns:230px minmax(0,1fr)}.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.toolbar{grid-template-columns:1fr 1fr}}
+    @media(max-width:860px){.app{display:block}.sidebar{position:relative;height:auto}.nav{grid-template-columns:repeat(2,minmax(0,1fr))}.nav-group{grid-column:1/-1}.topbar{position:relative;display:grid}.content{padding:14px}}
+    @media(max-width:680px){.nav,.summary-grid,.form-grid,.toolbar{grid-template-columns:1fr}.field.wide{grid-column:auto}.panel-head{align-items:stretch;flex-direction:column}.table-wrap{overflow:visible} table{min-width:0;border-collapse:separate;border-spacing:0 12px} thead{display:none} tbody{display:grid;gap:12px} tr{display:grid;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden} td{display:grid;grid-template-columns:122px minmax(0,1fr);gap:8px;padding:10px 12px;border-bottom:1px solid #edf1f6} td::before{content:attr(data-label);color:var(--muted);font-size:.72rem;font-weight:900;text-transform:uppercase} td:last-child{border-bottom:0}}
+    @media(max-width:420px){.content{padding:10px}td{grid-template-columns:1fr}}
+  </style>
+
+  <style id="standard-admin-sidebar-format">
+    /* Standard admin sidebar format */
+    :root {
+      --blue-strong: #023d6b;
+      --blue: #064f83;
+      --crimson: #c91448;
+      --line: #d9e1ec;
+    }
+
+    .app {
+      min-height: 100vh !important;
+      display: grid !important;
+      grid-template-columns: 280px minmax(0, 1fr) !important;
+      width: 100% !important;
+      max-width: 100vw !important;
+    }
+
+    .sidebar {
+      position: sticky !important;
+      top: 0 !important;
+      height: 100vh !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 18px !important;
+      padding: 16px !important;
+      color: #fff !important;
+      background: linear-gradient(180deg, var(--blue-strong), var(--blue) 62%, #083453) !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
+
+    .brand {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 12px !important;
+      padding-bottom: 16px !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16) !important;
+    }
+
+    .brand-logo {
+      display: grid !important;
+      place-items: center !important;
+      width: 165px !important;
+      min-height: 70px !important;
+      padding: 10px !important;
+      border-radius: 8px !important;
+      background: #fff !important;
+    }
+
+    .brand-logo img {
+      display: block !important;
+      width: 100% !important;
+      height: auto !important;
+      object-fit: contain !important;
+    }
+
+    .brand strong {
+      display: block !important;
+      font-size: 1rem !important;
+      font-weight: 900 !important;
+    }
+
+    .brand span {
+      display: block !important;
+      margin-top: 5px !important;
+      color: rgba(255, 255, 255, 0.76) !important;
+      font-size: 0.84rem !important;
+      line-height: 1.45 !important;
+    }
+
+    .nav {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 7px !important;
+      width: 100% !important;
+    }
+
+    .nav a,
+    .nav-toggle {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      width: 100% !important;
+      min-height: 42px !important;
+      border: 0 !important;
+      border-radius: 10px !important;
+      color: rgba(255, 255, 255, 0.86) !important;
+      background: transparent !important;
+      padding: 0 13px !important;
+      text-align: left !important;
+      text-decoration: none !important;
+      font-size: 0.88rem !important;
+      font-weight: 850 !important;
+      line-height: 1.18 !important;
+      cursor: pointer !important;
+      white-space: normal !important;
+    }
+
+    .nav a:hover,
+    .nav a.is-active,
+    .nav-toggle:hover,
+    .nav-toggle.is-active {
+      color: #fff !important;
+      background: rgba(255, 255, 255, 0.13) !important;
+    }
+
+    .nav-group {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 6px !important;
+      margin: 2px 0 !important;
+      border: 1px solid rgba(255, 255, 255, 0.16) !important;
+      border-radius: 12px !important;
+      padding: 8px !important;
+      background: rgba(255, 255, 255, 0.06) !important;
+      width: 100% !important;
+    }
+
+    .nav-toggle {
+      min-height: 36px !important;
+      border-radius: 9px !important;
+      color: #fff !important;
+      background: rgba(255, 255, 255, 0.12) !important;
+      padding: 0 11px !important;
+      font-weight: 950 !important;
+    }
+
+    .nav-toggle::after {
+      content: "›" !important;
+      margin-left: auto !important;
+      font-size: 0.95rem !important;
+      opacity: 0.75 !important;
+      transform: rotate(0deg) !important;
+    }
+
+    .nav-group.is-open .nav-toggle::after {
+      transform: rotate(90deg) !important;
+    }
+
+    .nav-panel {
+      display: none !important;
+      grid-template-columns: 1fr !important;
+      gap: 5px !important;
+      margin-left: 14px !important;
+      padding-left: 10px !important;
+      border-left: 1px solid rgba(255, 255, 255, 0.24) !important;
+    }
+
+    .nav-group.is-open .nav-panel {
+      display: grid !important;
+    }
+
+    .nav-panel a {
+      min-height: 34px !important;
+      padding: 0 10px !important;
+      border-radius: 8px !important;
+      font-size: 0.82rem !important;
+      font-weight: 820 !important;
+      line-height: 1.15 !important;
+      white-space: normal !important;
+      justify-content: flex-start !important;
+      text-align: left !important;
+    }
+
+    .nav-panel a.is-active {
+      background: rgba(255, 255, 255, 0.19) !important;
+      color: #fff !important;
+    }
+
+    .sidebar-footer {
+      margin-top: auto !important;
+      display: grid !important;
+      gap: 10px !important;
+    }
+
+    .logout {
+      min-height: 44px !important;
+      width: 100% !important;
+      border: 1px solid rgba(255, 255, 255, 0.28) !important;
+      border-radius: 10px !important;
+      color: #fff !important;
+      background: transparent !important;
+      font-weight: 900 !important;
+      text-align: left !important;
+      padding: 0 13px !important;
+      justify-content: flex-start !important;
+    }
+
+    .logout:hover {
+      background: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    @media (max-width: 1120px) {
+      .app {
+        grid-template-columns: 250px minmax(0, 1fr) !important;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .app {
+        display: block !important;
+      }
+
+      .sidebar {
+        position: relative !important;
+        height: auto !important;
+        min-height: auto !important;
+        padding: 12px !important;
+        gap: 12px !important;
+      }
+
+      .brand {
+        grid-template-columns: auto 1fr !important;
+        align-items: center !important;
+        gap: 10px !important;
+        padding-bottom: 10px !important;
+      }
+
+      .brand-logo {
+        width: 118px !important;
+        min-height: 46px !important;
+      }
+
+      .nav,
+      .nav-panel {
+        grid-template-columns: 1fr !important;
+      }
+
+      .nav a,
+      .nav-toggle,
+      .logout {
+        justify-content: flex-start !important;
+        text-align: left !important;
+      }
+
+      .sidebar-footer {
+        margin-top: 0 !important;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .brand {
+        grid-template-columns: 1fr !important;
+      }
+
+      .brand-logo {
+        width: 124px !important;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="assets/admin-shell.css">
+</head>
+<body>
+  <main class="app">
+      <aside class="sidebar" data-admin-sidebar>
+    <div class="brand">
+      <div class="brand-logo">
+        <img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH">
+      </div>
+      <div>
+        <strong>TechGeekPH Admin</strong>
+        <span>Admin portal for clients, tickets, attendance, expenses, stock, assets, payroll, SOA, and investor reports.</span>
+      </div>
+    </div>
+
+    <nav class="nav" aria-label="Admin navigation">
+      <a href="dashboard.html">Dashboard</a>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Operations</button>
+        <div class="nav-panel">
+          <a href="application_form.html">Application Form</a>
+          <a href="clients.html">Clients</a>
+          <a href="tickets.html">Tickets</a>
+          <a href="nap-checker.html">NAP Checker</a>
+          <a href="statement_of_account.html">Statement of Account</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Attendance &amp; Expenses</button>
+        <div class="nav-panel">
+          <a href="daily_time_record.html">My Time Record</a>
+          <a href="daily_time_record_admin.html">Admin Time Records</a>
+          <a href="my_expense_request.html">My Expense Request</a>
+          <a href="expense_approval.html">Expense Approval</a>
+          <a href="payslip_generator.html">Payslip Generator</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Stock &amp; Assets</button>
+        <div class="nav-panel">
+          <a href="consumable_stock.html">Consumable Stock</a>
+          <a href="company_assets.html">Company Assets</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Investor</button>
+        <div class="nav-panel">
+          <a href="investor_morwin_gapud.html">Morwin Gapud</a>
+          <a href="investor_marivie_viana_gapud.html">Marivie Viana Gapud</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="logout" type="button" id="logoutBtn">Log out</button>
+    </div>
+  </aside>
+    <section class="main">
+      <header class="topbar"><div class="title-block"><h1>Company Assets</h1><p>Tools, network devices, routers/ONU, equipment, and other reusable assets.</p></div><div class="user-chip"><div class="avatar" id="avatar">TG</div><div><strong id="userName">TechGeekPH User</strong><span id="userRole">Portal access</span></div></div></header>
+      <div class="content">
+        <p class="notice is-hidden" id="notice"></p>
+        <div class="summary-grid">
+          <article class="card"><span id="metric0Label">Total Records</span><strong id="metric0">--</strong><small id="metric0Small">Filtered records</small></article>
+          <article class="card"><span id="metric1Label">Available</span><strong id="metric1">--</strong><small id="metric1Small">Ready to use</small></article>
+          <article class="card"><span id="metric2Label">Needs Attention</span><strong id="metric2">--</strong><small id="metric2Small">Low / repair / damaged</small></article>
+          <article class="card"><span id="metric3Label">Total Value</span><strong id="metric3">--</strong><small id="metric3Small">Stock x price</small></article>
+        </div>
+        <section class="panel">
+          <div class="panel-head"><div><h2>Asset Record</h2><p>Create or update company reusable asset records.</p></div><button class="ghost-btn" type="button" id="clearBtn">Clear</button></div>
+          <form class="form-grid" id="itemForm">
+            <input type="hidden" name="itemType" value="Reusable Asset">
+            <div class="field"><label for="code">Code</label><input id="code" name="code" placeholder="AST-001" required></div>
+            <div class="field wide"><label for="itemName">Item Name</label><input id="itemName" name="itemName" placeholder="Fusion Splicer / Router / Ladder" required></div>
+            <div class="field"><label for="category">Category</label><select id="category" name="category">
+                    <option>Tools</option><option>Network Equipment</option><option>Router/ONU</option><option>Office Equipment</option><option>Vehicle / Ladder</option><option>Reusable Asset</option><option>Safety Equipment</option><option>Others</option></select></div>
+            <div class="field"><label for="unit">Unit</label><input id="unit" name="unit" value="unit" placeholder="pcs / meter / roll / unit"></div>
+            <div class="field"><label for="stock">Stock / Qty</label><input id="stock" name="stock" type="number" min="0" value="1"></div>
+            <div class="field"><label for="minStock">Min Stock</label><input id="minStock" name="minStock" type="number" min="0" value="0"></div>
+            <div class="field"><label for="price">Price / Value</label><input id="price" name="price" type="number" min="0" step="0.01" placeholder="0"></div>
+            <div class="field"><label for="status">Status</label><select id="status" name="status"><option>Available</option><option>Low Stock</option><option>Out of Stock</option><option>In Use</option><option>For Repair</option><option>Inactive</option></select></div>
+            
+              <div class="field"><label for="assetTag">Asset Tag</label><input id="assetTag" name="assetTag" placeholder="AST-0001 / optional"></div>
+              <div class="field"><label for="brandModel">Brand / Model</label><input id="brandModel" name="brandModel" placeholder="MikroTik RB4011 / Fusion Splicer"></div>
+              <div class="field"><label for="serialNo">Serial No.</label><input id="serialNo" name="serialNo" placeholder="Serial number"></div>
+              <div class="field"><label for="condition">Condition</label><select id="condition" name="condition"><option>Good</option><option>For Repair</option><option>Damaged</option><option>Lost</option><option>Disposed</option></select></div>
+              <div class="field"><label for="assignedTo">Assigned To</label><input id="assignedTo" name="assignedTo" placeholder="Employee / area"></div>
+              <div class="field"><label for="location">Location</label><input id="location" name="location" placeholder="Office / Server room / Field"></div>
+              <div class="field"><label for="purchaseDate">Purchase Date</label><input id="purchaseDate" name="purchaseDate" type="date"></div>
+              <div class="field"><label for="warrantyUntil">Warranty Until</label><input id="warrantyUntil" name="warrantyUntil" type="date"></div>
+            <div class="field full"><label for="remarks">Remarks</label><textarea id="remarks" name="remarks" placeholder="Notes / description"></textarea></div>
+            <div class="field full"><button class="primary-btn" type="submit" id="saveBtn">Save / Update Asset</button></div>
+          </form>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><div><h2>Company Asset List</h2><p>Reusable / non-consumable company property from Inventory sheet.</p></div><button class="ghost-btn" type="button" id="refreshBtn">Refresh</button></div>
+          <div class="toolbar"><input class="search" id="searchInput" placeholder="Search code, item, category, remarks"><select class="filter" id="categoryFilter"><option value="">All categories</option></select><select class="filter" id="statusFilter"><option value="">All status</option><option>Available</option><option>Low Stock</option><option>Out of Stock</option><option>In Use</option><option>For Repair</option><option>Inactive</option></select><button class="ghost-btn" type="button" id="exportBtn">Export CSV</button></div>
+          <div class="table-wrap"><table><thead>
+                  <tr><th>Code</th><th>Asset Tag</th><th>Item Name</th><th>Category</th><th>Brand / Model</th><th>Serial No.</th><th>Condition</th><th>Assigned To</th><th>Location</th><th>Value</th><th>Status</th></tr></thead><tbody id="rows"><tr><td colspan="11">Loading records...</td></tr></tbody></table></div>
+        </section>
+      </div>
+    </section>
+  </main>
+  <script>
+    const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxDY5TsonrB58YaN8LGbrrrc_ZD1QVpF1WK0p6jToIR2FBSqGaHfsgaE1CCiH1MvukV/exec";
+    const SESSION_KEY = "techgeekph_admin_session";
+    const LEGACY_SESSION_KEY = "techgeekph_admin_session";
+    const PAGE_TYPE = "assets";
+    const CONSUMABLE_CATEGORIES = ["fiber materials", "consumables", "electrical", "safety", "materials", "others"];
+    const ASSET_CATEGORIES = ["tools", "network equipment", "router/onu", "office equipment", "vehicle / ladder", "reusable asset", "safety equipment", "device", "devices"];
+    const fields = { notice: qs('#notice'), userName: qs('#userName'), userRole: qs('#userRole'), avatar: qs('#avatar'), rows: qs('#rows'), searchInput: qs('#searchInput'), categoryFilter: qs('#categoryFilter'), statusFilter: qs('#statusFilter'), refreshBtn: qs('#refreshBtn'), exportBtn: qs('#exportBtn'), itemForm: qs('#itemForm'), saveBtn: qs('#saveBtn'), clearBtn: qs('#clearBtn'), logoutBtn: qs('#logoutBtn'), metric0: qs('#metric0'), metric1: qs('#metric1'), metric2: qs('#metric2'), metric3: qs('#metric3') };
+    let allItems = [];
+    function qs(s){return document.querySelector(s)}
+    function loadSession(){try{return JSON.parse(localStorage.getItem(SESSION_KEY)||localStorage.getItem(LEGACY_SESSION_KEY)||'{}')}catch(e){return {}}}
+    function getToken(){const s=loadSession();return s.token||s.sessionToken||s.accessToken||''}
+    function initials(v){return String(v||'TG').replace(/@.*/,'').split(/[.\s_-]+/).filter(Boolean).slice(0,2).map(p=>p[0].toUpperCase()).join('')||'TG'}
+    function setUser(){const s=loadSession(),u=s.user||{},name=u.fullName||u.name||u.email||s.email||'TechGeekPH User',role=u.role||s.role||'portal';fields.userName.textContent=name;fields.userRole.textContent=String(role).charAt(0).toUpperCase()+String(role).slice(1).toLowerCase()+' access';fields.avatar.textContent=initials(name)}
+    function norm(v){return String(v||'').trim().toLowerCase()}
+    function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+    function key(row,names){for(const n of names){if(row&&row[n]!==undefined&&row[n]!==null&&String(row[n]).trim()!=='')return row[n]}return ''}
+    function money(v){const n=Number(String(v||'').replace(/[^0-9.-]/g,''));return Number.isFinite(n)?'₱ '+n.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2}):'₱ 0.00'}
+    function show(msg,type){fields.notice.textContent=msg;fields.notice.classList.remove('is-hidden','ok','error');if(type)fields.notice.classList.add(type)}
+    function hide(){fields.notice.classList.add('is-hidden');fields.notice.textContent='';fields.notice.classList.remove('ok','error')}
+    async function callBackend(action,payload){const data=Object.assign({},payload||{},{action,method:action,token:getToken()});const p=new URLSearchParams();Object.keys(data).forEach(k=>{if(data[k]!==undefined&&data[k]!==null)p.set(k,typeof data[k]==='object'?JSON.stringify(data[k]):data[k])});const r=await fetch(BACKEND_URL+'?'+p.toString(),{method:'GET',redirect:'follow'});const t=await r.text();if(t.trim().charAt(0)==='{'||t.trim().charAt(0)==='[')return JSON.parse(t);return {success:false,ok:false,message:t.trim()||'Unexpected backend response.'}}
+    function itemKind(row){return norm(key(row,['Item Type','itemType','assetType']))}
+    function category(row){return norm(key(row,['Category','category']))}
+    function isAsset(row){const k=itemKind(row),c=category(row);return k.includes('asset')||k.includes('reusable')||ASSET_CATEGORIES.includes(c)}
+    function isConsumable(row){const k=itemKind(row),c=category(row);if(k.includes('consumable'))return true;if(isAsset(row))return false;return CONSUMABLE_CATEGORIES.includes(c)||!c}
+    function pageItems(){return allItems.filter(row=>PAGE_TYPE==='assets'?isAsset(row):isConsumable(row))}
+    function filteredItems(){const q=norm(fields.searchInput.value),cat=norm(fields.categoryFilter.value),status=norm(fields.statusFilter.value);return pageItems().filter(row=>{const st=norm(key(row,['Status','status','Condition','condition']));const rowCat=norm(key(row,['Category','category']));const text=Object.keys(row).map(k=>row[k]).join(' ').toLowerCase();return(!q||text.includes(q))&&(!cat||rowCat===cat)&&(!status||st===status)})}
+    function refreshCategoryOptions(){const cats=[...new Set(pageItems().map(r=>key(r,['Category','category'])).filter(Boolean))].sort();fields.categoryFilter.innerHTML='<option value="">All categories</option>'+cats.map(c=>'<option>'+esc(c)+'</option>').join('')}
+    function statusClass(v){const s=norm(v);if(s.includes('low')||s.includes('repair'))return 'warn';if(s.includes('out')||s.includes('damaged')||s.includes('lost'))return 'danger';return ''}
+    function renderStats(){const rows=pageItems();fields.metric0.textContent=rows.length.toLocaleString();if(PAGE_TYPE==='assets'){fields.metric1.textContent=rows.filter(r=>['available','good'].includes(norm(key(r,['Status','Condition'])))).length.toLocaleString();fields.metric2.textContent=rows.filter(r=>['for repair','damaged','lost','inactive'].includes(norm(key(r,['Status','Condition'])))).length.toLocaleString();fields.metric3.textContent=money(rows.reduce((s,r)=>s+Number(key(r,['Price','price'])||0),0));}else{fields.metric1.textContent=rows.filter(r=>norm(key(r,['Status','status']))==='available').length.toLocaleString();fields.metric2.textContent=rows.filter(r=>Number(key(r,['Stock','stock'])||0)<=Number(key(r,['Min Stock','minStock'])||0)).length.toLocaleString();fields.metric3.textContent=money(rows.reduce((s,r)=>s+(Number(key(r,['Stock','stock'])||0)*Number(key(r,['Price','price'])||0)),0));}}
+    function render(){const rows=filteredItems();renderStats();if(!rows.length){fields.rows.innerHTML='<tr><td colspan="11">No records found.</td></tr>';return}fields.rows.innerHTML=rows.map(row=>PAGE_TYPE==='assets'?assetRow(row):consRow(row)).join('')}
+    function consRow(row){const stock=Number(key(row,['Stock','stock'])||0),price=Number(key(row,['Price','price'])||0),status=key(row,['Status','status'])||'Available';return `<tr><td data-label="Code">${esc(key(row,['Code','code']))}</td><td data-label="Item Name">${esc(key(row,['Item Name','itemName']))}</td><td data-label="Unit">${esc(key(row,['Unit','unit']))}</td><td data-label="Category">${esc(key(row,['Category','category']))}</td><td data-label="Stock">${esc(stock)}</td><td data-label="Min Stock">${esc(key(row,['Min Stock','minStock']))}</td><td data-label="Price" class="money">${money(price)}</td><td data-label="Stock Value" class="money">${money(stock*price)}</td><td data-label="Status"><span class="status ${statusClass(status)}">${esc(status)}</span></td><td data-label="Remarks">${esc(key(row,['Remarks','remarks']))}</td></tr>`}
+    function assetRow(row){const status=key(row,['Status','status'])||key(row,['Condition','condition'])||'Available';return `<tr><td data-label="Code">${esc(key(row,['Code','code']))}</td><td data-label="Asset Tag">${esc(key(row,['Asset Tag','assetTag']))}</td><td data-label="Item Name">${esc(key(row,['Item Name','itemName']))}</td><td data-label="Category">${esc(key(row,['Category','category']))}</td><td data-label="Brand / Model">${esc(key(row,['Brand / Model','brandModel']))}</td><td data-label="Serial No.">${esc(key(row,['Serial No.','serialNo']))}</td><td data-label="Condition">${esc(key(row,['Condition','condition']))}</td><td data-label="Assigned To">${esc(key(row,['Assigned To','assignedTo']))}</td><td data-label="Location">${esc(key(row,['Location','location']))}</td><td data-label="Value" class="money">${money(key(row,['Price','price']))}</td><td data-label="Status"><span class="status ${statusClass(status)}">${esc(status)}</span></td></tr>`}
+    function formData(form){const o={};new FormData(form).forEach((v,k)=>o[k]=v);return o}
+    async function loadItems(){show('Loading inventory records...');try{const res=await callBackend('listInventory',{});if(!res||(!res.success&&!res.ok))throw new Error(res&&res.message||'Unable to load inventory.');allItems=res.data||res.rows||res.records||[];refreshCategoryOptions();hide();render();}catch(e){allItems=[];render();show('Unable to load records. '+(e.message||e),'error')}}
+    async function saveItem(ev){ev.preventDefault();const data=formData(fields.itemForm);const existing=allItems.some(r=>norm(key(r,['Code','code']))===norm(data.code));const action=existing?'updateInventoryItem':'addInventoryItem';const old=fields.saveBtn.textContent;fields.saveBtn.disabled=true;fields.saveBtn.textContent='Saving...';show('Saving record...');try{const res=await callBackend(action,data);if(!res||(!res.success&&!res.ok))throw new Error(res&&res.message||'Unable to save.');if(PAGE_TYPE==='consumables'&&data.movementType&&Number(data.quantity||0)>0){const move=await callBackend(data.movementType,{code:data.code,quantity:data.quantity,siteName:data.siteName,remarks:data.movementRemarks,price:data.price});if(!move||(!move.success&&!move.ok))throw new Error(move&&move.message||'Record saved but stock movement failed.');}show(existing?'Record updated.':'Record added.','ok');fields.itemForm.reset();if(PAGE_TYPE==='assets'){qs('#stock').value='1';qs('#unit').value='unit';}else{qs('#unit').value='pcs';}await loadItems();}catch(e){show('Unable to save record. '+(e.message||e),'error')}finally{fields.saveBtn.disabled=false;fields.saveBtn.textContent=old}}
+    function exportCsv(){const rows=filteredItems();const headers=PAGE_TYPE==='assets'?['Code','Asset Tag','Item Name','Category','Brand / Model','Serial No.','Condition','Assigned To','Location','Price','Status']:['Code','Item Name','Unit','Category','Stock','Min Stock','Price','Stock Value','Status','Remarks'];const csv=[headers.join(',')].concat(rows.map(r=>headers.map(h=>{let v=h==='Stock Value'?Number(key(r,['Stock','stock'])||0)*Number(key(r,['Price','price'])||0):key(r,[h,h.replace(/ /g,''),h.toLowerCase()]);return '"'+String(v??'').replace(/"/g,'""')+'"'}).join(','))).join('\n');const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=(PAGE_TYPE==='assets'?'company_assets':'consumable_stock')+'.csv';a.click();URL.revokeObjectURL(a.href)}
+    fields.itemForm.addEventListener('submit',saveItem);fields.clearBtn.addEventListener('click',()=>{fields.itemForm.reset();if(PAGE_TYPE==='assets'){qs('#stock').value='1';qs('#unit').value='unit';}else{qs('#unit').value='pcs';}});fields.refreshBtn.addEventListener('click',loadItems);fields.searchInput.addEventListener('input',render);fields.categoryFilter.addEventListener('change',render);fields.statusFilter.addEventListener('change',render);fields.exportBtn.addEventListener('click',exportCsv);fields.logoutBtn.addEventListener('click',()=>{localStorage.removeItem(SESSION_KEY);localStorage.removeItem(LEGACY_SESSION_KEY);location.href='index.html'});
+    document.querySelectorAll(".nav-toggle").forEach(function(button){
+      button.addEventListener("click", function(){
+        const group = button.closest(".nav-group");
+        if (!group) return;
+        group.classList.toggle("is-open");
+      });
+    });
+
+    setUser();loadItems();
+  </script>
+  <script src="assets/admin-shell.js"></script>
+</body>
+</html>

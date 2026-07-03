@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TechGeekPH Payslip Generator</title>
+  <style>
+    :root {
+      --blue:#064f83;
+      --blue-strong:#023d6b;
+      --crimson:#c91448;
+      --ink:#16202f;
+      --muted:#657386;
+      --line:#d9e1ec;
+      --soft:#f3f6fa;
+      --surface:#ffffff;
+      --ok:#1f8a66;
+      --warn:#b7791f;
+      --danger:#c91448;
+      --shadow:0 12px 30px rgba(14,34,55,.07);
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    *{box-sizing:border-box;}
+    html,body{width:100%;max-width:100%;overflow-x:hidden;}
+    body{min-height:100vh;margin:0;color:var(--ink);background:var(--soft);}
+    button,input,select,textarea{font:inherit;font-size:16px;}
+    button{cursor:pointer;}
+
+    .app{min-height:100vh;display:grid;grid-template-columns:280px minmax(0,1fr);width:100%;max-width:100vw;}
+    .sidebar{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:18px;padding:16px;color:#fff;background:linear-gradient(180deg,var(--blue-strong),var(--blue) 62%,#083453);overflow-y:auto;-webkit-overflow-scrolling:touch;}
+    .brand{display:grid;grid-template-columns:1fr;gap:12px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.16);}
+    .brand-logo{display:grid;place-items:center;width:165px;min-height:70px;padding:10px;border-radius:8px;background:#fff;}
+    .brand-logo img{display:block;width:100%;height:auto;object-fit:contain;}
+    .brand strong{display:block;font-size:1rem;font-weight:900;}
+    .brand span{display:block;margin-top:5px;color:rgba(255,255,255,.76);font-size:.84rem;line-height:1.45;}
+    .nav{display:grid;grid-template-columns:1fr;gap:7px;width:100%;}
+    .nav a,.nav-toggle{display:flex;align-items:center;justify-content:flex-start;width:100%;min-height:42px;border:0;border-radius:10px;color:rgba(255,255,255,.86);background:transparent;padding:0 13px;text-align:left;text-decoration:none;font-size:.88rem;font-weight:850;line-height:1.18;cursor:pointer;white-space:normal;}
+    .nav a:hover,.nav a.is-active,.nav-toggle:hover,.nav-toggle.is-active{color:#fff;background:rgba(255,255,255,.13);}
+    .nav-group{display:grid;grid-template-columns:1fr;gap:6px;margin:2px 0;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:8px;background:rgba(255,255,255,.06);width:100%;}
+    .nav-toggle{min-height:36px;border-radius:9px;color:#fff;background:rgba(255,255,255,.12);padding:0 11px;font-weight:950;font-family:inherit;}
+    .nav-toggle::before{content:none;}
+    .nav-toggle::after{content:"›";margin-left:auto;font-size:.95rem;opacity:.75;transform:rotate(0deg);}
+    .nav-group.is-open .nav-toggle::after{transform:rotate(90deg);}
+    .nav-panel{display:none;grid-template-columns:1fr;gap:5px;margin-left:14px;padding-left:10px;border-left:1px solid rgba(255,255,255,.24);}
+    .nav-group.is-open .nav-panel{display:grid;}
+    .nav-panel a{min-height:34px;padding:0 10px;border-radius:8px;font-size:.82rem;font-weight:820;line-height:1.15;white-space:normal;justify-content:flex-start;text-align:left;}
+    .nav-panel a.is-active{background:rgba(255,255,255,.19);color:#fff;}
+    .sidebar-footer{margin-top:auto;display:grid;gap:10px;}
+    .logout{min-height:44px;width:100%;border:1px solid rgba(255,255,255,.28);border-radius:10px;color:#fff;background:transparent;font-weight:900;text-align:left;padding:0 13px;justify-content:flex-start;}
+    .logout:hover{background:rgba(255,255,255,.12);}
+
+    .main{min-width:0;display:grid;grid-template-rows:auto 1fr;}
+    .topbar{position:sticky;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;gap:18px;min-height:84px;padding:16px clamp(16px,3vw,34px);border-bottom:1px solid var(--line);background:rgba(255,255,255,.96);backdrop-filter:blur(12px);}
+    .title-block h1{margin:0;font-size:clamp(1.35rem,2.2vw,2rem);}
+    .title-block p{margin:5px 0 0;color:var(--muted);font-size:.92rem;}
+    .user-chip{display:flex;align-items:center;gap:12px;min-width:0;}
+    .avatar{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;color:#fff;background:linear-gradient(135deg,var(--crimson),var(--blue));font-weight:950;}
+    .user-chip strong,.user-chip span{display:block;}
+    .user-chip strong{font-size:.94rem;}
+    .user-chip span{margin-top:2px;color:var(--muted);font-size:.78rem;}
+    .content{display:grid;gap:18px;min-width:0;padding:clamp(16px,3vw,30px);max-width:1680px;width:100%;margin:0 auto;}
+    .notice{margin:0;padding:12px 14px;border:1px solid rgba(183,121,31,.24);border-radius:10px;background:#fff8ea;color:#7a4e10;font-size:.86rem;line-height:1.45;}
+    .notice.ok{border-color:rgba(31,138,102,.28);color:#126247;background:#eefaf5;}
+    .notice.error{border-color:rgba(201,20,72,.26);color:#98113b;background:#fff1f5;}
+    .is-hidden{display:none!important;}
+    .card,.panel{border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);min-width:0;}
+    .summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;}
+    .card{min-height:112px;padding:16px;}
+    .card span,.card strong,.card small{display:block;}
+    .card span{color:var(--muted);font-size:.79rem;font-weight:900;}
+    .card strong{margin-top:13px;color:var(--blue);font-size:1.58rem;line-height:1.1;overflow-wrap:anywhere;}
+    .card small{margin-top:8px;color:#7d8b9d;font-size:.74rem;}
+    .layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(360px,.8fr);gap:18px;align-items:start;}
+    .panel-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px;border-bottom:1px solid var(--line);}
+    .panel-head h2{margin:0;font-size:1.05rem;}
+    .panel-head p{margin:4px 0 0;color:var(--muted);font-size:.82rem;line-height:1.4;}
+    .mode-chip,.status-chip{display:inline-flex;align-items:center;min-height:30px;padding:0 11px;border-radius:999px;border:1px solid #cde4f6;background:#f0f8ff;color:var(--blue);font-size:.76rem;font-weight:900;white-space:nowrap;}
+    .form-grid,.compact-form{display:grid;gap:14px;padding:16px;}
+    .form-grid{grid-template-columns:repeat(4,minmax(0,1fr));}
+    .field.full{grid-column:1/-1;}
+    .field.half{grid-column:span 2;}
+    .field label{display:block;margin-bottom:7px;color:#334155;font-size:.78rem;font-weight:900;}
+    .field input,.field select,.field textarea{width:100%;min-width:0;min-height:42px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:0 12px;color:var(--ink);outline:none;}
+    .field textarea{min-height:82px;padding:10px 12px;resize:vertical;}
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(6,79,131,.12);}
+    .field-hint{display:block;margin-top:6px;color:#64748b;font-size:.74rem;line-height:1.35;}
+    .toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);background:#fbfdff;flex-wrap:wrap;}
+    .toolbar-left,.toolbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0;}
+    .primary-btn,.ghost-btn,.danger-btn,.small-btn,.ok-btn,.warn-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;border-radius:10px;padding:0 14px;font-weight:900;text-decoration:none;white-space:nowrap;}
+    .primary-btn{border:1px solid var(--blue);color:#fff;background:var(--blue);}
+    .ghost-btn,.small-btn{border:1px solid var(--line);color:var(--blue);background:#fff;}
+    .ok-btn{border:1px solid rgba(31,138,102,.35);color:#126247;background:#eefaf5;}
+    .warn-btn{border:1px solid rgba(183,121,31,.28);color:#7a4e10;background:#fff8ea;}
+    .danger-btn{border:1px solid #f0b5c3;color:var(--danger);background:#fff5f7;}
+    .small-btn,.ok-btn.small,.warn-btn.small,.danger-btn.small{min-height:32px;padding:0 10px;font-size:.78rem;}
+    button:disabled{opacity:.65;cursor:not-allowed;}
+    .table-wrap{width:100%;max-width:100%;overflow:auto;-webkit-overflow-scrolling:touch;}
+    table{width:100%;min-width:1100px;border-collapse:collapse;font-size:.82rem;}
+    th,td{padding:10px 10px;border-bottom:1px solid #edf1f6;text-align:left;vertical-align:top;}
+    th{color:#475569;background:#f9fbfd;font-size:.7rem;text-transform:uppercase;letter-spacing:.035em;white-space:nowrap;}
+    td{color:#263244;overflow-wrap:anywhere;}
+    .amount,.num{text-align:right;font-weight:900;white-space:nowrap;}
+    .calc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:16px;}
+    .calc-row{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #edf1f6;border-radius:10px;padding:10px 12px;background:#fbfdff;}
+    .calc-row span{color:var(--muted);font-size:.78rem;font-weight:850;}
+    .calc-row strong{font-size:.92rem;}
+    .calc-row.total,.calc-row.net{grid-column:1/-1;}
+    .calc-row.total{background:#eef7ff;border-color:#cde4f6;}
+    .calc-row.net{background:#eefaf5;border-color:rgba(31,138,102,.28);}
+    .calc-row.total strong,.calc-row.net strong{font-size:1.3rem;color:var(--blue);}
+    /* Half A4 / A5 crosswise payslip output. Internal margin is 0.5 inch per side. */
+    .payslip{width:8.27in;min-height:5.83in;max-width:100%;margin:16px auto;background:#fff;padding:.5in;display:grid;gap:5px;border:1px solid var(--line);box-shadow:0 10px 24px rgba(14,34,55,.08);color:var(--ink);font-size:9.5px;line-height:1.08;overflow:hidden;}
+    .payslip-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;border-bottom:2px solid var(--blue);padding-bottom:5px;}
+    .payslip-head h3{margin:0;color:var(--blue);font-size:.92rem;line-height:1;letter-spacing:.01em;}
+    .payslip-head p{margin:2px 0 0;color:var(--muted);font-size:.58rem;line-height:1.12;}
+    .payslip-logo{width:66px;background:#fff;border:1px solid var(--line);border-radius:5px;padding:4px;}
+    .payslip-logo img{width:100%;display:block;}
+    .payslip-info{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px 7px;}
+    .payslip-info:last-child{grid-template-columns:2fr 1fr;}
+    .payslip-info div{border-bottom:1px solid #edf1f6;padding-bottom:2px;min-width:0;}
+    .payslip-info span{display:block;color:var(--muted);font-size:.50rem;font-weight:900;text-transform:uppercase;letter-spacing:.015em;}
+    .payslip-info strong{display:block;margin-top:1px;font-size:.60rem;line-height:1.05;overflow-wrap:anywhere;}
+    .payslip-tables{display:grid;grid-template-columns:1.15fr .85fr;gap:8px;align-items:start;}
+    .payslip-table{width:100%;min-width:0;border-collapse:collapse;font-size:.58rem;}
+    .payslip-table th,.payslip-table td{padding:2.5px 4px;border-bottom:1px solid #edf1f6;line-height:1.08;vertical-align:middle;}
+    .payslip-table th{background:#f8fafc;font-size:.50rem;text-transform:uppercase;letter-spacing:.015em;}
+    .payslip-table .amount,.payslip .amount{text-align:right;white-space:nowrap;}
+    .payslip-table tr:last-child th{font-size:.55rem;background:#eef6ff;}
+    #slipNetPay{font-size:.75rem;color:var(--blue);}
+    .png-capture{box-shadow:none!important;border:0!important;margin:0!important;}
+    @media (max-width:1180px){.layout{grid-template-columns:1fr;}.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+    @media (max-width:1120px){.app{grid-template-columns:250px minmax(0,1fr);}}
+    @media (max-width:860px){.app{display:block;}.sidebar{position:relative;height:auto;min-height:auto;padding:12px;gap:12px;}.brand{grid-template-columns:auto 1fr;align-items:center;gap:10px;padding-bottom:10px;}.brand-logo{width:118px;min-height:46px;}.nav,.nav-panel{grid-template-columns:1fr!important;}.nav a,.nav-toggle,.logout{justify-content:flex-start;text-align:left;}.sidebar-footer{margin-top:0;}.topbar{position:relative;min-height:auto;padding:14px 16px;}.content{padding:14px;}.form-grid,.calc-grid,.payslip-info,.payslip-tables{grid-template-columns:1fr;}.field.half{grid-column:auto;}}
+    @media (max-width:680px){.summary-grid{grid-template-columns:1fr;}.panel-head,.toolbar,.toolbar-left,.toolbar-right{display:grid;grid-template-columns:1fr;align-items:stretch;width:100%;}.primary-btn,.ghost-btn,.danger-btn,.ok-btn,.warn-btn{width:100%;}.brand{grid-template-columns:1fr;}.brand-logo{width:124px;}}
+    @media print{@page{size:A5 landscape;margin:0;}html,body{background:#fff!important;width:auto!important;height:auto!important;}.sidebar,.topbar,.no-print,.content>.notice,.content>.summary-grid,.content>.layout{display:none!important;}.app,.main,.content{display:block!important;min-height:auto!important;}.content{padding:0!important;max-width:none!important;margin:0!important;}.panel{box-shadow:none!important;border:0!important;margin:0!important;}.payslip{width:8.27in!important;min-height:5.83in!important;max-width:none!important;margin:0!important;padding:.5in!important;border:0!important;box-shadow:none!important;page-break-inside:avoid!important;}.payslip-info{grid-template-columns:repeat(5,minmax(0,1fr))!important;}.payslip-info:last-child{grid-template-columns:2fr 1fr!important;}.payslip-tables{grid-template-columns:1.15fr .85fr!important;}}
+  
+    .gov-control {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+    }
+    .gov-control select,
+    .gov-control input {
+      min-width: 0;
+    }
+    .gov-control input[readonly] {
+      background: #f8fafc;
+      color: #475569;
+    }
+    @media (max-width: 680px) {
+      .gov-control {
+        grid-template-columns: 1fr;
+      }
+    }
+
+  </style>
+  <link rel="stylesheet" href="assets/admin-shell.css">
+</head>
+<body>
+  <main class="app">
+      <aside class="sidebar" data-admin-sidebar>
+    <div class="brand">
+      <div class="brand-logo">
+        <img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH">
+      </div>
+      <div>
+        <strong>TechGeekPH Admin</strong>
+        <span>Admin portal for clients, tickets, attendance, expenses, stock, assets, payroll, SOA, and investor reports.</span>
+      </div>
+    </div>
+
+    <nav class="nav" aria-label="Admin navigation">
+      <a href="dashboard.html">Dashboard</a>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Operations</button>
+        <div class="nav-panel">
+          <a href="application_form.html">Application Form</a>
+          <a href="clients.html">Clients</a>
+          <a href="tickets.html">Tickets</a>
+          <a href="nap-checker.html">NAP Checker</a>
+          <a href="statement_of_account.html">Statement of Account</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Attendance &amp; Expenses</button>
+        <div class="nav-panel">
+          <a href="daily_time_record.html">My Time Record</a>
+          <a href="daily_time_record_admin.html">Admin Time Records</a>
+          <a href="my_expense_request.html">My Expense Request</a>
+          <a href="expense_approval.html">Expense Approval</a>
+          <a href="payslip_generator.html">Payslip Generator</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Stock &amp; Assets</button>
+        <div class="nav-panel">
+          <a href="consumable_stock.html">Consumable Stock</a>
+          <a href="company_assets.html">Company Assets</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Investor</button>
+        <div class="nav-panel">
+          <a href="investor_morwin_gapud.html">Morwin Gapud</a>
+          <a href="investor_marivie_viana_gapud.html">Marivie Viana Gapud</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="logout" type="button" id="logoutBtn">Log out</button>
+    </div>
+  </aside>
+
+    <section class="main">
+      <header class="topbar">
+        <div class="title-block"><h1>Payslip Generator</h1><p>Backend-connected payroll: Attendance sheet, payroll rates, CA, loans, deductions, and saved payslips.</p></div>
+        <div class="user-chip"><div class="avatar" id="avatar">TG</div><div><strong id="userName">TechGeekPH User</strong><span id="userRole">Portal access</span></div></div>
+      </header>
+
+      <div class="content">
+        <p class="notice" id="notice">Loading payroll data...</p>
+        <div class="summary-grid">
+          <article class="card"><span>Regular Hours</span><strong id="metricRegHours">0.00</strong><small>Max 8 hrs/day</small></article>
+          <article class="card"><span>Gross Pay</span><strong id="metricGross">₱0.00</strong><small>Base + allowance + OT + ND</small></article>
+          <article class="card"><span>Total Deduction</span><strong id="metricDeduction">₱0.00</strong><small>CA, loan, other, gov</small></article>
+          <article class="card"><span>Net Pay</span><strong id="metricNet">₱0.00</strong><small>Take-home amount</small></article>
+        </div>
+
+        <section class="panel no-print">
+          <div class="panel-head"><div><h2>Payroll Controls</h2><p>No PIN needed. Uses login session, Attendance sheet, saved payroll rates, CA, loans, and optional government deductions.</p></div><span class="mode-chip" id="payrollStatus">Backend mode</span></div>
+          <div class="form-grid">
+            <div class="field"><label>Employee</label><select id="employeeId"><option value="">Loading employees...</option></select></div>
+            <div class="field"><label>Payroll Cutoff</label><select id="payrollKey"><option value="">Loading cutoff...</option></select></div>
+            <div class="field"><label>Rest Day Mode</label><select id="restDayMode"><option value="none">None / Regular Days</option><option value="sunday">Sunday as Rest Day</option><option value="saturday-sunday">Saturday & Sunday as Rest Day</option></select></div>
+            <div class="field"><label>Daily Rate</label><input id="dailyRate" type="number" min="0" step="0.01" placeholder="500"></div>
+            <div class="field"><label>Allowance / Day</label><input id="allowancePerDay" type="number" min="0" step="0.01" placeholder="75"></div>
+            <div class="field"><label>OT Multiplier</label><input id="otMultiplier" type="number" min="1" step="0.01" value="1.25"></div>
+            <div class="field"><label>ND Rate</label><input id="nightDiffRate" type="number" min="0" step="0.01" value="0.10"><small class="field-hint">0.10 = 10%</small></div>
+            <div class="field"><label>Rest Day Multiplier</label><input id="restDayMultiplier" type="number" min="1" step="0.01" value="1.30"><small class="field-hint">Default 1.30 = RD 130%</small></div>
+            <div class="field"><label>RDOT Multiplier</label><input id="rdotMultiplier" type="number" min="1" step="0.01" value="1.69"><small class="field-hint">Default 1.69 = RDOT 169%</small></div>
+            <div class="field"><label>Additional Pay</label><input id="additionalPay" type="number" min="0" step="0.01" value="0"></div>
+            <div class="field"><label>Other Deduction</label><input id="otherDeduction" type="number" min="0" step="0.01" value="0"></div>
+            <div class="field">
+              <label>SSS Deduction</label>
+              <div class="gov-control">
+                <select id="sssMode">
+                  <option value="disabled">Do not include</option>
+                  <option value="auto">Auto compute</option>
+                  <option value="manual">Manual amount</option>
+                </select>
+                <input id="sssDeduction" type="number" min="0" step="0.01" value="0">
+              </div>
+              <small class="field-hint">Auto = estimate per cutoff based on gross pay.</small>
+            </div>
+            <div class="field">
+              <label>Pag-IBIG Deduction</label>
+              <div class="gov-control">
+                <select id="pagibigMode">
+                  <option value="disabled">Do not include</option>
+                  <option value="auto">Auto compute</option>
+                  <option value="manual">Manual amount</option>
+                </select>
+                <input id="pagibigDeduction" type="number" min="0" step="0.01" value="0">
+              </div>
+              <small class="field-hint">Auto = estimate per cutoff, capped based on government settings.</small>
+            </div>
+            <div class="field">
+              <label>PhilHealth Deduction</label>
+              <div class="gov-control">
+                <select id="philhealthMode">
+                  <option value="disabled">Do not include</option>
+                  <option value="auto">Auto compute</option>
+                  <option value="manual">Manual amount</option>
+                </select>
+                <input id="philhealthDeduction" type="number" min="0" step="0.01" value="0">
+              </div>
+              <small class="field-hint">Auto = employee share estimate per cutoff.</small>
+            </div>
+            <div class="field full"><label>Remarks</label><textarea id="remarks" placeholder="Optional payslip remarks"></textarea></div>
+          </div>
+          <div class="toolbar">
+            <div class="toolbar-left"><button class="primary-btn" type="button" id="previewBtn">Preview Payslip</button><button class="ok-btn" type="button" id="savePayslipBtn">Save Payslip</button><button class="ghost-btn" type="button" id="saveRateBtn">Save Rate</button></div>
+            <div class="toolbar-right"><button class="ghost-btn" type="button" id="downloadPngBtn">Download PNG</button><button class="ghost-btn" type="button" id="printBtn">Print Half A4 Crosswise</button><button class="ghost-btn" type="button" id="reloadBtn">Reload Data</button></div>
+          </div>
+        </section>
+
+        <div class="layout no-print">
+          <section class="panel">
+            <div class="panel-head"><div><h2>Attendance Computation</h2><p>Auto-computed from Attendance sheet for selected cutoff. Regular day and rest day hours are separated.</p></div><span class="mode-chip" id="rowCount">0 rows</span></div>
+            <div class="table-wrap"><table><thead><tr><th>Date</th><th>Time In</th><th>Break Start</th><th>Break End</th><th>Time Out</th><th>Work Hrs</th><th>Regular</th><th>OT</th><th>RD</th><th>RDOT</th><th>ND</th><th>Remarks</th></tr></thead><tbody id="attendanceRows"><tr><td colspan="12">No preview yet.</td></tr></tbody></table></div>
+          </section>
+          <aside class="panel">
+            <div class="panel-head"><div><h2>Auto Deductions</h2><p>Cash Advance + Food from Expenses, plus loans from Employee_Loans.</p></div></div>
+            <div class="calc-grid">
+              <div class="calc-row"><span>Cash Advance / Food</span><strong id="autoCashAdvance">₱0.00</strong></div>
+              <div class="calc-row"><span>Loan</span><strong id="autoLoan">₱0.00</strong></div>
+              <div class="calc-row"><span>Other Deduction</span><strong id="autoOtherDeduction">₱0.00</strong></div>
+              <div class="calc-row"><span>Gov. Deduction</span><strong id="autoGovDeduction">₱0.00</strong></div>
+              <div class="calc-row total"><span>Total Deduction</span><strong id="sideTotalDeduction">₱0.00</strong></div>
+              <div class="calc-row net"><span>Net Pay</span><strong id="sideNetPay">₱0.00</strong></div>
+            </div>
+            <div class="table-wrap"><table style="min-width:520px"><thead><tr><th>Type</th><th>Description</th><th class="amount">Amount</th></tr></thead><tbody id="deductionRows"><tr><td colspan="3">No deductions yet.</td></tr></tbody></table></div>
+          </aside>
+        </div>
+
+        <section class="panel" id="payslipPanel">
+          <div class="panel-head no-print"><div><h2>Printable Payslip</h2><p>Preview updates from backend computation.</p></div><span class="mode-chip" id="computedAt">Not computed yet</span></div>
+          <div class="payslip" id="payslipArea">
+            <div class="payslip-head"><div><h3>TECHGEEKPH PAYSLIP</h3><p id="slipPayrollLabel">Salary computation summary</p></div><div class="payslip-logo"><img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH"></div></div>
+            <div class="payslip-info">
+              <div><span>Payslip ID</span><strong id="slipPayslipId">Preview Only</strong></div><div><span>Generated At</span><strong id="slipGeneratedAt">--</strong></div>
+              <div><span>Employee Name</span><strong id="slipEmployeeName">--</strong></div><div><span>Employee ID</span><strong id="slipEmployeeId">--</strong></div>
+              <div><span>Position</span><strong id="slipPosition">--</strong></div><div><span>Salary Date</span><strong id="slipSalaryDate">--</strong></div>
+              <div><span>Period Start</span><strong id="slipPeriodStart">--</strong></div><div><span>Period End</span><strong id="slipPeriodEnd">--</strong></div>
+              <div><span>Daily Rate</span><strong id="slipDailyRate">₱0.00</strong></div><div><span>Days Present</span><strong id="slipDaysPresent">0</strong></div>
+            </div>
+            <div class="payslip-tables">
+            <table class="payslip-table"><thead><tr><th>Earnings</th><th class="amount">Hours/Days</th><th class="amount">Amount</th></tr></thead><tbody>
+              <tr><td>Base Pay</td><td class="amount" id="slipRegularHours">0.00</td><td class="amount" id="slipBasePay">₱0.00</td></tr>
+              <tr><td>Allowance</td><td class="amount" id="slipAllowanceDays">0</td><td class="amount" id="slipAllowance">₱0.00</td></tr>
+              <tr><td>OT Pay</td><td class="amount" id="slipOvertimeHours">0.00</td><td class="amount" id="slipOtPay">₱0.00</td></tr>
+              <tr><td>Rest Day Pay</td><td class="amount" id="slipRestDayHours">0.00</td><td class="amount" id="slipRestDayPay">₱0.00</td></tr>
+              <tr><td>RDOT Pay</td><td class="amount" id="slipRdotHours">0.00</td><td class="amount" id="slipRdotPay">₱0.00</td></tr>
+              <tr><td>Night Differential</td><td class="amount" id="slipNightDiffHours">0.00</td><td class="amount" id="slipNightDiffPay">₱0.00</td></tr>
+              <tr><td>Additional Pay</td><td></td><td class="amount" id="slipAdditionalPay">₱0.00</td></tr>
+              <tr><th>Gross Pay</th><th></th><th class="amount" id="slipGross">₱0.00</th></tr>
+            </tbody></table>
+            <table class="payslip-table"><thead><tr><th>Deductions</th><th class="amount">Amount</th></tr></thead><tbody>
+              <tr><td>Cash Advance / Food</td><td class="amount" id="slipCashAdvance">₱0.00</td></tr>
+              <tr><td>Loan</td><td class="amount" id="slipLoan">₱0.00</td></tr>
+              <tr><td>Other Deduction</td><td class="amount" id="slipOtherDeduction">₱0.00</td></tr>
+              <tr><td>SSS</td><td class="amount" id="slipSss">₱0.00</td></tr>
+              <tr><td>Pag-IBIG</td><td class="amount" id="slipPagibig">₱0.00</td></tr>
+              <tr><td>PhilHealth</td><td class="amount" id="slipPhilhealth">₱0.00</td></tr>
+              <tr><th>Total Deduction</th><th class="amount" id="slipTotalDeduction">₱0.00</th></tr>
+              <tr><th>NET PAY</th><th class="amount" id="slipNetPay">₱0.00</th></tr>
+            </tbody></table>
+            </div>
+            <div class="payslip-info"><div><span>Remarks</span><strong id="slipRemarks">--</strong></div><div><span>Incomplete Logs</span><strong id="slipIncompleteLogs">0</strong></div></div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxDY5TsonrB58YaN8LGbrrrc_ZD1QVpF1WK0p6jToIR2FBSqGaHfsgaE1CCiH1MvukV/exec";
+    const SESSION_KEY = "techgeekph_admin_session";
+    const FALLBACK_SESSION_KEY = "techgeekph_admin_session";
+    let currentPreview = null;
+    let employeeMap = {};
+
+    const els = {
+      notice: document.querySelector("#notice"),
+      employeeId: document.querySelector("#employeeId"),
+      payrollKey: document.querySelector("#payrollKey"),
+      dailyRate: document.querySelector("#dailyRate"),
+      allowancePerDay: document.querySelector("#allowancePerDay"),
+      otMultiplier: document.querySelector("#otMultiplier"),
+      nightDiffRate: document.querySelector("#nightDiffRate"),
+      restDayMode: document.querySelector("#restDayMode"),
+      restDayMultiplier: document.querySelector("#restDayMultiplier"),
+      rdotMultiplier: document.querySelector("#rdotMultiplier"),
+      additionalPay: document.querySelector("#additionalPay"),
+      otherDeduction: document.querySelector("#otherDeduction"),
+      sssMode: document.querySelector("#sssMode"),
+      sssDeduction: document.querySelector("#sssDeduction"),
+      pagibigMode: document.querySelector("#pagibigMode"),
+      pagibigDeduction: document.querySelector("#pagibigDeduction"),
+      philhealthMode: document.querySelector("#philhealthMode"),
+      philhealthDeduction: document.querySelector("#philhealthDeduction"),
+      remarks: document.querySelector("#remarks")
+    };
+
+    function loadSession(){
+      try {
+        const primary = JSON.parse(localStorage.getItem(SESSION_KEY) || "{}");
+        if (primary && Object.keys(primary).length) return primary;
+      } catch(e) {}
+      try {
+        const fallback = JSON.parse(localStorage.getItem(FALLBACK_SESSION_KEY) || "{}");
+        return fallback || {};
+      } catch(e) {
+        return {};
+      }
+    }
+
+    function getToken(){
+      const session = loadSession();
+      return session.token || session.sessionToken || session.accessToken || "";
+    }
+
+    function getSessionToken(){
+      return getToken();
+    }
+    function initialsFrom(v){return String(v||"TG").replace(/@.*/,"").split(/[.\s_-]+/).filter(Boolean).slice(0,2).map(p=>p[0].toUpperCase()).join("")||"TG";}
+    function setUser(){const s=loadSession();const u=s.user||{};const name=u.fullName||u.name||u.email||s.email||"TechGeekPH User";const role=u.role||s.role||"portal";document.querySelector("#userName").textContent=name;document.querySelector("#userRole").textContent=String(role).charAt(0).toUpperCase()+String(role).slice(1).toLowerCase()+" access";document.querySelector("#avatar").textContent=initialsFrom(name);const adminLink=document.querySelector("#adminRecordsLink");if(adminLink&&String(role).toUpperCase()!=="ADMIN")adminLink.style.display="none";}
+    function money(v){const n=Number(v||0);return "₱"+n.toLocaleString("en-PH",{minimumFractionDigits:2,maximumFractionDigits:2});}
+    function escapeHtml(v){return String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;");}
+    function setText(id,value){const el=document.getElementById(id); if(el) el.textContent=value;}
+    function numEl(el){return Number(String(el.value||0).replace(/,/g,""))||0;}
+    function showNotice(msg,type){els.notice.textContent=msg;els.notice.classList.remove("ok","error"); if(type) els.notice.classList.add(type);}
+    function setBusy(button,busy){if(!button)return;button.disabled=!!busy;}
+
+    function isSessionError(message){
+      const text = String(message || "").toLowerCase();
+      return text.includes("session expired") ||
+        text.includes("no session token") ||
+        text.includes("please login again") ||
+        text.includes("please log in again") ||
+        text.includes("access denied") ||
+        text.includes("invalid token");
+    }
+
+    function redirectToLogin(message){
+      try { localStorage.removeItem(SESSION_KEY); } catch(e) {}
+      try { localStorage.removeItem(FALLBACK_SESSION_KEY); } catch(e) {}
+      showNotice(message || "Session expired. Redirecting to login page...", "error");
+      setTimeout(function(){
+        window.location.replace("index.html");
+      }, 650);
+    }
+
+    async function callBackend(action, data){
+      const token = getToken();
+      if(!token){
+        redirectToLogin("Session expired. Please login again.");
+        throw new Error("Session expired. Please login again.");
+      }
+
+      const params = new URLSearchParams();
+      params.set("action", action);
+      params.set("token", token);
+      params.set("sessionToken", token);
+      if(data !== undefined) params.set("data", JSON.stringify(data || {}));
+
+      const response = await fetch(BACKEND_URL + "?" + params.toString(), { method:"GET", redirect:"follow" });
+      const text = await response.text();
+      let json;
+
+      try {
+        json = JSON.parse(text);
+      } catch(e) {
+        if(isSessionError(text)){
+          redirectToLogin("Session expired. Please login again.");
+        }
+        throw new Error(text || "Unexpected backend response.");
+      }
+
+      if(!json || json.success === false || json.ok === false){
+        const msg = (json && json.message) || "Backend error.";
+        if(isSessionError(msg)){
+          redirectToLogin("Session expired. Please login again.");
+        }
+        throw new Error(msg);
+      }
+
+      return json;
+    }
+
+    function payload(){
+      return {
+        employeeId: els.employeeId.value,
+        payrollKey: els.payrollKey.value,
+        dailyRate: numEl(els.dailyRate),
+        allowancePerDay: numEl(els.allowancePerDay),
+        otMultiplier: numEl(els.otMultiplier),
+        nightDiffRate: numEl(els.nightDiffRate),
+        restDayMode: els.restDayMode.value,
+        restDayMultiplier: numEl(els.restDayMultiplier),
+        rdotMultiplier: numEl(els.rdotMultiplier),
+        additionalPay: numEl(els.additionalPay),
+        otherDeduction: numEl(els.otherDeduction),
+        sssMode: els.sssMode ? els.sssMode.value : "disabled",
+        sssDeduction: numEl(els.sssDeduction),
+        pagibigMode: els.pagibigMode ? els.pagibigMode.value : "disabled",
+        pagibigDeduction: numEl(els.pagibigDeduction),
+        philhealthMode: els.philhealthMode ? els.philhealthMode.value : "disabled",
+        philhealthDeduction: numEl(els.philhealthDeduction),
+        remarks: els.remarks.value
+      };
+    }
+
+
+    function updateGovModeInputs(){
+      [
+        {mode: els.sssMode, amount: els.sssDeduction},
+        {mode: els.pagibigMode, amount: els.pagibigDeduction},
+        {mode: els.philhealthMode, amount: els.philhealthDeduction}
+      ].forEach(item => {
+        if(!item.mode || !item.amount) return;
+        const value = item.mode.value;
+        if(value === "disabled") {
+          item.amount.value = 0;
+          item.amount.readOnly = true;
+        } else if(value === "auto") {
+          item.amount.readOnly = true;
+        } else {
+          item.amount.readOnly = false;
+        }
+      });
+    }
+
+    function applyEmployeePayrollDefaults(){
+      const e = employeeMap[els.employeeId.value];
+      if(!e) return;
+      setText("payrollStatus", e.position || "Employee selected");
+      els.dailyRate.value = Number(e.dailyRate || 0);
+      els.allowancePerDay.value = Number(e.allowancePerDay || 0);
+      els.otMultiplier.value = Number(e.otMultiplier || 1.25);
+      els.restDayMultiplier.value = Number(e.restDayMultiplier || 1.30);
+      els.rdotMultiplier.value = Number(e.rdotMultiplier || 1.69);
+      els.nightDiffRate.value = Number(e.nightDiffRate || 0.10);
+    }
+
+    async function loadInitial(){
+      showNotice("Loading employees and payroll cutoffs...");
+      try{
+        const res = await callBackend("PAY_getInitialData", {});
+        const employees = res.employees || [];
+        employeeMap = {};
+        els.employeeId.innerHTML = '<option value="">Select employee</option>' + employees.map(e=>{employeeMap[e.employeeId]=e;return '<option value="'+escapeHtml(e.employeeId)+'">'+escapeHtml(e.employeeName)+' - '+escapeHtml(e.employeeId)+'</option>';}).join("");
+        const options = res.payrollOptions || [];
+        els.payrollKey.innerHTML = options.map(o=>'<option value="'+escapeHtml(o.key)+'">'+escapeHtml(o.label)+'</option>').join("");
+        if(res.defaultPayrollKey) els.payrollKey.value = res.defaultPayrollKey;
+        if(employees.length === 1){
+          els.employeeId.value = employees[0].employeeId;
+          applyEmployeePayrollDefaults();
+        }
+        updateGovModeInputs();
+        showNotice("Ready. Select employee and cutoff, then Preview Payslip. Rates auto-fill from Payroll_Rates / Employees sheet.","ok");
+      }catch(err){showNotice(err.message || String(err),"error");}
+    }
+
+    function renderPreview(p){
+      currentPreview = p;
+      if(els.sssMode && p.sssMode) els.sssMode.value = p.sssMode;
+      if(els.pagibigMode && p.pagibigMode) els.pagibigMode.value = p.pagibigMode;
+      if(els.philhealthMode && p.philhealthMode) els.philhealthMode.value = p.philhealthMode;
+      if(els.sssDeduction) els.sssDeduction.value = Number(p.sssDeduction || 0).toFixed(2);
+      if(els.pagibigDeduction) els.pagibigDeduction.value = Number(p.pagibigDeduction || 0).toFixed(2);
+      if(els.philhealthDeduction) els.philhealthDeduction.value = Number(p.philhealthDeduction || 0).toFixed(2);
+      updateGovModeInputs();
+      setText("metricRegHours", Number((p.regularHours||0)+(p.restDayHours||0)).toFixed(2));
+      setText("metricGross", money(p.grossPay));
+      setText("metricDeduction", money(p.totalDeduction));
+      setText("metricNet", money(p.netPay));
+      setText("computedAt", p.saved ? "Saved: " + (p.payslipId || "") : "Preview: " + (p.generatedAt || ""));
+      setText("rowCount", (p.attendanceRows||[]).length + " rows");
+      setText("autoCashAdvance", money(p.cashAdvanceDeduction));
+      setText("autoLoan", money(p.loanDeduction));
+      setText("autoOtherDeduction", money(p.otherDeduction));
+      setText("autoGovDeduction", money((Number(p.sssDeduction||0)+Number(p.pagibigDeduction||0)+Number(p.philhealthDeduction||0))));
+      setText("sideTotalDeduction", money(p.totalDeduction));
+      setText("sideNetPay", money(p.netPay));
+
+      setText("slipPayslipId", p.payslipId || "Preview Only"); setText("slipGeneratedAt", p.generatedAt || "--"); setText("slipPayrollLabel", p.payrollLabel || "Salary computation summary");
+      setText("slipEmployeeName", p.employeeName || "--"); setText("slipEmployeeId", p.employeeId || "--"); setText("slipPosition", p.position || "--"); setText("slipSalaryDate", p.salaryDate || "--");
+      setText("slipPeriodStart", p.periodStart || "--"); setText("slipPeriodEnd", p.periodEnd || "--"); setText("slipDailyRate", money(p.dailyRate)); setText("slipDaysPresent", p.daysPresent || 0);
+      setText("slipRegularHours", Number(p.regularHours||0).toFixed(2)); setText("slipBasePay", money(p.basePay)); setText("slipAllowanceDays", p.daysPresent || 0); setText("slipAllowance", money(p.allowance));
+      setText("slipOvertimeHours", Number(p.overtimeHours||0).toFixed(2)); setText("slipOtPay", money(p.otPay)); setText("slipRestDayHours", Number(p.restDayHours||0).toFixed(2)); setText("slipRestDayPay", money(p.restDayPay)); setText("slipRdotHours", Number(p.rdotHours||0).toFixed(2)); setText("slipRdotPay", money(p.rdotPay)); setText("slipNightDiffHours", Number(p.nightDiffHours||0).toFixed(2)); setText("slipNightDiffPay", money(p.nightDiffPay));
+      setText("slipAdditionalPay", money(p.additionalPay)); setText("slipGross", money(p.grossPay)); setText("slipCashAdvance", money(p.cashAdvanceDeduction)); setText("slipLoan", money(p.loanDeduction));
+      setText("slipOtherDeduction", money(p.otherDeduction)); setText("slipSss", money(p.sssDeduction)); setText("slipPagibig", money(p.pagibigDeduction)); setText("slipPhilhealth", money(p.philhealthDeduction));
+      setText("slipTotalDeduction", money(p.totalDeduction)); setText("slipNetPay", money(p.netPay)); setText("slipRemarks", p.remarks || "--"); setText("slipIncompleteLogs", p.incompleteLogs || 0);
+
+      const attendanceRows = p.attendanceRows || [];
+      document.querySelector("#attendanceRows").innerHTML = attendanceRows.length ? attendanceRows.map(r=>'<tr><td>'+escapeHtml(r.date)+'</td><td>'+escapeHtml(r.timeIn||"--")+'</td><td>'+escapeHtml(r.breakStart||"--")+'</td><td>'+escapeHtml(r.breakEnd||"--")+'</td><td>'+escapeHtml(r.timeOut||"--")+'</td><td class="num">'+escapeHtml(r.workHours||"")+'</td><td class="num">'+escapeHtml(r.regularPaidHours||"")+'</td><td class="num">'+escapeHtml(r.overtimeHours||"")+'</td><td class="num">'+escapeHtml(r.restDayHours||"")+'</td><td class="num">'+escapeHtml(r.rdotHours||"")+'</td><td class="num">'+escapeHtml(r.nightDiffHours||"")+'</td><td>'+escapeHtml(r.remarks||"")+'</td></tr>').join("") : '<tr><td colspan="12">No attendance rows found for this cutoff.</td></tr>';
+
+      const deductionItems = p.autoDeductionItems || [];
+      document.querySelector("#deductionRows").innerHTML = deductionItems.length ? deductionItems.map(d=>'<tr><td>'+escapeHtml(d.type)+'</td><td>'+escapeHtml(d.description)+'</td><td class="amount">'+money(d.amount)+'</td></tr>').join("") : '<tr><td colspan="3">No auto deductions for this cutoff.</td></tr>';
+    }
+
+    async function previewPayslip(){
+      const btn=document.querySelector("#previewBtn"); setBusy(btn,true); showNotice("Computing payslip from backend...");
+      try{const res=await callBackend("PAY_getPayslipPreview", payload()); if(!res || res.success===false) throw new Error(res && res.message ? res.message : "Unable to compute."); renderPreview(res); showNotice("Payslip preview generated.","ok");}
+      catch(err){showNotice(err.message||String(err),"error");}
+      finally{setBusy(btn,false);}
+    }
+
+    async function savePayslip(){
+      const btn=document.querySelector("#savePayslipBtn"); setBusy(btn,true); showNotice("Saving payslip to Payslips sheet...");
+      try{const data=payload(); const res=await callBackend("PAY_savePayslip", data); if(!res || res.success===false) throw new Error(res && res.message ? res.message : "Unable to save."); renderPreview(res); showNotice("Payslip saved: "+(res.payslipId||""),"ok");}
+      catch(err){showNotice(err.message||String(err),"error");}
+      finally{setBusy(btn,false);}
+    }
+
+    async function saveRate(){
+      const btn=document.querySelector("#saveRateBtn"); setBusy(btn,true); showNotice("Saving payroll rate...");
+      try{const data=payload(); data.rateNotes="Saved from Payslip Generator"; const res=await callBackend("PAY_savePayrollRate", data); if(!res || res.success===false) throw new Error(res && res.message ? res.message : "Unable to save rate."); showNotice(res.message || "Payroll rate saved.","ok");}
+      catch(err){showNotice(err.message||String(err),"error");}
+      finally{setBusy(btn,false);}
+    }
+
+
+
+    async function imageToDataUrl(src){
+      try{
+        const absolute = new URL(src, window.location.href).href;
+        const res = await fetch(absolute, {cache:"force-cache"});
+        const blob = await res.blob();
+        return await new Promise((resolve,reject)=>{
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      }catch(err){
+        return src;
+      }
+    }
+
+    function sanitizeImagesForPng(clone){
+      /*
+        IMPORTANT:
+        html2canvas cannot export a canvas when a cross-origin image is drawn into it.
+        Apps Script pages may treat local assets/logo images as cross-origin inside the sandbox,
+        which causes: "Tainted canvases may not be exported".
+        For PNG export only, replace images inside the cloned payslip with a clean text logo box.
+        The normal screen view and print view still keep the original logo.
+      */
+      const imgs = Array.from(clone.querySelectorAll("img"));
+      imgs.forEach(function(img){
+        const fallback = document.createElement("div");
+        fallback.className = "png-logo-fallback";
+        const alt = String(img.getAttribute("alt") || "TechGeekPH").trim();
+        fallback.textContent = alt && alt.toLowerCase().indexOf("techgeek") !== -1 ? "TechGeekPH" : alt;
+        fallback.setAttribute("aria-label", fallback.textContent || "TechGeekPH");
+        img.replaceWith(fallback);
+      });
+
+      Array.from(clone.querySelectorAll("*")).forEach(function(el){
+        const bg = window.getComputedStyle(el).backgroundImage;
+        if(bg && bg !== "none" && bg.indexOf("url(") !== -1){
+          el.style.backgroundImage = "none";
+        }
+        el.style.filter = "none";
+        el.style.backdropFilter = "none";
+        el.style.webkitBackdropFilter = "none";
+      });
+    }
+
+    function buildPngFilename(){
+      const emp = (currentPreview && (currentPreview.employeeName || currentPreview.employeeId)) || "employee";
+      const date = (currentPreview && currentPreview.salaryDate) || new Date().toISOString().slice(0,10);
+      return ("payslip_" + emp + "_" + date + ".png")
+        .replace(/[^a-z0-9._-]+/gi,"_")
+        .replace(/_+/g,"_");
+    }
+
+    function getDownloadErrorText(err){
+      if(!err) return "Unknown error.";
+      if(err.message) return err.message;
+      if(err.type) return "Browser event error: " + err.type;
+      if(err.target && err.target.src) return "Image failed to load: " + err.target.src;
+      try { return JSON.stringify(err); } catch(e) {}
+      return String(err);
+    }
+
+    function loadHtml2Canvas(){
+      if(window.html2canvas) return Promise.resolve(window.html2canvas);
+
+      return new Promise(function(resolve, reject){
+        const existing = document.querySelector('script[data-payslip-html2canvas="1"]');
+        if(existing){
+          existing.addEventListener("load", function(){ resolve(window.html2canvas); }, {once:true});
+          existing.addEventListener("error", function(){ reject(new Error("Unable to load html2canvas library.")); }, {once:true});
+          return;
+        }
+
+        const script = document.createElement("script");
+        script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+        script.async = true;
+        script.crossOrigin = "anonymous";
+        script.setAttribute("data-payslip-html2canvas", "1");
+        script.onload = function(){
+          if(window.html2canvas) resolve(window.html2canvas);
+          else reject(new Error("html2canvas loaded but is not available."));
+        };
+        script.onerror = function(){
+          reject(new Error("Unable to load html2canvas library. Please check internet connection or CDN access."));
+        };
+        document.head.appendChild(script);
+      });
+    }
+
+    function forcePayslipLandscapeLayoutForExport(holder){
+      const style = document.createElement("style");
+      style.textContent = `
+        #payslipPngCaptureWrap,
+        #payslipPngCaptureWrap * { box-sizing: border-box !important; }
+        #payslipPngCaptureWrap { background:#fff !important; }
+        #payslipPngCaptureWrap .payslip {
+          width: 8.27in !important;
+          min-height: 5.83in !important;
+          max-width: none !important;
+          margin: 0 !important;
+          padding: 0.5in !important;
+          border: 0 !important;
+          box-shadow: none !important;
+          background: #fff !important;
+          color: #16202f !important;
+          display: grid !important;
+          gap: 5px !important;
+          font-size: 9.5px !important;
+          line-height: 1.08 !important;
+          overflow: hidden !important;
+        }
+        #payslipPngCaptureWrap .payslip-info {
+          display: grid !important;
+          grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+          gap: 3px 7px !important;
+        }
+        #payslipPngCaptureWrap .payslip-info:last-child {
+          grid-template-columns: 2fr 1fr !important;
+        }
+        #payslipPngCaptureWrap .payslip-tables {
+          display: grid !important;
+          grid-template-columns: 1.15fr 0.85fr !important;
+          gap: 8px !important;
+          align-items: start !important;
+        }
+        #payslipPngCaptureWrap .payslip-table {
+          width: 100% !important;
+          min-width: 0 !important;
+          border-collapse: collapse !important;
+          font-size: .58rem !important;
+        }
+        #payslipPngCaptureWrap .payslip-table th,
+        #payslipPngCaptureWrap .payslip-table td {
+          padding: 2.5px 4px !important;
+          line-height: 1.08 !important;
+          vertical-align: middle !important;
+        }
+        #payslipPngCaptureWrap .amount {
+          text-align: right !important;
+          white-space: nowrap !important;
+        }
+        #payslipPngCaptureWrap .payslip-logo {
+          width: 66px !important;
+        }
+        #payslipPngCaptureWrap .png-logo-fallback {
+          width: 66px !important;
+          min-height: 26px !important;
+          display: grid !important;
+          place-items: center !important;
+          border: 1px solid #d9e1ec !important;
+          border-radius: 5px !important;
+          background: #ffffff !important;
+          color: #064f83 !important;
+          font-size: 8px !important;
+          font-weight: 950 !important;
+          letter-spacing: .02em !important;
+          text-align: center !important;
+          padding: 2px !important;
+          line-height: 1 !important;
+        }
+      `;
+      holder.appendChild(style);
+    }
+
+    async function makePayslipCanvas(){
+      const source = document.querySelector("#payslipArea");
+      if(!source) throw new Error("Payslip area not found.");
+
+      const html2canvas = await loadHtml2Canvas();
+
+      const holder = document.createElement("div");
+      holder.id = "payslipPngCaptureWrap";
+      holder.style.position = "fixed";
+      holder.style.left = "-10000px";
+      holder.style.top = "0";
+      holder.style.width = "8.27in";
+      holder.style.minHeight = "5.83in";
+      holder.style.background = "#ffffff";
+      holder.style.zIndex = "-1";
+      holder.style.opacity = "1";
+      holder.style.pointerEvents = "none";
+      holder.style.overflow = "hidden";
+
+      forcePayslipLandscapeLayoutForExport(holder);
+
+      const clone = source.cloneNode(true);
+      clone.removeAttribute("id");
+      clone.classList.add("png-capture");
+      holder.appendChild(clone);
+      document.body.appendChild(holder);
+
+      try{
+        sanitizeImagesForPng(clone);
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+        const canvas = await html2canvas(clone, {
+          backgroundColor: "#ffffff",
+          scale: 3,
+          useCORS: true,
+          allowTaint: false,
+          logging: false,
+          width: clone.scrollWidth,
+          height: clone.scrollHeight,
+          windowWidth: clone.scrollWidth,
+          windowHeight: clone.scrollHeight,
+          scrollX: 0,
+          scrollY: 0
+        });
+
+        return canvas;
+      } finally {
+        holder.remove();
+      }
+    }
+
+    function downloadCanvasAsPng(canvas){
+      if(!canvas) throw new Error("Canvas not created.");
+
+      if(canvas.toBlob){
+        return new Promise(function(resolve, reject){
+          canvas.toBlob(function(blob){
+            if(!blob){
+              reject(new Error("Unable to create PNG blob."));
+              return;
+            }
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = buildPngFilename();
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(function(){ URL.revokeObjectURL(url); resolve(); }, 500);
+          }, "image/png");
+        });
+      }
+
+      const dataUrl = canvas.toDataURL("image/png");
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = buildPngFilename();
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      return Promise.resolve();
+    }
+
+    async function downloadPayslipPng(){
+      if(!currentPreview){
+        showNotice("Preview muna ng payslip bago mag-download ng PNG.", "error");
+        return;
+      }
+
+      showNotice("Preparing PNG image...");
+
+      try{
+        const canvas = await makePayslipCanvas();
+        await downloadCanvasAsPng(canvas);
+        showNotice("PNG downloaded. Half A4/A5 crosswise size with 0.5 inch margin.", "ok");
+      }catch(err){
+        showNotice("Unable to download PNG. " + getDownloadErrorText(err) + " You can still use Print Half A4 / Save as PDF.", "error");
+      }
+    }
+
+    els.employeeId.addEventListener("change", applyEmployeePayrollDefaults);
+    [els.sssMode, els.pagibigMode, els.philhealthMode].forEach(function(select){
+      if(select) select.addEventListener("change", updateGovModeInputs);
+    });
+    document.querySelectorAll(".nav-toggle").forEach(button=>button.addEventListener("click",()=>{const group=button.closest(".nav-group"); if(group) group.classList.toggle("is-open");}));
+    document.querySelector("#logoutBtn").addEventListener("click",()=>{localStorage.removeItem(SESSION_KEY);localStorage.removeItem(FALLBACK_SESSION_KEY);window.location.replace("index.html");});
+    document.querySelector("#previewBtn").addEventListener("click",previewPayslip);
+    document.querySelector("#savePayslipBtn").addEventListener("click",savePayslip);
+    document.querySelector("#saveRateBtn").addEventListener("click",saveRate);
+    document.querySelector("#downloadPngBtn").addEventListener("click",downloadPayslipPng);
+    document.querySelector("#printBtn").addEventListener("click",()=>window.print());
+    document.querySelector("#reloadBtn").addEventListener("click",loadInitial);
+    if(!getToken()){
+      redirectToLogin("Session expired. Please login again.");
+    } else {
+      setUser();
+      loadInitial();
+    }
+  </script>
+  <script src="assets/admin-shell.js"></script>
+</body>
+</html>

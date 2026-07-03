@@ -1,0 +1,53 @@
+:root {
+  --admin-blue: #064f83;
+  --admin-blue-strong: #023d6b;
+}
+
+.sidebar[data-admin-sidebar] {
+  background: linear-gradient(180deg, var(--admin-blue-strong), var(--admin-blue) 58%, #083453) !important;
+}
+
+.sidebar[data-admin-sidebar] .brand span {
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.sidebar[data-admin-sidebar] .nav {
+  display: grid;
+  gap: 8px;
+}
+
+.sidebar[data-admin-sidebar] .nav-group {
+  display: grid;
+  gap: 7px;
+}
+
+.sidebar[data-admin-sidebar] .nav-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.sidebar[data-admin-sidebar] .nav-panel {
+  display: none;
+  gap: 6px;
+  padding-left: 8px;
+}
+
+.sidebar[data-admin-sidebar] .nav-group.is-open .nav-panel {
+  display: grid;
+}
+
+.sidebar[data-admin-sidebar] .nav a.is-active,
+.sidebar[data-admin-sidebar] .nav-toggle.is-active {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.16) !important;
+}
+
+.sidebar[data-admin-sidebar] .nav-panel a {
+  min-height: 38px;
+}
+
+.sidebar[data-admin-sidebar] .logout {
+  width: 100%;
+}

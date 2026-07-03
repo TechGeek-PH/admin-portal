@@ -1,0 +1,2225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TechGeekPH Clients</title>
+  <style>
+    :root {
+      --blue: #064f83;
+      --blue-strong: #023d6b;
+      --crimson: #c91448;
+      --ink: #16202f;
+      --muted: #64748b;
+      --line: #d9e1ec;
+      --soft: #f5f7fb;
+      --surface: #ffffff;
+      --ok: #1f8a66;
+      --warn: #b7791f;
+      --danger: #c91448;
+      --shadow: 0 10px 28px rgba(14, 34, 55, 0.06);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background: var(--soft);
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding: 18px;
+      color: #fff;
+      background: linear-gradient(180deg, var(--blue-strong), var(--blue) 58%, #083453);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .brand {
+      display: grid;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .brand-logo {
+      display: grid;
+      place-items: center;
+      width: 136px;
+      min-height: 50px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .brand-logo img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .brand strong, .brand span { display: block; }
+    .brand strong { font-size: 0.96rem; }
+    .brand span {
+      margin-top: 4px;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 0.78rem;
+      line-height: 1.35;
+    }
+
+    .nav {
+      display: grid;
+      gap: 6px;
+    }
+
+    .nav a, .nav button {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      min-height: 40px;
+      border: 0;
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.82);
+      background: transparent;
+      padding: 0 12px;
+      text-align: left;
+      text-decoration: none;
+      font-weight: 750;
+    }
+
+    .nav a:hover, .nav a.is-active, .nav button:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    /* Admin dropdown navigation */
+    .nav a, .nav button, .nav summary {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      min-height: 40px;
+      border: 0;
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.82);
+      background: transparent;
+      padding: 0 12px;
+      text-align: left;
+      text-decoration: none;
+      font-weight: 750;
+      list-style: none;
+      user-select: none;
+      gap: 8px;
+    }
+
+    .nav summary::-webkit-details-marker { display: none; }
+    .nav summary::after {
+      content: "▾";
+      margin-left: auto;
+      font-size: 0.78rem;
+      opacity: 0.72;
+      transition: transform 160ms ease;
+    }
+
+    .nav details:not([open]) summary::after { transform: rotate(-90deg); }
+
+    .nav a:hover,
+    .nav a.is-active,
+    .nav button:hover,
+    .nav summary:hover,
+    .nav details[open] > summary {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .nav-group {
+      display: grid;
+      gap: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 6px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .nav-group summary {
+      min-height: 38px;
+      padding: 0 10px;
+      font-size: 0.82rem;
+      font-weight: 900;
+    }
+
+    .nav-sub {
+      display: grid;
+      gap: 4px;
+      margin: 2px 0 2px 10px;
+      padding-left: 10px;
+      border-left: 1px solid rgba(255, 255, 255, 0.20);
+    }
+
+    .nav-sub a {
+      min-height: 34px;
+      padding: 0 10px;
+      font-size: 0.78rem;
+      font-weight: 780;
+    }
+
+    @media (max-width: 920px) {
+      .nav { grid-template-columns: 1fr !important; }
+      .nav-group { width: 100%; }
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      display: grid;
+      gap: 10px;
+    }
+
+    .logout {
+      min-height: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 8px;
+      color: #fff;
+      background: transparent;
+      font-weight: 800;
+    }
+
+    .main {
+      min-width: 0;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 72px;
+      padding: 14px clamp(18px, 3vw, 30px);
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(14px);
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.25rem, 2vw, 1.75rem);
+    }
+
+    .title-block p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .avatar {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      color: #fff;
+      background: linear-gradient(135deg, var(--crimson), var(--blue));
+      font-weight: 900;
+    }
+
+    .user-chip strong, .user-chip span { display: block; }
+    .user-chip strong { font-size: 0.92rem; }
+    .user-chip span { margin-top: 2px; color: var(--muted); font-size: 0.78rem; }
+
+    .content {
+      display: grid;
+      gap: 18px;
+      padding: clamp(18px, 3vw, 30px);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .card, .panel {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .card {
+      min-height: 98px;
+      padding: 16px;
+    }
+
+    .card span, .card strong, .card small { display: block; }
+    .card span { color: var(--muted); font-size: 0.78rem; font-weight: 800; }
+    .card strong { margin-top: 10px; color: var(--blue); font-size: 1.65rem; }
+    .card small { margin-top: 7px; color: #7d8b9d; font-size: 0.72rem; }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .panel-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfdff;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-left, .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .search, .filter {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 0 12px;
+      color: var(--ink);
+      outline: none;
+    }
+
+    .search {
+      width: min(100vw - 70px, 380px);
+    }
+
+    .primary-btn, .ghost-btn, .danger-btn, .small-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      border-radius: 8px;
+      padding: 0 14px;
+      font-weight: 850;
+      text-decoration: none;
+    }
+
+    .small-btn {
+      min-height: 32px;
+      padding: 0 10px;
+      font-size: 0.78rem;
+    }
+
+    .primary-btn {
+      border: 1px solid var(--blue);
+      color: #fff;
+      background: var(--blue);
+    }
+
+    .ghost-btn, .small-btn {
+      border: 1px solid var(--line);
+      color: var(--blue);
+      background: #fff;
+    }
+
+    .danger-btn {
+      border: 1px solid #f0b5c3;
+      color: var(--danger);
+      background: #fff5f7;
+    }
+
+    .primary-btn:disabled, .ghost-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .notice {
+      margin: 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(183, 121, 31, 0.22);
+      border-radius: 8px;
+      background: #fff8ea;
+      color: #7a4e10;
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    .notice.ok {
+      border-color: rgba(31, 138, 102, 0.28);
+      color: #126247;
+      background: #eefaf5;
+    }
+
+    .notice.error {
+      border-color: rgba(201, 20, 72, 0.26);
+      color: #98113b;
+      background: #fff1f5;
+    }
+
+    .compact-form {
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .form-grid.basic {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .field.wide { grid-column: span 2; }
+    .field.full { grid-column: 1 / -1; }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      color: #334155;
+      font-size: 0.76rem;
+      font-weight: 850;
+    }
+
+    .field input, .field select, .field textarea {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 0 11px;
+      color: var(--ink);
+      outline: none;
+    }
+
+    .field textarea {
+      min-height: 74px;
+      padding: 9px 11px;
+      resize: vertical;
+    }
+
+    .advanced-box {
+      display: none;
+      margin-top: 2px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--line);
+    }
+
+    .advanced-box.is-open {
+      display: block;
+    }
+
+    .form-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding-top: 4px;
+    }
+
+    .mode-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid #cde4f6;
+      background: #f0f8ff;
+      color: var(--blue);
+      font-size: 0.76rem;
+      font-weight: 850;
+    }
+
+    .table-wrap {
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1180px;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+
+    th, td {
+      padding: 12px 13px;
+      border-bottom: 1px solid #edf1f6;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #475569;
+      background: #f9fbfd;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.035em;
+      white-space: nowrap;
+    }
+
+    td {
+      color: #263244;
+    }
+
+    .address-cell {
+      min-width: 270px;
+      white-space: normal;
+      line-height: 1.35;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      min-height: 25px;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: #edf6f2;
+      color: var(--ok);
+      font-size: 0.74rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .status.is-warn { background: #fff7e8; color: var(--warn); }
+    .status.is-alert { background: #fff0f4; color: var(--danger); }
+    .status.is-muted { background: #eef2f7; color: #64748b; }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      background: rgba(15, 23, 42, 0.46);
+      padding: 18px;
+    }
+
+    .drawer-backdrop.is-open {
+      display: grid;
+      place-items: center;
+    }
+
+    .drawer {
+      width: min(920px, 100%);
+      max-height: min(86vh, 840px);
+      overflow: auto;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 28px 80px rgba(15, 23, 42, 0.28);
+    }
+
+    .drawer-head {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .drawer-head h3 {
+      margin: 0;
+      font-size: 1.05rem;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      padding: 16px;
+    }
+
+    .detail {
+      border: 1px solid #edf1f6;
+      border-radius: 10px;
+      padding: 10px 12px;
+      min-height: 64px;
+      background: #fbfdff;
+    }
+
+    .detail span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 0.035em;
+    }
+
+    .detail strong {
+      display: block;
+      margin-top: 6px;
+      color: var(--ink);
+      font-size: 0.9rem;
+      font-weight: 750;
+      overflow-wrap: anywhere;
+    }
+
+    .is-hidden { display: none !important; }
+
+    @media (max-width: 1120px) {
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .form-grid, .form-grid.basic { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 880px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar {
+        position: relative;
+        height: auto;
+      }
+      .nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      .topbar, .toolbar, .toolbar-left, .toolbar-right {
+        align-items: stretch;
+        flex-direction: column;
+      }
+      .content { padding: 16px; }
+      .summary-grid, .nav, .form-grid, .form-grid.basic, .detail-grid { grid-template-columns: 1fr; }
+      .field.wide { grid-column: auto; }
+      .search, .filter, .primary-btn, .ghost-btn, .danger-btn { width: 100%; }
+      .form-actions { flex-direction: column; align-items: stretch; }
+      .user-chip { width: 100%; }
+    }
+
+    /* ==========================================================
+       RESPONSIVE AUTO-ADJUST LAYOUT
+       Desktop = clean table
+       Tablet/Mobile = card-style client list, no tiny text
+       ========================================================== */
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    .main,
+    .content,
+    .panel,
+    .table-wrap {
+      min-width: 0;
+    }
+
+    .sidebar {
+      overflow-y: auto;
+    }
+
+    .table-wrap {
+      width: 100%;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      font-size: 16px;
+    }
+
+    @media (min-width: 1280px) {
+      .content {
+        max-width: 1680px;
+        width: 100%;
+        margin: 0 auto;
+      }
+    }
+
+    @media (max-width: 1180px) {
+      .app {
+        grid-template-columns: 210px minmax(0, 1fr);
+      }
+
+      .sidebar {
+        padding: 14px;
+      }
+
+      .content {
+        padding: 18px;
+      }
+
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .form-grid,
+      .form-grid.basic {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 860px) {
+      .app {
+        display: block;
+      }
+
+      .sidebar {
+        position: relative;
+        height: auto;
+        min-height: auto;
+        padding: 12px;
+        gap: 12px;
+      }
+
+      .brand {
+        grid-template-columns: auto 1fr;
+        align-items: center;
+        gap: 10px;
+        padding-bottom: 10px;
+      }
+
+      .brand-logo {
+        width: 110px;
+        min-height: 42px;
+      }
+
+      .brand span {
+        font-size: 0.72rem;
+      }
+
+      .nav {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      .nav a,
+      .nav button,
+      .logout {
+        min-height: 38px;
+        justify-content: center;
+        padding: 0 8px;
+        font-size: 0.8rem;
+        text-align: center;
+      }
+
+      .sidebar-footer {
+        margin-top: 0;
+      }
+
+      .topbar {
+        position: relative;
+        min-height: auto;
+        padding: 14px 16px;
+      }
+
+      .content {
+        padding: 14px;
+        gap: 14px;
+      }
+
+      .panel-head,
+      .toolbar {
+        padding: 14px;
+      }
+    }
+
+    @media (max-width: 680px) {
+      body {
+        background: #f2f5f9;
+      }
+
+      .brand {
+        grid-template-columns: 1fr;
+      }
+
+      .brand-logo {
+        width: 124px;
+      }
+
+      .nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .topbar {
+        display: grid;
+        gap: 12px;
+      }
+
+      .user-chip {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #fff;
+      }
+
+      .summary-grid,
+      .form-grid,
+      .form-grid.basic,
+      .detail-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field.wide,
+      .field.full {
+        grid-column: auto;
+      }
+
+      .toolbar,
+      .toolbar-left,
+      .toolbar-right,
+      .form-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+
+      .search,
+      .filter,
+      .primary-btn,
+      .ghost-btn,
+      .danger-btn,
+      .small-btn {
+        width: 100%;
+      }
+
+      .card {
+        min-height: auto;
+      }
+
+      .card strong {
+        font-size: 1.45rem;
+      }
+
+      /* Mobile card list instead of wide table */
+      .table-wrap {
+        overflow: visible;
+      }
+
+      table {
+        min-width: 0;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 12px;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tbody {
+        display: grid;
+        gap: 12px;
+      }
+
+      tr {
+        display: grid;
+        gap: 0;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 8px 20px rgba(14, 34, 55, 0.05);
+        overflow: hidden;
+      }
+
+      td {
+        display: grid;
+        grid-template-columns: 118px minmax(0, 1fr);
+        gap: 10px;
+        align-items: start;
+        width: 100%;
+        padding: 10px 12px;
+        border-bottom: 1px solid #edf1f6;
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+
+      td:last-child {
+        border-bottom: 0;
+      }
+
+      td::before {
+        content: attr(data-label);
+        color: var(--muted);
+        font-size: 0.72rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+
+      td.address-cell {
+        min-width: 0;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        width: 100%;
+      }
+
+      .drawer-backdrop {
+        padding: 10px;
+        align-items: stretch;
+      }
+
+      .drawer {
+        width: 100%;
+        max-height: 92vh;
+        border-radius: 12px;
+      }
+
+      .drawer-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .drawer-head .actions {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .detail {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .content {
+        padding: 10px;
+      }
+
+      .nav {
+        grid-template-columns: 1fr;
+      }
+
+      td {
+        grid-template-columns: 1fr;
+        gap: 5px;
+      }
+
+      .actions {
+        grid-template-columns: 1fr;
+      }
+
+      .title-block h1 {
+        font-size: 1.25rem;
+      }
+
+      .title-block p,
+      .panel-head p {
+        font-size: 0.76rem;
+      }
+    }
+
+  
+    /* ==========================================================
+       STANDARD ADMIN SIDEBAR FORMAT
+       This overrides old sidebar/nav rules so all admin pages match.
+       ========================================================== */
+    .app {
+      min-height: 100vh !important;
+      display: grid !important;
+      grid-template-columns: 240px minmax(0, 1fr) !important;
+    }
+
+    .sidebar {
+      position: sticky !important;
+      top: 0 !important;
+      height: 100vh !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 18px !important;
+      padding: 18px !important;
+      overflow-y: auto !important;
+      color: #fff !important;
+      background: linear-gradient(180deg, var(--blue-strong), var(--blue) 58%, #083453) !important;
+    }
+
+    .brand {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 12px !important;
+      padding-bottom: 16px !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16) !important;
+    }
+
+    .brand-logo {
+      display: grid !important;
+      place-items: center !important;
+      width: 124px !important;
+      min-height: 52px !important;
+      padding: 8px 10px !important;
+      border-radius: 7px !important;
+      background: #fff !important;
+    }
+
+    .brand-logo img {
+      display: block !important;
+      width: 100% !important;
+      height: auto !important;
+      object-fit: contain !important;
+    }
+
+    .brand strong,
+    .brand span {
+      display: block !important;
+    }
+
+    .brand strong {
+      font-size: 0.96rem !important;
+      font-weight: 900 !important;
+    }
+
+    .brand span {
+      margin-top: 4px !important;
+      color: rgba(255, 255, 255, 0.78) !important;
+      font-size: 0.78rem !important;
+      line-height: 1.38 !important;
+    }
+
+    .nav {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 8px !important;
+      width: 100% !important;
+    }
+
+    .nav a,
+    .nav-toggle {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      width: 100% !important;
+      min-height: 42px !important;
+      border: 0 !important;
+      border-radius: 8px !important;
+      color: rgba(255, 255, 255, 0.92) !important;
+      background: transparent !important;
+      padding: 0 12px !important;
+      text-align: left !important;
+      text-decoration: none !important;
+      font-size: 0.88rem !important;
+      font-weight: 850 !important;
+      cursor: pointer !important;
+    }
+
+    .nav a:hover,
+    .nav a.is-active,
+    .nav-toggle:hover,
+    .nav-toggle.is-active {
+      color: #fff !important;
+      background: rgba(255, 255, 255, 0.13) !important;
+    }
+
+    .nav-group {
+      display: grid !important;
+      gap: 6px !important;
+      border: 1px solid rgba(255, 255, 255, 0.14) !important;
+      border-radius: 8px !important;
+      padding: 6px !important;
+      background: rgba(255, 255, 255, 0.06) !important;
+      margin: 0 !important;
+    }
+
+    .nav-toggle {
+      min-height: 38px !important;
+      background: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .nav-toggle::after {
+      content: "›" !important;
+      margin-left: auto !important;
+      font-size: 0.95rem !important;
+      opacity: 0.75 !important;
+      transform: rotate(0deg) !important;
+      transition: transform 160ms ease !important;
+    }
+
+    .nav-group.is-open .nav-toggle::after {
+      transform: rotate(90deg) !important;
+    }
+
+    .nav-panel {
+      display: none !important;
+      gap: 4px !important;
+      padding: 2px 0 0 10px !important;
+      margin-left: 6px !important;
+      border-left: 1px solid rgba(255, 255, 255, 0.22) !important;
+    }
+
+    .nav-group.is-open .nav-panel {
+      display: grid !important;
+    }
+
+    .nav-panel a {
+      min-height: 34px !important;
+      padding: 0 10px !important;
+      border-radius: 7px !important;
+      font-size: 0.8rem !important;
+      font-weight: 820 !important;
+      line-height: 1.15 !important;
+      white-space: normal !important;
+    }
+
+    .nav-panel a.is-active {
+      background: rgba(255, 255, 255, 0.19) !important;
+      color: #fff !important;
+    }
+
+    .sidebar-footer {
+      margin-top: auto !important;
+      display: grid !important;
+      gap: 10px !important;
+    }
+
+    .logout {
+      min-height: 40px !important;
+      border: 1px solid rgba(255, 255, 255, 0.28) !important;
+      border-radius: 8px !important;
+      color: #fff !important;
+      background: transparent !important;
+      font-weight: 850 !important;
+      text-align: left !important;
+      padding: 0 12px !important;
+      cursor: pointer !important;
+    }
+
+    .logout:hover {
+      background: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    @media (max-width: 860px) {
+      .app {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+      }
+
+      .sidebar {
+        position: relative !important;
+        height: auto !important;
+        min-height: auto !important;
+      }
+
+      .nav {
+        grid-template-columns: 1fr !important;
+      }
+
+      .brand {
+        grid-template-columns: 1fr !important;
+      }
+
+      .nav a,
+      .nav-toggle,
+      .logout {
+        justify-content: flex-start !important;
+        text-align: left !important;
+      }
+    }
+
+  </style>
+  <link rel="stylesheet" href="assets/admin-shell.css">
+</head>
+<body>
+  <main class="app">
+      <aside class="sidebar" data-admin-sidebar>
+    <div class="brand">
+      <div class="brand-logo">
+        <img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH">
+      </div>
+      <div>
+        <strong>TechGeekPH Admin</strong>
+        <span>Admin portal for clients, tickets, attendance, expenses, stock, assets, payroll, SOA, and investor reports.</span>
+      </div>
+    </div>
+
+    <nav class="nav" aria-label="Admin navigation">
+      <a href="dashboard.html">Dashboard</a>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Operations</button>
+        <div class="nav-panel">
+          <a href="application_form.html">Application Form</a>
+          <a href="clients.html">Clients</a>
+          <a href="tickets.html">Tickets</a>
+          <a href="nap-checker.html">NAP Checker</a>
+          <a href="statement_of_account.html">Statement of Account</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Attendance &amp; Expenses</button>
+        <div class="nav-panel">
+          <a href="daily_time_record.html">My Time Record</a>
+          <a href="daily_time_record_admin.html">Admin Time Records</a>
+          <a href="my_expense_request.html">My Expense Request</a>
+          <a href="expense_approval.html">Expense Approval</a>
+          <a href="payslip_generator.html">Payslip Generator</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Stock &amp; Assets</button>
+        <div class="nav-panel">
+          <a href="consumable_stock.html">Consumable Stock</a>
+          <a href="company_assets.html">Company Assets</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Investor</button>
+        <div class="nav-panel">
+          <a href="investor_morwin_gapud.html">Morwin Gapud</a>
+          <a href="investor_marivie_viana_gapud.html">Marivie Viana Gapud</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="logout" type="button" id="logoutBtn">Log out</button>
+    </div>
+  </aside>
+
+    <section class="main">
+      <header class="topbar">
+        <div class="title-block">
+          <h1>Clients</h1>
+          <p>Auto-adjust view for desktop, tablet, and mobile.</p>
+        </div>
+        <div class="user-chip">
+          <div class="avatar" id="avatar">TG</div>
+          <div>
+            <strong id="userName">TechGeekPH User</strong>
+            <span id="userRole">Portal access</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+        <p class="notice is-hidden" id="notice"></p>
+
+        <div class="summary-grid">
+          <article class="card">
+            <span>Total Clients</span>
+            <strong id="totalClients">--</strong>
+            <small>All client records</small>
+          </article>
+          <article class="card">
+            <span>Active Accounts</span>
+            <strong id="activeClients">--</strong>
+            <small>Account Status = Active</small>
+          </article>
+          <article class="card">
+            <span>For Installation</span>
+            <strong id="forInstallation">--</strong>
+            <small>Service Status pending install</small>
+          </article>
+          <article class="card">
+            <span>Disconnected</span>
+            <strong id="disconnectedClients">--</strong>
+            <small>Disconnected or cancelled</small>
+          </article>
+        </div>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2><span id="formTitle">Quick Client Update</span></h2>
+              <p>Visible fields lang ang madalas gamitin. Click “Show full details” kung kailangan ng complete record.</p>
+            </div>
+            <span class="mode-chip" id="modeChip">New Client</span>
+          </div>
+
+          <form class="compact-form" id="clientForm">
+            <div class="form-grid basic">
+              <div class="field">
+                <label for="accountNo">Account #</label>
+                <input id="accountNo" name="accountNo" placeholder="SATR0300">
+              </div>
+
+              <div class="field">
+                <label for="clientName">Name</label>
+                <input id="clientName" name="clientName" placeholder="Asmin Disomimba">
+              </div>
+
+              <div class="field">
+                <label for="rdBlk">RD/BLK</label>
+                <input id="rdBlk" name="rdBlk" placeholder="BLK19">
+              </div>
+
+              <div class="field">
+                <label for="phoneNumber">Phone</label>
+                <input id="phoneNumber" name="phoneNumber" placeholder="639452303207">
+              </div>
+
+              <div class="field">
+                <label for="monthlyBill">Bill / Month</label>
+                <input id="monthlyBill" name="monthlyBill" inputmode="decimal" placeholder="1299">
+              </div>
+
+              <div class="field">
+                <label for="dueDate">Due Date</label>
+                <input id="dueDate" name="dueDate" inputmode="numeric" placeholder="27">
+              </div>
+
+              <div class="field wide">
+                <label for="googleMapsLink">Google Maps Link</label>
+                <input id="googleMapsLink" name="googleMapsLink" placeholder="https://maps.google.com/...">
+              </div>
+
+              <div class="field full">
+                <label for="serviceAddress">Service Address</label>
+                <textarea id="serviceAddress" name="serviceAddress" placeholder="blk 19 lot 898 purok 3 mapagkumbaba st. Lupang arenda taytay rizal"></textarea>
+              </div>
+            </div>
+
+            <div class="advanced-box" id="advancedBox">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="accountStatus">Account Status</label>
+                  <select id="accountStatus" name="accountStatus">
+                    <option value="">Select status</option>
+                    <option>Pending</option>
+                    <option>Active</option>
+                    <option>Disconnected</option>
+                    <option>Cancelled</option>
+                    <option>Suspended</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="serviceStatus">Service Status</label>
+                  <select id="serviceStatus" name="serviceStatus">
+                    <option value="">Select service status</option>
+                    <option>For Installation</option>
+                    <option>Installed</option>
+                    <option>Active</option>
+                    <option>For Checking</option>
+                    <option>No Signal</option>
+                    <option>Disconnected</option>
+                    <option>Cancelled</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="emailAddress">Email Address</label>
+                  <input id="emailAddress" name="emailAddress" placeholder="client@email.com">
+                </div>
+
+<div class="field">
+  <label for="plan">Plan</label>
+  <select id="plan" name="plan">
+    <option value="">Select plan</option>
+    <option value="Student Plan">Student Plan</option>
+    <option value="Basic Plan">Basic Plan</option>
+    <option value="Budget Plan">Budget Plan</option>
+    <option value="Starter Plan">Starter Plan</option>
+    <option value="Family Plan">Family Plan</option>
+    <option value="Premium Plan">Premium Plan</option>
+    <option value="Biz Plan">Biz Plan</option>
+  </select>
+</div>
+
+<div class="field">
+  <label for="speed">Speed</label>
+  <select id="speed" name="speed">
+    <option value="">Select plan first</option>
+  </select>
+</div>
+
+                <div class="field">
+                  <label for="billingStartDate">Billing Start Date</label>
+                  <input id="billingStartDate" name="billingStartDate" type="date">
+                </div>
+
+                <div class="field">
+                  <label for="registerDate">Register Date</label>
+                  <input id="registerDate" name="registerDate" type="date">
+                </div>
+
+                <div class="field">
+                  <label for="installationDate">Installation Date</label>
+                  <input id="installationDate" name="installationDate" type="date">
+                </div>
+
+                <div class="field">
+                  <label for="activationDate">Activation Date</label>
+                  <input id="activationDate" name="activationDate" type="date">
+                </div>
+
+                <div class="field">
+                  <label for="collector">Collector</label>
+                  <input id="collector" name="collector" placeholder="Collector name">
+                </div>
+
+                <div class="field">
+                  <label for="salesAgentReferral">Sales Agent / Referral</label>
+                  <input id="salesAgentReferral" name="salesAgentReferral" placeholder="Agent or referral">
+                </div>
+
+                <div class="field">
+                  <label for="installerTechnician">Installer / Technician</label>
+                  <input id="installerTechnician" name="installerTechnician" placeholder="Technician name">
+                </div>
+
+                <div class="field">
+                  <label for="linePort">Line Port</label>
+                  <input id="linePort" name="linePort" placeholder="Line port">
+                </div>
+
+                <div class="field">
+                  <label for="networkPort">Network Port</label>
+                  <input id="networkPort" name="networkPort" placeholder="Network port">
+                </div>
+
+                <div class="field">
+                  <label for="napBox">Client Port</label>
+                  <input id="napBox" name="napBox" placeholder="CP-01">
+                </div>
+
+                <div class="field">
+                  <label for="remoteAddress">Remote Address</label>
+                  <input id="remoteAddress" name="remoteAddress" placeholder="Remote ONU name/IP">
+                </div>
+
+                <div class="field">
+                  <label for="vlanId">VLAN ID</label>
+                  <input id="vlanId" name="vlanId" placeholder="1000">
+                </div>
+
+                <div class="field">
+                  <label for="modemBrandModel">Modem Brand / Model</label>
+                  <input id="modemBrandModel" name="modemBrandModel" placeholder="ZTE F670L">
+                </div>
+
+                <div class="field">
+                  <label for="modemSerialNo">Modem Serial No.</label>
+                  <input id="modemSerialNo" name="modemSerialNo" placeholder="Serial number">
+                </div>
+
+                <div class="field">
+                  <label for="onuMacAddress">ONU / MAC Address</label>
+                  <input id="onuMacAddress" name="onuMacAddress" placeholder="MAC or ONU ID">
+                </div>
+
+                <div class="field">
+                  <label for="bandSteering">Band Steering</label>
+                  <select id="bandSteering" name="bandSteering">
+                    <option value="">Select</option>
+                    <option>Single Band - 2.4Ghz</option>
+                    <option>Dual Band - 2.4Ghz/5Ghz</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="adminUser">Admin User</label>
+                  <input id="adminUser" name="adminUser" placeholder="Admin username">
+                </div>
+
+                <div class="field">
+                  <label for="adminPassword">Admin Password</label>
+                  <input id="adminPassword" name="adminPassword" placeholder="Admin password">
+                </div>
+
+                <div class="field">
+                  <label for="clientUser">Client User</label>
+                  <input id="clientUser" name="clientUser" placeholder="WiFi/client portal username">
+                </div>
+
+                <div class="field">
+                  <label for="clientPassword">Client Password</label>
+                  <input id="clientPassword" name="clientPassword" placeholder="WiFi/client password">
+                </div>
+
+                <div class="field">
+                  <label for="pppoeUsername">PPPoE Username</label>
+                  <input id="pppoeUsername" name="pppoeUsername" placeholder="PPPoE username">
+                </div>
+
+                <div class="field wide">
+                  <label for="permanentAddress">Permanent Address</label>
+                  <textarea id="permanentAddress" name="permanentAddress" placeholder="Permanent address if different"></textarea>
+                </div>
+
+                <div class="field wide">
+                  <label for="landmark">Landmark</label>
+                  <textarea id="landmark" name="landmark" placeholder="Nearest landmark"></textarea>
+                </div>
+
+                <div class="field wide">
+                  <label for="geoTagging">Geo Tagging</label>
+                  <input id="geoTagging" name="geoTagging" placeholder="Coordinates / geo tag">
+                </div>
+
+                <div class="field wide">
+                  <label for="clientNotes">Client Notes</label>
+                  <textarea id="clientNotes" name="clientNotes" placeholder="Client-specific notes"></textarea>
+                </div>
+
+                <div class="field wide">
+                  <label for="remarks">Remarks</label>
+                  <textarea id="remarks" name="remarks" placeholder="Internal remarks"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button class="ghost-btn" type="button" id="toggleAdvancedBtn">Show full details</button>
+              <button class="ghost-btn" type="button" id="clearBtn">Clear / New</button>
+              <button class="primary-btn" type="submit" id="saveBtn">Save Client</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Client List</h2>
+              <p>Clean view: important billing and location fields only.</p>
+            </div>
+            <button class="ghost-btn" type="button" id="refreshBtn">Refresh</button>
+          </div>
+
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <input class="search" id="searchInput" placeholder="Search account, name, RD/BLK, phone, address">
+              <select class="filter" id="accountStatusFilter">
+                <option value="">All account status</option>
+                <option>Pending</option>
+                <option>Active</option>
+                <option>Disconnected</option>
+                <option>Cancelled</option>
+                <option>Suspended</option>
+              </select>
+              <select class="filter" id="serviceStatusFilter">
+                <option value="">All service status</option>
+                <option>For Installation</option>
+                <option>Installed</option>
+                <option>Active</option>
+                <option>For Checking</option>
+                <option>No Signal</option>
+                <option>Disconnected</option>
+                <option>Cancelled</option>
+              </select>
+            </div>
+            <div class="toolbar-right">
+              <span class="mode-chip" id="rowCount">0 records</span>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Account #</th>
+                  <th>Name</th>
+                  <th>RD/BLK</th>
+                  <th>Phone</th>
+                  <th>Bill / Month</th>
+                  <th>Due Date</th>
+                  <th>Service Address</th>
+                  <th>Google Maps Link</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="clientRows">
+                <tr><td data-label="Status" colspan="9">Waiting for client data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <div class="drawer-backdrop" id="detailDrawer">
+    <section class="drawer" role="dialog" aria-modal="true" aria-label="Full client details">
+      <div class="drawer-head">
+        <div>
+          <h3 id="detailTitle">Client Details</h3>
+          <span class="mode-chip" id="detailSubTitle">Full record</span>
+        </div>
+        <div class="actions">
+          <button class="small-btn" type="button" id="detailEditBtn">Edit</button>
+          <button class="danger-btn small-btn" type="button" id="detailCloseBtn">Close</button>
+        </div>
+      </div>
+      <div class="detail-grid" id="detailGrid"></div>
+    </section>
+  </div>
+
+  <script>
+    const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxDY5TsonrB58YaN8LGbrrrc_ZD1QVpF1WK0p6jToIR2FBSqGaHfsgaE1CCiH1MvukV/exec";
+    const SESSION_KEY = "techgeekph_admin_session";
+    const LEGACY_SESSION_KEY = "techgeekph_admin_session";
+
+    const PLAN_SPEED_PRESETS = [
+      { plan: "Student Plan", speed: "15Mbps", bill: "500", label: "Student Plan - 15Mbps" },
+
+      { plan: "Basic Plan", speed: "25Mbps", bill: "600", label: "Basic Plan - 25Mbps" },
+      { plan: "Basic Plan", speed: "30Mbps", bill: "699", label: "Basic Plan - 30Mbps" },
+      { plan: "Basic Plan", speed: "35Mbps", bill: "699", label: "Basic Plan - 35Mbps" },
+
+      { plan: "Budget Plan", speed: "50Mbps", bill: "1000", label: "Budget Plan - 50Mbps" },
+      { plan: "Budget Plan", speed: "65Mbps", bill: "799", label: "Budget Plan - 65Mbps" },
+      { plan: "Budget Plan", speed: "75Mbps", bill: "799", label: "Budget Plan - 75Mbps" },
+      { plan: "Budget Plan", speed: "80Mbps", bill: "999", label: "Budget Plan - 80Mbps" },
+
+      { plan: "Starter Plan", speed: "100Mbps", bill: "999", label: "Starter Plan - 100Mbps" },
+      { plan: "Starter Plan", speed: "120Mbps", bill: "999", label: "Starter Plan - 120Mbps" },
+
+      { plan: "Family Plan", speed: "150Mbps", bill: "1499", label: "Family Plan - 150Mbps" },
+      { plan: "Family Plan", speed: "175Mbps", bill: "1299", label: "Family Plan - 175Mbps" },
+
+      { plan: "Premium Plan", speed: "200Mbps", bill: "1500", label: "Premium Plan - 200Mbps" },
+      { plan: "Premium Plan", speed: "300Mbps", bill: "1499", label: "Premium Plan - 300Mbps" },
+
+      { plan: "Biz Plan", speed: "200Mbps", bill: "1599", label: "Biz Plan - 200Mbps" }
+    ];
+
+    const DETAIL_FIELDS = [
+      ["Account #", ["Account No.", "accountNo", "Account Number", "ClientID"]],
+      ["Client Name", ["Client Name", "clientName", "Name"]],
+      ["Account Status", ["Account Status", "accountStatus", "Status"]],
+      ["Service Status", ["Service Status", "serviceStatus"]],
+      ["Phone Number", ["Phone Number", "phoneNumber", "Contact Number", "Phone"]],
+      ["Email Address", ["Email Address", "emailAddress", "Email"]],
+      ["Service Address", ["Service Address", "serviceAddress", "Address"]],
+      ["Permanent Address", ["Permanent Address", "permanentAddress"]],
+      ["RD / BLK", ["RD / BLK", "rdBlk", "RD/BLK", "Block/Lot"]],
+      ["Landmark", ["Landmark", "landmark"]],
+      ["Geo Tagging", ["Geo Tagging", "geoTagging"]],
+      ["Google Maps Link", ["Google Maps Link", "googleMapsLink"]],
+      ["Plan", ["Plan", "plan"]],
+      ["Speed", ["Speed", "speed"]],
+      ["Monthly Bill", ["Monthly Bill", "monthlyBill", "Monthly Fee", "Bill / Month"]],
+      ["Due Date", ["Due Date", "dueDate"]],
+      ["Billing Start Date", ["Billing Start Date", "billingStartDate"]],
+      ["Register Date", ["Register Date", "registerDate", "Date Applied"]],
+      ["Installation Date", ["Installation Date", "installationDate"]],
+      ["Activation Date", ["Activation Date", "activationDate"]],
+      ["Collector", ["Collector", "collector"]],
+      ["Sales Agent / Referral", ["Sales Agent / Referral", "salesAgentReferral", "Sales Agent", "Referral"]],
+      ["Installer / Technician", ["Installer / Technician", "installerTechnician", "Assigned Tech"]],
+      ["Line Port", ["Line Port", "linePort"]],
+      ["Network Port", ["Network Port", "networkPort"]],
+      ["Client Port", ["Client Port", "CP Client Port", "clientPort", "cpClientPort", "NAP Box", "napBox", "NAP"]],
+      ["Remote Address", ["Remote Address", "remoteAddress"]],
+      ["VLAN ID", ["VLAN ID", "vlanId", "VLAN"]],
+      ["Modem Brand / Model", ["Modem Brand / Model", "modemBrandModel", "MODEM", "Modem"]],
+      ["Modem Serial No.", ["Modem Serial No.", "modemSerialNo", "Serial No."]],
+      ["ONU / MAC Address", ["ONU / MAC Address", "onuMacAddress", "MAC Address"]],
+      ["Band Steering", ["Band Steering", "bandSteering"]],
+      ["Admin User", ["Admin User", "adminUser"]],
+      ["Admin Password", ["Admin Password", "adminPassword"]],
+      ["Client User", ["Client User", "clientUser"]],
+      ["Client Password", ["Client Password", "clientPassword"]],
+      ["PPPoE Username", ["PPPoE Username", "pppoeUsername"]],
+      ["Client Notes", ["Client Notes", "clientNotes", "Notes"]],
+      ["Remarks", ["Remarks", "remarks"]],
+      ["Last Updated", ["Last Updated", "lastUpdated"]]
+    ];
+
+    let clientRecords = [];
+    let editAccountNo = "";
+    let detailRowIndex = -1;
+
+    const fields = {
+      notice: document.querySelector("#notice"),
+      avatar: document.querySelector("#avatar"),
+      userName: document.querySelector("#userName"),
+      userRole: document.querySelector("#userRole"),
+      totalClients: document.querySelector("#totalClients"),
+      activeClients: document.querySelector("#activeClients"),
+      forInstallation: document.querySelector("#forInstallation"),
+      disconnectedClients: document.querySelector("#disconnectedClients"),
+      clientRows: document.querySelector("#clientRows"),
+      searchInput: document.querySelector("#searchInput"),
+      accountStatusFilter: document.querySelector("#accountStatusFilter"),
+      serviceStatusFilter: document.querySelector("#serviceStatusFilter"),
+      rowCount: document.querySelector("#rowCount"),
+      refreshBtn: document.querySelector("#refreshBtn"),
+      logoutBtn: document.querySelector("#logoutBtn"),
+      clientForm: document.querySelector("#clientForm"),
+      formTitle: document.querySelector("#formTitle"),
+      modeChip: document.querySelector("#modeChip"),
+      saveBtn: document.querySelector("#saveBtn"),
+      clearBtn: document.querySelector("#clearBtn"),
+      toggleAdvancedBtn: document.querySelector("#toggleAdvancedBtn"),
+      advancedBox: document.querySelector("#advancedBox"),
+      plan: document.querySelector("#plan"),
+      speed: document.querySelector("#speed"),
+      monthlyBill: document.querySelector("#monthlyBill"),
+      detailDrawer: document.querySelector("#detailDrawer"),
+      detailGrid: document.querySelector("#detailGrid"),
+      detailTitle: document.querySelector("#detailTitle"),
+      detailSubTitle: document.querySelector("#detailSubTitle"),
+      detailCloseBtn: document.querySelector("#detailCloseBtn"),
+      detailEditBtn: document.querySelector("#detailEditBtn")
+    };
+
+    function loadSession() {
+      try {
+        return JSON.parse(localStorage.getItem(SESSION_KEY) || localStorage.getItem(LEGACY_SESSION_KEY) || "{}");
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function getSessionToken() {
+      const session = loadSession();
+      return session.token || session.sessionToken || session.accessToken || "";
+    }
+
+    function initialsFrom(value) {
+      return String(value || "TG")
+        .replace(/@.*/, "")
+        .split(/[.\s_-]+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(function(part) { return part[0].toUpperCase(); })
+        .join("") || "TG";
+    }
+
+    function setUser(session) {
+      const user = session.user || {};
+      const name = user.fullName || user.name || user.email || session.email || "TechGeekPH User";
+      const role = user.role || session.role || "portal";
+
+      fields.userName.textContent = name;
+      fields.userRole.textContent = String(role).charAt(0).toUpperCase() + String(role).slice(1).toLowerCase() + " access";
+      fields.avatar.textContent = initialsFrom(name);
+    }
+
+    function keyValue(row, names) {
+      for (let index = 0; index < names.length; index += 1) {
+        const key = names[index];
+        if (row && Object.prototype.hasOwnProperty.call(row, key)) return row[key];
+      }
+      return "";
+    }
+
+    function normalize(value) {
+      return String(value || "").trim().toLowerCase();
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function moneyNumber(value) {
+      const cleaned = String(value || "").replace(/[^0-9.-]/g, "");
+      return cleaned ? cleaned : "";
+    }
+
+    function formatMoney(value) {
+      const cleaned = moneyNumber(value);
+      if (!cleaned) return "";
+      const number = Number(cleaned);
+      if (!Number.isFinite(number)) return String(value || "");
+      return "₱ " + number.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function formatMetric(value) {
+      if (value === undefined || value === null || value === "") return "--";
+      return Number.isFinite(Number(value)) ? Number(value).toLocaleString() : String(value);
+    }
+
+    function getAccountNo(row) {
+      return keyValue(row, ["Account No.", "accountNo", "Account Number", "ClientID"]);
+    }
+
+    function getName(row) {
+      return keyValue(row, ["Client Name", "clientName", "Name"]);
+    }
+
+    function getAccountStatus(row) {
+      return keyValue(row, ["Account Status", "accountStatus", "Status"]);
+    }
+
+    function getServiceStatus(row) {
+      return keyValue(row, ["Service Status", "serviceStatus"]);
+    }
+
+    function setStats(rows) {
+      const records = Array.isArray(rows) ? rows : [];
+
+      fields.totalClients.textContent = formatMetric(records.length);
+      fields.activeClients.textContent = formatMetric(records.filter(function(row) {
+        return normalize(getAccountStatus(row)) === "active";
+      }).length);
+      fields.forInstallation.textContent = formatMetric(records.filter(function(row) {
+        const service = normalize(getServiceStatus(row));
+        const account = normalize(getAccountStatus(row));
+        return service === "for installation" || service === "pending" || account === "pending";
+      }).length);
+      fields.disconnectedClients.textContent = formatMetric(records.filter(function(row) {
+        const service = normalize(getServiceStatus(row));
+        const account = normalize(getAccountStatus(row));
+        return service === "disconnected" || account === "disconnected" || service === "cancelled" || account === "cancelled";
+      }).length);
+    }
+
+    function rowText(row) {
+      return DETAIL_FIELDS.map(function(pair) {
+        return keyValue(row, pair[1]);
+      }).join(" ").toLowerCase();
+    }
+
+    function filteredRows() {
+      const query = normalize(fields.searchInput.value);
+      const accountStatus = normalize(fields.accountStatusFilter.value);
+      const serviceStatus = normalize(fields.serviceStatusFilter.value);
+
+      return clientRecords.filter(function(row) {
+        const matchesQuery = !query || rowText(row).indexOf(query) !== -1;
+        const matchesAccountStatus = !accountStatus || normalize(getAccountStatus(row)) === accountStatus;
+        const matchesServiceStatus = !serviceStatus || normalize(getServiceStatus(row)) === serviceStatus;
+        return matchesQuery && matchesAccountStatus && matchesServiceStatus;
+      });
+    }
+
+    function renderRows() {
+      const rows = filteredRows();
+      setStats(clientRecords);
+      fields.rowCount.textContent = rows.length + " record" + (rows.length === 1 ? "" : "s");
+
+      if (!rows.length) {
+        fields.clientRows.innerHTML = '<tr><td data-label="Status" colspan="9">No client records to show yet.</td></tr>';
+        return;
+      }
+
+      fields.clientRows.innerHTML = rows.map(function(row) {
+        const realIndex = clientRecords.indexOf(row);
+        const maps = keyValue(row, ["Google Maps Link", "googleMapsLink"]);
+        return "<tr>" +
+          '<td data-label="Account #">' + escapeHtml(getAccountNo(row)) + "</td>" +
+          '<td data-label="Name">' + escapeHtml(getName(row)) + "</td>" +
+          '<td data-label="RD/BLK">' + escapeHtml(keyValue(row, ["RD / BLK", "rdBlk", "RD/BLK", "Block/Lot"])) + "</td>" +
+          '<td data-label="Phone">' + escapeHtml(keyValue(row, ["Phone Number", "phoneNumber", "Contact Number", "Phone"])) + "</td>" +
+          '<td data-label="Bill / Month">' + escapeHtml(formatMoney(keyValue(row, ["Monthly Bill", "monthlyBill", "Monthly Fee", "Bill / Month"]))) + "</td>" +
+          '<td data-label="Due Date">' + escapeHtml(keyValue(row, ["Due Date", "dueDate"])) + "</td>" +
+          '<td data-label="Service Address" class="address-cell">' + escapeHtml(keyValue(row, ["Service Address", "serviceAddress", "Address"])) + "</td>" +
+          '<td data-label="Google Maps">' + (maps ? '<a class="small-btn" href="' + escapeHtml(maps) + '" target="_blank" rel="noopener">Open Maps</a>' : "") + "</td>" +
+          '<td data-label="Action"><div class="actions">' +
+            '<button class="small-btn" type="button" data-action="edit" data-index="' + realIndex + '">Edit</button>' +
+            '<button class="small-btn" type="button" data-action="details" data-index="' + realIndex + '">Full Details</button>' +
+          "</div></td>" +
+        "</tr>";
+      }).join("");
+    }
+
+    async function callBackend(action, payload) {
+      const data = Object.assign({}, payload || {});
+      data.action = action;
+      data.method = action;
+
+      if (!data.token && !data.sessionToken) {
+        data.token = getSessionToken();
+      }
+
+      const params = new URLSearchParams();
+      Object.keys(data).forEach(function(key) {
+        if (data[key] !== undefined && data[key] !== null) {
+          params.set(key, data[key]);
+        }
+      });
+
+      const url = BACKEND_URL + "?" + params.toString();
+
+      const response = await fetch(url, {
+        method: "GET",
+        redirect: "follow"
+      });
+
+      const text = await response.text();
+      const type = response.headers.get("content-type") || "";
+
+      if (type.indexOf("application/json") !== -1 || /^[\s\r\n]*[\[{]/.test(text)) {
+        return JSON.parse(text);
+      }
+
+      if (/<html[\s>]/i.test(text) || /sandboxFrame/i.test(text)) {
+        return {
+          ok: false,
+          success: false,
+          htmlResponse: true,
+          message: "Apps Script returned HTML instead of JSON. Check Web App deployment and access settings."
+        };
+      }
+
+      return {
+        ok: false,
+        success: false,
+        message: text.trim() || "Unexpected response from backend."
+      };
+    }
+
+    function showNotice(message, type) {
+      fields.notice.textContent = message;
+      fields.notice.classList.remove("is-hidden", "ok", "error");
+      if (type === "ok") fields.notice.classList.add("ok");
+      if (type === "error") fields.notice.classList.add("error");
+    }
+
+    function hideNotice() {
+      fields.notice.textContent = "";
+      fields.notice.classList.add("is-hidden");
+      fields.notice.classList.remove("ok", "error");
+    }
+
+    function formPayload(form) {
+      const data = {};
+
+      new FormData(form).forEach(function(value, key) {
+        data[key] = value;
+      });
+
+      data.monthlyBill = moneyNumber(data.monthlyBill);
+
+      if (!data.accountStatus) data.accountStatus = "Pending";
+      if (!data.serviceStatus) data.serviceStatus = "For Installation";
+
+      const session = loadSession();
+      const user = session.user || {};
+
+      data.createdBy = user.fullName || user.name || user.email || session.email || "Portal User";
+      data.lastUpdated = new Date().toISOString();
+
+      return data;
+    }
+
+    async function loadClients() {
+      showNotice("Loading client records...");
+
+      try {
+        const response = await callBackend("listClients", {});
+
+        if (!response || (!response.ok && !response.success)) {
+          clientRecords = [];
+          renderRows();
+          showNotice((response && response.message) || "Unable to load clients. Please login again or check backend deployment.", "error");
+          return;
+        }
+
+        clientRecords = response.data || response.clients || response.rows || [];
+        hideNotice();
+        renderRows();
+
+      } catch (error) {
+        clientRecords = [];
+        renderRows();
+        showNotice("Unable to load clients. " + (error && error.message ? error.message : ""), "error");
+      }
+    }
+
+    function refreshSpeedOptions(selectedSpeed) {
+      const selectedPlan = fields.plan.value;
+      const currentSpeed = selectedSpeed || fields.speed.value || "";
+      const matchingOptions = PLAN_SPEED_PRESETS.filter(function(item) {
+        return !selectedPlan || item.plan === selectedPlan;
+      });
+
+      fields.speed.innerHTML = '<option value="">' + (selectedPlan ? "Select speed" : "Select plan first") + '</option>';
+
+      matchingOptions.forEach(function(item) {
+        const option = document.createElement("option");
+        option.value = item.speed;
+        option.textContent = item.label;
+        option.dataset.plan = item.plan;
+        option.dataset.bill = item.bill;
+        fields.speed.appendChild(option);
+      });
+
+      if (currentSpeed) {
+        fields.speed.value = currentSpeed;
+      }
+
+      if (selectedPlan && matchingOptions.length === 1 && !currentSpeed) {
+        fields.speed.value = matchingOptions[0].speed;
+        fields.monthlyBill.value = matchingOptions[0].bill;
+      }
+    }
+
+    function applySpeedPreset() {
+      const selectedOption = fields.speed.options[fields.speed.selectedIndex];
+      if (selectedOption && selectedOption.dataset.bill) {
+        fields.monthlyBill.value = selectedOption.dataset.bill;
+      }
+    }
+
+    function applyPlanPreset() {
+      fields.speed.value = "";
+      fields.monthlyBill.value = "";
+      refreshSpeedOptions();
+    }
+
+    function setEditMode(accountNo) {
+      editAccountNo = accountNo || "";
+      if (editAccountNo) {
+        fields.formTitle.textContent = "Update Client";
+        fields.modeChip.textContent = "Editing: " + editAccountNo;
+        fields.saveBtn.textContent = "Update Client";
+      } else {
+        fields.formTitle.textContent = "Quick Client Update";
+        fields.modeChip.textContent = "New Client";
+        fields.saveBtn.textContent = "Save Client";
+      }
+    }
+
+    function fillForm(row) {
+      const map = {
+        accountNo: ["Account No.", "accountNo", "Account Number", "ClientID"],
+        clientName: ["Client Name", "clientName", "Name"],
+        accountStatus: ["Account Status", "accountStatus", "Status"],
+        serviceStatus: ["Service Status", "serviceStatus"],
+        phoneNumber: ["Phone Number", "phoneNumber", "Contact Number", "Phone"],
+        emailAddress: ["Email Address", "emailAddress", "Email"],
+        serviceAddress: ["Service Address", "serviceAddress", "Address"],
+        permanentAddress: ["Permanent Address", "permanentAddress"],
+        rdBlk: ["RD / BLK", "rdBlk", "RD/BLK", "Block/Lot"],
+        landmark: ["Landmark", "landmark"],
+        geoTagging: ["Geo Tagging", "geoTagging"],
+        googleMapsLink: ["Google Maps Link", "googleMapsLink"],
+        plan: ["Plan", "plan"],
+        speed: ["Speed", "speed"],
+        monthlyBill: ["Monthly Bill", "monthlyBill", "Monthly Fee", "Bill / Month"],
+        dueDate: ["Due Date", "dueDate"],
+        billingStartDate: ["Billing Start Date", "billingStartDate"],
+        registerDate: ["Register Date", "registerDate", "Date Applied"],
+        installationDate: ["Installation Date", "installationDate"],
+        activationDate: ["Activation Date", "activationDate"],
+        collector: ["Collector", "collector"],
+        salesAgentReferral: ["Sales Agent / Referral", "salesAgentReferral", "Sales Agent", "Referral"],
+        installerTechnician: ["Installer / Technician", "installerTechnician", "Assigned Tech"],
+        linePort: ["Line Port", "linePort"],
+        networkPort: ["Network Port", "networkPort"],
+        napBox: ["Client Port", "CP Client Port", "clientPort", "cpClientPort", "NAP Box", "napBox", "NAP"],
+        remoteAddress: ["Remote Address", "remoteAddress"],
+        vlanId: ["VLAN ID", "vlanId", "VLAN"],
+        modemBrandModel: ["Modem Brand / Model", "modemBrandModel", "MODEM", "Modem"],
+        modemSerialNo: ["Modem Serial No.", "modemSerialNo", "Serial No."],
+        onuMacAddress: ["ONU / MAC Address", "onuMacAddress", "MAC Address"],
+        bandSteering: ["Band Steering", "bandSteering"],
+        adminUser: ["Admin User", "adminUser"],
+        adminPassword: ["Admin Password", "adminPassword"],
+        clientUser: ["Client User", "clientUser"],
+        clientPassword: ["Client Password", "clientPassword"],
+        pppoeUsername: ["PPPoE Username", "pppoeUsername"],
+        clientNotes: ["Client Notes", "clientNotes", "Notes"],
+        remarks: ["Remarks", "remarks"]
+      };
+
+      Object.keys(map).forEach(function(fieldName) {
+        const input = fields.clientForm.elements[fieldName];
+        if (input) input.value = keyValue(row, map[fieldName]) || "";
+      });
+
+      const rowSpeed = keyValue(row, ["Speed", "speed"]);
+      refreshSpeedOptions(rowSpeed);
+      fields.monthlyBill.value = moneyNumber(fields.monthlyBill.value);
+      setEditMode(getAccountNo(row));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function clearForm() {
+      fields.clientForm.reset();
+      setEditMode("");
+      fields.advancedBox.classList.remove("is-open");
+      fields.toggleAdvancedBtn.textContent = "Show full details";
+      refreshSpeedOptions();
+      hideNotice();
+    }
+
+    function openDetails(rowIndex) {
+      const row = clientRecords[rowIndex];
+      if (!row) return;
+
+      detailRowIndex = rowIndex;
+      const accountNo = getAccountNo(row);
+      const name = getName(row);
+
+      fields.detailTitle.textContent = name || "Client Details";
+      fields.detailSubTitle.textContent = accountNo || "Full record";
+
+      fields.detailGrid.innerHTML = DETAIL_FIELDS.map(function(pair) {
+        const label = pair[0];
+        const value = keyValue(row, pair[1]);
+        let displayValue = value;
+
+        if (label === "Monthly Bill") displayValue = formatMoney(value);
+        if (label === "Google Maps Link" && value) {
+          displayValue = '<a href="' + escapeHtml(value) + '" target="_blank" rel="noopener">Open Google Maps</a>';
+          return '<div class="detail"><span>' + escapeHtml(label) + '</span><strong>' + displayValue + '</strong></div>';
+        }
+
+        return '<div class="detail"><span>' + escapeHtml(label) + '</span><strong>' + escapeHtml(displayValue || "-") + '</strong></div>';
+      }).join("");
+
+      fields.detailDrawer.classList.add("is-open");
+    }
+
+    function closeDetails() {
+      fields.detailDrawer.classList.remove("is-open");
+      detailRowIndex = -1;
+    }
+
+    fields.searchInput.addEventListener("input", renderRows);
+    fields.accountStatusFilter.addEventListener("change", renderRows);
+    fields.serviceStatusFilter.addEventListener("change", renderRows);
+    fields.refreshBtn.addEventListener("click", loadClients);
+    fields.plan.addEventListener("change", applyPlanPreset);
+    fields.speed.addEventListener("change", applySpeedPreset);
+
+    fields.toggleAdvancedBtn.addEventListener("click", function() {
+      fields.advancedBox.classList.toggle("is-open");
+      fields.toggleAdvancedBtn.textContent = fields.advancedBox.classList.contains("is-open")
+        ? "Hide full details"
+        : "Show full details";
+    });
+
+    fields.clearBtn.addEventListener("click", clearForm);
+
+    fields.clientRows.addEventListener("click", function(event) {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+
+      const index = Number(button.dataset.index);
+      const row = clientRecords[index];
+      if (!row) return;
+
+      if (button.dataset.action === "edit") {
+        fillForm(row);
+      }
+
+      if (button.dataset.action === "details") {
+        openDetails(index);
+      }
+    });
+
+    fields.detailCloseBtn.addEventListener("click", closeDetails);
+    fields.detailDrawer.addEventListener("click", function(event) {
+      if (event.target === fields.detailDrawer) closeDetails();
+    });
+
+    fields.detailEditBtn.addEventListener("click", function() {
+      if (detailRowIndex >= 0 && clientRecords[detailRowIndex]) {
+        fillForm(clientRecords[detailRowIndex]);
+        closeDetails();
+      }
+    });
+
+    fields.clientForm.addEventListener("submit", async function(event) {
+      event.preventDefault();
+
+      const submitBtn = fields.saveBtn;
+      const oldText = submitBtn ? submitBtn.textContent : "";
+      const data = formPayload(fields.clientForm);
+      const accountNo = data.accountNo || editAccountNo;
+
+      const existing = accountNo && clientRecords.some(function(row) {
+        return normalize(getAccountNo(row)) === normalize(accountNo);
+      });
+
+      const action = editAccountNo || existing ? "updateClient" : "saveClient";
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = action === "updateClient" ? "Updating..." : "Saving...";
+      }
+
+      showNotice(action === "updateClient" ? "Updating client record..." : "Saving client to Clients sheet...");
+
+      try {
+        const response = await callBackend(action, data);
+
+        if (response && (response.ok || response.success)) {
+          showNotice(action === "updateClient" ? "Client updated." : "Client saved to Clients sheet.", "ok");
+          clearForm();
+          loadClients();
+        } else {
+          showNotice((response && response.message) || "Unable to save client.", "error");
+        }
+      } catch (error) {
+        showNotice("Unable to save client. " + (error && error.message ? error.message : ""), "error");
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = oldText;
+        }
+      }
+    });
+
+    fields.logoutBtn.addEventListener("click", function() {
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(LEGACY_SESSION_KEY);
+      window.location.href = "index.html";
+    });
+
+    setUser(loadSession());
+    setEditMode("");
+    refreshSpeedOptions();
+    loadClients();
+  </script>
+
+  <script>
+    document.querySelectorAll(".nav-toggle").forEach(function(button) {
+      button.addEventListener("click", function() {
+        const group = button.closest(".nav-group");
+        if (!group) return;
+        group.classList.toggle("is-open");
+      });
+    });
+  </script>
+
+  <script src="assets/admin-shell.js"></script>
+</body>
+</html>

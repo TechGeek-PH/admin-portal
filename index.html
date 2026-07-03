@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Portal - TechGeekPH</title>
+  <style>
+    :root {
+      --blue: #064f83;
+      --blue-strong: #023d6b;
+      --crimson: #c91448;
+      --violet: #5a0b77;
+      --ink: #16202f;
+      --muted: #657386;
+      --line: #d9e1ec;
+      --soft: #f3f6fa;
+      --ok: #1f8a66;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(135deg, rgba(6,79,131,.08), rgba(201,20,72,.04) 42%, rgba(243,246,250,.94)),
+        var(--soft);
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(360px, 1fr) minmax(420px, 1fr);
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(28px, 5vh, 48px);
+      padding: clamp(28px, 5vw, 68px);
+      color: #fff;
+      background: linear-gradient(160deg, rgba(2,61,107,.97), rgba(6,79,131,.94) 52%, rgba(90,11,119,.9));
+      overflow: hidden;
+      position: relative;
+    }
+
+    .brand::before {
+      content: "";
+      position: absolute;
+      width: 72%;
+      height: 28px;
+      right: -12%;
+      top: 0;
+      background: linear-gradient(90deg, var(--crimson), var(--violet), #0a5f9a);
+      transform: skewX(-24deg);
+    }
+
+    .brand-inner, .status-row {
+      position: relative;
+      z-index: 1;
+      width: min(100%, 560px);
+    }
+
+    .logo-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: min(100%, 390px);
+      min-height: 104px;
+      padding: 18px 22px;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 18px 44px rgba(0,0,0,.16);
+    }
+
+    .logo-wrap img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: clamp(28px, 5vh, 42px);
+      color: rgba(255,255,255,.82);
+      font-size: .8rem;
+      font-weight: 800;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 28px;
+      height: 3px;
+      border-radius: 999px;
+      background: var(--crimson);
+    }
+
+    h1 {
+      max-width: 560px;
+      margin: 16px 0 18px;
+      font-size: clamp(2.4rem, 5vw, 4.85rem);
+      line-height: 1;
+    }
+
+    .brand-copy {
+      max-width: 560px;
+      margin: 0;
+      color: rgba(255,255,255,.82);
+      font-size: clamp(1rem, 1.7vw, 1.18rem);
+      line-height: 1.7;
+    }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      max-width: 560px;
+    }
+
+    .status-pill {
+      min-height: 96px;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 8px;
+      background: rgba(255,255,255,.09);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .status-pill b, .status-pill span { display: block; }
+    .status-pill b { margin-bottom: 6px; font-size: .95rem; }
+    .status-pill span { color: rgba(255,255,255,.72); font-size: .8rem; line-height: 1.35; }
+
+    .portal {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(24px, 5vw, 72px);
+    }
+
+    .login {
+      width: min(100%, 468px);
+      border: 1px solid rgba(217,225,236,.9);
+      border-radius: 8px;
+      background: rgba(255,255,255,.94);
+      box-shadow: 0 22px 70px rgba(14,34,55,.16);
+      overflow: hidden;
+    }
+
+    .accent {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      height: 6px;
+    }
+
+    .accent span:nth-child(1) { background: var(--blue); }
+    .accent span:nth-child(2) { background: var(--crimson); }
+    .accent span:nth-child(3) { background: var(--violet); }
+
+    .login-body { padding: clamp(26px, 4vw, 40px); }
+
+    .portal-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .portal-tabs a {
+      display: grid;
+      place-items: center;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--blue);
+      background: #fff;
+      text-decoration: none;
+      font-weight: 850;
+      font-size: .86rem;
+    }
+
+    .portal-tabs a.is-active {
+      color: #fff;
+      border-color: var(--blue);
+      background: var(--blue);
+    }
+
+
+
+    .admin-only-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 0 0 22px;
+      padding: 12px 14px;
+      border: 1px solid rgba(6,79,131,.16);
+      border-radius: 8px;
+      background: #f0f8ff;
+      color: var(--blue);
+      font-size: .88rem;
+      line-height: 1.45;
+      font-weight: 750;
+    }
+
+    .admin-only-note > span {
+      flex: 0 0 10px;
+      width: 10px;
+      height: 10px;
+      margin-top: .42em;
+      border-radius: 50%;
+      background: var(--blue);
+      box-shadow: 0 0 0 4px rgba(6,79,131,.12);
+    }
+
+    .admin-only-note b {
+      display: block;
+      color: var(--ink);
+      margin-bottom: 2px;
+    }
+
+    .form-header { margin-bottom: 28px; }
+    .form-header h2 { margin: 0 0 8px; font-size: clamp(1.7rem, 3vw, 2.2rem); }
+    .form-header p { margin: 0; color: var(--muted); line-height: 1.55; }
+
+    .field-stack { display: grid; gap: 18px; }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      color: #334155;
+      font-size: .9rem;
+      font-weight: 750;
+    }
+
+    .field-control {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .field-icon {
+      position: absolute;
+      left: 14px;
+      width: 20px;
+      height: 20px;
+      color: var(--blue);
+      pointer-events: none;
+    }
+
+    .field-control input {
+      width: 100%;
+      min-height: 50px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 0 74px 0 46px;
+      outline: none;
+    }
+
+    .field-control input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(6,79,131,.12);
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 6px;
+      display: inline-grid;
+      place-items: center;
+      width: 58px;
+      height: 38px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 800;
+    }
+
+    .toggle-password:hover { background: #eef3f8; color: var(--blue); }
+
+    .form-options {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin: 18px 0 22px;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .checkbox {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox input { width: 18px; height: 18px; accent-color: var(--blue); }
+
+    .primary-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      min-height: 52px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      color: #fff;
+      background: linear-gradient(90deg, var(--blue), var(--blue-strong));
+      box-shadow: 0 15px 30px rgba(6,79,131,.24);
+      font-weight: 850;
+    }
+
+    .back-link {
+      display: inline-flex;
+      justify-content: center;
+      width: 100%;
+      margin-top: 14px;
+      color: var(--blue);
+      text-decoration: none;
+      font-weight: 800;
+      font-size: .9rem;
+    }
+
+    .message {
+      display: none;
+      margin: 18px 0 0;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: .92rem;
+      line-height: 1.45;
+    }
+
+    .message.is-visible { display: block; }
+    .message.error { border: 1px solid rgba(201,20,72,.2); background: rgba(201,20,72,.08); color: #99183d; }
+    .message.success { border: 1px solid rgba(31,138,102,.2); background: rgba(31,138,102,.08); color: #16644d; }
+
+    @media (max-width: 980px) {
+      .page { grid-template-columns: 1fr; }
+      .brand {
+        min-height: auto;
+        padding-block: 42px;
+      }
+      .portal {
+        align-items: start;
+        padding-top: 32px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .brand, .portal { padding: 22px; }
+      .brand { min-height: auto; gap: 28px; }
+      .logo-wrap {
+        width: 100%;
+        min-height: 82px;
+        padding: 12px;
+      }
+      .eyebrow { margin-top: 26px; }
+      .status-row { grid-template-columns: 1fr; }
+      .status-pill { min-height: auto; }
+      .form-options { align-items: flex-start; flex-direction: column; }
+      .portal-tabs { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="brand">
+      <div class="brand-inner">
+        <div class="logo-wrap">
+          <img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH Solutions & Services Inc.">
+        </div>
+        <div class="eyebrow">Admin secure access</div>
+        <h1>Admin Portal</h1>
+        <p class="brand-copy">Admin-only access for client records, tickets, investors, expenses, assets, stock, SOA, payroll, and system operations.</p>
+      </div>
+
+      <div class="status-row">
+        <div class="status-pill"><b>Admin Access</b><span>Manage full operations</span></div>
+        <div class="status-pill"><b>Investor Reports</b><span>View monthly computation</span></div>
+        <div class="status-pill"><b>System Control</b><span>Clients, assets, and records</span></div>
+      </div>
+    </section>
+
+    <section class="portal">
+      <div class="login">
+        <div class="accent"><span></span><span></span><span></span></div>
+
+        <div class="login-body">
+
+
+          <div class="admin-only-note">
+            <span></span>
+            <div><b>Admin only login</b>Employee, client, and other non-admin accounts are blocked on this page.</div>
+          </div>
+
+          <div class="form-header">
+            <h2>Admin Login</h2>
+            <p>Sign in to access the admin workspace.</p>
+          </div>
+
+          <form id="loginForm" novalidate>
+            <input type="hidden" id="role" name="role" value="ADMIN">
+            <input type="hidden" id="requestedRole" name="requestedRole" value="ADMIN">
+
+            <div class="field-stack">
+              <div class="field">
+                <label for="email">Email or Admin ID</label>
+                <div class="field-control">
+                  <svg class="field-icon" viewBox="0 0 24 24" fill="none">
+                    <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-9Z" stroke="currentColor" stroke-width="2"/>
+                    <path d="m5 7 7 6 7-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <input id="email" name="email" autocomplete="username" placeholder="admin@techgeekph.com" required>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="password">Password</label>
+                <div class="field-control">
+                  <svg class="field-icon" viewBox="0 0 24 24" fill="none">
+                    <path d="M7 11V8a5 5 0 0 1 10 0v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M6.5 11h11A1.5 1.5 0 0 1 19 12.5v6A1.5 1.5 0 0 1 17.5 20h-11A1.5 1.5 0 0 1 5 18.5v-6A1.5 1.5 0 0 1 6.5 11Z" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                  <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter password" minlength="4" required>
+                  <button class="toggle-password" type="button" id="togglePassword" aria-label="Show password">Show</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-options">
+              <label class="checkbox">
+                <input type="checkbox" id="remember" name="remember">
+                <span>Remember me</span>
+              </label>
+            </div>
+
+            <button class="primary-btn" type="submit" id="submitBtn">
+              <span>Sign in to Admin Portal</span>
+            </button>
+
+            <div class="message" id="message" role="status" aria-live="polite"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxDY5TsonrB58YaN8LGbrrrc_ZD1QVpF1WK0p6jToIR2FBSqGaHfsgaE1CCiH1MvukV/exec";
+    const SESSION_KEY = "techgeekph_admin_session";
+
+    const form = document.querySelector("#loginForm");
+    const message = document.querySelector("#message");
+    const password = document.querySelector("#password");
+    const togglePassword = document.querySelector("#togglePassword");
+    const submitBtn = document.querySelector("#submitBtn");
+
+    function showMessage(type, text) {
+      message.className = "message " + type + " is-visible";
+      message.textContent = text;
+    }
+
+    function setLoading(isLoading) {
+      submitBtn.disabled = isLoading;
+      submitBtn.querySelector("span").textContent = isLoading ? "Signing in..." : "Sign in to Admin Portal";
+    }
+
+    async function callBackend(action, payload) {
+      const body = new URLSearchParams();
+      body.set("action", action);
+      body.set("method", action);
+
+      Object.keys(payload || {}).forEach(function(key) {
+        body.set(key, payload[key]);
+      });
+
+      const response = await fetch(BACKEND_URL, {
+        method: "POST",
+        body: body,
+        redirect: "follow"
+      });
+
+      const text = await response.text();
+      const type = response.headers.get("content-type") || "";
+
+      if (type.indexOf("application/json") !== -1 || /^[\s\r\n]*[\[{]/.test(text)) {
+        return JSON.parse(text);
+      }
+
+      if (/<html[\s>]/i.test(text) || /sandboxFrame/i.test(text)) {
+        return {
+          ok: false,
+          htmlResponse: true,
+          message: "Backend returned Apps Script page instead of JSON."
+        };
+      }
+
+      return {
+        ok: false,
+        message: text.trim() || "Unexpected backend response."
+      };
+    }
+
+    function goToDashboard(user, dashboardData, source, token) {
+      const cleanRole = String(user && user.role || "").trim().toUpperCase();
+
+      if (cleanRole !== "ADMIN") {
+        showMessage("error", "Admin account only. This login page blocks non-admin users.");
+        return;
+      }
+
+      if (!token) {
+        showMessage("error", "Login accepted but no session token was returned. Please check backend deployment.");
+        return;
+      }
+
+      localStorage.removeItem("techgeekph_session");
+      localStorage.removeItem("techgeekph_employee_session");
+      localStorage.removeItem("techgeekph_client_session");
+
+      localStorage.setItem(SESSION_KEY, JSON.stringify({
+        token: token || "",
+        sessionToken: token || "",
+        user: user || {},
+        email: user && (user.email || user.username) || "",
+        role: "ADMIN",
+        dashboard: dashboardData || {},
+        source: source || "admin-login",
+        loginAt: new Date().toISOString()
+      }));
+
+      window.location.href = "dashboard.html";
+    }
+
+    togglePassword.addEventListener("click", function() {
+      const isHidden = password.type === "password";
+      password.type = isHidden ? "text" : "password";
+      togglePassword.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
+      togglePassword.textContent = isHidden ? "Hide" : "Show";
+    });
+
+    form.addEventListener("submit", async function(event) {
+      event.preventDefault();
+      message.className = "message";
+
+      if (!form.checkValidity()) {
+        showMessage("error", "Please enter valid admin login details.");
+        form.reportValidity();
+        return;
+      }
+
+      const data = Object.fromEntries(new FormData(form).entries());
+      data.role = "ADMIN";
+      data.requestedRole = "ADMIN";
+
+      setLoading(true);
+
+      try {
+        const response = await callBackend("validateLogin", data);
+        setLoading(false);
+
+        if (!response || !response.ok) {
+          showMessage("error", response && response.message ? response.message : "Login failed.");
+          return;
+        }
+
+        const loginUser = response.user || data;
+        const role = String(loginUser.role || "").trim().toUpperCase();
+
+        if (role !== "ADMIN") {
+          showMessage("error", "Admin account only. Non-admin accounts cannot login here.");
+          return;
+        }
+
+        showMessage("success", "Admin login accepted.");
+        goToDashboard(loginUser, response.dashboard, "backend-json", response.token || response.sessionToken);
+      } catch (error) {
+        setLoading(false);
+        showMessage("error", "Unable to connect to login server. Please check deployment URL.");
+      }
+    });
+  </script>
+</body>
+</html>

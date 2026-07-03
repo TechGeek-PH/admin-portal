@@ -1,0 +1,1030 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TechGeekPH Daily Time Record</title>
+  <style>
+
+    :root {
+      --blue:#064f83;
+      --blue-strong:#023d6b;
+      --crimson:#c91448;
+      --ink:#16202f;
+      --muted:#657386;
+      --line:#d9e1ec;
+      --soft:#f3f6fa;
+      --surface:#ffffff;
+      --ok:#1f8a66;
+      --warn:#b7791f;
+      --danger:#c91448;
+      --shadow:0 12px 30px rgba(14,34,55,.07);
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    *{box-sizing:border-box;}
+    html,body{width:100%;max-width:100%;overflow-x:hidden;}
+    body{min-height:100vh;margin:0;color:var(--ink);background:var(--soft);}
+    button,input,select,textarea{font:inherit;font-size:16px;}
+    button{cursor:pointer;}
+    .app{min-height:100vh;display:grid;grid-template-columns:280px minmax(0,1fr);}
+    .sidebar{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:18px;padding:16px;color:#fff;background:linear-gradient(180deg,var(--blue-strong),var(--blue) 62%,#083453);overflow-y:auto;}
+    .brand{display:grid;gap:12px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.16);}
+    .brand-logo{display:grid;place-items:center;width:165px;min-height:70px;padding:10px;border-radius:8px;background:#fff;}
+    .brand-logo img{display:block;width:100%;height:auto;object-fit:contain;}
+    .brand strong{display:block;font-size:1rem;}
+    .brand span{display:block;margin-top:5px;color:rgba(255,255,255,.76);font-size:.84rem;line-height:1.45;}
+    .nav{display:grid;gap:7px;}
+    .nav a,.nav-toggle{display:flex;align-items:center;justify-content:flex-start;width:100%;min-height:42px;border:0;border-radius:10px;color:rgba(255,255,255,.86);background:transparent;padding:0 13px;text-align:left;text-decoration:none;font-weight:850;cursor:pointer;}
+    .nav a:hover,.nav a.is-active,.nav-toggle:hover,.nav-toggle.is-active{color:#fff;background:rgba(255,255,255,.13);}
+    .nav-group{display:grid;gap:6px;margin:2px 0;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:8px;background:rgba(255,255,255,.06);}
+    .nav-toggle{min-height:36px;border-radius:9px;color:#fff;background:rgba(255,255,255,.12);padding:0 11px;font-weight:950;}
+    .nav-toggle::after{content:"›";margin-left:auto;font-size:.95rem;opacity:.75;transform:rotate(0deg);}
+    .nav-group.is-open .nav-toggle::after{transform:rotate(90deg);}
+    .nav-panel{display:none;gap:5px;margin-left:14px;padding-left:10px;border-left:1px solid rgba(255,255,255,.24);}
+    .nav-group.is-open .nav-panel{display:grid;}
+    .nav-panel a{min-height:34px;font-size:.82rem;border-radius:8px;padding:0 10px;font-weight:820;line-height:1.15;white-space:normal;}
+    .nav-panel a.is-active{background:rgba(255,255,255,.19);color:#fff;}
+    .sidebar-footer{margin-top:auto;display:grid;gap:10px;}
+    .logout{min-height:44px;border:1px solid rgba(255,255,255,.28);border-radius:10px;color:#fff;background:transparent;font-weight:900;text-align:left;padding:0 13px;}
+    .logout:hover{background:rgba(255,255,255,.12);}
+    .main{min-width:0;display:grid;grid-template-rows:auto 1fr;}
+    .topbar{position:sticky;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;gap:18px;min-height:84px;padding:16px clamp(16px,3vw,34px);border-bottom:1px solid var(--line);background:rgba(255,255,255,.96);backdrop-filter:blur(12px);}
+    .title-block h1{margin:0;font-size:clamp(1.35rem,2.2vw,2rem);}
+    .title-block p{margin:5px 0 0;color:var(--muted);font-size:.92rem;}
+    .user-chip{display:flex;align-items:center;gap:12px;min-width:0;}
+    .avatar{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;color:#fff;background:linear-gradient(135deg,var(--crimson),var(--blue));font-weight:950;}
+    .user-chip strong,.user-chip span{display:block;}
+    .user-chip strong{font-size:.94rem;}
+    .user-chip span{margin-top:2px;color:var(--muted);font-size:.78rem;}
+    .content{display:grid;gap:18px;min-width:0;padding:clamp(16px,3vw,30px);max-width:1600px;width:100%;margin:0 auto;}
+    .notice{margin:0;padding:12px 14px;border:1px solid rgba(183,121,31,.24);border-radius:10px;background:#fff8ea;color:#7a4e10;font-size:.86rem;line-height:1.45;}
+    .notice.ok{border-color:rgba(31,138,102,.28);color:#126247;background:#eefaf5;}
+    .notice.error{border-color:rgba(201,20,72,.26);color:#98113b;background:#fff1f5;}
+    .is-hidden{display:none!important;}
+    .summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;}
+    .card,.panel{border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);min-width:0;}
+    .card{min-height:112px;padding:16px;}
+    .card span,.card strong,.card small{display:block;}
+    .card span{color:var(--muted);font-size:.79rem;font-weight:900;}
+    .card strong{margin-top:13px;color:var(--blue);font-size:1.68rem;line-height:1.1;overflow-wrap:anywhere;}
+    .card small{margin-top:8px;color:#7d8b9d;font-size:.74rem;}
+    .layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(330px,.75fr);gap:18px;align-items:start;}
+    .layout.full{grid-template-columns:1fr;}
+    .panel-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px;border-bottom:1px solid var(--line);}
+    .panel-head h2{margin:0;font-size:1.05rem;}
+    .panel-head p{margin:4px 0 0;color:var(--muted);font-size:.82rem;line-height:1.4;}
+    .mode-chip,.status-chip{display:inline-flex;align-items:center;min-height:30px;padding:0 11px;border-radius:999px;border:1px solid #cde4f6;background:#f0f8ff;color:var(--blue);font-size:.76rem;font-weight:900;white-space:nowrap;}
+    .status-chip{border-color:rgba(31,138,102,.28);background:#eefaf5;color:#126247;}
+    .status-chip.warn{border-color:rgba(183,121,31,.28);background:#fff8ea;color:#7a4e10;}
+    .status-chip.done{border-color:#d8dfea;background:#eef2f7;color:#475569;}
+    .status-chip.alert{border-color:rgba(201,20,72,.26);background:#fff1f5;color:#98113b;}
+    .compact-form,.form-grid{display:grid;gap:14px;padding:16px;}
+    .form-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .field.full{grid-column:1/-1;}
+    .field label{display:block;margin-bottom:7px;color:#334155;font-size:.78rem;font-weight:900;}
+    .field input,.field select,.field textarea{width:100%;min-width:0;min-height:42px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:0 12px;color:var(--ink);outline:none;}
+    .field textarea{min-height:92px;padding:10px 12px;resize:vertical;}
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(6,79,131,.12);}
+    .toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);background:#fbfdff;flex-wrap:wrap;}
+    .toolbar-left,.toolbar-right,.toolbar-group{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0;}
+    .search,.filter,.date-filter{min-height:42px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:0 12px;color:var(--ink);outline:none;min-width:0;}
+    .search{width:min(380px,100%);}
+    .primary-btn,.ghost-btn,.danger-btn,.small-btn,.ok-btn,.warn-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;border-radius:10px;padding:0 14px;font-weight:900;text-decoration:none;white-space:nowrap;}
+    .primary-btn{border:1px solid var(--blue);color:#fff;background:var(--blue);}
+    .ghost-btn,.small-btn{border:1px solid var(--line);color:var(--blue);background:#fff;}
+    .ok-btn{border:1px solid rgba(31,138,102,.35);color:#126247;background:#eefaf5;}
+    .warn-btn{border:1px solid rgba(183,121,31,.28);color:#7a4e10;background:#fff8ea;}
+    .danger-btn{border:1px solid #f0b5c3;color:var(--danger);background:#fff5f7;}
+    .small-btn,.ok-btn.small,.warn-btn.small,.danger-btn.small{min-height:32px;padding:0 10px;font-size:.78rem;}
+    button:disabled{opacity:.65;cursor:not-allowed;}
+    .table-wrap{width:100%;max-width:100%;overflow:auto;-webkit-overflow-scrolling:touch;}
+    table{width:100%;min-width:1120px;border-collapse:collapse;font-size:.84rem;}
+    th,td{padding:11px 12px;border-bottom:1px solid #edf1f6;text-align:left;vertical-align:top;}
+    th{color:#475569;background:#f9fbfd;font-size:.72rem;text-transform:uppercase;letter-spacing:.035em;white-space:nowrap;}
+    td{color:#263244;overflow-wrap:anywhere;}
+    .records-table{min-width:1080px;}
+    .employee-cell strong,.employee-cell span{display:block;}
+    .employee-cell span{color:var(--muted);margin-top:2px;font-size:.76rem;}
+    .action-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+    .action-btn{min-height:54px;flex-direction:column;gap:2px;}
+    .action-btn small{display:block;font-size:.68rem;opacity:.8;font-weight:800;}
+    .detail{border:1px solid #edf1f6;border-radius:10px;padding:10px 12px;min-height:64px;background:#fbfdff;}
+    .detail span{display:block;color:var(--muted);font-size:.72rem;font-weight:850;text-transform:uppercase;letter-spacing:.035em;}
+    .detail strong{display:block;margin-top:6px;color:var(--ink);font-size:.9rem;font-weight:750;overflow-wrap:anywhere;}
+    .info-box{display:grid;gap:10px;padding:16px;color:#475569;font-size:.86rem;line-height:1.5;}
+    .live-box{display:grid;gap:8px;padding:16px;border:1px solid #edf1f6;border-radius:12px;background:#fbfdff;}
+    .live-time{display:block;color:var(--blue);font-size:1.65rem;font-weight:950;letter-spacing:-.03em;line-height:1;}
+    .live-date{display:block;color:var(--muted);font-size:.82rem;font-weight:750;}
+    .empty-state{display:grid;place-items:center;min-height:110px;color:var(--muted);text-align:center;}
+    @media (max-width:1180px){
+      .app{grid-template-columns:240px minmax(0,1fr);}
+      .layout{grid-template-columns:1fr;}
+      .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+    }
+    @media (max-width:860px){
+      .app{display:block;}
+      .sidebar{position:relative;height:auto;padding:12px;}
+      .brand{grid-template-columns:auto 1fr;align-items:center;gap:10px;padding-bottom:10px;}
+      .brand-logo{width:118px;min-height:46px;}
+      .nav{grid-template-columns:1fr!important;}
+      .nav-group{width:100%;}
+      .nav-panel{grid-template-columns:1fr!important;margin-left:14px;padding-left:10px;border-left:1px solid rgba(255,255,255,.24);}
+      .nav a,.nav-toggle,.logout{justify-content:flex-start;text-align:left;min-height:38px;padding:0 10px;font-size:.82rem;}
+      .sidebar-footer{margin-top:0;}
+      .topbar{position:relative;min-height:auto;padding:14px 16px;}
+      .content{padding:14px;}
+      .form-grid{grid-template-columns:1fr;}
+      .field.full{grid-column:auto;}
+    }
+    @media (max-width:680px){
+      body{background:#f2f5f9;}
+      .brand{grid-template-columns:1fr;}
+      .nav{grid-template-columns:1fr!important;}
+      .topbar{display:grid;gap:12px;}
+      .user-chip{width:100%;padding:10px;border:1px solid var(--line);border-radius:12px;background:#fff;}
+      .summary-grid{grid-template-columns:1fr;}
+      .panel-head,.toolbar,.toolbar-left,.toolbar-right,.toolbar-group{display:grid;grid-template-columns:1fr;align-items:stretch;width:100%;}
+      .search,.filter,.date-filter,.primary-btn,.ghost-btn,.danger-btn,.ok-btn,.warn-btn{width:100%;}
+      .action-grid{grid-template-columns:1fr;}
+      .table-wrap{overflow:visible;}
+      table,.records-table{min-width:0;width:100%;border-collapse:separate;border-spacing:0 12px;}
+      thead{display:none;}
+      tbody{display:grid;gap:12px;}
+      tr{display:grid;border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:0 8px 20px rgba(14,34,55,.05);overflow:hidden;}
+      td{display:grid;grid-template-columns:128px minmax(0,1fr);gap:9px;width:100%;padding:10px 12px;border-bottom:1px solid #edf1f6;white-space:normal;}
+      td:last-child{border-bottom:0;}
+      td::before{content:attr(data-label);color:var(--muted);font-size:.72rem;font-weight:950;text-transform:uppercase;letter-spacing:.03em;}
+      .small-btn{width:100%;}
+    }
+    @media (max-width:420px){
+      .content{padding:10px;}
+      td{grid-template-columns:1fr;gap:5px;}
+      .title-block h1{font-size:1.26rem;}
+    }
+
+  </style>
+<style id="standard-admin-sidebar-format">
+    /* Standard admin sidebar format */
+    :root {
+      --blue-strong: #023d6b;
+      --blue: #064f83;
+      --crimson: #c91448;
+      --line: #d9e1ec;
+    }
+
+    .app {
+      min-height: 100vh !important;
+      display: grid !important;
+      grid-template-columns: 280px minmax(0, 1fr) !important;
+      width: 100% !important;
+      max-width: 100vw !important;
+    }
+
+    .sidebar {
+      position: sticky !important;
+      top: 0 !important;
+      height: 100vh !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 18px !important;
+      padding: 16px !important;
+      color: #fff !important;
+      background: linear-gradient(180deg, var(--blue-strong), var(--blue) 62%, #083453) !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
+
+    .brand {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 12px !important;
+      padding-bottom: 16px !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16) !important;
+    }
+
+    .brand-logo {
+      display: grid !important;
+      place-items: center !important;
+      width: 165px !important;
+      min-height: 70px !important;
+      padding: 10px !important;
+      border-radius: 8px !important;
+      background: #fff !important;
+    }
+
+    .brand-logo img {
+      display: block !important;
+      width: 100% !important;
+      height: auto !important;
+      object-fit: contain !important;
+    }
+
+    .brand strong {
+      display: block !important;
+      font-size: 1rem !important;
+      font-weight: 900 !important;
+    }
+
+    .brand span {
+      display: block !important;
+      margin-top: 5px !important;
+      color: rgba(255, 255, 255, 0.76) !important;
+      font-size: 0.84rem !important;
+      line-height: 1.45 !important;
+    }
+
+    .nav {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 7px !important;
+      width: 100% !important;
+    }
+
+    .nav a,
+    .nav-toggle {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      width: 100% !important;
+      min-height: 42px !important;
+      border: 0 !important;
+      border-radius: 10px !important;
+      color: rgba(255, 255, 255, 0.86) !important;
+      background: transparent !important;
+      padding: 0 13px !important;
+      text-align: left !important;
+      text-decoration: none !important;
+      font-size: 0.88rem !important;
+      font-weight: 850 !important;
+      line-height: 1.18 !important;
+      cursor: pointer !important;
+      white-space: normal !important;
+    }
+
+    .nav a:hover,
+    .nav a.is-active,
+    .nav-toggle:hover,
+    .nav-toggle.is-active {
+      color: #fff !important;
+      background: rgba(255, 255, 255, 0.13) !important;
+    }
+
+    .nav-group {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 6px !important;
+      margin: 2px 0 !important;
+      border: 1px solid rgba(255, 255, 255, 0.16) !important;
+      border-radius: 12px !important;
+      padding: 8px !important;
+      background: rgba(255, 255, 255, 0.06) !important;
+      width: 100% !important;
+    }
+
+    .nav-toggle {
+      min-height: 36px !important;
+      border-radius: 9px !important;
+      color: #fff !important;
+      background: rgba(255, 255, 255, 0.12) !important;
+      padding: 0 11px !important;
+      font-weight: 950 !important;
+    }
+
+    .nav-toggle::after {
+      content: "›" !important;
+      margin-left: auto !important;
+      font-size: 0.95rem !important;
+      opacity: 0.75 !important;
+      transform: rotate(0deg) !important;
+    }
+
+    .nav-group.is-open .nav-toggle::after {
+      transform: rotate(90deg) !important;
+    }
+
+    .nav-panel {
+      display: none !important;
+      grid-template-columns: 1fr !important;
+      gap: 5px !important;
+      margin-left: 14px !important;
+      padding-left: 10px !important;
+      border-left: 1px solid rgba(255, 255, 255, 0.24) !important;
+    }
+
+    .nav-group.is-open .nav-panel {
+      display: grid !important;
+    }
+
+    .nav-panel a {
+      min-height: 34px !important;
+      padding: 0 10px !important;
+      border-radius: 8px !important;
+      font-size: 0.82rem !important;
+      font-weight: 820 !important;
+      line-height: 1.15 !important;
+      white-space: normal !important;
+      justify-content: flex-start !important;
+      text-align: left !important;
+    }
+
+    .nav-panel a.is-active {
+      background: rgba(255, 255, 255, 0.19) !important;
+      color: #fff !important;
+    }
+
+    .sidebar-footer {
+      margin-top: auto !important;
+      display: grid !important;
+      gap: 10px !important;
+    }
+
+    .logout {
+      min-height: 44px !important;
+      width: 100% !important;
+      border: 1px solid rgba(255, 255, 255, 0.28) !important;
+      border-radius: 10px !important;
+      color: #fff !important;
+      background: transparent !important;
+      font-weight: 900 !important;
+      text-align: left !important;
+      padding: 0 13px !important;
+      justify-content: flex-start !important;
+    }
+
+    .logout:hover {
+      background: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    @media (max-width: 1120px) {
+      .app {
+        grid-template-columns: 250px minmax(0, 1fr) !important;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .app {
+        display: block !important;
+      }
+
+      .sidebar {
+        position: relative !important;
+        height: auto !important;
+        min-height: auto !important;
+        padding: 12px !important;
+        gap: 12px !important;
+      }
+
+      .brand {
+        grid-template-columns: auto 1fr !important;
+        align-items: center !important;
+        gap: 10px !important;
+        padding-bottom: 10px !important;
+      }
+
+      .brand-logo {
+        width: 118px !important;
+        min-height: 46px !important;
+      }
+
+      .nav,
+      .nav-panel {
+        grid-template-columns: 1fr !important;
+      }
+
+      .nav a,
+      .nav-toggle,
+      .logout {
+        justify-content: flex-start !important;
+        text-align: left !important;
+      }
+
+      .sidebar-footer {
+        margin-top: 0 !important;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .brand {
+        grid-template-columns: 1fr !important;
+      }
+
+      .brand-logo {
+        width: 124px !important;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="assets/admin-shell.css">
+</head>
+<body>
+  <main class="app">
+      <aside class="sidebar" data-admin-sidebar>
+    <div class="brand">
+      <div class="brand-logo">
+        <img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH">
+      </div>
+      <div>
+        <strong>TechGeekPH Admin</strong>
+        <span>Admin portal for clients, tickets, attendance, expenses, stock, assets, payroll, SOA, and investor reports.</span>
+      </div>
+    </div>
+
+    <nav class="nav" aria-label="Admin navigation">
+      <a href="dashboard.html">Dashboard</a>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Operations</button>
+        <div class="nav-panel">
+          <a href="application_form.html">Application Form</a>
+          <a href="clients.html">Clients</a>
+          <a href="tickets.html">Tickets</a>
+          <a href="nap-checker.html">NAP Checker</a>
+          <a href="statement_of_account.html">Statement of Account</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Attendance &amp; Expenses</button>
+        <div class="nav-panel">
+          <a href="daily_time_record.html">My Time Record</a>
+          <a href="daily_time_record_admin.html">Admin Time Records</a>
+          <a href="my_expense_request.html">My Expense Request</a>
+          <a href="expense_approval.html">Expense Approval</a>
+          <a href="payslip_generator.html">Payslip Generator</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Stock &amp; Assets</button>
+        <div class="nav-panel">
+          <a href="consumable_stock.html">Consumable Stock</a>
+          <a href="company_assets.html">Company Assets</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-toggle" type="button">Investor</button>
+        <div class="nav-panel">
+          <a href="investor_morwin_gapud.html">Morwin Gapud</a>
+          <a href="investor_marivie_viana_gapud.html">Marivie Viana Gapud</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="logout" type="button" id="logoutBtn">Log out</button>
+    </div>
+  </aside>
+
+    <section class="main">
+      <header class="topbar">
+        <div class="title-block">
+          <h1>My Time Record</h1>
+          <p>Time in, break, and time out under your employee account.</p>
+        </div>
+        <div class="user-chip">
+          <div class="avatar" id="avatar">TG</div>
+          <div><strong id="userName">TechGeekPH User</strong><span id="userRole">Portal access</span></div>
+        </div>
+      </header>
+
+      <div class="content">
+        <p class="notice is-hidden" id="notice"></p>
+
+        <div class="summary-grid">
+          <article class="card"><span>My Logs</span><strong id="metricTotal">--</strong><small>Records under your account</small></article>
+          <article class="card"><span>Today Status</span><strong id="metricToday">--</strong><small>Current attendance status</small></article>
+          <article class="card"><span>Time In</span><strong id="metricTimeIn">--</strong><small>Today's time in</small></article>
+          <article class="card"><span>Time Out</span><strong id="metricTimeOut">--</strong><small>Today's time out</small></article>
+        </div>
+
+        <div class="layout">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>My Time Records</h2>
+                <p>Filtered to your logged-in employee record.</p>
+              </div>
+              <button class="ghost-btn" type="button" id="refreshBtn">Refresh</button>
+            </div>
+
+            <div class="toolbar pro-toolbar">
+              <div class="toolbar-group toolbar-left">
+                <input class="search" id="searchInput" placeholder="Search date, status, remarks">
+                <select class="filter" id="statusFilter">
+                  <option value="">All status</option>
+                  <option>Time In</option>
+                  <option>On Break</option>
+                  <option>Returned</option>
+                  <option>Timed Out</option>
+                  <option>Absent</option>
+                </select>
+                <input class="date-filter" id="dateFilter" type="date">
+              </div>
+              <div class="toolbar-right">
+                <button class="ghost-btn" type="button" id="clearFilterBtn">Clear Filter</button>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table class="records-table">
+                <thead>
+                  <tr>
+                    <th>Attendance ID</th>
+                    <th>Date</th>
+                    <th>Employee</th>
+                    <th>Time In</th>
+                    <th>Break Out</th>
+                    <th>Break In</th>
+                    <th>Time Out</th>
+                    <th>Status</th>
+                    <th>Location</th>
+                    <th>Remarks</th>
+                  </tr>
+                </thead>
+                <tbody id="recordRows"><tr><td colspan="10">Loading attendance records...</td></tr></tbody>
+              </table>
+            </div>
+          </section>
+
+          <aside class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Time Actions</h2>
+                <p>Recommended flow: Time In → Break Out → Break In → Time Out.</p>
+              </div>
+              <span class="mode-chip" id="todayBadge">Today</span>
+            </div>
+
+            <form class="compact-form" id="attendanceForm">
+              <div class="live-box">
+                <div>
+                  <span class="live-time" id="liveTime">--:--</span>
+                  <span class="live-date" id="liveDate">Today</span>
+                </div>
+                <span class="status-chip" id="currentStatusChip">No log yet</span>
+              </div>
+
+              <div class="field">
+                <label for="locationLink">Location Link</label>
+                <input id="locationLink" name="locationLink" placeholder="Google Maps URL / optional">
+              </div>
+              <div class="field">
+                <label for="remarks">Remarks</label>
+                <input id="remarks" name="remarks" placeholder="Optional notes">
+              </div>
+              <button class="ghost-btn" type="button" id="gpsBtn">Use GPS</button>
+
+              <div class="action-grid">
+                <button class="primary-btn action-btn" type="button" data-att-action="attendanceTimeIn">Time In<small>Start shift</small></button>
+                <button class="ghost-btn action-btn" type="button" data-att-action="attendanceBreakOut">Break Out<small>Start break</small></button>
+                <button class="ghost-btn action-btn" type="button" data-att-action="attendanceBreakIn">Break In<small>Return</small></button>
+                <button class="danger-btn action-btn" type="button" data-att-action="attendanceTimeOut">Time Out<small>End shift</small></button>
+              </div>
+            </form>
+
+            <div class="panel-head" style="border-top:1px solid var(--line);">
+              <div>
+                <h2>Today</h2>
+                <p>Quick attendance snapshot</p>
+              </div>
+            </div>
+            <div class="compact-form">
+              <div class="detail"><span>Status</span><strong id="sideStatus">--</strong></div>
+              <div class="detail"><span>Time In</span><strong id="sideTimeIn">--</strong></div>
+              <div class="detail"><span>Time Out</span><strong id="sideTimeOut">--</strong></div>
+            </div>
+
+            <div class="info-box">
+              <span><b>Workflow:</b> Time In → Break Out → Break In → Time Out.</span>
+              <span><b>Reminder:</b> Use GPS when you are on-site or in the office.</span>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+<script>
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxDY5TsonrB58YaN8LGbrrrc_ZD1QVpF1WK0p6jToIR2FBSqGaHfsgaE1CCiH1MvukV/exec";
+    const SESSION_KEY = "techgeekph_admin_session";
+    const LEGACY_SESSION_KEY = "techgeekph_admin_session";
+
+    function loadSession() {
+      try {
+        const primary = JSON.parse(localStorage.getItem(SESSION_KEY) || "{}");
+        if (primary && Object.keys(primary).length) return primary;
+      } catch (error) {}
+
+      try {
+        return JSON.parse(localStorage.getItem(LEGACY_SESSION_KEY) || "{}");
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function getSessionToken() {
+      const session = loadSession();
+      return session.token || session.sessionToken || session.accessToken || "";
+    }
+
+    function getSessionUser() {
+      const session = loadSession();
+      return session.user || {};
+    }
+
+    function initialsFrom(value) {
+      return String(value || "TG")
+        .replace(/@.*/, "")
+        .split(/[.\s_-]+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(part => part[0].toUpperCase())
+        .join("") || "TG";
+    }
+
+    function normalize(value) { return String(value || "").trim().toLowerCase(); }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function key(row, names) {
+      for (const name of names) {
+        if (row && row[name] !== undefined && row[name] !== null && String(row[name]).trim() !== "") return row[name];
+      }
+      return "";
+    }
+
+    function todayLocal() {
+      const d = new Date();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return d.getFullYear() + "-" + m + "-" + day;
+    }
+
+    function dateOnly(value) {
+      const raw = String(value || "");
+      if (!raw) return "";
+      if (/^\d{4}-\d{2}-\d{2}/.test(raw)) return raw.substring(0, 10);
+      const d = new Date(raw);
+      if (!isNaN(d.getTime())) {
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return d.getFullYear() + "-" + m + "-" + day;
+      }
+      return raw.substring(0, 10);
+    }
+
+    function to12HourTime(hours, minutes, seconds, includeSeconds) {
+      let h = Number(hours);
+      const m = String(minutes || "00").padStart(2, "0");
+      const s = String(seconds || "00").padStart(2, "0");
+      if (!Number.isFinite(h)) return "--";
+      const ampm = h >= 12 ? "PM" : "AM";
+      h = h % 12;
+      if (h === 0) h = 12;
+      return String(h) + ":" + m + (includeSeconds ? ":" + s : "") + " " + ampm;
+    }
+
+    function formatTimeDisplay(value) {
+      const raw = String(value || "").trim();
+      if (!raw) return "--";
+
+      if (/\b(am|pm)\b/i.test(raw)) {
+        return raw.replace(/\s+/g, " ").toUpperCase();
+      }
+
+      const timeMatch = raw.match(/(?:T|\s|^)(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+      if (timeMatch) {
+        return to12HourTime(timeMatch[1], timeMatch[2], timeMatch[3], false);
+      }
+
+      const parsed = new Date(raw);
+      if (!isNaN(parsed.getTime())) {
+        return parsed.toLocaleTimeString("en-PH", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true
+        });
+      }
+
+      return raw;
+    }
+
+    function statusClass(status) {
+      const s = normalize(status);
+      if (s === "on break") return "warn";
+      if (s === "timed out" || s === "done") return "done";
+      if (s === "absent" || s === "cancelled") return "alert";
+      return "";
+    }
+
+    function setUser(fields, adminLink) {
+      const session = loadSession();
+      const user = session.user || {};
+      const name = user.fullName || user.name || user.email || session.email || "TechGeekPH User";
+      const role = user.role || session.role || "portal";
+
+      fields.userName.textContent = name;
+      fields.userRole.textContent = String(role).charAt(0).toUpperCase() + String(role).slice(1).toLowerCase() + " access";
+      fields.avatar.textContent = initialsFrom(name);
+
+      if (adminLink && String(role).toUpperCase() !== "ADMIN") {
+        adminLink.style.display = "none";
+      }
+    }
+
+    async function callBackend(action, payload) {
+      const data = Object.assign({}, payload || {}, { action, method: action });
+      if (!data.token && !data.sessionToken) data.token = getSessionToken();
+
+      const params = new URLSearchParams();
+      Object.keys(data).forEach(k => {
+        if (data[k] !== undefined && data[k] !== null) {
+          params.set(k, typeof data[k] === "object" ? JSON.stringify(data[k]) : data[k]);
+        }
+      });
+
+      const response = await fetch(BACKEND_URL + "?" + params.toString(), {
+        method: "GET",
+        redirect: "follow"
+      });
+
+      const text = await response.text();
+
+      if (/^[\s\r\n]*[\[{]/.test(text)) return JSON.parse(text);
+
+      if (/<html[\s>]/i.test(text) || /sandboxFrame/i.test(text)) {
+        return {
+          success: false,
+          ok: false,
+          message: "Apps Script returned HTML instead of JSON. Please check Web App deployment/access."
+        };
+      }
+
+      return { success: false, ok: false, message: text.trim() || "Unexpected backend response." };
+    }
+
+    function showNotice(fields, message, type) {
+      fields.notice.textContent = message;
+      fields.notice.classList.remove("is-hidden", "ok", "error");
+      if (type === "ok") fields.notice.classList.add("ok");
+      if (type === "error") fields.notice.classList.add("error");
+    }
+
+    function hideNotice(fields) {
+      fields.notice.classList.add("is-hidden");
+      fields.notice.textContent = "";
+      fields.notice.classList.remove("ok", "error");
+    }
+
+    function updateLiveClock() {
+      const timeEl = document.querySelector("#liveTime");
+      const dateEl = document.querySelector("#liveDate");
+      if (!timeEl || !dateEl) return;
+      const now = new Date();
+      timeEl.textContent = now.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true });
+      dateEl.textContent = now.toLocaleDateString("en-PH", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+    }
+
+    function logout() {
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(LEGACY_SESSION_KEY);
+      window.location.href = "index.html";
+    }
+
+    function getEmployeeName(row) {
+      return key(row, ["Employee Name", "employeeName", "Full Name", "Name"]);
+    }
+
+    function getEmployeeId(row) {
+      return key(row, ["EmployeeID", "employeeId", "Employee ID"]);
+    }
+
+    function getStatus(row) {
+      return key(row, ["Status", "status"]) || "Time In";
+    }
+
+    function getDate(row) {
+      return key(row, ["Date", "date"]);
+    }
+
+    function getTodayRow(records, currentUserOnly) {
+      const today = todayLocal();
+      return records.find(row => dateOnly(getDate(row)) === today && (!currentUserOnly || isCurrentUserRecord(row))) || {};
+    }
+
+    function isCurrentUserRecord(row) {
+      const session = loadSession();
+      const user = session.user || {};
+      const employeeId = normalize(user.employeeId || user.EmployeeID);
+      const fullName = normalize(user.fullName || user.name || session.email);
+      const rowEmployeeId = normalize(getEmployeeId(row));
+      const rowName = normalize(getEmployeeName(row));
+      if (employeeId && rowEmployeeId) return employeeId === rowEmployeeId;
+      if (fullName && rowName) return fullName === rowName;
+      return true;
+    }
+
+    async function useCurrentLocation(input) {
+      if (!navigator.geolocation) {
+        alert("Location is not supported on this device/browser.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          input.value = "https://maps.google.com/?q=" + lat + "," + lng;
+        },
+        error => {
+          alert("Unable to get location. Please allow GPS/location permission.");
+        },
+        { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+      );
+    }
+
+
+    const MY_RECORDS_ONLY = true;
+
+    const fields = {
+      notice: document.querySelector("#notice"),
+      avatar: document.querySelector("#avatar"),
+      userName: document.querySelector("#userName"),
+      userRole: document.querySelector("#userRole"),
+      adminRecordsLink: document.querySelector("#adminRecordsLink"),
+      metricTotal: document.querySelector("#metricTotal"),
+      metricToday: document.querySelector("#metricToday"),
+      metricTimeIn: document.querySelector("#metricTimeIn"),
+      metricTimeOut: document.querySelector("#metricTimeOut"),
+      todayBadge: document.querySelector("#todayBadge"),
+      currentStatusChip: document.querySelector("#currentStatusChip"),
+      sideStatus: document.querySelector("#sideStatus"),
+      sideTimeIn: document.querySelector("#sideTimeIn"),
+      sideTimeOut: document.querySelector("#sideTimeOut"),
+      locationLink: document.querySelector("#locationLink"),
+      remarks: document.querySelector("#remarks"),
+      refreshBtn: document.querySelector("#refreshBtn"),
+      searchInput: document.querySelector("#searchInput"),
+      statusFilter: document.querySelector("#statusFilter"),
+      dateFilter: document.querySelector("#dateFilter"),
+      clearFilterBtn: document.querySelector("#clearFilterBtn"),
+      gpsBtn: document.querySelector("#gpsBtn"),
+      recordRows: document.querySelector("#recordRows"),
+      logoutBtn: document.querySelector("#logoutBtn")
+    };
+
+    let attendanceRecords = [];
+
+    function ownRecords() {
+      return attendanceRecords.filter(isCurrentUserRecord);
+    }
+
+    function filteredRecords() {
+      const query = normalize(fields.searchInput.value);
+      const status = normalize(fields.statusFilter.value);
+      const selectedDate = fields.dateFilter.value;
+      return ownRecords().filter(row => {
+        const rowStatus = normalize(getStatus(row));
+        const rowDate = dateOnly(getDate(row));
+        const text = Object.keys(row).map(k => row[k]).join(" ").toLowerCase();
+        return (!status || rowStatus === status) &&
+          (!selectedDate || rowDate === selectedDate) &&
+          (!query || text.indexOf(query) !== -1);
+      });
+    }
+
+    function renderStats() {
+      const records = ownRecords();
+      const todayRow = getTodayRow(records, false);
+      const status = getStatus(todayRow) || "No log";
+      const timeIn = key(todayRow, ["Time In", "timeIn", "timein"]);
+      const timeOut = key(todayRow, ["Time Out", "timeOut", "timeout"]);
+
+      fields.metricTotal.textContent = records.length.toLocaleString();
+      fields.metricToday.textContent = status || "No log";
+      fields.metricTimeIn.textContent = formatTimeDisplay(timeIn);
+      fields.metricTimeOut.textContent = formatTimeDisplay(timeOut);
+      fields.todayBadge.textContent = todayLocal();
+
+      fields.sideStatus.textContent = status || "No log";
+      fields.sideTimeIn.textContent = formatTimeDisplay(timeIn);
+      fields.sideTimeOut.textContent = formatTimeDisplay(timeOut);
+
+      fields.currentStatusChip.textContent = status || "No log";
+      fields.currentStatusChip.className = "status-chip " + statusClass(status);
+    }
+
+    function renderRows() {
+      const rows = filteredRecords();
+      renderStats();
+
+      if (!rows.length) {
+        fields.recordRows.innerHTML = '<tr><td colspan="10"><div class="empty-state">No time record found for the selected filter.</div></td></tr>';
+        return;
+      }
+
+      fields.recordRows.innerHTML = rows.slice().reverse().map(row => {
+        const location = key(row, ["Location Link", "locationLink"]);
+        const status = getStatus(row);
+        const employeeName = getEmployeeName(row);
+        const employeeId = getEmployeeId(row);
+
+        return "<tr>" +
+          '<td data-label="Attendance ID">' + escapeHtml(key(row, ["AttendanceID", "attendanceId"])) + "</td>" +
+          '<td data-label="Date">' + escapeHtml(getDate(row)) + "</td>" +
+          '<td data-label="Employee" class="employee-cell"><strong>' + escapeHtml(employeeName) + '</strong><span>' + escapeHtml(employeeId) + '</span></td>' +
+          '<td data-label="Time In">' + escapeHtml(formatTimeDisplay(key(row, ["Time In", "timeIn", "timein"]))) + "</td>" +
+          '<td data-label="Break Out">' + escapeHtml(formatTimeDisplay(key(row, ["Break Out", "breakOut", "breakout"]))) + "</td>" +
+          '<td data-label="Break In">' + escapeHtml(formatTimeDisplay(key(row, ["Break In", "breakIn", "breakin"]))) + "</td>" +
+          '<td data-label="Time Out">' + escapeHtml(formatTimeDisplay(key(row, ["Time Out", "timeOut", "timeout"]))) + "</td>" +
+          '<td data-label="Status"><span class="status-chip ' + statusClass(status) + '">' + escapeHtml(status) + "</span></td>" +
+          '<td data-label="Location">' + (location ? '<a class="small-btn" href="' + escapeHtml(location) + '" target="_blank" rel="noopener">Open</a>' : "--") + "</td>" +
+          '<td data-label="Remarks">' + escapeHtml(key(row, ["Remarks", "remarks"])) + "</td>" +
+        "</tr>";
+      }).join("");
+    }
+
+    async function loadAttendance() {
+      showNotice(fields, "Loading attendance records...");
+      try {
+        const res = await callBackend("listAttendance", {});
+        if (!res || (!res.success && !res.ok)) throw new Error((res && res.message) || "Unable to load records.");
+        attendanceRecords = res.data || res.records || res.rows || [];
+        hideNotice(fields);
+        renderRows();
+      } catch (error) {
+        attendanceRecords = [];
+        renderRows();
+        showNotice(fields, "Unable to load attendance. " + (error.message || error), "error");
+      }
+    }
+
+    async function runAttendanceAction(action) {
+      const button = document.querySelector('[data-att-action="' + action + '"]');
+      const oldHtml = button ? button.innerHTML : "";
+      if (button) {
+        button.disabled = true;
+        button.innerHTML = "Saving...<small>Please wait</small>";
+      }
+
+      showNotice(fields, "Saving attendance action...");
+
+      try {
+        const payload = {
+          locationLink: fields.locationLink.value,
+          remarks: fields.remarks.value,
+          data: JSON.stringify({ locationLink: fields.locationLink.value, remarks: fields.remarks.value })
+        };
+
+        const res = await callBackend(action, payload);
+        if (!res || (!res.success && !res.ok)) throw new Error((res && res.message) || "Unable to save.");
+        showNotice(fields, res.message || "Attendance saved.", "ok");
+        await loadAttendance();
+      } catch (error) {
+        showNotice(fields, "Unable to save attendance. " + (error.message || error), "error");
+      } finally {
+        if (button) {
+          button.disabled = false;
+          button.innerHTML = oldHtml;
+        }
+      }
+    }
+
+    document.querySelectorAll("[data-att-action]").forEach(btn => btn.addEventListener("click", () => runAttendanceAction(btn.dataset.attAction)));
+    fields.searchInput.addEventListener("input", renderRows);
+    fields.statusFilter.addEventListener("change", renderRows);
+    fields.dateFilter.addEventListener("change", renderRows);
+    fields.clearFilterBtn.addEventListener("click", function() {
+      fields.searchInput.value = "";
+      fields.statusFilter.value = "";
+      fields.dateFilter.value = "";
+      renderRows();
+    });
+    fields.refreshBtn.addEventListener("click", loadAttendance);
+    fields.gpsBtn.addEventListener("click", () => useCurrentLocation(fields.locationLink));
+    fields.logoutBtn.addEventListener("click", logout);
+
+    setUser(fields, fields.adminRecordsLink);
+    updateLiveClock();
+    setInterval(updateLiveClock, 1000);
+    loadAttendance();
+  </script>
+
+  <script>
+    document.querySelectorAll(".nav-toggle").forEach(function(button) {
+      button.addEventListener("click", function() {
+        const group = button.closest(".nav-group");
+        if (!group) return;
+        group.classList.toggle("is-open");
+      });
+    });
+  </script>
+
+  <script src="assets/admin-shell.js"></script>
+</body>
+</html>
