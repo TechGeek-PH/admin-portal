@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>TechGeekPH SOA & Acknowledgement Receipt</title>
+  <!-- SOA PNG FIX VERSION: 2026-07-06-v8-folder-logo-same-origin -->
 
   <!-- PNG download library -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -1840,6 +1841,686 @@
       }
     }
 
+
+    /* ==========================================================
+       CLIENT SEARCH + MORE READABLE SOA DETAILS
+       ========================================================== */
+    .client-search-row {
+      position: relative;
+    }
+
+    .client-search-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .client-search-wrap input {
+      min-width: 0;
+    }
+
+    .client-search-clear {
+      min-width: 76px;
+      min-height: 40px;
+      border: 1px solid var(--admin-line, #d9e1ec);
+      border-radius: 8px;
+      color: var(--blue, #064f83);
+      background: #fff;
+      padding: 0 12px;
+      font-weight: 850;
+    }
+
+    .client-search-status {
+      display: block;
+      margin-top: 6px;
+      color: #64748b;
+      font-size: .76rem;
+      line-height: 1.35;
+    }
+
+    .client-search-results {
+      display: grid;
+      gap: 5px;
+      max-height: 290px;
+      margin-top: 8px;
+      overflow-y: auto;
+      border: 1px solid var(--admin-line, #d9e1ec);
+      border-radius: 10px;
+      padding: 6px;
+      background: #fff;
+      box-shadow: 0 12px 26px rgba(15, 23, 42, .10);
+    }
+
+    .client-search-option {
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(100px, auto) minmax(0, 1fr);
+      gap: 6px 12px;
+      border: 0;
+      border-radius: 8px;
+      background: #f8fafc;
+      padding: 10px 11px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .client-search-option:hover,
+    .client-search-option:focus {
+      outline: none;
+      background: #eaf4fc;
+    }
+
+    .client-search-option strong {
+      color: var(--blue-dark, #023d6b);
+      font-size: .84rem;
+    }
+
+    .client-search-option span {
+      min-width: 0;
+      color: #0f172a;
+      font-size: .84rem;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .client-search-option small {
+      grid-column: 1 / -1;
+      color: #64748b;
+      font-size: .74rem;
+      overflow-wrap: anywhere;
+    }
+
+    .client-search-empty {
+      padding: 12px;
+      color: #64748b;
+      text-align: center;
+      font-size: .82rem;
+    }
+
+    /* Increase the printable SOA text without changing the A4 paper size. */
+    .soa-sheet {
+      padding: 10mm 12mm 8mm !important;
+      font-size: 11.6px !important;
+      line-height: 1.22 !important;
+    }
+
+    .company-header {
+      grid-template-columns: 54mm 1fr !important;
+      column-gap: 6mm !important;
+      min-height: 22mm !important;
+    }
+
+    .soa-logo-box img { width: 48mm !important; }
+    .contact-box { font-size: 9.8px !important; line-height: 1.2 !important; }
+    .contact-box strong { font-size: 11.5px !important; }
+    .soa-main-title { font-size: 21px !important; margin: 2mm 0 3.5mm !important; }
+
+    .subscriber-box {
+      min-height: 23mm !important;
+      padding: 2.2mm 3.4mm !important;
+      font-size: 11.8px !important;
+      line-height: 1.24 !important;
+    }
+
+    .matrix-cell {
+      min-height: 7.2mm !important;
+      font-size: 10.8px !important;
+    }
+
+    .matrix-cell .label { font-size: 9.3px !important; }
+
+    .billing-summary-table { font-size: 10.8px !important; }
+    .billing-summary-table th { font-size: 9.8px !important; padding: 1.5mm .8mm !important; }
+    .billing-summary-table td { padding: 1.7mm .8mm !important; }
+    .billing-summary-table .plan-cell { font-size: 10px !important; }
+
+    .soa-body-area {
+      min-height: 94mm !important;
+      padding: 5mm 8mm 3mm 4mm !important;
+    }
+
+    .soa-charges {
+      width: 145mm !important;
+      max-width: calc(100% - 14mm) !important;
+      font-size: 10.8px !important;
+    }
+
+    .charge-section { margin-bottom: 3mm !important; }
+    .charge-line { min-height: 4.2mm !important; grid-template-columns: 1fr 36mm !important; }
+    .important-reminders .reminder-head { font-size: 13px !important; }
+    .important-reminders .reminder-body { font-size: 9.8px !important; line-height: 1.28 !important; }
+    .payment-stub { font-size: 10px !important; }
+    .stub-row { grid-template-columns: 30mm 1fr !important; }
+    .barcode-number { font-size: 7.5px !important; }
+    .receipt-stub { font-size: 10px !important; }
+    .receipt-label-under { font-size: 7.4px !important; }
+
+    @media (max-width: 680px) {
+      .client-search-wrap { grid-template-columns: 1fr; }
+      .client-search-clear { width: 100%; }
+      .client-search-option { grid-template-columns: 1fr; }
+      .client-search-option small { grid-column: auto; }
+    }
+
+    /* ==========================================================
+       SOA EXTRA-LARGE READABLE TEXT - FINAL OVERRIDE
+       Enlarges the actual printable text while keeping A4 size.
+       ========================================================== */
+    .soa-sheet {
+      padding: 9mm 11mm 7mm !important;
+      font-size: 14px !important;
+      line-height: 1.30 !important;
+    }
+
+    .company-header {
+      grid-template-columns: 52mm minmax(0, 1fr) !important;
+      column-gap: 5mm !important;
+      min-height: 22mm !important;
+    }
+
+    .soa-logo-box img {
+      width: 50mm !important;
+      max-height: 22mm !important;
+      object-fit: contain !important;
+    }
+
+    .contact-box {
+      font-size: 11.5px !important;
+      line-height: 1.28 !important;
+    }
+
+    .contact-box strong {
+      margin-bottom: 1.2mm !important;
+      font-size: 13px !important;
+    }
+
+    .soa-main-title {
+      margin: 2mm 0 4mm !important;
+      font-size: 25px !important;
+      line-height: 1.05 !important;
+      letter-spacing: .035em !important;
+    }
+
+    .soa-top-grid {
+      grid-template-columns: 1.14fr .96fr !important;
+    }
+
+    .subscriber-box {
+      min-height: 27mm !important;
+      padding: 3mm 4mm !important;
+      font-size: 14px !important;
+      line-height: 1.34 !important;
+    }
+
+    .subscriber-box .client-name {
+      margin-bottom: 1.2mm !important;
+      font-size: 15px !important;
+    }
+
+    .matrix-cell {
+      min-height: 8.8mm !important;
+      padding: 1.3mm 1mm !important;
+      font-size: 13px !important;
+      line-height: 1.22 !important;
+    }
+
+    .matrix-cell .label {
+      margin-bottom: .8mm !important;
+      font-size: 10.8px !important;
+    }
+
+    .billing-summary-table {
+      margin-top: 2mm !important;
+      font-size: 13px !important;
+    }
+
+    .billing-summary-table th {
+      padding: 2mm 1mm !important;
+      font-size: 11.5px !important;
+      line-height: 1.18 !important;
+    }
+
+    .billing-summary-table td {
+      padding: 2.4mm 1mm !important;
+      font-size: 13.5px !important;
+      line-height: 1.2 !important;
+    }
+
+    .billing-summary-table .plan-cell {
+      font-size: 12.5px !important;
+      line-height: 1.24 !important;
+    }
+
+    .soa-body-area {
+      min-height: 104mm !important;
+      padding: 6mm 8mm 3mm 4mm !important;
+    }
+
+    .soa-watermark {
+      font-size: 24px !important;
+    }
+
+    .soa-charges {
+      width: 154mm !important;
+      max-width: calc(100% - 11mm) !important;
+      font-size: 13.2px !important;
+      line-height: 1.28 !important;
+    }
+
+    .charge-title,
+    .total-due-label {
+      margin-bottom: 1.6mm !important;
+      font-size: 13.5px !important;
+    }
+
+    .charge-section {
+      margin-bottom: 4.2mm !important;
+    }
+
+    .charge-line {
+      grid-template-columns: minmax(0, 1fr) 40mm !important;
+      gap: 5mm !important;
+      min-height: 5.4mm !important;
+      align-items: center !important;
+    }
+
+    .charge-line strong {
+      min-height: 4.2mm !important;
+      font-size: 13.5px !important;
+    }
+
+    .charge-line.total {
+      margin-top: 3mm !important;
+      font-size: 14.5px !important;
+    }
+
+    .charge-line.total strong {
+      font-size: 15px !important;
+    }
+
+    .important-reminders .reminder-head {
+      padding: 2mm 4mm !important;
+      font-size: 15px !important;
+    }
+
+    .important-reminders .reminder-body {
+      min-height: 18mm !important;
+      padding: 2.5mm 4mm !important;
+      font-size: 11.8px !important;
+      line-height: 1.38 !important;
+    }
+
+    .cut-line {
+      margin: 5.5mm 0 2.5mm !important;
+      font-size: 9.5px !important;
+    }
+
+    .payment-stub {
+      min-height: 43mm !important;
+      column-gap: 12mm !important;
+      row-gap: 3mm !important;
+      font-size: 11.8px !important;
+      line-height: 1.28 !important;
+    }
+
+    .stub-col {
+      gap: 1.2mm !important;
+    }
+
+    .stub-row {
+      grid-template-columns: 32mm minmax(0, 1fr) !important;
+      gap: 2mm !important;
+      min-height: 5mm !important;
+    }
+
+    .barcode-box {
+      height: 13mm !important;
+      margin-top: 3.5mm !important;
+    }
+
+    .barcode-number {
+      font-size: 8.8px !important;
+    }
+
+    .receipt-cut {
+      margin: 4mm 0 3mm !important;
+    }
+
+    .receipt-stub {
+      column-gap: 12mm !important;
+      row-gap: 8mm !important;
+      font-size: 11.8px !important;
+      line-height: 1.28 !important;
+    }
+
+    .receipt-line {
+      min-height: 9mm !important;
+    }
+
+    .receipt-label-under {
+      margin-top: 1mm !important;
+      font-size: 8.8px !important;
+    }
+
+    @media print {
+      .soa-sheet {
+        font-size: 14px !important;
+        line-height: 1.30 !important;
+      }
+    }
+
+
+
+    /* ==========================================================
+       SOA ULTRA-READABLE PRINT SIZE + SOA-ONLY PDF
+       Final override requested: larger SOA text and exclude the
+       separate Acknowledgement Receipt from Print / Save as PDF.
+       ========================================================== */
+    .soa-sheet {
+      padding: 8mm 10mm 6mm !important;
+      font-size: 15.8px !important;
+      line-height: 1.34 !important;
+    }
+
+    .company-header {
+      grid-template-columns: 50mm minmax(0, 1fr) !important;
+      column-gap: 5mm !important;
+      min-height: 21mm !important;
+    }
+
+    .soa-logo-box img {
+      width: 48mm !important;
+      max-height: 21mm !important;
+      object-fit: contain !important;
+    }
+
+    .contact-box {
+      font-size: 12.4px !important;
+      line-height: 1.28 !important;
+    }
+
+    .contact-box strong {
+      font-size: 14px !important;
+      line-height: 1.12 !important;
+    }
+
+    .soa-main-title {
+      margin: 1.8mm 0 3.4mm !important;
+      font-size: 28px !important;
+      line-height: 1 !important;
+    }
+
+    .subscriber-box {
+      min-height: 27mm !important;
+      padding: 3mm 4mm !important;
+      font-size: 15.8px !important;
+      line-height: 1.34 !important;
+    }
+
+    .subscriber-box .client-name {
+      margin-bottom: 1.1mm !important;
+      font-size: 17px !important;
+      line-height: 1.2 !important;
+    }
+
+    .matrix-cell {
+      min-height: 8.6mm !important;
+      padding: 1.2mm .8mm !important;
+      font-size: 14.2px !important;
+      line-height: 1.18 !important;
+    }
+
+    .matrix-cell .label {
+      margin-bottom: .6mm !important;
+      font-size: 11.8px !important;
+      line-height: 1.1 !important;
+    }
+
+    .billing-summary-table {
+      margin-top: 1.7mm !important;
+      font-size: 14.3px !important;
+    }
+
+    .billing-summary-table th {
+      padding: 1.7mm .8mm !important;
+      font-size: 12.4px !important;
+      line-height: 1.12 !important;
+    }
+
+    .billing-summary-table td {
+      padding: 2mm .8mm !important;
+      font-size: 15px !important;
+      line-height: 1.16 !important;
+    }
+
+    .billing-summary-table .plan-cell {
+      font-size: 13.7px !important;
+      line-height: 1.18 !important;
+    }
+
+    .soa-body-area {
+      min-height: 100mm !important;
+      padding: 5mm 7mm 2.5mm 3.5mm !important;
+    }
+
+    .soa-charges {
+      width: 157mm !important;
+      max-width: calc(100% - 10mm) !important;
+      font-size: 14.8px !important;
+      line-height: 1.28 !important;
+    }
+
+    .charge-title,
+    .total-due-label {
+      margin-bottom: 1.3mm !important;
+      font-size: 15px !important;
+      line-height: 1.1 !important;
+    }
+
+    .charge-section {
+      margin-bottom: 3.4mm !important;
+    }
+
+    .charge-line {
+      grid-template-columns: minmax(0, 1fr) 41mm !important;
+      gap: 4mm !important;
+      min-height: 5.2mm !important;
+      line-height: 1.18 !important;
+    }
+
+    .charge-line strong {
+      min-height: 4mm !important;
+      font-size: 15px !important;
+    }
+
+    .charge-line.total {
+      margin-top: 2.3mm !important;
+      font-size: 16px !important;
+    }
+
+    .charge-line.total strong {
+      font-size: 16.5px !important;
+    }
+
+    .important-reminders .reminder-head {
+      padding: 1.8mm 4mm !important;
+      font-size: 16px !important;
+      line-height: 1.05 !important;
+    }
+
+    .important-reminders .reminder-body {
+      min-height: 17mm !important;
+      padding: 2.2mm 4mm !important;
+      font-size: 13px !important;
+      line-height: 1.34 !important;
+    }
+
+    .cut-line {
+      margin: 4.8mm 0 2mm !important;
+      font-size: 10.4px !important;
+    }
+
+    .payment-stub {
+      min-height: 40mm !important;
+      column-gap: 10mm !important;
+      row-gap: 2.2mm !important;
+      font-size: 13px !important;
+      line-height: 1.22 !important;
+    }
+
+    .stub-col {
+      gap: .8mm !important;
+    }
+
+    .stub-row {
+      grid-template-columns: 34mm minmax(0, 1fr) !important;
+      gap: 1.6mm !important;
+      min-height: 4.5mm !important;
+    }
+
+    .barcode-box {
+      height: 12mm !important;
+      margin-top: 2.7mm !important;
+    }
+
+    .barcode-number {
+      font-size: 9.2px !important;
+    }
+
+    .receipt-cut {
+      margin: 3.2mm 0 2.5mm !important;
+    }
+
+    .receipt-stub {
+      column-gap: 10mm !important;
+      row-gap: 6mm !important;
+      font-size: 13px !important;
+      line-height: 1.22 !important;
+    }
+
+    .receipt-line {
+      min-height: 8mm !important;
+    }
+
+    .receipt-label-under {
+      margin-top: .8mm !important;
+      font-size: 9.4px !important;
+    }
+
+    @media print {
+      /* Print / Save as PDF must contain the SOA page only. */
+      .receipt-sheet,
+      #ackReceiptSheet {
+        display: none !important;
+      }
+
+      .soa-paper-wrap {
+        display: block !important;
+        overflow: visible !important;
+        padding: 0 !important;
+      }
+
+      .soa-sheet {
+        width: 210mm !important;
+        height: 297mm !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        page-break-before: avoid !important;
+        page-break-after: avoid !important;
+        break-before: avoid-page !important;
+        break-after: avoid-page !important;
+        font-size: 15.8px !important;
+        line-height: 1.34 !important;
+      }
+    }
+
+
+    /* ==========================================================
+       SOA LOWER SECTION OVERLAP FIX
+       Keeps Total Amount Due, Important Reminders, billing stub,
+       barcode, and signature area in normal document flow.
+       ========================================================== */
+    .soa-body-area {
+      display: flex !important;
+      flex-direction: column !important;
+      min-height: 100mm !important;
+      height: auto !important;
+      padding-bottom: 3mm !important;
+      overflow: visible !important;
+    }
+
+    .soa-charges {
+      position: relative !important;
+      z-index: 2 !important;
+      flex: 0 0 auto !important;
+    }
+
+    .charge-line.total {
+      margin-bottom: 4mm !important;
+    }
+
+    .important-reminders {
+      position: relative !important;
+      left: auto !important;
+      right: auto !important;
+      bottom: auto !important;
+      top: auto !important;
+      width: 100% !important;
+      margin: 0 !important;
+      flex: 0 0 auto !important;
+      clear: both !important;
+      z-index: 3 !important;
+      background: #ffffff !important;
+    }
+
+    .important-reminders .reminder-head,
+    .important-reminders .reminder-body {
+      position: relative !important;
+      z-index: 4 !important;
+    }
+
+    .cut-line {
+      clear: both !important;
+      position: relative !important;
+      z-index: 4 !important;
+    }
+
+    .payment-stub,
+    .receipt-cut,
+    .receipt-stub {
+      position: relative !important;
+      z-index: 4 !important;
+      background: #ffffff !important;
+    }
+
+    @media print {
+      .soa-body-area {
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+        min-height: 100mm !important;
+        overflow: visible !important;
+      }
+
+      .important-reminders {
+        position: relative !important;
+        left: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        top: auto !important;
+      }
+    }
+
+
+    /* Keep the exact original repository logo in preview, PDF and PNG. */
+    .soa-logo-box img[data-asset="logo"],
+    .ack-logo-row img[data-asset="logo"] {
+      object-fit: contain !important;
+      object-position: left center !important;
+      filter: none !important;
+    }
+
   </style>
   <link rel="stylesheet" href="assets/admin-shell.css">
 </head>
@@ -1923,21 +2604,21 @@
           <div class="panel-head">
             <div>
               <h2>SOA Details</h2>
-              <p>Search client then generate SOA.</p>
+              <p>Select client then generate SOA.</p>
             </div>
           </div>
 
           <form class="form-grid" id="soaForm">
             <p class="notice is-hidden" id="notice"></p>
 
-            <div class="field full client-search-field">
+            <div class="field full client-search-row">
               <label for="clientSearch">Search Existing Client</label>
-              <div class="client-search-row">
-                <input id="clientSearch" type="search" autocomplete="off" placeholder="Search account number, client name, phone, RD/BLK, or address">
-                <button class="ghost-btn" type="button" id="clearClientSearchBtn">Clear</button>
-                <div class="client-search-results is-hidden" id="clientSearchResults" role="listbox"></div>
+              <div class="client-search-wrap">
+                <input id="clientSearch" type="search" autocomplete="off" placeholder="Search account #, client name, phone, or RD/BLK">
+                <button class="client-search-clear" type="button" id="clearClientSearchBtn">Clear</button>
               </div>
               <small class="client-search-status" id="clientSearchStatus">Loading clients...</small>
+              <div class="client-search-results is-hidden" id="clientSearchResults" role="listbox" aria-label="Client search results"></div>
             </div>
 
             <div class="divider">Subscriber Information</div>
@@ -2102,78 +2783,86 @@
                     <div class="charge-line subtotal"><span>Total Current Charges</span><strong id="pvTotalCharges">₱ 0.00</strong></div>
                   </div>
 
-                  <div class="charge-line total">
-                    <span>Total Amount Due:</span>
-                    <strong id="pvBalance">₱ 0.00</strong>
-                  </div>
+                  <div class="charge-line total"><span class="total-due-label">Total Amount Due:</span><strong id="pvBalance">₱ 0.00</strong></div>
                 </div>
 
-                <section class="important-reminders">
+                <div class="important-reminders">
                   <div class="reminder-head">Important Reminders</div>
                   <div class="reminder-body" id="pvRemarks">Please settle your account on or before the due date to avoid service interruption. For questions, contact TechGeekPH support.</div>
-                </section>
+                </div>
               </section>
 
               <div class="cut-line"><span>Please attach this billing stub when making payments</span></div>
 
               <section class="payment-stub">
                 <div class="stub-col">
-                  <div class="stub-row"><b>Account number:</b><span id="stubAccountNo">--</span></div>
-                  <div class="stub-row"><b>Name:</b><span id="stubClientName">--</span></div>
+                  <div class="stub-row"><b>Account number:</b><span id="pvStubAccountNo">--</span></div>
+                  <div class="stub-row"><b>Name:</b><span id="pvStubName">--</span></div>
                 </div>
                 <div class="stub-col">
-                  <div class="stub-row"><b>Due Date:</b><span id="stubDueDate">--</span></div>
-                  <div class="stub-row"><b>Total Amount Due:</b><span id="stubAmountDue">₱ 0.00</span></div>
-                  <div class="stub-row"><b>SOA number:</b><span id="stubStatementNo">--</span></div>
-                  <div class="stub-row"><b>Contact no.:</b><span id="stubContactNo">--</span></div>
+                  <div class="stub-row"><b>Due Date:</b><span id="pvStubDueDate">--</span></div>
+                  <div class="stub-row"><b>Total Amount Due:</b><span id="pvStubTotalAmountDue">₱ 0.00</span></div>
+                  <div class="stub-row"><b>SOA number:</b><span id="pvStubStatementNo">--</span></div>
+                  <div class="stub-row"><b>Contact no.:</b><span id="pvStubPhone">--</span></div>
                 </div>
-                <div class="barcode-box" aria-hidden="true"></div>
-                <div class="barcode-number" id="stubBarcodeText">--</div>
+                <div class="barcode-box" aria-label="barcode"></div>
+                <div class="barcode-number" id="pvBarcodeNumber">--</div>
               </section>
 
               <div class="receipt-cut"></div>
 
               <section class="receipt-stub">
-                <div class="receipt-field full"><b>SOA number:</b><span class="receipt-line" id="receiptStatementNo">--</span></div>
-                <div class="receipt-field"><b>Due Date:</b><span class="receipt-line" id="receiptDueDate">--</span></div>
-                <div class="receipt-field"><b>Received by:</b><span class="receipt-line"></span></div>
-                <div class="receipt-field"><span></span><span class="receipt-label-under">Signature over Printed Name</span></div>
-                <div class="receipt-field"><span></span><span class="receipt-label-under">Date and Time</span></div>
+                <div class="stub-row"><b>SOA number:</b><span id="pvReceiptSoaNo">--</span></div>
+                <div class="stub-row"><b>Due Date:</b><span id="pvReceiptDueDate">--</span></div>
+                <div class="receipt-field full">
+                  <b>Received by:</b>
+                  <span>
+                    <span class="receipt-line"></span>
+                    <span class="receipt-label-under">Signature over Printed Name</span>
+                  </span>
+                </div>
+                <div class="receipt-field full">
+                  <span></span>
+                  <span>
+                    <span class="receipt-line"></span>
+                    <span class="receipt-label-under">Date and Time</span>
+                  </span>
+                </div>
               </section>
             </article>
 
             <article class="receipt-sheet" id="ackReceiptSheet">
-              <div class="ack-receipt">
-                <section class="ack-settlement">
-                  <div class="ack-settlement-title">Settlement Details</div>
+              <section class="ack-receipt">
+                <aside class="ack-settlement">
+                  <div class="ack-settlement-title">In Settlement of the Following:</div>
                   <table class="ack-table">
-                    <thead>
-                      <tr><th>Particulars</th><th>Amount</th></tr>
-                    </thead>
+                    <thead><tr><th>Particulars</th><th>Amount</th></tr></thead>
                     <tbody>
-                      <tr><td>Previous Balance</td><td id="ackPreviousBalance">₱ 0.00</td></tr>
-                      <tr><td>Monthly Internet Fee</td><td id="ackCurrentBill">₱ 0.00</td></tr>
-                      <tr><td>Reconnection Fee</td><td id="ackReconnectionFee">₱ 0.00</td></tr>
-                      <tr><td>Other Charges</td><td id="ackOtherCharges">₱ 0.00</td></tr>
-                      <tr><td>Discount / Rebate</td><td id="ackDiscount">₱ 0.00</td></tr>
-                      <tr class="ack-total-row"><td>Total Due</td><td id="ackTotalDue">₱ 0.00</td></tr>
-                      <tr class="ack-total-row"><td>Amount Received</td><td id="ackAmountReceived">₱ 0.00</td></tr>
+                      <tr><td>Monthly Internet Fee</td><td id="arMonthlyBill">₱ 0.00</td></tr>
+                      <tr><td>Previous Balance</td><td id="arPreviousBalance">₱ 0.00</td></tr>
+                      <tr><td>Reconnection / Extension Fee</td><td id="arReconnectFee">₱ 0.00</td></tr>
+                      <tr><td>Other Charges</td><td id="arOtherCharges">₱ 0.00</td></tr>
+                      <tr><td>Discount / Rebate</td><td id="arDiscount">₱ 0.00</td></tr>
+                      <tr><td>Amount Paid</td><td id="arAmountPaid">₱ 0.00</td></tr>
+                      <tr><td>Remaining Balance</td><td id="arRemainingBalance">₱ 0.00</td></tr>
+                      <tr><td>Billing Month</td><td id="arBillingMonth">--</td></tr>
+                      <tr class="ack-total-row"><td>Total</td><td id="arReceiptTotal">₱ 0.00</td></tr>
                     </tbody>
                   </table>
 
                   <div class="ack-payment-title">Form of Payment</div>
                   <div class="ack-payment-options">
-                    <div class="ack-check"><span class="ack-box" id="ackCheckCash"></span> Cash</div>
-                    <div class="ack-check"><span class="ack-box" id="ackCheckGcash"></span> GCash</div>
-                    <div class="ack-check"><span class="ack-box" id="ackCheckOther"></span> Other</div>
+                    <div class="ack-check"><span class="ack-box" id="arCashBox"></span>Cash</div>
+                    <div class="ack-check"><span class="ack-box" id="arCheckBox"></span>Check</div>
+                    <div class="ack-check"><span class="ack-box" id="arOtherBox"></span>Others</div>
                   </div>
                   <div class="ack-payment-grid">
-                    <div>Bank</div><div id="ackBank">--</div>
-                    <div>Check #</div><div id="ackCheckNo">--</div>
-                    <div>Date</div><div id="ackCheckDate">--</div>
-                    <div>Reference</div><div id="ackReference">--</div>
+                    <div>Cash</div><div id="arCashValue">--</div>
+                    <div>Check</div><div id="arCheckValue">--</div>
+                    <div>Bank</div><div id="arBankValue">--</div>
+                    <div>Check No.</div><div id="arCheckNoValue">--</div>
                   </div>
-                </section>
+                </aside>
 
                 <section class="ack-main">
                   <header class="ack-header">
@@ -2181,35 +2870,42 @@
                       <img src="./assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH" data-capture-img data-asset="logo">
                     </div>
                     <div class="ack-company-contact">
-                      <strong>TECHGEEKPH SOLUTIONS &amp; SERVICES INC.</strong><br>
-                      Lt. 74, Road 4, Purok 1, ABNAI Street<br>
-                      Barangay Santa Ana, Taytay, Rizal<br>
-                      +63 965 075 3950 / +63 993 741 8007
+                      <div>Lt. 74, Road 4, Purok 1,</div>
+                      <div>ABNAI Street Barangay Santa Ana, Taytay Rizal</div>
+                      <div>Contact No.: +63 965 075 3950 / +63 993 741 8007</div>
+                      <div>Email: contactus.taytay@gmail.com</div>
+                      <div>Website: https://techgeekph.net</div>
                     </div>
                   </header>
 
                   <div class="ack-title-row">
                     <h2 class="ack-title">Acknowledgement Receipt</h2>
-                    <div class="ack-number" id="ackReceiptNo">AR-YYYYMM-0001</div>
+                    <div class="ack-number">AR #: <span id="arReceiptNo">--</span></div>
                   </div>
 
                   <div class="ack-body">
-                    <div class="ack-line-row date-line"><span></span><span>Date:</span><span class="ack-line" id="ackReceiptDate">--</span></div>
-                    <div class="ack-line-row"><span>Received from:</span><span class="ack-line strong" id="ackClientName">--</span></div>
-                    <div class="ack-line-row"><span>Account no.:</span><span class="ack-line" id="ackAccountNo">--</span></div>
-                    <div class="ack-line-row ack-peso-row"><span>The amount of:</span><span>₱</span><span class="ack-line strong" id="ackAmountNumeric">0.00</span><span>only</span></div>
-                    <div class="ack-line-row"><span>Payment for:</span><span class="ack-line" id="ackParticulars">Monthly internet subscription</span></div>
-                    <div class="ack-line-row"><span>Payment type:</span><span class="ack-line" id="ackPaymentType">Full Payment</span></div>
+                    <div class="ack-line-row date-line"><span></span><span>Date:</span><span class="ack-line" id="arDate">--</span></div>
+                    <div class="ack-line-row"><span>Received from</span><span class="ack-line strong" id="arReceivedFrom">--</span></div>
+                    <div class="ack-line-row"><span>and address at</span><span class="ack-line" id="arAddress">--</span></div>
+                    <div class="ack-line-row"><span>The sum of</span><span class="ack-line" id="arAmountWords">--</span></div>
+                    <div class="ack-line-row ack-peso-row"><span></span><span>Pesos (₱</span><span class="ack-line strong" id="arAmountNumber">0.00</span><span>)</span></div>
+                    <div class="ack-line-row"><span>in full/partial payment of</span><span class="ack-line" id="arParticulars">--</span></div>
                   </div>
 
                   <div class="ack-signatures">
-                    <div><div class="ack-sig-line"></div><div class="ack-sig-label">Client / Authorized Representative</div></div>
-                    <div><div class="ack-sig-line ack-received-by" id="ackPreparedBy"></div><div class="ack-sig-label">Received By</div></div>
+                    <div>
+                      <div class="ack-sig-line"></div>
+                      <div class="ack-sig-label">Payor’s Signature</div>
+                    </div>
+                    <div>
+                      <div class="ack-received-by">Payment Received by: <strong id="arReceivedBy">--</strong></div>
+                      <div class="ack-sig-line"></div>
+                      <div class="ack-sig-label">Authorized Signature</div>
+                    </div>
                   </div>
-
-                  <div class="ack-footer-note">This acknowledgement receipt is valid only when signed by an authorized representative.</div>
+                  <div class="ack-footer-note">“THIS DOCUMENT IS NOT VALID FOR CLAIMING INPUT TAXES”</div>
                 </section>
-              </div>
+              </section>
             </article>
           </div>
         </section>
@@ -2218,14 +2914,18 @@
   </main>
 
   <script>
-    const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwBTE_4NPZrxcofeEJ0V34Y091FzrdZbWO7anIeU0NHDN5DMI7oHEbHzso4Ui9XOoIBJw/exec";
-    const SESSION_KEY = "techgeekphSession";
-    const LEGACY_SESSION_KEY = "portalSession";
-    const SOA_RECEIPT_SERIES_KEY = "techgeekphSoaReceiptSeries";
-    const SOA_ASSET_STORAGE = "techgeekphSoaAssetData";
+    const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxDY5TsonrB58YaN8LGbrrrc_ZD1QVpF1WK0p6jToIR2FBSqGaHfsgaE1CCiH1MvukV/exec";
+    const SESSION_KEY = "techgeekph_admin_session";
+    const LEGACY_SESSION_KEY = "techgeekph_admin_session";
+
+    let clientRecords = [];
 
     const fields = {
       notice: document.querySelector("#notice"),
+      avatar: document.querySelector("#avatar"),
+      userName: document.querySelector("#userName"),
+      userRole: document.querySelector("#userRole"),
+      logoutBtn: document.querySelector("#logoutBtn"),
       clientSearch: document.querySelector("#clientSearch"),
       clientSearchResults: document.querySelector("#clientSearchResults"),
       clientSearchStatus: document.querySelector("#clientSearchStatus"),
@@ -2233,13 +2933,12 @@
       accountNo: document.querySelector("#accountNo"),
       clientName: document.querySelector("#clientName"),
       phoneNumber: document.querySelector("#phoneNumber"),
-      clientEmail: document.querySelector("#clientEmail"),
-      status: document.querySelector("#status"),
       serviceAddress: document.querySelector("#serviceAddress"),
       plan: document.querySelector("#plan"),
       speed: document.querySelector("#speed"),
       monthlyBill: document.querySelector("#monthlyBill"),
       dueDay: document.querySelector("#dueDay"),
+      status: document.querySelector("#status"),
       billingMonth: document.querySelector("#billingMonth"),
       statementDate: document.querySelector("#statementDate"),
       periodFrom: document.querySelector("#periodFrom"),
@@ -2256,160 +2955,241 @@
       balance: document.querySelector("#balance"),
       remarks: document.querySelector("#remarks"),
       preparedBy: document.querySelector("#preparedBy"),
+      generateBtn: document.querySelector("#generateBtn"),
+      clearBtn: document.querySelector("#clearBtn"),
+      copyMessageBtn: document.querySelector("#copyMessageBtn"),
+      downloadPngBtn: document.querySelector("#downloadPngBtn"),
+      printBtn: document.querySelector("#printBtn"),
+      soaSheet: document.querySelector("#soaSheet"),
+      logoAssetInput: document.querySelector("#logoAssetInput"),
+      bannerAssetInput: document.querySelector("#bannerAssetInput"),
+      paymentAssetInput: document.querySelector("#paymentAssetInput"),
+      assetStatus: document.querySelector("#assetStatus"),
+      clientEmail: document.querySelector("#clientEmail"),
       receiptNo: document.querySelector("#receiptNo"),
       receiptDate: document.querySelector("#receiptDate"),
       receiptAmount: document.querySelector("#receiptAmount"),
+      receiptParticulars: document.querySelector("#receiptParticulars"),
       paymentType: document.querySelector("#paymentType"),
       paymentMethod: document.querySelector("#paymentMethod"),
       paymentReference: document.querySelector("#paymentReference"),
       paymentBank: document.querySelector("#paymentBank"),
-      receiptParticulars: document.querySelector("#receiptParticulars"),
-      avatar: document.querySelector("#avatar"),
-      userName: document.querySelector("#userName"),
-      userRole: document.querySelector("#userRole"),
-      logoutBtn: document.querySelector("#logoutBtn"),
-      clearBtn: document.querySelector("#clearBtn"),
-      generateBtn: document.querySelector("#generateBtn"),
-      printBtn: document.querySelector("#printBtn"),
-      downloadPngBtn: document.querySelector("#downloadPngBtn"),
-      downloadReceiptPngBtn: document.querySelector("#downloadReceiptPngBtn"),
-      copyMessageBtn: document.querySelector("#copyMessageBtn"),
+      newReceiptNoBtn: document.querySelector("#newReceiptNoBtn"),
+      generateReceiptBtn: document.querySelector("#generateReceiptBtn"),
       copyReminderBtn: document.querySelector("#copyReminderBtn"),
       smsReminderBtn: document.querySelector("#smsReminderBtn"),
       emailReminderBtn: document.querySelector("#emailReminderBtn"),
       copyReceiptMessageBtn: document.querySelector("#copyReceiptMessageBtn"),
-      newReceiptNoBtn: document.querySelector("#newReceiptNoBtn"),
-      generateReceiptBtn: document.querySelector("#generateReceiptBtn"),
-      soaSheet: document.querySelector("#soaSheet"),
+      downloadReceiptPngBtn: document.querySelector("#downloadReceiptPngBtn"),
       ackReceiptSheet: document.querySelector("#ackReceiptSheet")
     };
 
-    let clientRecords = [];
+    function showNotice(message, type) {
+      fields.notice.textContent = message;
+      fields.notice.classList.remove("is-hidden", "ok", "error");
+      if (type === "ok") fields.notice.classList.add("ok");
+      if (type === "error") fields.notice.classList.add("error");
+    }
 
-    function loadSession() {
+    function hideNotice() {
+      fields.notice.textContent = "";
+      fields.notice.classList.add("is-hidden");
+      fields.notice.classList.remove("ok", "error");
+    }
+
+
+    const SOA_ASSET_STORAGE = "techgeekph_soa_image_assets_v1";
+
+    function readAssetStore() {
       try {
-        const raw = localStorage.getItem(SESSION_KEY) || localStorage.getItem(LEGACY_SESSION_KEY);
-        if (!raw) {
-          window.location.replace("index.html");
-          return {};
-        }
-        const parsed = JSON.parse(raw);
-        if (parsed && parsed.token) return parsed;
-        window.location.replace("index.html");
-        return {};
+        return JSON.parse(localStorage.getItem(SOA_ASSET_STORAGE) || "{}");
       } catch (error) {
-        window.location.replace("index.html");
         return {};
       }
     }
 
+    function writeAssetStore(store) {
+      try {
+        localStorage.setItem(SOA_ASSET_STORAGE, JSON.stringify(store || {}));
+      } catch (error) {
+        if (fields.assetStatus) {
+          fields.assetStatus.textContent = "Image loaded, but browser storage is full. It will still work for this session.";
+        }
+      }
+    }
+
+    function setAssetImage(assetKey, dataUrl) {
+      if (!assetKey || !dataUrl) return;
+
+      document.querySelectorAll('img[data-asset="' + assetKey + '"]').forEach(function(img) {
+        img.src = dataUrl;
+        img.style.display = "block";
+
+        const next = img.nextElementSibling;
+        if (next && next.classList.contains("banner-fallback")) {
+          next.style.display = "none";
+        }
+        if (next && next.classList.contains("remarks-text")) {
+          next.style.display = "none";
+        }
+      });
+    }
+
+    function loadStoredAssets() {
+      const store = readAssetStore();
+      ["logo", "banner", "payment"].forEach(function(key) {
+        if (store[key]) setAssetImage(key, store[key]);
+      });
+    }
+
+    function handleAssetFile(assetKey, input) {
+      const file = input && input.files ? input.files[0] : null;
+      if (!file) return;
+      if (!file.type || file.type.indexOf("image/") !== 0) {
+        alert("Please select an image file only.");
+        input.value = "";
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function() {
+        const dataUrl = reader.result;
+        setAssetImage(assetKey, dataUrl);
+        const store = readAssetStore();
+        store[assetKey] = dataUrl;
+        writeAssetStore(store);
+        if (fields.assetStatus) {
+          fields.assetStatus.textContent = "Loaded " + assetKey + " image. It will now be included in PNG download.";
+        }
+      };
+      reader.onerror = function() {
+        alert("Unable to read selected image.");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function loadSession() {
+      try {
+        const adminSession = JSON.parse(localStorage.getItem(SESSION_KEY) || "{}");
+        if (adminSession && Object.keys(adminSession).length) return adminSession;
+        return JSON.parse(localStorage.getItem(LEGACY_SESSION_KEY) || "{}");
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function getSessionToken() {
+      const session = loadSession();
+      return session.token || session.sessionToken || session.accessToken || "";
+    }
+
+    function initialsFrom(value) {
+      return String(value || "TG")
+        .replace(/@.*/, "")
+        .split(/[.\s_-]+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(part => part[0].toUpperCase())
+        .join("") || "TG";
+    }
+
     function setUser(session) {
-      const user = session.user || session;
+      const user = session.user || {};
       const name = user.fullName || user.name || user.email || session.email || "TechGeekPH User";
-      const role = String(user.role || session.role || "Portal access").toUpperCase();
+      const role = user.role || session.role || "portal";
       fields.userName.textContent = name;
-      fields.userRole.textContent = role;
-      fields.avatar.textContent = name.split(/\s+/).slice(0,2).map(v => v[0] || "").join("").toUpperCase() || "TG";
+      fields.userRole.textContent = String(role).charAt(0).toUpperCase() + String(role).slice(1).toLowerCase() + " access";
+      fields.avatar.textContent = initialsFrom(name);
     }
 
-    function showNotice(message, type) {
-      fields.notice.textContent = message;
-      fields.notice.className = "notice " + (type || "");
-      fields.notice.classList.remove("is-hidden");
-    }
-
-    function formatMoney(value) {
-      return "₱ " + Number(value || 0).toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-
-    function moneyNumber(value) {
-      const clean = String(value || "").replace(/[^0-9.-]/g, "");
-      return Number(clean || 0);
-    }
-
-    function formatDate(value) {
-      if (!value) return "--";
-      const date = new Date(value + "T00:00:00");
-      if (Number.isNaN(date.getTime())) return value;
-      return date.toLocaleDateString("en-PH", { year: "numeric", month: "short", day: "2-digit" });
-    }
-
-    function firstValue(row, keys) {
-      for (const key of keys) {
-        if (row && row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== "") return row[key];
+    function keyValue(row, names) {
+      for (let i = 0; i < names.length; i += 1) {
+        const key = names[i];
+        if (row && Object.prototype.hasOwnProperty.call(row, key) && row[key] !== null && row[key] !== undefined && String(row[key]).trim() !== "") return row[key];
       }
       return "";
     }
 
-    function backendMessageNeedsLogin(message) {
-      return /no session token|session expired|please login again|access denied/i.test(String(message || ""));
+    function normalize(value) { return String(value || "").trim().toLowerCase(); }
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+    function moneyNumber(value) { return String(value || "").replace(/[^0-9.-]/g, ""); }
+    function num(value) { const n = Number(moneyNumber(value)); return Number.isFinite(n) ? n : 0; }
+
+    function formatMoney(value) {
+      const n = num(value);
+      return "₱ " + n.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    function redirectToLogin(message) {
-      if (message && backendMessageNeedsLogin(message)) {
-        localStorage.removeItem(SESSION_KEY);
-        localStorage.removeItem(LEGACY_SESSION_KEY);
-        window.location.replace("index.html");
-        return true;
-      }
-      return false;
+    function formatDate(value) {
+      if (!value) return "--";
+      const d = new Date(value + "T00:00:00");
+      if (Number.isNaN(d.getTime())) return String(value || "--");
+      return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
     }
 
-    async function callBackend(action, data = {}) {
-      const session = loadSession();
-      const token = session.token || session.sessionToken || "";
+    function formatMonth(value) {
+      if (!value) return "--";
+      const d = new Date(value + "-01T00:00:00");
+      if (Number.isNaN(d.getTime())) return String(value || "--");
+      return d.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    }
+
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    }
+
+    function buildBackendParams(action, payload) {
+      const data = Object.assign({}, payload || {});
+      data.action = action;
+      data.method = action;
+      data._t = Date.now();
+      if (!data.token && !data.sessionToken) data.token = getSessionToken();
+
       const params = new URLSearchParams();
-      params.set("action", action);
-      params.set("token", token);
-      params.set("data", JSON.stringify(data || {}));
-      params.set("_t", Date.now());
-
-      const response = await fetch(BACKEND_URL + "?" + params.toString(), {
-        method: "GET",
-        redirect: "follow",
-        cache: "no-store"
+      Object.keys(data).forEach(function(key) {
+        if (data[key] === undefined || data[key] === null) return;
+        params.set(key, typeof data[key] === "object" ? JSON.stringify(data[key]) : data[key]);
       });
-      const result = await response.json();
-      if (redirectToLogin(result && result.message)) throw new Error(result.message);
-      return result;
+      return params;
     }
 
-    function callBackendJsonp(action, data = {}) {
-      return new Promise((resolve, reject) => {
-        const session = loadSession();
-        const token = session.token || session.sessionToken || "";
-        const callbackName = "tgJsonp_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
-        const params = new URLSearchParams();
-        params.set("action", action);
-        params.set("token", token);
-        params.set("data", JSON.stringify(data || {}));
+    function callBackendViaJsonp(action, payload) {
+      return new Promise(function(resolve, reject) {
+        const callbackName = "__tgSoaJsonp_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+        const params = buildBackendParams(action, payload);
         params.set("callback", callbackName);
-        params.set("_t", Date.now());
 
         const script = document.createElement("script");
-        const timeout = setTimeout(() => {
+        let settled = false;
+        const timer = window.setTimeout(function() {
           cleanup();
-          reject(new Error("JSONP request timed out."));
-        }, 25000);
+          reject(new Error("Backend connection timed out."));
+        }, 20000);
 
         function cleanup() {
-          clearTimeout(timeout);
+          if (settled) return;
+          settled = true;
+          window.clearTimeout(timer);
           try { delete window[callbackName]; } catch (error) { window[callbackName] = undefined; }
-          script.remove();
+          if (script.parentNode) script.parentNode.removeChild(script);
         }
 
-        window[callbackName] = result => {
+        window[callbackName] = function(result) {
           cleanup();
-          if (redirectToLogin(result && result.message)) {
-            reject(new Error(result.message));
-            return;
-          }
           resolve(result);
         };
 
-        script.onerror = () => {
+        script.onerror = function() {
           cleanup();
-          reject(new Error("JSONP fallback failed."));
+          reject(new Error("Unable to connect to the Apps Script backend."));
         };
 
         script.src = BACKEND_URL + "?" + params.toString();
@@ -2417,189 +3197,40 @@
       });
     }
 
-    async function callBackendWithFallback(action, data = {}) {
+    async function callBackend(action, payload) {
+      const params = buildBackendParams(action, payload);
+
       try {
-        return await callBackend(action, data);
+        const response = await fetch(BACKEND_URL + "?" + params.toString(), {
+          method: "GET",
+          redirect: "follow",
+          cache: "no-store"
+        });
+        const text = await response.text();
+        const type = response.headers.get("content-type") || "";
+
+        if (type.includes("application/json") || /^[\s\r\n]*[\[{]/.test(text)) {
+          return JSON.parse(text);
+        }
+
+        throw new Error(text.trim() || "Unexpected response from backend.");
       } catch (fetchError) {
-        console.warn("Normal fetch failed. Trying JSONP fallback.", fetchError);
-        return await callBackendJsonp(action, data);
+        return callBackendViaJsonp(action, payload);
       }
     }
 
-    function setDefaults() {
-      const now = new Date();
-      const yyyy = now.getFullYear();
-      const mm = String(now.getMonth() + 1).padStart(2, "0");
-      const dd = String(now.getDate()).padStart(2, "0");
-      fields.billingMonth.value = yyyy + "-" + mm;
-      fields.statementDate.value = yyyy + "-" + mm + "-" + dd;
-      fields.receiptDate.value = fields.statementDate.value;
-      updateDates();
-      refreshReceiptNumberPreview();
+    function clientSearchParts(row) {
+      const account = keyValue(row, ["Account No.", "Account Number", "accountNo", "ClientID"]);
+      const name = keyValue(row, ["Client Name", "clientName", "Name"]);
+      const phone = keyValue(row, ["Phone Number", "Phone", "Contact Number", "phoneNumber"]);
+      const rdBlk = keyValue(row, ["RD / BLK", "RD/BLK", "RD BLK", "rdBlk", "Block/Lot"]);
+      const address = keyValue(row, ["Service Address", "Address", "serviceAddress"]);
+      return { account, name, phone, rdBlk, address };
     }
 
-    function updateDates() {
-      const month = fields.billingMonth.value;
-      if (!month) return;
-      const [year, mon] = month.split("-").map(Number);
-      const day = Math.min(28, Math.max(1, Number(fields.dueDay.value || 10)));
-      const periodFrom = new Date(year, mon - 1, 1);
-      const periodTo = new Date(year, mon, 0);
-      const dueDate = new Date(year, mon - 1, day);
-      fields.periodFrom.value = periodFrom.toISOString().slice(0, 10);
-      fields.periodTo.value = periodTo.toISOString().slice(0, 10);
-      fields.dueDate.value = dueDate.toISOString().slice(0, 10);
-      generateStatementNo();
-      calculateTotals();
-    }
-
-    function generateStatementNo() {
-      const month = String(fields.billingMonth.value || "").replace("-", "");
-      const account = String(fields.accountNo.value || "ACCOUNT").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
-      fields.statementNo.value = "SOA-" + (month || "YYYYMM") + "-" + account;
-    }
-
-    function getReceiptSeriesState() {
-      try {
-        return JSON.parse(localStorage.getItem(SOA_RECEIPT_SERIES_KEY) || "{}") || {};
-      } catch (error) {
-        return {};
-      }
-    }
-
-    function saveReceiptSeriesState(state) {
-      localStorage.setItem(SOA_RECEIPT_SERIES_KEY, JSON.stringify(state || {}));
-    }
-
-    function receiptMonthKey() {
-      const value = fields.receiptDate.value || fields.statementDate.value;
-      return String(value || "").slice(0, 7).replace("-", "") || "YYYYMM";
-    }
-
-    function formatReceiptNo(monthKey, number) {
-      return "AR-" + monthKey + "-" + String(number || 1).padStart(4, "0");
-    }
-
-    function refreshReceiptNumberPreview() {
-      if (fields.receiptNo.dataset.reserved === "true") return fields.receiptNo.value;
-      const key = receiptMonthKey();
-      const state = getReceiptSeriesState();
-      const next = Number(state[key] || 0) + 1;
-      fields.receiptNo.value = formatReceiptNo(key, next);
-      return fields.receiptNo.value;
-    }
-
-    function reserveReceiptNumber(forceNew) {
-      const key = receiptMonthKey();
-      const state = getReceiptSeriesState();
-      if (forceNew || fields.receiptNo.dataset.reserved !== "true") {
-        const next = Number(state[key] || 0) + 1;
-        state[key] = next;
-        saveReceiptSeriesState(state);
-        fields.receiptNo.value = formatReceiptNo(key, next);
-        fields.receiptNo.dataset.reserved = "true";
-      }
-      return fields.receiptNo.value;
-    }
-
-    function calculateTotals() {
-      const previous = moneyNumber(fields.previousBalance.value);
-      const current = moneyNumber(fields.currentBill.value || fields.monthlyBill.value);
-      const reconnection = moneyNumber(fields.reconnectionFee.value);
-      const other = moneyNumber(fields.otherCharges.value);
-      const discount = moneyNumber(fields.discount.value);
-      const paid = moneyNumber(fields.amountPaid.value);
-      const total = previous + current + reconnection + other - discount;
-      const remaining = total - paid;
-      fields.totalDue.value = total.toFixed(2);
-      fields.balance.value = remaining.toFixed(2);
-      renderPreview({ previous, current, reconnection, other, discount, paid, total, remaining });
-    }
-
-    function renderPreview(t) {
-      const get = id => document.getElementById(id);
-      get("pvClientName").textContent = fields.clientName.value || "--";
-      get("pvAddress").textContent = fields.serviceAddress.value || "--";
-      get("pvPhone").textContent = fields.phoneNumber.value || "--";
-      get("pvAccountNo").textContent = fields.accountNo.value || "--";
-      get("pvStatementNo").textContent = fields.statementNo.value || "--";
-      get("pvStatementDate").textContent = formatDate(fields.statementDate.value);
-      get("pvBillingPeriod").textContent = formatDate(fields.periodFrom.value) + " to " + formatDate(fields.periodTo.value);
-      get("pvMinimumDue").textContent = formatMoney(Math.max(0, t.remaining));
-      get("pvTotalAmountDue").textContent = formatMoney(Math.max(0, t.remaining));
-      get("pvDueDate").textContent = formatDate(fields.dueDate.value);
-      get("pvPlanSpeed").textContent = [fields.plan.value, fields.speed.value].filter(Boolean).join(" - ") || "--";
-      get("pvPreviousBalance").textContent = formatMoney(t.previous);
-      get("pvAmountPaid").textContent = formatMoney(t.paid);
-      get("pvAddAdjustment").textContent = formatMoney(0);
-      get("pvRemainingFromPrevious").textContent = formatMoney(Math.max(0, t.previous - t.paid));
-      get("pvCurrentChargeDate").textContent = new Date(fields.periodFrom.value + "T00:00:00").toLocaleDateString("en-PH", { month: "long", year: "numeric" });
-      get("pvCurrentBill").textContent = formatMoney(t.current);
-      get("pvReconnectionFee").textContent = formatMoney(t.reconnection);
-      get("pvOtherCharges").textContent = formatMoney(t.other);
-      get("pvDiscount").textContent = formatMoney(t.discount);
-      get("pvTotalCharges").textContent = formatMoney(t.current + t.reconnection + t.other - t.discount);
-      get("pvBalance").textContent = formatMoney(Math.max(0, t.remaining));
-      get("pvRemarks").textContent = fields.remarks.value || "--";
-      get("stubAccountNo").textContent = fields.accountNo.value || "--";
-      get("stubClientName").textContent = fields.clientName.value || "--";
-      get("stubDueDate").textContent = formatDate(fields.dueDate.value);
-      get("stubAmountDue").textContent = formatMoney(Math.max(0, t.remaining));
-      get("stubStatementNo").textContent = fields.statementNo.value || "--";
-      get("stubContactNo").textContent = fields.phoneNumber.value || "--";
-      get("stubBarcodeText").textContent = [fields.accountNo.value, fields.statementNo.value].filter(Boolean).join("-") || "--";
-      get("receiptStatementNo").textContent = fields.statementNo.value || "--";
-      get("receiptDueDate").textContent = formatDate(fields.dueDate.value);
-      renderReceiptPreview(t);
-    }
-
-    function renderReceiptPreview(t) {
-      const get = id => document.getElementById(id);
-      const receiptAmount = fields.receiptAmount.value === "" ? Math.max(0, t.remaining) : moneyNumber(fields.receiptAmount.value);
-      get("ackPreviousBalance").textContent = formatMoney(t.previous);
-      get("ackCurrentBill").textContent = formatMoney(t.current);
-      get("ackReconnectionFee").textContent = formatMoney(t.reconnection);
-      get("ackOtherCharges").textContent = formatMoney(t.other);
-      get("ackDiscount").textContent = formatMoney(t.discount);
-      get("ackTotalDue").textContent = formatMoney(t.total);
-      get("ackAmountReceived").textContent = formatMoney(receiptAmount);
-      get("ackReceiptNo").textContent = fields.receiptNo.value || refreshReceiptNumberPreview();
-      get("ackReceiptDate").textContent = formatDate(fields.receiptDate.value);
-      get("ackClientName").textContent = fields.clientName.value || "--";
-      get("ackAccountNo").textContent = fields.accountNo.value || "--";
-      get("ackAmountNumeric").textContent = Number(receiptAmount || 0).toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      get("ackParticulars").textContent = fields.receiptParticulars.value || "Monthly internet subscription";
-      get("ackPaymentType").textContent = fields.paymentType.value || "Full Payment";
-      get("ackPreparedBy").textContent = fields.preparedBy.value || "Mark C. De Mesa";
-      get("ackBank").textContent = fields.paymentBank.value || fields.paymentMethod.value || "--";
-      get("ackCheckNo").textContent = fields.paymentMethod.value === "Check" ? (fields.paymentReference.value || "--") : "--";
-      get("ackCheckDate").textContent = formatDate(fields.receiptDate.value);
-      get("ackReference").textContent = fields.paymentReference.value || "--";
-      get("ackCheckCash").textContent = fields.paymentMethod.value === "Cash" ? "✓" : "";
-      get("ackCheckGcash").textContent = fields.paymentMethod.value === "GCash" ? "✓" : "";
-      get("ackCheckOther").textContent = ["Cash", "GCash"].includes(fields.paymentMethod.value) ? "" : "✓";
-    }
-
-    function normalizeClientSearchText(value) {
-      return String(value || "").trim().toLowerCase().replace(/\s+/g, " ");
-    }
-
-    function clientSearchLabel(row) {
-      const account = firstValue(row, ["Account No.", "Account No", "Account Number", "ClientID"]);
-      const name = firstValue(row, ["Client Name", "Name", "Full Name"]);
-      const phone = firstValue(row, ["Phone Number", "Contact Number", "Phone"]);
-      const rdBlk = firstValue(row, ["RD / BLK", "RD/BLK", "RD BLK", "Block/Lot"]);
-      return [account, name, rdBlk, phone].filter(Boolean).join(" - ");
-    }
-
-    function clientSearchHaystack(row) {
-      return normalizeClientSearchText([
-        firstValue(row, ["Account No.", "Account No", "Account Number", "ClientID"]),
-        firstValue(row, ["Client Name", "Name", "Full Name"]),
-        firstValue(row, ["Phone Number", "Contact Number", "Phone"]),
-        firstValue(row, ["RD / BLK", "RD/BLK", "RD BLK", "Block/Lot"]),
-        firstValue(row, ["Service Address", "Address", "Permanent Address"])
-      ].filter(Boolean).join(" "));
+    function clientSearchText(row) {
+      const parts = clientSearchParts(row);
+      return normalize([parts.account, parts.name, parts.phone, parts.rdBlk, parts.address].join(" "));
     }
 
     function hideClientSearchResults() {
@@ -2608,132 +3239,413 @@
     }
 
     function selectClientByIndex(index) {
-      const client = clientRecords[Number(index)];
-      if (!client) return;
-      fillFromClient(client);
-      fields.clientSearch.value = clientSearchLabel(client);
-      fields.clientSearchStatus.textContent = "Selected: " + clientSearchLabel(client);
+      const row = clientRecords[Number(index)];
+      if (!row) return;
+      const parts = clientSearchParts(row);
+      fields.clientSearch.value = [parts.account, parts.name].filter(Boolean).join(" - ");
+      fields.clientSearchStatus.textContent = "Selected: " + ([parts.account, parts.name].filter(Boolean).join(" - ") || "Client");
       hideClientSearchResults();
+      fillFromClient(row);
     }
 
     function renderClientSearchResults() {
-      const query = normalizeClientSearchText(fields.clientSearch.value);
+      const query = normalize(fields.clientSearch.value);
+
       if (!query) {
         hideClientSearchResults();
         fields.clientSearchStatus.textContent = clientRecords.length
-          ? clientRecords.length.toLocaleString() + " clients ready. Type to search."
+          ? clientRecords.length.toLocaleString() + " clients ready. Type account #, name, phone, or RD/BLK."
           : "No clients loaded.";
         return;
       }
 
-      const matches = clientRecords.map((row, index) => ({ row, index }))
-        .filter(item => clientSearchHaystack(item.row).includes(query))
-        .slice(0, 15);
-
-      fields.clientSearchResults.innerHTML = "";
+      const matches = clientRecords.map(function(row, index) {
+        return { row: row, index: index, parts: clientSearchParts(row) };
+      }).filter(function(item) {
+        return clientSearchText(item.row).indexOf(query) !== -1;
+      }).slice(0, 15);
 
       if (!matches.length) {
-        const empty = document.createElement("div");
-        empty.className = "client-search-empty";
-        empty.textContent = "No matching client found.";
-        fields.clientSearchResults.appendChild(empty);
+        fields.clientSearchResults.innerHTML = '<div class="client-search-empty">No matching client found. You may still enter the SOA details manually.</div>';
         fields.clientSearchResults.classList.remove("is-hidden");
-        fields.clientSearchStatus.textContent = "No matching client.";
+        fields.clientSearchStatus.textContent = "No match found.";
         return;
       }
 
-      matches.forEach(item => {
-        const option = document.createElement("button");
-        option.type = "button";
-        option.className = "client-search-option";
-        option.dataset.clientIndex = String(item.index);
-
-        const title = document.createElement("strong");
-        title.textContent = clientSearchLabel(item.row) || "Unnamed client";
-
-        const address = document.createElement("span");
-        address.textContent = firstValue(item.row, ["Service Address", "Address", "Permanent Address"]) || "No address saved";
-
-        option.appendChild(title);
-        option.appendChild(address);
-        fields.clientSearchResults.appendChild(option);
+      const exact = matches.find(function(item) {
+        return normalize(item.parts.account) === query ||
+          normalize(String(item.parts.phone).replace(/\D/g, "")) === normalize(String(query).replace(/\D/g, ""));
       });
+
+      if (exact && query.length >= 3) {
+        selectClientByIndex(exact.index);
+        return;
+      }
+
+      fields.clientSearchResults.innerHTML = matches.map(function(item) {
+        const p = item.parts;
+        const secondary = [p.phone, p.rdBlk, p.address].filter(Boolean).join(" | ");
+        return '<button type="button" class="client-search-option" role="option" data-client-index="' + item.index + '">' +
+          '<strong>' + escapeHtml(p.account || "No Account") + '</strong>' +
+          '<span>' + escapeHtml(p.name || "No Name") + '</span>' +
+          '<small>' + escapeHtml(secondary || "No additional details") + '</small>' +
+        '</button>';
+      }).join("");
 
       fields.clientSearchResults.classList.remove("is-hidden");
-      fields.clientSearchStatus.textContent = matches.length + " matching client" + (matches.length === 1 ? "" : "s") + ".";
+      fields.clientSearchStatus.textContent = matches.length + " matching client" + (matches.length === 1 ? "" : "s") + ". Click a result or press Enter.";
+    }
 
-      const exact = matches.find(item => {
-        const account = normalizeClientSearchText(firstValue(item.row, ["Account No.", "Account No", "Account Number", "ClientID"]));
-        const phone = normalizeClientSearchText(firstValue(item.row, ["Phone Number", "Contact Number", "Phone"]));
-        return query === account || query === phone;
-      });
+    async function loadClients() {
+      fields.clientSearch.disabled = true;
+      fields.clientSearch.placeholder = "Loading clients...";
+      fields.clientSearchStatus.textContent = "Loading clients...";
+      showNotice("Loading clients...");
 
-      if (exact) selectClientByIndex(exact.index);
+      try {
+        const response = await callBackend("listClients", {});
+        if (!response || (!response.ok && !response.success)) {
+          throw new Error((response && response.message) || "Unable to load clients.");
+        }
+
+        clientRecords = response.data || response.clients || response.rows || [];
+        fields.clientSearch.disabled = false;
+        fields.clientSearch.placeholder = "Search account #, client name, phone, or RD/BLK";
+        fields.clientSearchStatus.textContent = clientRecords.length.toLocaleString() + " clients ready. Type to search.";
+        hideNotice();
+      } catch (error) {
+        clientRecords = [];
+        fields.clientSearch.disabled = false;
+        fields.clientSearch.placeholder = "Unable to load clients - you may enter details manually";
+        fields.clientSearchStatus.textContent = "Unable to load clients. Check login session and Apps Script deployment.";
+        showNotice("Unable to load clients. " + (error && error.message ? error.message : ""), "error");
+      }
     }
 
     function fillFromClient(row) {
-      fields.accountNo.value = firstValue(row, ["Account No.", "Account No", "Account Number", "ClientID"]);
-      fields.clientName.value = firstValue(row, ["Client Name", "Name", "Full Name"]);
-      fields.phoneNumber.value = firstValue(row, ["Phone Number", "Contact Number", "Phone"]);
-      fields.clientEmail.value = firstValue(row, ["Email Address", "Email", "Client Email"]);
-      fields.serviceAddress.value = firstValue(row, ["Service Address", "Address", "Permanent Address"]);
-      fields.plan.value = firstValue(row, ["Plan"]);
-      fields.speed.value = firstValue(row, ["Speed"]);
-      fields.monthlyBill.value = moneyNumber(firstValue(row, ["Monthly Bill", "Monthly Fee", "Bill / Month"]));
-      fields.currentBill.value = fields.monthlyBill.value || 0;
-      fields.dueDay.value = firstValue(row, ["Due Date", "Due Day"]) || 10;
-      fields.status.value = "Unpaid";
+      const selectedParts = clientSearchParts(row);
+      if (fields.clientSearch && !fields.clientSearch.value) {
+        fields.clientSearch.value = [selectedParts.account, selectedParts.name].filter(Boolean).join(" - ");
+      }
+      fields.accountNo.value = keyValue(row, ["Account No.", "Account Number", "accountNo", "ClientID"]);
+      fields.clientName.value = keyValue(row, ["Client Name", "clientName", "Name"]);
+      fields.phoneNumber.value = keyValue(row, ["Phone Number", "Phone", "Contact Number", "phoneNumber"]);
+      fields.clientEmail.value = keyValue(row, ["Email Address", "Email", "email", "clientEmail"]);
+      fields.serviceAddress.value = keyValue(row, ["Service Address", "Address", "serviceAddress"]);
+      fields.plan.value = keyValue(row, ["Plan", "plan"]);
+      fields.speed.value = keyValue(row, ["Speed", "speed"]);
+      fields.monthlyBill.value = moneyNumber(keyValue(row, ["Monthly Bill", "Bill / Month", "Monthly Fee", "monthlyBill"]));
+      fields.currentBill.value = fields.monthlyBill.value || "0";
+      const due = keyValue(row, ["Due Date", "dueDate"]);
+      if (due) fields.dueDay.value = String(due).replace(/[^0-9]/g, "") || "10";
       generateStatementNo();
       updateDates();
       calculateTotals();
     }
 
-    async function loadClients() {
-      try {
-        const response = await callBackendWithFallback("listClients", {});
-        if (!response || (!response.success && !response.ok)) throw new Error((response && response.message) || "Unable to load clients");
-        clientRecords = response.data || response.clients || response.rows || [];
-        fields.clientSearch.value = "";
-        fields.clientSearchStatus.textContent = clientRecords.length
-          ? clientRecords.length.toLocaleString() + " clients ready. Type account number, name, phone, RD/BLK, or address."
-          : "No clients available.";
-        hideClientSearchResults();
-      } catch (error) {
-        fields.clientSearchStatus.textContent = "Unable to load clients: " + (error.message || error);
-        showNotice("Unable to load clients. " + (error.message || error), "error");
+    function todayISO() {
+      const d = new Date();
+      return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    }
+
+    function currentMonthValue() {
+      const d = new Date();
+      return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+    }
+
+    function monthDate(monthValue, day) {
+      const parts = String(monthValue || currentMonthValue()).split("-");
+      const y = Number(parts[0]);
+      const m = Number(parts[1]) - 1;
+      const last = new Date(y, m + 1, 0).getDate();
+      const safeDay = Math.min(Math.max(Number(day) || 10, 1), last);
+      const d = new Date(y, m, safeDay);
+      return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    }
+
+    function addDays(dateValue, days) {
+      const d = new Date(dateValue + "T00:00:00");
+      d.setDate(d.getDate() + days);
+      return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    }
+
+    function generateStatementNo() {
+      const account = String(fields.accountNo.value || "ACCOUNT").replace(/[^A-Za-z0-9]/g, "").toUpperCase() || "ACCOUNT";
+      const ym = String(fields.billingMonth.value || currentMonthValue()).replace("-", "");
+      fields.statementNo.value = "SOA-" + ym + "-" + account;
+    }
+
+
+    const RECEIPT_SERIES_PREFIX = "techgeekph_ack_receipt_series_";
+
+    function receiptSeriesMonth() {
+      const dateValue = (fields.receiptDate && fields.receiptDate.value) || todayISO();
+      return String(dateValue).slice(0, 7).replace("-", "") || String(currentMonthValue()).replace("-", "");
+    }
+
+    function receiptSeriesKey() {
+      return RECEIPT_SERIES_PREFIX + receiptSeriesMonth();
+    }
+
+    function formatReceiptNo(numberValue) {
+      return "AR-" + receiptSeriesMonth() + "-" + String(numberValue || 1).padStart(4, "0");
+    }
+
+    function getLastReceiptNumber() {
+      const raw = localStorage.getItem(receiptSeriesKey()) || "0";
+      const n = Number(raw);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function peekNextReceiptNo() {
+      return formatReceiptNo(getLastReceiptNumber() + 1);
+    }
+
+    function parseReceiptNumber(value) {
+      const match = String(value || "").match(/(\d+)$/);
+      return match ? Number(match[1]) : 0;
+    }
+
+    function refreshReceiptNumberPreview() {
+      if (!fields.receiptNo) return;
+      if (fields.receiptNo.dataset.reserved === "true") return;
+      fields.receiptNo.value = peekNextReceiptNo();
+    }
+
+    function reserveReceiptNumber(forceNew) {
+      if (!fields.receiptNo) return "";
+      const last = getLastReceiptNumber();
+      const current = parseReceiptNumber(fields.receiptNo.value);
+      let next = current || (last + 1);
+
+      if (forceNew || fields.receiptNo.dataset.reserved === "true" || next <= last) {
+        next = last + 1;
       }
+
+      fields.receiptNo.value = formatReceiptNo(next);
+      localStorage.setItem(receiptSeriesKey(), String(next));
+      fields.receiptNo.dataset.reserved = "true";
+      updateReceiptPreview();
+      return fields.receiptNo.value;
+    }
+
+    function numberWordsUnderThousand(n) {
+      const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+      const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+      let parts = [];
+      if (n >= 100) {
+        parts.push(ones[Math.floor(n / 100)] + " Hundred");
+        n %= 100;
+      }
+      if (n >= 20) {
+        parts.push(tens[Math.floor(n / 10)] + (n % 10 ? " " + ones[n % 10] : ""));
+      } else if (n > 0) {
+        parts.push(ones[n]);
+      }
+      return parts.join(" ");
+    }
+
+    function numberToWords(value) {
+      let n = Math.floor(Math.abs(num(value)));
+      if (n === 0) return "Zero";
+      const groups = [
+        { value: 1000000, label: "Million" },
+        { value: 1000, label: "Thousand" },
+        { value: 1, label: "" }
+      ];
+      const words = [];
+      groups.forEach(group => {
+        const count = Math.floor(n / group.value);
+        if (count > 0) {
+          words.push(numberWordsUnderThousand(count) + (group.label ? " " + group.label : ""));
+          n %= group.value;
+        }
+      });
+      return words.join(" ");
+    }
+
+    function amountInWords(value) {
+      const n = num(value);
+      const pesos = Math.floor(Math.abs(n));
+      const cents = Math.round((Math.abs(n) - pesos) * 100);
+      return numberToWords(pesos) + " Pesos" + (cents ? " and " + String(cents).padStart(2, "0") + "/100" : " Only");
+    }
+
+    function receiptAmountValue() {
+      const manual = fields.receiptAmount ? num(fields.receiptAmount.value) : 0;
+      if (manual > 0) return manual;
+      const paid = num(fields.amountPaid.value);
+      if (paid > 0) return paid;
+      const balance = num(fields.balance.value);
+      if (balance > 0) return balance;
+      return num(fields.currentBill.value);
+    }
+
+    function updateReceiptPreview() {
+      if (!fields.ackReceiptSheet) return;
+      const amount = receiptAmountValue();
+      const method = (fields.paymentMethod && fields.paymentMethod.value) || "Cash";
+      const isCash = normalize(method) === "cash";
+      const isCheck = normalize(method) === "check";
+      const isOther = !isCash && !isCheck;
+
+      setText("arReceiptNo", fields.receiptNo.value || "--");
+      setText("arDate", formatDate(fields.receiptDate.value));
+      setText("arReceivedFrom", fields.clientName.value || "--");
+      setText("arAddress", fields.serviceAddress.value || "--");
+      setText("arAmountWords", amountInWords(amount));
+      setText("arAmountNumber", amount.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+      setText("arParticulars", ((fields.paymentType && fields.paymentType.value) || "Full Payment") + " - " + ((fields.receiptParticulars && fields.receiptParticulars.value) || "Monthly internet subscription"));
+      setText("arReceivedBy", fields.preparedBy.value || "Mark C. De Mesa");
+
+      setText("arMonthlyBill", formatMoney(fields.currentBill.value));
+      setText("arPreviousBalance", formatMoney(fields.previousBalance.value));
+      setText("arReconnectFee", formatMoney(fields.reconnectionFee.value));
+      setText("arOtherCharges", formatMoney(fields.otherCharges.value));
+      setText("arDiscount", formatMoney(fields.discount.value));
+      setText("arAmountPaid", formatMoney(fields.amountPaid.value));
+      setText("arRemainingBalance", formatMoney(fields.balance.value));
+      setText("arBillingMonth", formatMonth(fields.billingMonth.value));
+      setText("arReceiptTotal", formatMoney(amount));
+
+      setText("arCashBox", isCash ? "✓" : "");
+      setText("arCheckBox", isCheck ? "✓" : "");
+      setText("arOtherBox", isOther ? "✓" : "");
+      setText("arCashValue", isCash ? formatMoney(amount) : "--");
+      setText("arCheckValue", isCheck ? formatMoney(amount) : "--");
+      setText("arBankValue", (fields.paymentBank && fields.paymentBank.value) || (isCash ? "Cash" : method));
+      setText("arCheckNoValue", (fields.paymentReference && fields.paymentReference.value) || "--");
+    }
+
+    function updateDates() {
+      const dueDay = fields.dueDay.value || "10";
+      const due = monthDate(fields.billingMonth.value, dueDay);
+      fields.dueDate.value = due;
+      fields.periodFrom.value = due;
+      fields.periodTo.value = addDays(due, 29);
+      generateStatementNo();
+      updatePreview();
+    }
+
+    function calculateTotals() {
+      const previous = num(fields.previousBalance.value);
+      const current = num(fields.currentBill.value);
+      const reconnect = num(fields.reconnectionFee.value);
+      const other = num(fields.otherCharges.value);
+      const discount = num(fields.discount.value);
+      const paid = num(fields.amountPaid.value);
+      const total = Math.max(previous + current + reconnect + other - discount, 0);
+      const balance = Math.max(total - paid, 0);
+      fields.totalDue.value = total.toFixed(2);
+      fields.balance.value = balance.toFixed(2);
+      updatePreview();
+    }
+
+    function updatePreview() {
+      setText("pvStatementNo", fields.statementNo.value || "--");
+      setText("pvStatementDate", formatDate(fields.statementDate.value));
+      setText("pvAccountNo", fields.accountNo.value || "--");
+      setText("pvClientName", fields.clientName.value || "--");
+      setText("pvPhone", fields.phoneNumber.value || "--");
+      setText("pvAddress", fields.serviceAddress.value || "--");
+      setText("pvPlanSpeed", [fields.plan.value, fields.speed.value].filter(Boolean).join(" / ") || "--");
+      setText("pvTotalAmountDue", formatMoney(fields.balance.value));
+      setText("pvDueDate", formatDate(fields.dueDate.value));
+      setText("pvStatus", fields.status.value || "Unpaid");
+      setText("pvBillingMonth", formatMonth(fields.billingMonth.value));
+      setText("pvCoverage", (formatDate(fields.periodFrom.value) + " to " + formatDate(fields.periodTo.value)).replace("-- to --", "--"));
+      setText("pvReminder", "Please settle the balance on or before the due date to avoid service interruption.");
+      setText("pvPreviousBalance", formatMoney(fields.previousBalance.value));
+      setText("pvCurrentBill", formatMoney(fields.currentBill.value));
+      setText("pvReconnectionFee", formatMoney(fields.reconnectionFee.value));
+      setText("pvOtherCharges", formatMoney(fields.otherCharges.value));
+      setText("pvDiscount", formatMoney(fields.discount.value));
+      setText("pvTotalCharges", formatMoney(fields.totalDue.value));
+      setText("pvAmountPaid", formatMoney(fields.amountPaid.value));
+      setText("pvBalance", formatMoney(fields.balance.value));
+      setText("pvRemarks", fields.remarks.value || "--");
+      setText("pvPreparedBy", fields.preparedBy.value || "Mark C. De Mesa");
+
+      const previousValue = num(fields.previousBalance.value);
+      const currentValue = num(fields.currentBill.value);
+      const reconnectValue = num(fields.reconnectionFee.value);
+      const otherValue = num(fields.otherCharges.value);
+      const discountValue = num(fields.discount.value);
+      const paidValue = num(fields.amountPaid.value);
+      const adjustmentValue = otherValue - discountValue;
+      const remainingPreviousValue = Math.max(previousValue - paidValue, 0);
+      const dueDateText = formatDate(fields.dueDate.value);
+      const statementText = fields.statementNo.value || "--";
+      const accountText = fields.accountNo.value || "--";
+      const clientText = fields.clientName.value || "--";
+      const phoneText = fields.phoneNumber.value || "--";
+      const amountText = formatMoney(fields.balance.value);
+
+      setText("pvBillingPeriod", formatMonth(fields.billingMonth.value));
+      setText("pvMinimumDue", amountText);
+      setText("pvCurrentChargeDate", formatMonth(fields.billingMonth.value));
+      setText("pvAddAdjustment", formatMoney(adjustmentValue));
+      setText("pvRemainingFromPrevious", formatMoney(remainingPreviousValue));
+      setText("pvStubAccountNo", accountText);
+      setText("pvStubName", clientText);
+      setText("pvStubDueDate", dueDateText);
+      setText("pvStubTotalAmountDue", amountText);
+      setText("pvStubStatementNo", statementText);
+      setText("pvStubPhone", phoneText);
+      setText("pvBarcodeNumber", (accountText + "-" + statementText).replace(/\s+/g, ""));
+      setText("pvReceiptSoaNo", statementText);
+      setText("pvReceiptDueDate", dueDateText);
+      updateReceiptPreview();
+    }
+
+    function setDefaults() {
+      fields.statementDate.value = todayISO();
+      fields.billingMonth.value = currentMonthValue();
+      fields.dueDay.value = "10";
+      fields.status.value = "Unpaid";
+      if (fields.receiptDate) fields.receiptDate.value = todayISO();
+      if (fields.paymentMethod) fields.paymentMethod.value = "Cash";
+      if (fields.paymentType) fields.paymentType.value = "Full Payment";
+      if (fields.receiptParticulars && !fields.receiptParticulars.value) fields.receiptParticulars.value = "Monthly internet subscription";
+      if (fields.receiptNo) {
+        delete fields.receiptNo.dataset.reserved;
+        refreshReceiptNumberPreview();
+      }
+      updateDates();
+      calculateTotals();
     }
 
     function clearForm() {
-      document.getElementById("soaForm").reset();
-      fields.clientSearch.value = "";
+      document.querySelector("#soaForm").reset();
+      if (fields.clientSearch) fields.clientSearch.value = "";
       hideClientSearchResults();
-      fields.previousBalance.value = 0;
-      fields.currentBill.value = 0;
-      fields.reconnectionFee.value = 0;
-      fields.otherCharges.value = 0;
-      fields.discount.value = 0;
-      fields.amountPaid.value = 0;
-      fields.receiptNo.dataset.reserved = "false";
+      if (fields.clientSearchStatus) {
+        fields.clientSearchStatus.textContent = clientRecords.length
+          ? clientRecords.length.toLocaleString() + " clients ready. Type to search."
+          : "No clients loaded.";
+      }
       setDefaults();
-      calculateTotals();
-      fields.clientSearchStatus.textContent = clientRecords.length
-        ? clientRecords.length.toLocaleString() + " clients ready. Type to search."
-        : "No clients loaded.";
+      hideNotice();
     }
 
     async function copyMessage() {
       calculateTotals();
       const message = [
         "TECHGEEKPH STATEMENT OF ACCOUNT",
-        "Account: " + (fields.accountNo.value || "-"),
-        "Client: " + (fields.clientName.value || "-"),
-        "Billing Period: " + formatDate(fields.periodFrom.value) + " to " + formatDate(fields.periodTo.value),
+        "Account #: " + (fields.accountNo.value || "-"),
+        "Name: " + (fields.clientName.value || "-"),
+        "Billing Month: " + formatMonth(fields.billingMonth.value),
         "Due Date: " + formatDate(fields.dueDate.value),
-        "Amount Due: " + formatMoney(moneyNumber(fields.balance.value)),
-        "SOA No.: " + (fields.statementNo.value || "-"),
-        fields.remarks.value || ""
-      ].filter(Boolean).join("\n");
+        "Monthly Bill: " + formatMoney(fields.currentBill.value),
+        "Previous Balance: " + formatMoney(fields.previousBalance.value),
+        "Other Charges: " + formatMoney(num(fields.reconnectionFee.value) + num(fields.otherCharges.value)),
+        "Discount / Rebate: " + formatMoney(fields.discount.value),
+        "Amount Paid: " + formatMoney(fields.amountPaid.value),
+        "Total Amount Due: " + formatMoney(fields.balance.value),
+        "Status: " + (fields.status.value || "Unpaid"),
+        "Please settle on or before the due date to avoid service interruption."
+      ].join("\n");
+
       try {
         await navigator.clipboard.writeText(message);
         showNotice("SOA message copied.", "ok");
@@ -2742,35 +3654,38 @@
       }
     }
 
+
+
     function buildReminderMessage() {
       calculateTotals();
       return [
-        "TECHGEEKPH PAYMENT REMINDER",
-        "Hi " + (fields.clientName.value || "Client") + ",",
-        "This is a reminder for your internet account " + (fields.accountNo.value || "-") + ".",
-        "Billing Period: " + formatDate(fields.periodFrom.value) + " to " + formatDate(fields.periodTo.value),
-        "Amount Due: " + formatMoney(moneyNumber(fields.balance.value)),
+        "Magandang araw " + (fields.clientName.value || "Ka-TechGeek") + ",",
+        "",
+        "Payment reminder po para sa inyong internet account.",
+        "Account #: " + (fields.accountNo.value || "-"),
+        "Billing Month: " + formatMonth(fields.billingMonth.value),
         "Due Date: " + formatDate(fields.dueDate.value),
-        "SOA No.: " + (fields.statementNo.value || "-"),
-        fields.remarks.value || "",
-        "Thank you.",
+        "Amount Due: " + formatMoney(fields.balance.value),
+        "",
+        "Kindly settle on or before the due date to avoid service interruption.",
+        "For payment confirmation, please send proof of payment with your Account #.",
+        "",
+        "Thank you,",
         "TechGeekPH Solutions & Services Inc."
-      ].filter(Boolean).join("\n");
+      ].join("\n");
     }
 
     function buildReceiptMessage() {
-      reserveReceiptNumber(false);
-      calculateTotals();
-      const receiptAmount = fields.receiptAmount.value === "" ? moneyNumber(fields.balance.value) : moneyNumber(fields.receiptAmount.value);
+      const amount = receiptAmountValue();
       return [
         "TECHGEEKPH ACKNOWLEDGEMENT RECEIPT",
-        "Receipt No.: " + (fields.receiptNo.value || "-"),
+        "AR #: " + (fields.receiptNo.value || "-"),
         "Date: " + formatDate(fields.receiptDate.value),
         "Received from: " + (fields.clientName.value || "-"),
-        "Account: " + (fields.accountNo.value || "-"),
-        "Amount: " + formatMoney(receiptAmount),
-        "Payment Type: " + (fields.paymentType.value || "-"),
-        "Payment Method: " + (fields.paymentMethod.value || "-"),
+        "Account #: " + (fields.accountNo.value || "-"),
+        "Amount: " + formatMoney(amount),
+        "Payment Type: " + ((fields.paymentType && fields.paymentType.value) || "Full Payment"),
+        "Payment Method: " + ((fields.paymentMethod && fields.paymentMethod.value) || "Cash"),
         "Reference: " + ((fields.paymentReference && fields.paymentReference.value) || "-"),
         "Payment For: " + ((fields.receiptParticulars && fields.receiptParticulars.value) || "Monthly internet subscription"),
         "Received by: " + (fields.preparedBy.value || "Mark C. De Mesa")
@@ -2834,89 +3749,35 @@
     }
 
     function downloadBlob(blob, filename) {
-      if (!blob || !blob.size) {
-        throw new Error("The generated download file is empty.");
-      }
-
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
       link.download = filename;
-      link.rel = "noopener";
-      link.style.display = "none";
       document.body.appendChild(link);
       link.click();
-
-      window.setTimeout(function() {
-        try { link.remove(); } catch (error) {}
-        URL.revokeObjectURL(url);
-      }, 2000);
-    }
-
-    function waitForSingleImage(img, timeoutMs) {
-      timeoutMs = Number(timeoutMs || 10000);
-
-      return new Promise(function(resolve) {
-        if (!img) {
-          resolve(false);
-          return;
-        }
-
-        if (img.complete) {
-          resolve(img.naturalWidth > 0 && img.naturalHeight > 0);
-          return;
-        }
-
-        let done = false;
-        const timer = window.setTimeout(function() {
-          finish(false);
-        }, timeoutMs);
-
-        function finish(ok) {
-          if (done) return;
-          done = true;
-          window.clearTimeout(timer);
-          img.removeEventListener("load", onLoad);
-          img.removeEventListener("error", onError);
-          resolve(ok);
-        }
-
-        function onLoad() { finish(img.naturalWidth > 0 && img.naturalHeight > 0); }
-        function onError() { finish(false); }
-
-        img.addEventListener("load", onLoad);
-        img.addEventListener("error", onError);
-      });
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
 
     async function waitForImages(root) {
-      if (!root) return;
       const images = Array.from(root.querySelectorAll("img"));
-      await Promise.all(images.map(function(img) {
-        return waitForSingleImage(img, 12000);
+      await Promise.all(images.map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
       }));
-
       if (document.fonts && document.fonts.ready) {
         try { await document.fonts.ready; } catch (error) {}
       }
     }
 
     function loadScriptOnce(src) {
-      return new Promise(function(resolve, reject) {
-        const absoluteSrc = new URL(src, document.baseURI).href;
-        const existing = Array.from(document.scripts).find(function(script) {
-          return script.src === absoluteSrc;
-        });
-
-        if (existing) {
-          if (window.html2canvas) {
-            resolve();
-            return;
-          }
-          existing.addEventListener("load", resolve, { once: true });
-          existing.addEventListener("error", function() {
-            reject(new Error("Unable to load " + src));
-          }, { once: true });
+      return new Promise((resolve, reject) => {
+        const existing = Array.from(document.scripts).find(script => script.src === src);
+        if (existing && window.html2canvas) {
+          resolve();
           return;
         }
 
@@ -2924,13 +3785,13 @@
         script.src = src;
         script.async = true;
         script.onload = resolve;
-        script.onerror = function() { reject(new Error("Unable to load " + src)); };
+        script.onerror = () => reject(new Error("Unable to load " + src));
         document.head.appendChild(script);
       });
     }
 
     async function ensureHtml2Canvas() {
-      if (window.html2canvas) return true;
+      if (window.html2canvas) return;
 
       const sources = [
         "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js",
@@ -2938,133 +3799,159 @@
         "https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"
       ];
 
-      for (let i = 0; i < sources.length; i += 1) {
+      for (const src of sources) {
         try {
-          await loadScriptOnce(sources[i]);
-          if (window.html2canvas) return true;
+          await loadScriptOnce(src);
+          if (window.html2canvas) return;
         } catch (error) {}
       }
 
-      return false;
+      throw new Error("html2canvas library failed to load. Internet connection may be blocked.");
+    }
+    // The official TechGeekPH logo is loaded from the repository assets folder.
+    // IMPORTANT: use a relative path, not /assets/... . A leading slash breaks
+    // GitHub project pages because it removes the repository name from the URL.
+    const LOGO_ASSET_RELATIVE_PATH = "./assets/TechGeekPH%20-%20logo.png";
+
+    function getOfficialLogoAssetUrl() {
+      return new URL(LOGO_ASSET_RELATIVE_PATH, window.location.href).href;
     }
 
     const DEFAULT_CAPTURE_ASSETS = {
-      logo: "./assets/TechGeekPH%20-%20logo.png"
+      logo: getOfficialLogoAssetUrl()
     };
 
-    const CAPTURE_ASSET_CANDIDATES = {
-      logo: [
-        "./assets/TechGeekPH%20-%20logo.png",
-        "./assets/TechGeekPH - logo.png",
-        "assets/TechGeekPH%20-%20logo.png",
-        "assets/TechGeekPH - logo.png",
-        "/admin-portal/assets/TechGeekPH%20-%20logo.png",
-        "https://raw.githubusercontent.com/TechGeek-PH/admin-portal/main/assets/TechGeekPH%20-%20logo.png"
-      ]
-    };
+    // PNG capture always uses the exact logo file from /assets.
 
-    // In-memory cache only. The visible logo stays pointed to the real /assets file.
+    // Stores the real repository images after they are read from the visible page.
+    // This prevents the downloaded PNG from replacing the original logo with a
+    // generated text-only fallback.
     const CAPTURE_ASSET_DATA_URLS = {};
-
-    function uniqueCaptureUrls(values) {
-      const seen = {};
-      return (values || []).map(function(value) {
-        return String(value || "").trim();
-      }).filter(function(value) {
-        if (!value) return false;
-        let normalized = value;
-        try { normalized = new URL(value, document.baseURI).href; } catch (error) {}
-        if (seen[normalized]) return false;
-        seen[normalized] = true;
-        return true;
-      });
-    }
-
-    function getCaptureAssetCandidates(assetKey, preferredSource) {
-      const list = [];
-      if (preferredSource) list.push(preferredSource);
-      if (assetKey && DEFAULT_CAPTURE_ASSETS[assetKey]) list.push(DEFAULT_CAPTURE_ASSETS[assetKey]);
-      if (assetKey && CAPTURE_ASSET_CANDIDATES[assetKey]) {
-        Array.prototype.push.apply(list, CAPTURE_ASSET_CANDIDATES[assetKey]);
-      }
-      return uniqueCaptureUrls(list);
-    }
 
     function blobToDataUrl(blob) {
       return new Promise(function(resolve, reject) {
         const reader = new FileReader();
         reader.onload = function() { resolve(String(reader.result || "")); };
-        reader.onerror = function() { reject(reader.error || new Error("Unable to read image data.")); };
+        reader.onerror = function() { reject(reader.error || new Error("Unable to read image blob.")); };
         reader.readAsDataURL(blob);
       });
     }
 
+    function loadImageForCapture(src) {
+      return new Promise(function(resolve, reject) {
+        const img = new Image();
+        img.decoding = "async";
+
+        try {
+          const absolute = new URL(src, document.baseURI);
+          if ((absolute.protocol === "http:" || absolute.protocol === "https:") && absolute.origin !== window.location.origin) {
+            img.crossOrigin = "anonymous";
+          }
+        } catch (error) {}
+
+        img.onload = function() { resolve(img); };
+        img.onerror = function() { reject(new Error("Unable to load image asset: " + src)); };
+        img.src = src;
+      });
+    }
+
     function imageToDataUrl(img) {
-      const width = Number(img && (img.naturalWidth || img.width) || 0);
-      const height = Number(img && (img.naturalHeight || img.height) || 0);
-      if (!width || !height) throw new Error("Image is not fully loaded.");
+      const width = img.naturalWidth || img.width;
+      const height = img.naturalHeight || img.height;
+      if (!width || !height) throw new Error("Image has no readable size.");
 
       const canvas = document.createElement("canvas");
       canvas.width = width;
       canvas.height = height;
       const ctx = canvas.getContext("2d");
-      if (!ctx) throw new Error("Canvas is unavailable.");
+      if (!ctx) throw new Error("Canvas is not available.");
+
       ctx.drawImage(img, 0, 0, width, height);
       return canvas.toDataURL("image/png");
     }
 
-    async function fetchImageAsDataUrl(src) {
+
+    async function srcToDataUrl(src) {
       if (!src) return "";
-      if (/^data:/i.test(src)) return src;
+      if (String(src).startsWith("data:")) return src;
 
       const absoluteUrl = new URL(src, document.baseURI).href;
-      const response = await fetch(absoluteUrl, {
-        method: "GET",
-        mode: "cors",
-        cache: "no-store",
-        credentials: "omit"
-      });
 
-      if (!response.ok) {
-        throw new Error("Image request failed: HTTP " + response.status);
+      try {
+        const response = await fetch(absoluteUrl, {
+          method: "GET",
+          cache: "no-store",
+          credentials: "same-origin"
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          if (blob && blob.size) return await blobToDataUrl(blob);
+        }
+      } catch (fetchError) {
+        console.warn("Direct image fetch failed; trying loaded-image conversion.", absoluteUrl, fetchError);
       }
 
-      const contentType = String(response.headers.get("content-type") || "").toLowerCase();
-      const blob = await response.blob();
-      if (!blob || !blob.size) throw new Error("Image response is empty.");
-      if (contentType && contentType.indexOf("image/") !== 0 && blob.type && blob.type.indexOf("image/") !== 0) {
-        throw new Error("The requested asset is not an image.");
-      }
-      return blobToDataUrl(blob);
+      const img = await loadImageForCapture(absoluteUrl);
+      return imageToDataUrl(img);
     }
 
-    async function getImageDataUrl(sourceImg, src, assetKey) {
+    async function ensureCaptureImagesAreSafe(root) {
+      if (!root) return { converted: 0, fallback: 0 };
+
+      const images = Array.from(root.querySelectorAll("img"));
+      let converted = 0;
+      let fallback = 0;
+
+      for (let i = 0; i < images.length; i += 1) {
+        const img = images[i];
+        const assetKey = String(img.dataset.asset || "").trim();
+        let src = img.currentSrc || img.getAttribute("src") || img.src || "";
+
+        if (!src && assetKey && DEFAULT_CAPTURE_ASSETS[assetKey]) {
+          src = DEFAULT_CAPTURE_ASSETS[assetKey];
+          img.src = src;
+        }
+
+        if (!src || String(src).startsWith("data:")) continue;
+
+        try {
+          const dataUrl = await srcToDataUrl(src);
+          if (!dataUrl) throw new Error("Empty image data URL.");
+          img.removeAttribute("crossorigin");
+          img.src = dataUrl;
+          converted += 1;
+        } catch (error) {
+          console.warn("Unable to inline image for PNG capture:", src, error);
+          if (assetKey === "logo") {
+            throw new Error("The exact TechGeekPH logo asset could not be prepared for PNG capture.");
+          } else {
+            img.style.visibility = "hidden";
+            fallback += 1;
+          }
+        }
+      }
+
+      await waitForImages(root);
+      return { converted: converted, fallback: fallback };
+    }
+
+    async function captureDataUrlFromVisibleImage(sourceImg, src, assetKey) {
       assetKey = String(assetKey || "").trim();
 
+      // Reuse a previously prepared copy of the exact image asset.
       if (assetKey && CAPTURE_ASSET_DATA_URLS[assetKey]) {
         return CAPTURE_ASSET_DATA_URLS[assetKey];
       }
 
-      const source = String(src || "").trim();
-      if (/^data:/i.test(source)) return source;
-
-      const candidates = getCaptureAssetCandidates(assetKey, source);
-      for (let i = 0; i < candidates.length; i += 1) {
-        try {
-          const dataUrl = await fetchImageAsDataUrl(candidates[i]);
-          if (dataUrl) {
-            if (assetKey) CAPTURE_ASSET_DATA_URLS[assetKey] = dataUrl;
-            return dataUrl;
-          }
-        } catch (error) {
-          console.warn("Image candidate could not be embedded.", candidates[i], error);
-        }
-      }
-
-      // Fallback: read the exact image already displayed by the browser.
+      // First choice: convert the exact image that is already visible on the page.
+      // This guarantees that the downloaded PNG uses the same logo shown in preview.
       if (sourceImg) {
         try {
-          await waitForSingleImage(sourceImg, 10000);
+          if (sourceImg.decode) {
+            try { await sourceImg.decode(); } catch (decodeError) {}
+          }
+
           if (sourceImg.complete && sourceImg.naturalWidth > 0 && sourceImg.naturalHeight > 0) {
             const dataUrl = imageToDataUrl(sourceImg);
             if (dataUrl) {
@@ -3072,400 +3959,483 @@
               return dataUrl;
             }
           }
-        } catch (error) {
-          console.warn("The visible image could not be converted to data URL.", error);
+        } catch (visibleImageError) {
+          console.warn("Unable to convert the visible image; trying the repository asset.", visibleImageError);
         }
       }
 
-      return "";
-    }
-
-    function getDocumentStyles() {
-      let css = "";
-
-      Array.from(document.styleSheets).forEach(function(sheet) {
-        try {
-          Array.from(sheet.cssRules || []).forEach(function(rule) {
-            css += rule.cssText + "\n";
-          });
-        } catch (error) {
-          // Cross-origin stylesheets cannot be read. The SOA's critical styles are inline.
+      // Second choice: load the exact repository file from /assets and inline it.
+      const sourcePath = src || (assetKey && DEFAULT_CAPTURE_ASSETS[assetKey]) || "";
+      if (sourcePath) {
+        const dataUrl = await srcToDataUrl(sourcePath);
+        if (dataUrl) {
+          if (assetKey) CAPTURE_ASSET_DATA_URLS[assetKey] = dataUrl;
+          return dataUrl;
         }
-      });
+      }
 
-      return css;
-    }
-
-    function copyFormValues(sourceNode, cloneNode) {
-      const sourceControls = Array.from(sourceNode.querySelectorAll("input, textarea, select"));
-      const cloneControls = Array.from(cloneNode.querySelectorAll("input, textarea, select"));
-
-      cloneControls.forEach(function(control, index) {
-        const original = sourceControls[index];
-        if (!original) return;
-
-        if (control.tagName === "TEXTAREA") {
-          control.textContent = original.value;
-        } else if (control.tagName === "SELECT") {
-          Array.from(control.options).forEach(function(option, optionIndex) {
-            option.selected = original.options[optionIndex] ? original.options[optionIndex].selected : false;
-          });
-        } else {
-          control.setAttribute("value", original.value);
-          if (original.checked) control.setAttribute("checked", "checked");
-          else control.removeAttribute("checked");
-        }
-      });
+      throw new Error("Unable to prepare the exact image asset for PNG capture.");
     }
 
     async function prepareCaptureClone(sourceNode) {
-      if (!sourceNode) throw new Error("Printable area was not found.");
-
+      // Make sure the real visible image has finished loading before cloning.
       await waitForImages(sourceNode);
 
-      const rect = sourceNode.getBoundingClientRect();
-      const width = Math.max(1, Math.ceil(rect.width || sourceNode.offsetWidth || 794));
-      const height = Math.max(1, Math.ceil(sourceNode.scrollHeight || rect.height || sourceNode.offsetHeight || 1123));
       const clone = sourceNode.cloneNode(true);
+      const width = sourceNode.offsetWidth || 794;
+      const height = sourceNode.offsetHeight || sourceNode.scrollHeight || 1123;
 
-      copyFormValues(sourceNode, clone);
-
-      clone.id = "tgCaptureClone";
-      clone.querySelectorAll("[id]").forEach(function(el, index) {
-        el.id = "tg_capture_" + index;
+      clone.id = "soaSheetCaptureClone";
+      clone.querySelectorAll("[id]").forEach((el, index) => {
+        el.id = el.id + "_capture_" + index;
       });
 
-      clone.style.setProperty("width", width + "px", "important");
-      clone.style.setProperty("height", height + "px", "important");
-      clone.style.setProperty("min-height", height + "px", "important");
-      clone.style.setProperty("max-height", "none", "important");
-      clone.style.setProperty("margin", "0", "important");
-      clone.style.setProperty("box-shadow", "none", "important");
-      clone.style.setProperty("transform", "none", "important");
-      clone.style.setProperty("background", "#ffffff", "important");
-      clone.style.setProperty("overflow", "hidden", "important");
+      clone.style.width = width + "px";
+      clone.style.minHeight = height + "px";
+      clone.style.height = height + "px";
+      clone.style.margin = "0";
+      clone.style.boxShadow = "none";
+      clone.style.transform = "none";
+      clone.style.background = "#ffffff";
 
       const sourceImages = Array.from(sourceNode.querySelectorAll("img"));
       const cloneImages = Array.from(clone.querySelectorAll("img"));
-      let unresolvedImages = 0;
+      let skippedImages = 0;
 
       for (let i = 0; i < cloneImages.length; i += 1) {
-        const sourceImg = sourceImages[i] || null;
         const cloneImg = cloneImages[i];
+        const sourceImg = sourceImages[i] || null;
         const assetKey = String(
           cloneImg.dataset.asset ||
           (sourceImg && sourceImg.dataset ? sourceImg.dataset.asset : "") ||
           ""
         ).trim();
 
-        const sourceSrc = String(
+        const src =
           (sourceImg && (sourceImg.currentSrc || sourceImg.getAttribute("src") || sourceImg.src)) ||
           cloneImg.currentSrc ||
           cloneImg.getAttribute("src") ||
           cloneImg.src ||
           (assetKey && DEFAULT_CAPTURE_ASSETS[assetKey]) ||
-          ""
-        ).trim();
+          "";
 
+        // Preserve the exact displayed dimensions and avoid the generated
+        // text-logo appearance seen in the previous PNG downloads.
         if (sourceImg) {
-          const imgRect = sourceImg.getBoundingClientRect();
-          if (imgRect.width > 0) cloneImg.style.setProperty("width", imgRect.width + "px", "important");
-          if (imgRect.height > 0) cloneImg.style.setProperty("height", imgRect.height + "px", "important");
+          const rect = sourceImg.getBoundingClientRect();
+          if (rect.width > 0) cloneImg.style.width = rect.width + "px";
+          if (rect.height > 0) cloneImg.style.height = rect.height + "px";
+          cloneImg.style.maxWidth = "none";
+          cloneImg.style.objectFit = "contain";
         }
 
-        cloneImg.style.setProperty("object-fit", "contain", "important");
-        cloneImg.style.setProperty("visibility", "visible", "important");
-        cloneImg.removeAttribute("crossorigin");
+        try {
+          // Always inline the exact visible/repository image before rendering.
+          // In particular, never replace the logo with the old embedded fallback.
+          if (src || assetKey) {
+            cloneImg.removeAttribute("crossorigin");
+            cloneImg.src = await captureDataUrlFromVisibleImage(sourceImg, src, assetKey);
+          }
 
-        const dataUrl = await getImageDataUrl(sourceImg, sourceSrc, assetKey);
-        if (dataUrl) {
-          cloneImg.src = dataUrl;
-        } else if (sourceSrc) {
-          // Keep the exact original repository asset as the final fallback.
-          cloneImg.src = new URL(sourceSrc, document.baseURI).href;
-          unresolvedImages += 1;
-        } else {
+          if (assetKey === "logo") {
+            cloneImg.style.visibility = "visible";
+            cloneImg.style.display = "block";
+          }
+        } catch (error) {
+          skippedImages += 1;
+          console.error("Unable to inline the exact image asset for PNG capture.", src, error);
+
+          if (assetKey === "logo") {
+            // Keep the exact visible repository image URL. The direct html2canvas
+            // renderer below captures the same image already shown on screen.
+            const visibleSrc = sourceImg && (
+              sourceImg.currentSrc ||
+              sourceImg.getAttribute("src") ||
+              sourceImg.src
+            );
+            cloneImg.src = visibleSrc || DEFAULT_CAPTURE_ASSETS.logo;
+            cloneImg.style.visibility = "visible";
+            cloneImg.style.display = "block";
+            continue;
+          }
+
           cloneImg.remove();
-          unresolvedImages += 1;
         }
       }
 
       const wrapper = document.createElement("div");
-      wrapper.id = "tgCaptureWrapper";
+      wrapper.id = "soaCaptureWrapper";
       wrapper.style.cssText = [
-        "position:fixed",
-        "left:-12000px",
-        "top:0",
-        "width:" + width + "px",
-        "height:" + height + "px",
-        "overflow:hidden",
-        "background:#ffffff",
-        "z-index:-2147483647",
-        "pointer-events:none"
+        "position: fixed",
+        "left: -10000px",
+        "top: 0",
+        "width: " + width + "px",
+        "height: " + height + "px",
+        "overflow: hidden",
+        "background: #ffffff",
+        "z-index: 0",
+        "pointer-events: none"
       ].join(";");
 
       wrapper.appendChild(clone);
       document.body.appendChild(wrapper);
       await waitForImages(clone);
 
-      return {
-        source: sourceNode,
-        clone: clone,
-        wrapper: wrapper,
-        width: width,
-        height: height,
-        unresolvedImages: unresolvedImages
-      };
+      return { clone, wrapper, width, height, skippedImages };
     }
 
-    function canvasToPngBlob(canvas) {
-      return new Promise(function(resolve, reject) {
+    function getDocumentStyles() {
+      let css = "";
+      Array.from(document.styleSheets).forEach(sheet => {
         try {
-          canvas.toBlob(function(blob) {
-            if (blob && blob.size) {
-              resolve(blob);
-              return;
-            }
-
-            try {
-              const dataUrl = canvas.toDataURL("image/png", 1);
-              const parts = dataUrl.split(",");
-              const binary = atob(parts[1] || "");
-              const bytes = new Uint8Array(binary.length);
-              for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
-              resolve(new Blob([bytes], { type: "image/png" }));
-            } catch (error) {
-              reject(error);
-            }
-          }, "image/png", 1);
-        } catch (error) {
-          reject(error);
-        }
+          Array.from(sheet.cssRules || []).forEach(rule => {
+            css += rule.cssText + "\n";
+          });
+        } catch (error) {}
       });
+      return css;
     }
 
-    async function renderCaptureWithSvg(capture, scale) {
-      scale = Math.max(1, Number(scale || 2));
-      const styleText = getDocumentStyles().replace(/<\/style/gi, "<\\/style");
-      const serialized = new XMLSerializer().serializeToString(capture.clone);
-
-      const svg = [
-        '<svg xmlns="http://www.w3.org/2000/svg" width="' + capture.width + '" height="' + capture.height + '" viewBox="0 0 ' + capture.width + ' ' + capture.height + '">',
-        '<foreignObject x="0" y="0" width="100%" height="100%">',
-        '<div xmlns="http://www.w3.org/1999/xhtml" style="width:' + capture.width + 'px;height:' + capture.height + 'px;background:#fff;overflow:hidden;">',
-        '<style>' + styleText + '</style>',
-        serialized,
-        '</div>',
-        '</foreignObject>',
-        '</svg>'
-      ].join("");
-
-      const svgBlob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
-      const svgUrl = URL.createObjectURL(svgBlob);
+    async function downloadPngViaSvgFallback(sourceNode, fileName) {
+      const capture = await prepareCaptureClone(sourceNode);
 
       try {
-        const image = await new Promise(function(resolve, reject) {
-          const img = new Image();
-          const timeout = window.setTimeout(function() {
-            reject(new Error("Native PNG renderer timed out."));
-          }, 20000);
+        const styles = getDocumentStyles();
+        const html = new XMLSerializer().serializeToString(capture.clone);
+        const svg = [
+          '<svg xmlns="http://www.w3.org/2000/svg" width="' + capture.width + '" height="' + capture.height + '" viewBox="0 0 ' + capture.width + ' ' + capture.height + '">',
+          '<foreignObject width="100%" height="100%">',
+          '<div xmlns="http://www.w3.org/1999/xhtml">',
+          '<style>' + styles.replace(/<\/style/gi, '<\\/style') + '</style>',
+          html,
+          '</div>',
+          '</foreignObject>',
+          '</svg>'
+        ].join("");
 
-          img.onload = function() {
-            window.clearTimeout(timeout);
-            resolve(img);
+        const svgBlob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+        const svgUrl = URL.createObjectURL(svgBlob);
+
+        const pngBlob = await new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => {
+            try {
+              const scale = 3;
+              const canvas = document.createElement("canvas");
+              canvas.width = Math.round(capture.width * scale);
+              canvas.height = Math.round(capture.height * scale);
+
+              const ctx = canvas.getContext("2d");
+              ctx.fillStyle = "#ffffff";
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+              ctx.setTransform(scale, 0, 0, scale, 0, 0);
+              ctx.drawImage(img, 0, 0, capture.width, capture.height);
+
+              canvas.toBlob(blob => {
+                if (blob) resolve(blob);
+                else reject(new Error("SVG fallback PNG generation failed"));
+              }, "image/png", 1);
+            } catch (error) {
+              reject(error);
+            } finally {
+              URL.revokeObjectURL(svgUrl);
+            }
           };
-          img.onerror = function() {
-            window.clearTimeout(timeout);
-            reject(new Error("Native PNG renderer could not read the printable page."));
+          img.onerror = () => {
+            URL.revokeObjectURL(svgUrl);
+            reject(new Error("SVG fallback image failed to load"));
           };
           img.src = svgUrl;
         });
 
-        const canvas = document.createElement("canvas");
-        canvas.width = Math.round(capture.width * scale);
-        canvas.height = Math.round(capture.height * scale);
-        const context = canvas.getContext("2d");
-        if (!context) throw new Error("Canvas context is unavailable.");
-
-        context.fillStyle = "#ffffff";
-        context.fillRect(0, 0, canvas.width, canvas.height);
-        context.setTransform(scale, 0, 0, scale, 0, 0);
-        context.drawImage(image, 0, 0, capture.width, capture.height);
-        return canvasToPngBlob(canvas);
+        downloadBlob(pngBlob, fileName);
+        return capture.skippedImages;
       } finally {
-        URL.revokeObjectURL(svgUrl);
+        capture.wrapper.remove();
       }
     }
 
-    async function renderCaptureWithHtml2Canvas(capture, scale) {
-      const loaded = await ensureHtml2Canvas();
-      if (!loaded || !window.html2canvas) {
-        throw new Error("The backup PNG engine could not load.");
+
+    function waitForSingleImage(img, timeoutMs) {
+      timeoutMs = Number(timeoutMs || 15000);
+
+      return new Promise(function(resolve, reject) {
+        if (!img) {
+          reject(new Error("Logo image element was not found."));
+          return;
+        }
+
+        if (img.complete && img.naturalWidth > 0 && img.naturalHeight > 0) {
+          resolve(img);
+          return;
+        }
+
+        let finished = false;
+        const timer = setTimeout(function() {
+          if (finished) return;
+          finished = true;
+          cleanup();
+          reject(new Error("Logo image loading timed out."));
+        }, timeoutMs);
+
+        function cleanup() {
+          clearTimeout(timer);
+          img.removeEventListener("load", onLoad);
+          img.removeEventListener("error", onError);
+        }
+
+        function onLoad() {
+          if (finished) return;
+          finished = true;
+          cleanup();
+          if (img.naturalWidth > 0 && img.naturalHeight > 0) resolve(img);
+          else reject(new Error("Logo image loaded without a readable size."));
+        }
+
+        function onError() {
+          if (finished) return;
+          finished = true;
+          cleanup();
+          reject(new Error("Logo image file could not be opened."));
+        }
+
+        img.addEventListener("load", onLoad, { once: true });
+        img.addEventListener("error", onError, { once: true });
+      });
+    }
+
+    function getLogoUrlCandidates() {
+      const encodedName = "TechGeekPH%20-%20logo.png";
+      const candidates = [];
+
+      function add(value) {
+        if (!value) return;
+        try {
+          const absolute = new URL(value, document.baseURI).href;
+          if (candidates.indexOf(absolute) === -1) candidates.push(absolute);
+        } catch (error) {}
       }
 
-      const canvas = await window.html2canvas(capture.clone, {
-        scale: Math.max(1, Number(scale || 2)),
-        useCORS: true,
-        allowTaint: false,
-        foreignObjectRendering: false,
-        backgroundColor: "#ffffff",
-        logging: false,
-        width: capture.width,
-        height: capture.height,
-        windowWidth: capture.width,
-        windowHeight: capture.height,
-        scrollX: 0,
-        scrollY: 0,
-        imageTimeout: 20000,
-        removeContainer: true
+      // Keep the currently displayed source first.
+      document.querySelectorAll('img[data-asset="logo"]').forEach(function(img) {
+        add(img.currentSrc || img.getAttribute("src") || img.src);
       });
 
-      return canvasToPngBlob(canvas);
+      // Normal repository layout: statement_of_account.html/assets/...
+      add("assets/" + encodedName);
+      add("./assets/" + encodedName);
+
+      // GitHub Pages-safe repository root candidate. This preserves the repo
+      // prefix, e.g. /admin-portal/assets/... instead of using /assets/ directly.
+      try {
+        const pathParts = window.location.pathname.split("/").filter(Boolean);
+        if (window.location.hostname.endsWith("github.io") && pathParts.length) {
+          add("/" + pathParts[0] + "/assets/" + encodedName);
+        }
+      } catch (error) {}
+
+      return candidates;
     }
 
-    async function downloadElementAsPng(sourceNode, fileName, button, defaultLabel, successLabel) {
-      const originalText = button.textContent;
-      let capture = null;
-      let nativeError = null;
+    async function ensureExactVisibleLogo(root) {
+      const rootLogos = Array.from((root || document).querySelectorAll('img[data-asset="logo"]'));
+      const allLogos = Array.from(document.querySelectorAll('img[data-asset="logo"]'));
+      const logos = rootLogos.length ? rootLogos : allLogos;
+
+      if (!logos.length) return;
+
+      // The preview image is the source of truth. If it is already loaded,
+      // html2canvas can capture that exact image without converting it to base64.
+      for (let i = 0; i < logos.length; i += 1) {
+        const img = logos[i];
+        if (img.complete && img.naturalWidth > 0 && img.naturalHeight > 0) {
+          return;
+        }
+      }
+
+      const candidates = getLogoUrlCandidates();
+      let lastError = null;
+
+      for (let i = 0; i < candidates.length; i += 1) {
+        const candidate = candidates[i];
+
+        try {
+          logos.forEach(function(img) {
+            img.removeAttribute("crossorigin");
+            img.src = candidate;
+            img.style.display = "block";
+            img.style.visibility = "visible";
+          });
+
+          await waitForSingleImage(logos[0], 15000);
+          return;
+        } catch (error) {
+          lastError = error;
+        }
+      }
+
+      throw new Error(
+        "The logo preview itself is not loading. Confirm that assets/TechGeekPH - logo.png exists beside this HTML file and that uppercase/lowercase letters match exactly."
+      );
+    }
+
+    function applyOfficialFolderLogo(root) {
+      const scope = root || document;
+      const logoUrl = getOfficialLogoAssetUrl();
+      const logos = Array.from(scope.querySelectorAll('img[data-asset="logo"], .brand-logo img'));
+
+      logos.forEach(function(img) {
+        img.removeAttribute("crossorigin");
+        img.src = logoUrl;
+        img.style.display = "block";
+        img.style.visibility = "visible";
+      });
+
+      return { logos: logos, logoUrl: logoUrl };
+    }
+
+    async function prepareExactFolderLogoForCapture(root) {
+      const applied = applyOfficialFolderLogo(root || document);
+      const logos = applied.logos;
+      const logoUrl = applied.logoUrl;
+
+      if (!logos.length) {
+        throw new Error("TechGeekPH logo element was not found in the printable document.");
+      }
+
+      for (let i = 0; i < logos.length; i += 1) {
+        await waitForSingleImage(logos[i], 15000);
+      }
+
+      let safeDataUrl = "";
+      try {
+        // The image is loaded from the same GitHub repository using ./assets/...
+        // so drawing it to canvas is safe. No fetch() request is needed.
+        safeDataUrl = imageToDataUrl(logos[0]);
+      } catch (error) {
+        throw new Error(
+          "The logo file loaded from assets, but the browser could not prepare it for PNG export. " +
+          "Open this page through the published GitHub Pages https:// link and keep the HTML and " +
+          "assets/TechGeekPH - logo.png in the same repository folder. Details: " +
+          (error.message || error)
+        );
+      }
+
+      CAPTURE_ASSET_DATA_URLS.logo = safeDataUrl;
+
+      // Use the data URL only while html2canvas is running. It still comes from
+      // the exact file inside assets; this step only prevents canvas tainting.
+      logos.forEach(function(img) {
+        img.src = safeDataUrl;
+      });
+      await waitForImages(root || document);
+
+      return function restoreFolderLogo() {
+        logos.forEach(function(img) {
+          img.removeAttribute("crossorigin");
+          img.src = logoUrl;
+          img.style.display = "block";
+          img.style.visibility = "visible";
+        });
+      };
+    }
+
+    async function downloadVisibleElementAsPng(node, fileName) {
+      if (!node) throw new Error("Printable document was not found.");
+
+      await ensureHtml2Canvas();
+
+      let restoreFolderLogo = null;
 
       try {
-        button.disabled = true;
-        button.textContent = "Preparing download...";
-        capture = await prepareCaptureClone(sourceNode);
+        // Read the exact logo from ./assets/TechGeekPH - logo.png, then use a
+        // temporary safe copy only for canvas generation.
+        restoreFolderLogo = await prepareExactFolderLogoForCapture(node);
+        await waitForImages(node);
 
-        let blob = null;
+        const width = Math.ceil(node.scrollWidth || node.offsetWidth || 794);
+        const height = Math.ceil(node.scrollHeight || node.offsetHeight || 1123);
 
-        // Primary renderer is built into the browser and does not rely on a CDN.
-        try {
-          button.textContent = "Generating PNG...";
-          blob = await renderCaptureWithSvg(capture, 2.4);
-        } catch (error) {
-          nativeError = error;
-          console.warn("Native PNG renderer failed; using backup renderer.", error);
-        }
+        const canvas = await window.html2canvas(node, {
+          scale: 2.5,
+          useCORS: true,
+          allowTaint: false,
+          foreignObjectRendering: false,
+          backgroundColor: "#ffffff",
+          logging: false,
+          width: width,
+          height: height,
+          windowWidth: Math.max(document.documentElement.clientWidth, width),
+          windowHeight: Math.max(document.documentElement.clientHeight, height),
+          scrollX: -window.scrollX,
+          scrollY: -window.scrollY,
+          imageTimeout: 30000,
+          removeContainer: true
+        });
 
-        if (!blob || !blob.size) {
-          button.textContent = "Using backup renderer...";
+        const blob = await new Promise(function(resolve, reject) {
           try {
-            blob = await renderCaptureWithHtml2Canvas(capture, 2.2);
-          } catch (backupError) {
-            console.warn("Backup PNG renderer failed; retrying without unresolved images.", backupError);
-
-            // Final safety fallback: never block the download because of one image asset.
-            // The real logo is normally embedded above; this only runs when the browser blocks every image method.
-            capture.clone.querySelectorAll("img").forEach(function(img) {
-              img.remove();
-            });
-            blob = await renderCaptureWithSvg(capture, 2.2);
+            canvas.toBlob(function(value) {
+              if (value) resolve(value);
+              else reject(new Error("PNG canvas returned an empty file."));
+            }, "image/png", 1);
+          } catch (error) {
+            reject(new Error("PNG export was blocked by an unsafe image: " + (error.message || error)));
           }
-        }
+        });
 
         downloadBlob(blob, fileName);
-        const hadMissingAsset = capture && capture.unresolvedImages > 0;
-        showNotice(
-          hadMissingAsset
-            ? successLabel + " The PNG was generated; refresh once if the logo does not appear."
-            : successLabel,
-          "ok"
-        );
-      } catch (error) {
-        console.error("PNG download failed.", error, nativeError);
-        const details = error && error.message ? " " + error.message : "";
-        showNotice(
-          "PNG generation failed." + details + " Use Print / Save as PDF temporarily, then refresh the page once.",
-          "error"
-        );
       } finally {
-        if (capture && capture.wrapper) capture.wrapper.remove();
-        button.disabled = false;
-        button.textContent = originalText || defaultLabel;
+        if (typeof restoreFolderLogo === "function") {
+          restoreFolderLogo();
+        }
       }
     }
 
     async function downloadSoaAsPng() {
       calculateTotals();
+
+      const node = fields.soaSheet;
+      const btn = fields.downloadPngBtn;
+      const oldText = btn.textContent;
       const fileName = safeFileName(fields.statementNo.value || fields.accountNo.value || "SOA") + ".png";
-      return downloadElementAsPng(
-        fields.soaSheet,
-        fileName,
-        fields.downloadPngBtn,
-        "Download SOA as PNG",
-        "SOA PNG downloaded successfully."
-      );
+
+      try {
+        btn.disabled = true;
+        btn.textContent = "Preparing exact preview...";
+        await downloadVisibleElementAsPng(node, fileName);
+        showNotice("SOA PNG downloaded using the exact logo shown in the preview.", "ok");
+      } catch (error) {
+        console.error("SOA PNG download failed.", error);
+        showNotice("Unable to generate the SOA PNG: " + (error.message || error), "error");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = oldText || "Download SOA as PNG";
+      }
     }
+
+
 
     async function downloadAckReceiptAsPng() {
       calculateTotals();
       reserveReceiptNumber(false);
-      const fileName = safeFileName(fields.receiptNo.value || fields.accountNo.value || "Acknowledgement-Receipt") + ".png";
-      return downloadElementAsPng(
-        fields.ackReceiptSheet,
-        fileName,
-        fields.downloadReceiptPngBtn,
-        "Download Receipt as PNG",
-        "Acknowledgement receipt PNG downloaded successfully."
-      );
-    }
 
-    async function printSoaOnly() {
-      calculateTotals();
-      const button = fields.printBtn;
-      const originalText = button.textContent;
-      let printFrame = null;
+      const node = fields.ackReceiptSheet;
+      const btn = fields.downloadReceiptPngBtn;
+      const oldText = btn.textContent;
+      const fileName = safeFileName(fields.receiptNo.value || fields.accountNo.value || "Acknowledgement-Receipt") + ".png";
 
       try {
-        button.disabled = true;
-        button.textContent = "Preparing PDF...";
-
-        await waitForImages(fields.soaSheet);
-        const clone = fields.soaSheet.cloneNode(true);
-        const sourceImages = Array.from(fields.soaSheet.querySelectorAll("img"));
-        const cloneImages = Array.from(clone.querySelectorAll("img"));
-
-        for (let i = 0; i < cloneImages.length; i += 1) {
-          const original = sourceImages[i] || null;
-          const copy = cloneImages[i];
-          const assetKey = String(copy.dataset.asset || "").trim();
-          const src = String((original && (original.currentSrc || original.src)) || copy.src || "").trim();
-          const dataUrl = await getImageDataUrl(original, src, assetKey);
-          if (dataUrl) copy.src = dataUrl;
-        }
-
-        printFrame = document.createElement("iframe");
-        printFrame.setAttribute("aria-hidden", "true");
-        printFrame.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;";
-        document.body.appendChild(printFrame);
-
-        const doc = printFrame.contentDocument || printFrame.contentWindow.document;
-        const css = getDocumentStyles();
-        doc.open();
-        doc.write('<!doctype html><html><head><meta charset="utf-8"><title>Statement of Account</title>');
-        doc.write('<style>@page{size:A4;margin:0;}html,body{margin:0;padding:0;background:#fff;}');
-        doc.write(css.replace(/<\/style/gi, "<\\/style"));
-        doc.write('.receipt-sheet,#ackReceiptSheet,.sidebar,.topbar,.control-panel,.preview-actions,.notice{display:none!important;}');
-        doc.write('.soa-sheet{display:block!important;width:210mm!important;height:297mm!important;margin:0!important;box-shadow:none!important;overflow:hidden!important;}');
-        doc.write('</style></head><body>');
-        doc.write(new XMLSerializer().serializeToString(clone));
-        doc.write('</body></html>');
-        doc.close();
-
-        await new Promise(function(resolve) { window.setTimeout(resolve, 500); });
-        printFrame.contentWindow.focus();
-        printFrame.contentWindow.print();
-        showNotice("SOA is ready in the Print / Save as PDF dialog.", "ok");
+        btn.disabled = true;
+        btn.textContent = "Preparing exact preview...";
+        await downloadVisibleElementAsPng(node, fileName);
+        showNotice("Acknowledgement receipt PNG downloaded using the exact preview logo.", "ok");
       } catch (error) {
-        console.error("PDF print preparation failed.", error);
-        // Final fallback uses the page's print-only CSS.
-        document.body.classList.add("print-soa-only");
-        window.print();
+        console.error("Receipt PNG download failed.", error);
+        showNotice("Unable to generate the receipt PNG: " + (error.message || error), "error");
       } finally {
-        button.disabled = false;
-        button.textContent = originalText || "Print / Save as PDF";
-        if (printFrame) {
-          window.setTimeout(function() {
-            try { printFrame.remove(); } catch (error) {}
-          }, 1500);
-        }
+        btn.disabled = false;
+        btn.textContent = oldText || "Download Receipt as PNG";
       }
     }
 
@@ -3555,7 +4525,11 @@
     });
 
     fields.clearBtn.addEventListener("click", clearForm);
-    fields.printBtn.addEventListener("click", printSoaOnly);
+    fields.printBtn.addEventListener("click", function() {
+      calculateTotals();
+      document.body.classList.add("print-soa-only");
+      window.print();
+    });
 
     window.addEventListener("afterprint", function() {
       document.body.classList.remove("print-soa-only");
@@ -3592,55 +4566,17 @@
       });
     });
 
-    function initializeVisibleLogoAssets() {
-      document.querySelectorAll('img[data-asset="logo"]').forEach(function(img) {
-        const candidates = getCaptureAssetCandidates("logo", img.getAttribute("src"));
-        let candidateIndex = 0;
-
-        img.removeAttribute("crossorigin");
-        img.style.display = "block";
-        img.style.visibility = "visible";
-
-        function cacheActualLogo() {
-          try {
-            if (img.complete && img.naturalWidth > 0 && img.naturalHeight > 0) {
-              CAPTURE_ASSET_DATA_URLS.logo = imageToDataUrl(img);
-            }
-          } catch (error) {
-            console.warn("The visible logo loaded, but it could not be cached yet.", error);
-          }
+    async function initializeVisibleLogoAssets() {
+      try {
+        const applied = applyOfficialFolderLogo(document);
+        for (let i = 0; i < applied.logos.length; i += 1) {
+          await waitForSingleImage(applied.logos[i], 15000);
         }
-
-        function loadNextCandidate() {
-          if (candidateIndex >= candidates.length) {
-            console.error("TechGeekPH logo could not be loaded from the assets folder.");
-            return;
-          }
-          const nextSrc = candidates[candidateIndex++];
-          try {
-            img.src = new URL(nextSrc, document.baseURI).href;
-          } catch (error) {
-            img.src = nextSrc;
-          }
-        }
-
-        img.addEventListener("load", cacheActualLogo);
-        img.addEventListener("error", loadNextCandidate);
-
-        if (img.complete && img.naturalWidth > 0) {
-          cacheActualLogo();
-        } else {
-          loadNextCandidate();
-        }
-      });
-
-      // Preload and cache the logo before a user presses a download button.
-      getImageDataUrl(null, DEFAULT_CAPTURE_ASSETS.logo, "logo").catch(function(error) {
-        console.warn("Logo preloading was skipped.", error);
-      });
+      } catch (error) {
+        console.warn("TechGeekPH logo from assets could not be initialized.", error);
+      }
     }
 
-    try { localStorage.removeItem(SOA_ASSET_STORAGE); } catch (error) {}
     setUser(loadSession());
     setDefaults();
     initializeVisibleLogoAssets();
