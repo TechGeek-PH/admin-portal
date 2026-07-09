@@ -131,7 +131,7 @@
 
     .nav summary::-webkit-details-marker { display: none; }
     .nav summary::after {
-      content: "▾";
+      content: "v";
       margin-left: auto;
       font-size: 0.78rem;
       opacity: 0.72;
@@ -1072,7 +1072,7 @@
     }
 
     .nav-toggle::after {
-      content: "›" !important;
+      content: ">" !important;
       margin-left: auto !important;
       font-size: 0.95rem !important;
       opacity: 0.75 !important;
@@ -1161,23 +1161,60 @@
       }
     }
 
+
+    /* Client List: show up to 10 clients, then scroll vertically. */
+    .client-list-scroll {
+      width: 100%;
+      overflow: auto !important;
+      scrollbar-gutter: stable;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .client-list-scroll thead th {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+    }
+
+
+    /* Keep the three client action buttons readable on smaller screens. */
+    @media (max-width: 680px) {
+      #clientRows .actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      #clientRows .actions .small-btn:last-child {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 420px) {
+      #clientRows .actions {
+        grid-template-columns: 1fr;
+      }
+
+      #clientRows .actions .small-btn:last-child {
+        grid-column: auto;
+      }
+    }
+
   </style>
-  <link rel="stylesheet" href="assets/admin-shell.css">
+  <link rel="stylesheet" href="assets/employee-shell.css">
 </head>
 <body>
   <main class="app">
-      <aside class="sidebar" data-admin-sidebar>
+      <aside class="sidebar" data-employee-sidebar>
     <div class="brand">
       <div class="brand-logo">
         <img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH">
       </div>
       <div>
-        <strong>TechGeekPH Admin</strong>
-        <span>Admin portal for clients, tickets, attendance, expenses, stock, assets, payroll, SOA, and investor reports.</span>
+        <strong>TechGeekPH Employee</strong>
+        <span>Employee portal workspace for field work, attendance, expenses, stock, and payslip access.</span>
       </div>
     </div>
 
-    <nav class="nav" aria-label="Admin navigation">
+    <nav class="nav" aria-label="Employee navigation">
       <a href="dashboard.html">Dashboard</a>
 
       <div class="nav-group">
@@ -1187,7 +1224,6 @@
           <a href="clients.html">Clients</a>
           <a href="tickets.html">Tickets</a>
           <a href="nap-checker.html">NAP Checker</a>
-          <a href="statement_of_account.html">Statement of Account</a>
         </div>
       </div>
 
@@ -1195,26 +1231,15 @@
         <button class="nav-toggle" type="button">Attendance &amp; Expenses</button>
         <div class="nav-panel">
           <a href="daily_time_record.html">My Time Record</a>
-          <a href="daily_time_record_admin.html">Admin Time Records</a>
           <a href="my_expense_request.html">My Expense Request</a>
-          <a href="expense_approval.html">Expense Approval</a>
           <a href="payslip_generator.html">Payslip Generator</a>
         </div>
       </div>
 
       <div class="nav-group">
-        <button class="nav-toggle" type="button">Stock &amp; Assets</button>
+        <button class="nav-toggle" type="button">Stock</button>
         <div class="nav-panel">
           <a href="consumable_stock.html">Consumable Stock</a>
-          <a href="company_assets.html">Company Assets</a>
-        </div>
-      </div>
-
-      <div class="nav-group">
-        <button class="nav-toggle" type="button">Investor</button>
-        <div class="nav-panel">
-          <a href="investor_morwin_gapud.html">Morwin Gapud</a>
-          <a href="investor_marivie_viana_gapud.html">Marivie Viana Gapud</a>
         </div>
       </div>
     </nav>
@@ -1268,8 +1293,66 @@
         <section class="panel">
           <div class="panel-head">
             <div>
+              <h2>Client List</h2>
+              <p>Clean view: important billing and location fields only.</p>
+            </div>
+            <button class="ghost-btn" type="button" id="refreshBtn">Refresh</button>
+          </div>
+
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <input class="search" id="searchInput" placeholder="Search account, name, RD/BLK, phone, address">
+              <select class="filter" id="accountStatusFilter">
+                <option value="">All account status</option>
+                <option>Pending</option>
+                <option>Active</option>
+                <option>Disconnected</option>
+                <option>Cancelled</option>
+                <option>Suspended</option>
+              </select>
+              <select class="filter" id="serviceStatusFilter">
+                <option value="">All service status</option>
+                <option>For Installation</option>
+                <option>Installed</option>
+                <option>Active</option>
+                <option>For Checking</option>
+                <option>No Signal</option>
+                <option>Disconnected</option>
+                <option>Cancelled</option>
+              </select>
+            </div>
+            <div class="toolbar-right">
+              <span class="mode-chip" id="rowCount">0 records</span>
+            </div>
+          </div>
+
+          <div class="table-wrap client-list-scroll" id="clientListScroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Account #</th>
+                  <th>Name</th>
+                  <th>RD/BLK</th>
+                  <th>Phone</th>
+                  <th>Bill / Month</th>
+                  <th>Due Date</th>
+                  <th>Service Address</th>
+                  <th>Google Maps Link</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="clientRows">
+                <tr><td data-label="Status" colspan="9">Waiting for client data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
               <h2><span id="formTitle">Quick Client Update</span></h2>
-              <p>Visible fields lang ang madalas gamitin. Click “Show full details” kung kailangan ng complete record.</p>
+              <p>Visible fields lang ang madalas gamitin. Click "Show full details" kung kailangan ng complete record.</p>
             </div>
             <span class="mode-chip" id="modeChip">New Client</span>
           </div>
@@ -1514,64 +1597,6 @@
             </div>
           </form>
         </section>
-
-        <section class="panel">
-          <div class="panel-head">
-            <div>
-              <h2>Client List</h2>
-              <p>Clean view: important billing and location fields only.</p>
-            </div>
-            <button class="ghost-btn" type="button" id="refreshBtn">Refresh</button>
-          </div>
-
-          <div class="toolbar">
-            <div class="toolbar-left">
-              <input class="search" id="searchInput" placeholder="Search account, name, RD/BLK, phone, address">
-              <select class="filter" id="accountStatusFilter">
-                <option value="">All account status</option>
-                <option>Pending</option>
-                <option>Active</option>
-                <option>Disconnected</option>
-                <option>Cancelled</option>
-                <option>Suspended</option>
-              </select>
-              <select class="filter" id="serviceStatusFilter">
-                <option value="">All service status</option>
-                <option>For Installation</option>
-                <option>Installed</option>
-                <option>Active</option>
-                <option>For Checking</option>
-                <option>No Signal</option>
-                <option>Disconnected</option>
-                <option>Cancelled</option>
-              </select>
-            </div>
-            <div class="toolbar-right">
-              <span class="mode-chip" id="rowCount">0 records</span>
-            </div>
-          </div>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Account #</th>
-                  <th>Name</th>
-                  <th>RD/BLK</th>
-                  <th>Phone</th>
-                  <th>Bill / Month</th>
-                  <th>Due Date</th>
-                  <th>Service Address</th>
-                  <th>Google Maps Link</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="clientRows">
-                <tr><td data-label="Status" colspan="9">Waiting for client data...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
       </div>
     </section>
   </main>
@@ -1594,8 +1619,8 @@
 
   <script>
     const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxDY5TsonrB58YaN8LGbrrrc_ZD1QVpF1WK0p6jToIR2FBSqGaHfsgaE1CCiH1MvukV/exec";
-    const SESSION_KEY = "techgeekph_admin_session";
-    const LEGACY_SESSION_KEY = "techgeekph_admin_session";
+    const SESSION_KEY = "techgeekph_session";
+    const LEGACY_SESSION_KEY = "techgeekph_employee_session";
 
     const PLAN_SPEED_PRESETS = [
       { plan: "Student Plan", speed: "15Mbps", bill: "500", label: "Student Plan - 15Mbps" },
@@ -1765,7 +1790,7 @@
       if (!cleaned) return "";
       const number = Number(cleaned);
       if (!Number.isFinite(number)) return String(value || "");
-      return "₱ " + number.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return "PHP  " + number.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
     function formatMetric(value) {
@@ -1827,6 +1852,44 @@
       });
     }
 
+
+    function updateClientListScrollLimit() {
+      const wrap = document.querySelector("#clientListScroll");
+      if (!wrap || !fields.clientRows) return;
+
+      const rows = Array.from(fields.clientRows.children).filter(function(row) {
+        return row.tagName === "TR";
+      });
+
+      wrap.style.maxHeight = "";
+
+      if (rows.length <= 10) return;
+
+      const table = wrap.querySelector("table");
+      const tableHead = table ? table.querySelector("thead") : null;
+      const body = table ? table.querySelector("tbody") : null;
+
+      let headerHeight = 0;
+      if (tableHead && window.getComputedStyle(tableHead).display !== "none") {
+        headerHeight = tableHead.getBoundingClientRect().height;
+      }
+
+      const visibleRowsHeight = rows.slice(0, 10).reduce(function(total, row) {
+        return total + row.getBoundingClientRect().height;
+      }, 0);
+
+      let rowGapsHeight = 0;
+      if (body && window.getComputedStyle(body).display === "grid") {
+        const bodyStyle = window.getComputedStyle(body);
+        const gap = parseFloat(bodyStyle.rowGap || bodyStyle.gap || "0") || 0;
+        rowGapsHeight = gap * 9;
+      }
+
+      wrap.style.maxHeight = Math.ceil(
+        headerHeight + visibleRowsHeight + rowGapsHeight + 2
+      ) + "px";
+    }
+
     function renderRows() {
       const rows = filteredRows();
       setStats(clientRecords);
@@ -1834,6 +1897,7 @@
 
       if (!rows.length) {
         fields.clientRows.innerHTML = '<tr><td data-label="Status" colspan="9">No client records to show yet.</td></tr>';
+        window.requestAnimationFrame(updateClientListScrollLimit);
         return;
       }
 
@@ -1851,10 +1915,13 @@
           '<td data-label="Google Maps">' + (maps ? '<a class="small-btn" href="' + escapeHtml(maps) + '" target="_blank" rel="noopener">Open Maps</a>' : "") + "</td>" +
           '<td data-label="Action"><div class="actions">' +
             '<button class="small-btn" type="button" data-action="edit" data-index="' + realIndex + '">Edit</button>' +
+            '<button class="small-btn" type="button" data-action="copy-repair" data-index="' + realIndex + '">Copy for Repair</button>' +
             '<button class="small-btn" type="button" data-action="details" data-index="' + realIndex + '">Full Details</button>' +
           "</div></td>" +
         "</tr>";
       }).join("");
+
+      window.requestAnimationFrame(updateClientListScrollLimit);
     }
 
     async function callBackend(action, payload) {
@@ -2067,7 +2134,10 @@
       refreshSpeedOptions(rowSpeed);
       fields.monthlyBill.value = moneyNumber(fields.monthlyBill.value);
       setEditMode(getAccountNo(row));
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      const formPanel = fields.clientForm.closest(".panel");
+      if (formPanel) {
+        formPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
     }
 
     function clearForm() {
@@ -2077,6 +2147,113 @@
       fields.toggleAdvancedBtn.textContent = "Show full details";
       refreshSpeedOptions();
       hideNotice();
+    }
+
+    function buildRepairClientDetails(row) {
+      const accountNo = getAccountNo(row);
+      const clientName = getName(row);
+      const phone = keyValue(row, ["Phone Number", "phoneNumber", "Contact Number", "Phone"]);
+      const rdBlk = keyValue(row, ["RD / BLK", "rdBlk", "RD/BLK", "Block/Lot"]);
+      const address = keyValue(row, ["Service Address", "serviceAddress", "Address"]);
+      const maps = keyValue(row, ["Google Maps Link", "googleMapsLink"]);
+      const plan = keyValue(row, ["Plan", "plan"]);
+      const speed = keyValue(row, ["Speed", "speed"]);
+      const clientPort = keyValue(row, ["Client Port", "CP Client Port", "clientPort", "cpClientPort", "NAP Box", "napBox", "NAP"]);
+      const remoteAddress = keyValue(row, ["Remote Address", "remoteAddress"]);
+      const vlanId = keyValue(row, ["VLAN ID", "vlanId", "VLAN"]);
+      const modem = keyValue(row, ["Modem Brand / Model", "modemBrandModel", "MODEM", "Modem"]);
+      const pppoe = keyValue(row, ["PPPoE Username", "pppoeUsername"]);
+      const accountStatus = getAccountStatus(row);
+      const serviceStatus = getServiceStatus(row);
+
+      function display(value) {
+        const text = String(value || "").trim();
+        return text || "N/A";
+      }
+
+      const planSpeed = [plan, speed].filter(function(value) {
+        return String(value || "").trim();
+      }).join(" - ");
+
+      return [
+        "TECHGEEKPH REPAIR CLIENT DETAILS",
+        "",
+        "Account #: " + display(accountNo),
+        "Client Name: " + display(clientName),
+        "Contact #: " + display(phone),
+        "RD/BLK: " + display(rdBlk),
+        "Account Status: " + display(accountStatus),
+        "Service Status: " + display(serviceStatus),
+        "Plan / Speed: " + display(planSpeed),
+        "Service Address: " + display(address),
+        "Google Maps: " + display(maps),
+        "",
+        "Client Port: " + display(clientPort),
+        "Remote Address: " + display(remoteAddress),
+        "VLAN ID: " + display(vlanId),
+        "Modem: " + display(modem),
+        "PPPoE Username: " + display(pppoe),
+        "",
+        "Repair Concern: ____________________",
+        "Assigned Technician: ____________________"
+      ].join("\n");
+    }
+
+    async function copyTextToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      textarea.style.top = "0";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+
+      const copied = document.execCommand("copy");
+      document.body.removeChild(textarea);
+
+      if (!copied) {
+        throw new Error("Copy command was blocked by the browser.");
+      }
+    }
+
+    async function copyRepairClientDetails(row, button) {
+      const originalText = button ? button.textContent : "";
+
+      try {
+        if (button) {
+          button.disabled = true;
+          button.textContent = "Copying...";
+        }
+
+        await copyTextToClipboard(buildRepairClientDetails(row));
+        showNotice("Repair client details copied. Ready to paste and send to the technician.", "ok");
+
+        if (button) {
+          button.textContent = "Copied!";
+          window.setTimeout(function() {
+            button.textContent = originalText;
+            button.disabled = false;
+          }, 1400);
+        }
+      } catch (error) {
+        showNotice(
+          "Unable to copy the repair client details. " +
+          (error && error.message ? error.message : ""),
+          "error"
+        );
+
+        if (button) {
+          button.textContent = originalText;
+          button.disabled = false;
+        }
+      }
     }
 
     function openDetails(rowIndex) {
@@ -2138,6 +2315,10 @@
 
       if (button.dataset.action === "edit") {
         fillForm(row);
+      }
+
+      if (button.dataset.action === "copy-repair") {
+        copyRepairClientDetails(row, button);
       }
 
       if (button.dataset.action === "details") {
@@ -2204,6 +2385,10 @@
       window.location.href = "index.html";
     });
 
+    window.addEventListener("resize", function() {
+      window.requestAnimationFrame(updateClientListScrollLimit);
+    });
+
     setUser(loadSession());
     setEditMode("");
     refreshSpeedOptions();
@@ -2220,6 +2405,6 @@
     });
   </script>
 
-  <script src="assets/admin-shell.js"></script>
+  <script src="assets/employee-shell.js"></script>
 </body>
 </html>
