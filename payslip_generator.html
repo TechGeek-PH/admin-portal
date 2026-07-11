@@ -39,7 +39,7 @@
     .nav-group{display:grid;grid-template-columns:1fr;gap:6px;margin:2px 0;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:8px;background:rgba(255,255,255,.06);width:100%;}
     .nav-toggle{min-height:36px;border-radius:9px;color:#fff;background:rgba(255,255,255,.12);padding:0 11px;font-weight:950;font-family:inherit;}
     .nav-toggle::before{content:none;}
-    .nav-toggle::after{content:"›";margin-left:auto;font-size:.95rem;opacity:.75;transform:rotate(0deg);}
+    .nav-toggle::after{content:">";margin-left:auto;font-size:.95rem;opacity:.75;transform:rotate(0deg);}
     .nav-group.is-open .nav-toggle::after{transform:rotate(90deg);}
     .nav-panel{display:none;grid-template-columns:1fr;gap:5px;margin-left:14px;padding-left:10px;border-left:1px solid rgba(255,255,255,.24);}
     .nav-group.is-open .nav-panel{display:grid;}
@@ -155,22 +155,22 @@
     }
 
   </style>
-  <link rel="stylesheet" href="assets/admin-shell.css">
+  <link rel="stylesheet" href="assets/employee-shell.css">
 </head>
 <body>
   <main class="app">
-      <aside class="sidebar" data-admin-sidebar>
+      <aside class="sidebar" data-employee-sidebar>
     <div class="brand">
       <div class="brand-logo">
         <img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH">
       </div>
       <div>
-        <strong>TechGeekPH Admin</strong>
-        <span>Admin portal for clients, tickets, attendance, expenses, stock, assets, payroll, SOA, and investor reports.</span>
+        <strong>TechGeekPH Employee</strong>
+        <span>Employee portal workspace for field work, attendance, expenses, stock, and payslip access.</span>
       </div>
     </div>
 
-    <nav class="nav" aria-label="Admin navigation">
+    <nav class="nav" aria-label="Employee navigation">
       <a href="dashboard.html">Dashboard</a>
 
       <div class="nav-group">
@@ -180,7 +180,6 @@
           <a href="clients.html">Clients</a>
           <a href="tickets.html">Tickets</a>
           <a href="nap-checker.html">NAP Checker</a>
-          <a href="statement_of_account.html">Statement of Account</a>
         </div>
       </div>
 
@@ -188,26 +187,15 @@
         <button class="nav-toggle" type="button">Attendance &amp; Expenses</button>
         <div class="nav-panel">
           <a href="daily_time_record.html">My Time Record</a>
-          <a href="daily_time_record_admin.html">Admin Time Records</a>
           <a href="my_expense_request.html">My Expense Request</a>
-          <a href="expense_approval.html">Expense Approval</a>
           <a href="payslip_generator.html">Payslip Generator</a>
         </div>
       </div>
 
       <div class="nav-group">
-        <button class="nav-toggle" type="button">Stock &amp; Assets</button>
+        <button class="nav-toggle" type="button">Stock</button>
         <div class="nav-panel">
           <a href="consumable_stock.html">Consumable Stock</a>
-          <a href="company_assets.html">Company Assets</a>
-        </div>
-      </div>
-
-      <div class="nav-group">
-        <button class="nav-toggle" type="button">Investor</button>
-        <div class="nav-panel">
-          <a href="investor_morwin_gapud.html">Morwin Gapud</a>
-          <a href="investor_marivie_viana_gapud.html">Marivie Viana Gapud</a>
         </div>
       </div>
     </nav>
@@ -227,9 +215,9 @@
         <p class="notice" id="notice">Loading payroll data...</p>
         <div class="summary-grid">
           <article class="card"><span>Regular Hours</span><strong id="metricRegHours">0.00</strong><small>Max 8 hrs/day</small></article>
-          <article class="card"><span>Gross Pay</span><strong id="metricGross">₱0.00</strong><small>Base + allowance + OT + ND</small></article>
-          <article class="card"><span>Total Deduction</span><strong id="metricDeduction">₱0.00</strong><small>CA, loan, other, gov</small></article>
-          <article class="card"><span>Net Pay</span><strong id="metricNet">₱0.00</strong><small>Take-home amount</small></article>
+          <article class="card"><span>Gross Pay</span><strong id="metricGross">PHP 0.00</strong><small>Base + allowance + OT + ND</small></article>
+          <article class="card"><span>Total Deduction</span><strong id="metricDeduction">PHP 0.00</strong><small>CA, loan, other, gov</small></article>
+          <article class="card"><span>Net Pay</span><strong id="metricNet">PHP 0.00</strong><small>Take-home amount</small></article>
         </div>
 
         <section class="panel no-print">
@@ -298,12 +286,12 @@
           <aside class="panel">
             <div class="panel-head"><div><h2>Auto Deductions</h2><p>Cash Advance + Food from Expenses, plus loans from Employee_Loans.</p></div></div>
             <div class="calc-grid">
-              <div class="calc-row"><span>Cash Advance / Food</span><strong id="autoCashAdvance">₱0.00</strong></div>
-              <div class="calc-row"><span>Loan</span><strong id="autoLoan">₱0.00</strong></div>
-              <div class="calc-row"><span>Other Deduction</span><strong id="autoOtherDeduction">₱0.00</strong></div>
-              <div class="calc-row"><span>Gov. Deduction</span><strong id="autoGovDeduction">₱0.00</strong></div>
-              <div class="calc-row total"><span>Total Deduction</span><strong id="sideTotalDeduction">₱0.00</strong></div>
-              <div class="calc-row net"><span>Net Pay</span><strong id="sideNetPay">₱0.00</strong></div>
+              <div class="calc-row"><span>Cash Advance / Food</span><strong id="autoCashAdvance">PHP 0.00</strong></div>
+              <div class="calc-row"><span>Loan</span><strong id="autoLoan">PHP 0.00</strong></div>
+              <div class="calc-row"><span>Other Deduction</span><strong id="autoOtherDeduction">PHP 0.00</strong></div>
+              <div class="calc-row"><span>Gov. Deduction</span><strong id="autoGovDeduction">PHP 0.00</strong></div>
+              <div class="calc-row total"><span>Total Deduction</span><strong id="sideTotalDeduction">PHP 0.00</strong></div>
+              <div class="calc-row net"><span>Net Pay</span><strong id="sideNetPay">PHP 0.00</strong></div>
             </div>
             <div class="table-wrap"><table style="min-width:520px"><thead><tr><th>Type</th><th>Description</th><th class="amount">Amount</th></tr></thead><tbody id="deductionRows"><tr><td colspan="3">No deductions yet.</td></tr></tbody></table></div>
           </aside>
@@ -318,28 +306,28 @@
               <div><span>Employee Name</span><strong id="slipEmployeeName">--</strong></div><div><span>Employee ID</span><strong id="slipEmployeeId">--</strong></div>
               <div><span>Position</span><strong id="slipPosition">--</strong></div><div><span>Salary Date</span><strong id="slipSalaryDate">--</strong></div>
               <div><span>Period Start</span><strong id="slipPeriodStart">--</strong></div><div><span>Period End</span><strong id="slipPeriodEnd">--</strong></div>
-              <div><span>Daily Rate</span><strong id="slipDailyRate">₱0.00</strong></div><div><span>Days Present</span><strong id="slipDaysPresent">0</strong></div>
+              <div><span>Daily Rate</span><strong id="slipDailyRate">PHP 0.00</strong></div><div><span>Days Present</span><strong id="slipDaysPresent">0</strong></div>
             </div>
             <div class="payslip-tables">
             <table class="payslip-table"><thead><tr><th>Earnings</th><th class="amount">Hours/Days</th><th class="amount">Amount</th></tr></thead><tbody>
-              <tr><td>Base Pay</td><td class="amount" id="slipRegularHours">0.00</td><td class="amount" id="slipBasePay">₱0.00</td></tr>
-              <tr><td>Allowance</td><td class="amount" id="slipAllowanceDays">0</td><td class="amount" id="slipAllowance">₱0.00</td></tr>
-              <tr><td>OT Pay</td><td class="amount" id="slipOvertimeHours">0.00</td><td class="amount" id="slipOtPay">₱0.00</td></tr>
-              <tr><td>Rest Day Pay</td><td class="amount" id="slipRestDayHours">0.00</td><td class="amount" id="slipRestDayPay">₱0.00</td></tr>
-              <tr><td>RDOT Pay</td><td class="amount" id="slipRdotHours">0.00</td><td class="amount" id="slipRdotPay">₱0.00</td></tr>
-              <tr><td>Night Differential</td><td class="amount" id="slipNightDiffHours">0.00</td><td class="amount" id="slipNightDiffPay">₱0.00</td></tr>
-              <tr><td>Additional Pay</td><td></td><td class="amount" id="slipAdditionalPay">₱0.00</td></tr>
-              <tr><th>Gross Pay</th><th></th><th class="amount" id="slipGross">₱0.00</th></tr>
+              <tr><td>Base Pay</td><td class="amount" id="slipRegularHours">0.00</td><td class="amount" id="slipBasePay">PHP 0.00</td></tr>
+              <tr><td>Allowance</td><td class="amount" id="slipAllowanceDays">0</td><td class="amount" id="slipAllowance">PHP 0.00</td></tr>
+              <tr><td>OT Pay</td><td class="amount" id="slipOvertimeHours">0.00</td><td class="amount" id="slipOtPay">PHP 0.00</td></tr>
+              <tr><td>Rest Day Pay</td><td class="amount" id="slipRestDayHours">0.00</td><td class="amount" id="slipRestDayPay">PHP 0.00</td></tr>
+              <tr><td>RDOT Pay</td><td class="amount" id="slipRdotHours">0.00</td><td class="amount" id="slipRdotPay">PHP 0.00</td></tr>
+              <tr><td>Night Differential</td><td class="amount" id="slipNightDiffHours">0.00</td><td class="amount" id="slipNightDiffPay">PHP 0.00</td></tr>
+              <tr><td>Additional Pay</td><td></td><td class="amount" id="slipAdditionalPay">PHP 0.00</td></tr>
+              <tr><th>Gross Pay</th><th></th><th class="amount" id="slipGross">PHP 0.00</th></tr>
             </tbody></table>
             <table class="payslip-table"><thead><tr><th>Deductions</th><th class="amount">Amount</th></tr></thead><tbody>
-              <tr><td>Cash Advance / Food</td><td class="amount" id="slipCashAdvance">₱0.00</td></tr>
-              <tr><td>Loan</td><td class="amount" id="slipLoan">₱0.00</td></tr>
-              <tr><td>Other Deduction</td><td class="amount" id="slipOtherDeduction">₱0.00</td></tr>
-              <tr><td>SSS</td><td class="amount" id="slipSss">₱0.00</td></tr>
-              <tr><td>Pag-IBIG</td><td class="amount" id="slipPagibig">₱0.00</td></tr>
-              <tr><td>PhilHealth</td><td class="amount" id="slipPhilhealth">₱0.00</td></tr>
-              <tr><th>Total Deduction</th><th class="amount" id="slipTotalDeduction">₱0.00</th></tr>
-              <tr><th>NET PAY</th><th class="amount" id="slipNetPay">₱0.00</th></tr>
+              <tr><td>Cash Advance / Food</td><td class="amount" id="slipCashAdvance">PHP 0.00</td></tr>
+              <tr><td>Loan</td><td class="amount" id="slipLoan">PHP 0.00</td></tr>
+              <tr><td>Other Deduction</td><td class="amount" id="slipOtherDeduction">PHP 0.00</td></tr>
+              <tr><td>SSS</td><td class="amount" id="slipSss">PHP 0.00</td></tr>
+              <tr><td>Pag-IBIG</td><td class="amount" id="slipPagibig">PHP 0.00</td></tr>
+              <tr><td>PhilHealth</td><td class="amount" id="slipPhilhealth">PHP 0.00</td></tr>
+              <tr><th>Total Deduction</th><th class="amount" id="slipTotalDeduction">PHP 0.00</th></tr>
+              <tr><th>NET PAY</th><th class="amount" id="slipNetPay">PHP 0.00</th></tr>
             </tbody></table>
             </div>
             <div class="payslip-info"><div><span>Remarks</span><strong id="slipRemarks">--</strong></div><div><span>Incomplete Logs</span><strong id="slipIncompleteLogs">0</strong></div></div>
@@ -351,8 +339,8 @@
 
   <script>
     const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxDY5TsonrB58YaN8LGbrrrc_ZD1QVpF1WK0p6jToIR2FBSqGaHfsgaE1CCiH1MvukV/exec";
-    const SESSION_KEY = "techgeekph_admin_session";
-    const FALLBACK_SESSION_KEY = "techgeekph_admin_session";
+    const SESSION_KEY = "techgeekph_session";
+    const FALLBACK_SESSION_KEY = "techgeekph_employee_session";
     let currentPreview = null;
     let employeeMap = {};
 
@@ -401,7 +389,7 @@
     }
     function initialsFrom(v){return String(v||"TG").replace(/@.*/,"").split(/[.\s_-]+/).filter(Boolean).slice(0,2).map(p=>p[0].toUpperCase()).join("")||"TG";}
     function setUser(){const s=loadSession();const u=s.user||{};const name=u.fullName||u.name||u.email||s.email||"TechGeekPH User";const role=u.role||s.role||"portal";document.querySelector("#userName").textContent=name;document.querySelector("#userRole").textContent=String(role).charAt(0).toUpperCase()+String(role).slice(1).toLowerCase()+" access";document.querySelector("#avatar").textContent=initialsFrom(name);const adminLink=document.querySelector("#adminRecordsLink");if(adminLink&&String(role).toUpperCase()!=="ADMIN")adminLink.style.display="none";}
-    function money(v){const n=Number(v||0);return "₱"+n.toLocaleString("en-PH",{minimumFractionDigits:2,maximumFractionDigits:2});}
+    function money(v){const n=Number(v||0);return "PHP "+n.toLocaleString("en-PH",{minimumFractionDigits:2,maximumFractionDigits:2});}
     function escapeHtml(v){return String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;");}
     function setText(id,value){const el=document.getElementById(id); if(el) el.textContent=value;}
     function numEl(el){return Number(String(el.value||0).replace(/,/g,""))||0;}
@@ -883,6 +871,6 @@
       loadInitial();
     }
   </script>
-  <script src="assets/admin-shell.js"></script>
+  <script src="assets/employee-shell.js"></script>
 </body>
 </html>
