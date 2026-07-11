@@ -340,6 +340,7 @@
   <script>
     const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxDY5TsonrB58YaN8LGbrrrc_ZD1QVpF1WK0p6jToIR2FBSqGaHfsgaE1CCiH1MvukV/exec";
     const SESSION_KEY = "techgeekph_session";
+    const ADMIN_SESSION_KEY = "techgeekph_admin_session";
     const FALLBACK_SESSION_KEY = "techgeekph_employee_session";
     let currentPreview = null;
     let employeeMap = {};
@@ -366,22 +367,34 @@
       remarks: document.querySelector("#remarks")
     };
 
+    function sessionTokenFrom(session){
+      session = session || {};
+      const data = session.data || {};
+      return session.token || session.sessionToken || session.accessToken ||
+        data.token || data.sessionToken || data.accessToken || "";
+    }
+
     function loadSession(){
-      try {
-        const primary = JSON.parse(localStorage.getItem(SESSION_KEY) || "{}");
-        if (primary && Object.keys(primary).length) return primary;
-      } catch(e) {}
-      try {
-        const fallback = JSON.parse(localStorage.getItem(FALLBACK_SESSION_KEY) || "{}");
-        return fallback || {};
-      } catch(e) {
-        return {};
+      const keys = [SESSION_KEY, ADMIN_SESSION_KEY, FALLBACK_SESSION_KEY];
+
+      for(const key of keys){
+        try {
+          const parsed = JSON.parse(localStorage.getItem(key) || "{}");
+          if(parsed && sessionTokenFrom(parsed)) return parsed;
+        } catch(e) {}
       }
+
+      return {};
     }
 
     function getToken(){
-      const session = loadSession();
-      return session.token || session.sessionToken || session.accessToken || "";
+      return sessionTokenFrom(loadSession());
+    }
+
+    function clearStoredSessions(){
+      [SESSION_KEY, ADMIN_SESSION_KEY, FALLBACK_SESSION_KEY].forEach(function(key){
+        try { localStorage.removeItem(key); } catch(e) {}
+      });
     }
 
     function getSessionToken(){
@@ -402,13 +415,11 @@
         text.includes("no session token") ||
         text.includes("please login again") ||
         text.includes("please log in again") ||
-        text.includes("access denied") ||
         text.includes("invalid token");
     }
 
     function redirectToLogin(message){
-      try { localStorage.removeItem(SESSION_KEY); } catch(e) {}
-      try { localStorage.removeItem(FALLBACK_SESSION_KEY); } catch(e) {}
+      clearStoredSessions();
       showNotice(message || "Session expired. Redirecting to login page...", "error");
       setTimeout(function(){
         window.location.replace("index.html");
@@ -857,7 +868,14 @@
       if(select) select.addEventListener("change", updateGovModeInputs);
     });
     document.querySelectorAll(".nav-toggle").forEach(button=>button.addEventListener("click",()=>{const group=button.closest(".nav-group"); if(group) group.classList.toggle("is-open");}));
-    document.querySelector("#logoutBtn").addEventListener("click",()=>{localStorage.removeItem(SESSION_KEY);localStorage.removeItem(FALLBACK_SESSION_KEY);window.location.replace("index.html");});
+    document.querySelector("#logoutBtn").addEventListener("click", async ()=>{
+      const token = getToken();
+      try {
+        if(token) await callBackend("logout", {});
+      } catch(e) {}
+      clearStoredSessions();
+      window.location.replace("index.html");
+    });
     document.querySelector("#previewBtn").addEventListener("click",previewPayslip);
     document.querySelector("#savePayslipBtn").addEventListener("click",savePayslip);
     document.querySelector("#saveRateBtn").addEventListener("click",saveRate);
@@ -871,6 +889,5 @@
       loadInitial();
     }
   </script>
-  <script src="assets/employee-shell.js"></script>
 </body>
 </html>
