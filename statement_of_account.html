@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>TechGeekPH SOA & Acknowledgement Receipt</title>
+  <!-- SOA PNG FIX VERSION: 2026-07-06-v8-folder-logo-same-origin -->
 
   <!-- PNG download library -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -1840,6 +1841,686 @@
       }
     }
 
+
+    /* ==========================================================
+       CLIENT SEARCH + MORE READABLE SOA DETAILS
+       ========================================================== */
+    .client-search-row {
+      position: relative;
+    }
+
+    .client-search-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .client-search-wrap input {
+      min-width: 0;
+    }
+
+    .client-search-clear {
+      min-width: 76px;
+      min-height: 40px;
+      border: 1px solid var(--admin-line, #d9e1ec);
+      border-radius: 8px;
+      color: var(--blue, #064f83);
+      background: #fff;
+      padding: 0 12px;
+      font-weight: 850;
+    }
+
+    .client-search-status {
+      display: block;
+      margin-top: 6px;
+      color: #64748b;
+      font-size: .76rem;
+      line-height: 1.35;
+    }
+
+    .client-search-results {
+      display: grid;
+      gap: 5px;
+      max-height: 290px;
+      margin-top: 8px;
+      overflow-y: auto;
+      border: 1px solid var(--admin-line, #d9e1ec);
+      border-radius: 10px;
+      padding: 6px;
+      background: #fff;
+      box-shadow: 0 12px 26px rgba(15, 23, 42, .10);
+    }
+
+    .client-search-option {
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(100px, auto) minmax(0, 1fr);
+      gap: 6px 12px;
+      border: 0;
+      border-radius: 8px;
+      background: #f8fafc;
+      padding: 10px 11px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .client-search-option:hover,
+    .client-search-option:focus {
+      outline: none;
+      background: #eaf4fc;
+    }
+
+    .client-search-option strong {
+      color: var(--blue-dark, #023d6b);
+      font-size: .84rem;
+    }
+
+    .client-search-option span {
+      min-width: 0;
+      color: #0f172a;
+      font-size: .84rem;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .client-search-option small {
+      grid-column: 1 / -1;
+      color: #64748b;
+      font-size: .74rem;
+      overflow-wrap: anywhere;
+    }
+
+    .client-search-empty {
+      padding: 12px;
+      color: #64748b;
+      text-align: center;
+      font-size: .82rem;
+    }
+
+    /* Increase the printable SOA text without changing the A4 paper size. */
+    .soa-sheet {
+      padding: 10mm 12mm 8mm !important;
+      font-size: 11.6px !important;
+      line-height: 1.22 !important;
+    }
+
+    .company-header {
+      grid-template-columns: 54mm 1fr !important;
+      column-gap: 6mm !important;
+      min-height: 22mm !important;
+    }
+
+    .soa-logo-box img { width: 48mm !important; }
+    .contact-box { font-size: 9.8px !important; line-height: 1.2 !important; }
+    .contact-box strong { font-size: 11.5px !important; }
+    .soa-main-title { font-size: 21px !important; margin: 2mm 0 3.5mm !important; }
+
+    .subscriber-box {
+      min-height: 23mm !important;
+      padding: 2.2mm 3.4mm !important;
+      font-size: 11.8px !important;
+      line-height: 1.24 !important;
+    }
+
+    .matrix-cell {
+      min-height: 7.2mm !important;
+      font-size: 10.8px !important;
+    }
+
+    .matrix-cell .label { font-size: 9.3px !important; }
+
+    .billing-summary-table { font-size: 10.8px !important; }
+    .billing-summary-table th { font-size: 9.8px !important; padding: 1.5mm .8mm !important; }
+    .billing-summary-table td { padding: 1.7mm .8mm !important; }
+    .billing-summary-table .plan-cell { font-size: 10px !important; }
+
+    .soa-body-area {
+      min-height: 94mm !important;
+      padding: 5mm 8mm 3mm 4mm !important;
+    }
+
+    .soa-charges {
+      width: 145mm !important;
+      max-width: calc(100% - 14mm) !important;
+      font-size: 10.8px !important;
+    }
+
+    .charge-section { margin-bottom: 3mm !important; }
+    .charge-line { min-height: 4.2mm !important; grid-template-columns: 1fr 36mm !important; }
+    .important-reminders .reminder-head { font-size: 13px !important; }
+    .important-reminders .reminder-body { font-size: 9.8px !important; line-height: 1.28 !important; }
+    .payment-stub { font-size: 10px !important; }
+    .stub-row { grid-template-columns: 30mm 1fr !important; }
+    .barcode-number { font-size: 7.5px !important; }
+    .receipt-stub { font-size: 10px !important; }
+    .receipt-label-under { font-size: 7.4px !important; }
+
+    @media (max-width: 680px) {
+      .client-search-wrap { grid-template-columns: 1fr; }
+      .client-search-clear { width: 100%; }
+      .client-search-option { grid-template-columns: 1fr; }
+      .client-search-option small { grid-column: auto; }
+    }
+
+    /* ==========================================================
+       SOA EXTRA-LARGE READABLE TEXT - FINAL OVERRIDE
+       Enlarges the actual printable text while keeping A4 size.
+       ========================================================== */
+    .soa-sheet {
+      padding: 9mm 11mm 7mm !important;
+      font-size: 14px !important;
+      line-height: 1.30 !important;
+    }
+
+    .company-header {
+      grid-template-columns: 52mm minmax(0, 1fr) !important;
+      column-gap: 5mm !important;
+      min-height: 22mm !important;
+    }
+
+    .soa-logo-box img {
+      width: 50mm !important;
+      max-height: 22mm !important;
+      object-fit: contain !important;
+    }
+
+    .contact-box {
+      font-size: 11.5px !important;
+      line-height: 1.28 !important;
+    }
+
+    .contact-box strong {
+      margin-bottom: 1.2mm !important;
+      font-size: 13px !important;
+    }
+
+    .soa-main-title {
+      margin: 2mm 0 4mm !important;
+      font-size: 25px !important;
+      line-height: 1.05 !important;
+      letter-spacing: .035em !important;
+    }
+
+    .soa-top-grid {
+      grid-template-columns: 1.14fr .96fr !important;
+    }
+
+    .subscriber-box {
+      min-height: 27mm !important;
+      padding: 3mm 4mm !important;
+      font-size: 14px !important;
+      line-height: 1.34 !important;
+    }
+
+    .subscriber-box .client-name {
+      margin-bottom: 1.2mm !important;
+      font-size: 15px !important;
+    }
+
+    .matrix-cell {
+      min-height: 8.8mm !important;
+      padding: 1.3mm 1mm !important;
+      font-size: 13px !important;
+      line-height: 1.22 !important;
+    }
+
+    .matrix-cell .label {
+      margin-bottom: .8mm !important;
+      font-size: 10.8px !important;
+    }
+
+    .billing-summary-table {
+      margin-top: 2mm !important;
+      font-size: 13px !important;
+    }
+
+    .billing-summary-table th {
+      padding: 2mm 1mm !important;
+      font-size: 11.5px !important;
+      line-height: 1.18 !important;
+    }
+
+    .billing-summary-table td {
+      padding: 2.4mm 1mm !important;
+      font-size: 13.5px !important;
+      line-height: 1.2 !important;
+    }
+
+    .billing-summary-table .plan-cell {
+      font-size: 12.5px !important;
+      line-height: 1.24 !important;
+    }
+
+    .soa-body-area {
+      min-height: 104mm !important;
+      padding: 6mm 8mm 3mm 4mm !important;
+    }
+
+    .soa-watermark {
+      font-size: 24px !important;
+    }
+
+    .soa-charges {
+      width: 154mm !important;
+      max-width: calc(100% - 11mm) !important;
+      font-size: 13.2px !important;
+      line-height: 1.28 !important;
+    }
+
+    .charge-title,
+    .total-due-label {
+      margin-bottom: 1.6mm !important;
+      font-size: 13.5px !important;
+    }
+
+    .charge-section {
+      margin-bottom: 4.2mm !important;
+    }
+
+    .charge-line {
+      grid-template-columns: minmax(0, 1fr) 40mm !important;
+      gap: 5mm !important;
+      min-height: 5.4mm !important;
+      align-items: center !important;
+    }
+
+    .charge-line strong {
+      min-height: 4.2mm !important;
+      font-size: 13.5px !important;
+    }
+
+    .charge-line.total {
+      margin-top: 3mm !important;
+      font-size: 14.5px !important;
+    }
+
+    .charge-line.total strong {
+      font-size: 15px !important;
+    }
+
+    .important-reminders .reminder-head {
+      padding: 2mm 4mm !important;
+      font-size: 15px !important;
+    }
+
+    .important-reminders .reminder-body {
+      min-height: 18mm !important;
+      padding: 2.5mm 4mm !important;
+      font-size: 11.8px !important;
+      line-height: 1.38 !important;
+    }
+
+    .cut-line {
+      margin: 5.5mm 0 2.5mm !important;
+      font-size: 9.5px !important;
+    }
+
+    .payment-stub {
+      min-height: 43mm !important;
+      column-gap: 12mm !important;
+      row-gap: 3mm !important;
+      font-size: 11.8px !important;
+      line-height: 1.28 !important;
+    }
+
+    .stub-col {
+      gap: 1.2mm !important;
+    }
+
+    .stub-row {
+      grid-template-columns: 32mm minmax(0, 1fr) !important;
+      gap: 2mm !important;
+      min-height: 5mm !important;
+    }
+
+    .barcode-box {
+      height: 13mm !important;
+      margin-top: 3.5mm !important;
+    }
+
+    .barcode-number {
+      font-size: 8.8px !important;
+    }
+
+    .receipt-cut {
+      margin: 4mm 0 3mm !important;
+    }
+
+    .receipt-stub {
+      column-gap: 12mm !important;
+      row-gap: 8mm !important;
+      font-size: 11.8px !important;
+      line-height: 1.28 !important;
+    }
+
+    .receipt-line {
+      min-height: 9mm !important;
+    }
+
+    .receipt-label-under {
+      margin-top: 1mm !important;
+      font-size: 8.8px !important;
+    }
+
+    @media print {
+      .soa-sheet {
+        font-size: 14px !important;
+        line-height: 1.30 !important;
+      }
+    }
+
+
+
+    /* ==========================================================
+       SOA ULTRA-READABLE PRINT SIZE + SOA-ONLY PDF
+       Final override requested: larger SOA text and exclude the
+       separate Acknowledgement Receipt from Print / Save as PDF.
+       ========================================================== */
+    .soa-sheet {
+      padding: 8mm 10mm 6mm !important;
+      font-size: 15.8px !important;
+      line-height: 1.34 !important;
+    }
+
+    .company-header {
+      grid-template-columns: 50mm minmax(0, 1fr) !important;
+      column-gap: 5mm !important;
+      min-height: 21mm !important;
+    }
+
+    .soa-logo-box img {
+      width: 48mm !important;
+      max-height: 21mm !important;
+      object-fit: contain !important;
+    }
+
+    .contact-box {
+      font-size: 12.4px !important;
+      line-height: 1.28 !important;
+    }
+
+    .contact-box strong {
+      font-size: 14px !important;
+      line-height: 1.12 !important;
+    }
+
+    .soa-main-title {
+      margin: 1.8mm 0 3.4mm !important;
+      font-size: 28px !important;
+      line-height: 1 !important;
+    }
+
+    .subscriber-box {
+      min-height: 27mm !important;
+      padding: 3mm 4mm !important;
+      font-size: 15.8px !important;
+      line-height: 1.34 !important;
+    }
+
+    .subscriber-box .client-name {
+      margin-bottom: 1.1mm !important;
+      font-size: 17px !important;
+      line-height: 1.2 !important;
+    }
+
+    .matrix-cell {
+      min-height: 8.6mm !important;
+      padding: 1.2mm .8mm !important;
+      font-size: 14.2px !important;
+      line-height: 1.18 !important;
+    }
+
+    .matrix-cell .label {
+      margin-bottom: .6mm !important;
+      font-size: 11.8px !important;
+      line-height: 1.1 !important;
+    }
+
+    .billing-summary-table {
+      margin-top: 1.7mm !important;
+      font-size: 14.3px !important;
+    }
+
+    .billing-summary-table th {
+      padding: 1.7mm .8mm !important;
+      font-size: 12.4px !important;
+      line-height: 1.12 !important;
+    }
+
+    .billing-summary-table td {
+      padding: 2mm .8mm !important;
+      font-size: 15px !important;
+      line-height: 1.16 !important;
+    }
+
+    .billing-summary-table .plan-cell {
+      font-size: 13.7px !important;
+      line-height: 1.18 !important;
+    }
+
+    .soa-body-area {
+      min-height: 100mm !important;
+      padding: 5mm 7mm 2.5mm 3.5mm !important;
+    }
+
+    .soa-charges {
+      width: 157mm !important;
+      max-width: calc(100% - 10mm) !important;
+      font-size: 14.8px !important;
+      line-height: 1.28 !important;
+    }
+
+    .charge-title,
+    .total-due-label {
+      margin-bottom: 1.3mm !important;
+      font-size: 15px !important;
+      line-height: 1.1 !important;
+    }
+
+    .charge-section {
+      margin-bottom: 3.4mm !important;
+    }
+
+    .charge-line {
+      grid-template-columns: minmax(0, 1fr) 41mm !important;
+      gap: 4mm !important;
+      min-height: 5.2mm !important;
+      line-height: 1.18 !important;
+    }
+
+    .charge-line strong {
+      min-height: 4mm !important;
+      font-size: 15px !important;
+    }
+
+    .charge-line.total {
+      margin-top: 2.3mm !important;
+      font-size: 16px !important;
+    }
+
+    .charge-line.total strong {
+      font-size: 16.5px !important;
+    }
+
+    .important-reminders .reminder-head {
+      padding: 1.8mm 4mm !important;
+      font-size: 16px !important;
+      line-height: 1.05 !important;
+    }
+
+    .important-reminders .reminder-body {
+      min-height: 17mm !important;
+      padding: 2.2mm 4mm !important;
+      font-size: 13px !important;
+      line-height: 1.34 !important;
+    }
+
+    .cut-line {
+      margin: 4.8mm 0 2mm !important;
+      font-size: 10.4px !important;
+    }
+
+    .payment-stub {
+      min-height: 40mm !important;
+      column-gap: 10mm !important;
+      row-gap: 2.2mm !important;
+      font-size: 13px !important;
+      line-height: 1.22 !important;
+    }
+
+    .stub-col {
+      gap: .8mm !important;
+    }
+
+    .stub-row {
+      grid-template-columns: 34mm minmax(0, 1fr) !important;
+      gap: 1.6mm !important;
+      min-height: 4.5mm !important;
+    }
+
+    .barcode-box {
+      height: 12mm !important;
+      margin-top: 2.7mm !important;
+    }
+
+    .barcode-number {
+      font-size: 9.2px !important;
+    }
+
+    .receipt-cut {
+      margin: 3.2mm 0 2.5mm !important;
+    }
+
+    .receipt-stub {
+      column-gap: 10mm !important;
+      row-gap: 6mm !important;
+      font-size: 13px !important;
+      line-height: 1.22 !important;
+    }
+
+    .receipt-line {
+      min-height: 8mm !important;
+    }
+
+    .receipt-label-under {
+      margin-top: .8mm !important;
+      font-size: 9.4px !important;
+    }
+
+    @media print {
+      /* Print / Save as PDF must contain the SOA page only. */
+      .receipt-sheet,
+      #ackReceiptSheet {
+        display: none !important;
+      }
+
+      .soa-paper-wrap {
+        display: block !important;
+        overflow: visible !important;
+        padding: 0 !important;
+      }
+
+      .soa-sheet {
+        width: 210mm !important;
+        height: 297mm !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        page-break-before: avoid !important;
+        page-break-after: avoid !important;
+        break-before: avoid-page !important;
+        break-after: avoid-page !important;
+        font-size: 15.8px !important;
+        line-height: 1.34 !important;
+      }
+    }
+
+
+    /* ==========================================================
+       SOA LOWER SECTION OVERLAP FIX
+       Keeps Total Amount Due, Important Reminders, billing stub,
+       barcode, and signature area in normal document flow.
+       ========================================================== */
+    .soa-body-area {
+      display: flex !important;
+      flex-direction: column !important;
+      min-height: 100mm !important;
+      height: auto !important;
+      padding-bottom: 3mm !important;
+      overflow: visible !important;
+    }
+
+    .soa-charges {
+      position: relative !important;
+      z-index: 2 !important;
+      flex: 0 0 auto !important;
+    }
+
+    .charge-line.total {
+      margin-bottom: 4mm !important;
+    }
+
+    .important-reminders {
+      position: relative !important;
+      left: auto !important;
+      right: auto !important;
+      bottom: auto !important;
+      top: auto !important;
+      width: 100% !important;
+      margin: 0 !important;
+      flex: 0 0 auto !important;
+      clear: both !important;
+      z-index: 3 !important;
+      background: #ffffff !important;
+    }
+
+    .important-reminders .reminder-head,
+    .important-reminders .reminder-body {
+      position: relative !important;
+      z-index: 4 !important;
+    }
+
+    .cut-line {
+      clear: both !important;
+      position: relative !important;
+      z-index: 4 !important;
+    }
+
+    .payment-stub,
+    .receipt-cut,
+    .receipt-stub {
+      position: relative !important;
+      z-index: 4 !important;
+      background: #ffffff !important;
+    }
+
+    @media print {
+      .soa-body-area {
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+        min-height: 100mm !important;
+        overflow: visible !important;
+      }
+
+      .important-reminders {
+        position: relative !important;
+        left: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        top: auto !important;
+      }
+    }
+
+
+    /* Keep the exact original repository logo in preview, PDF and PNG. */
+    .soa-logo-box img[data-asset="logo"],
+    .ack-logo-row img[data-asset="logo"] {
+      object-fit: contain !important;
+      object-position: left center !important;
+      filter: none !important;
+    }
+
   </style>
   <link rel="stylesheet" href="assets/admin-shell.css">
 </head>
@@ -1848,7 +2529,7 @@
       <aside class="sidebar" data-admin-sidebar>
     <div class="brand">
       <div class="brand-logo">
-        <img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH">
+        <img src="./assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH">
       </div>
       <div>
         <strong>TechGeekPH Admin</strong>
@@ -1930,11 +2611,14 @@
           <form class="form-grid" id="soaForm">
             <p class="notice is-hidden" id="notice"></p>
 
-            <div class="field full">
-              <label for="clientSelect">Existing Client</label>
-              <select id="clientSelect">
-                <option value="">Loading clients...</option>
-              </select>
+            <div class="field full client-search-row">
+              <label for="clientSearch">Search Existing Client</label>
+              <div class="client-search-wrap">
+                <input id="clientSearch" type="search" autocomplete="off" placeholder="Search account #, client name, phone, or RD/BLK">
+                <button class="client-search-clear" type="button" id="clearClientSearchBtn">Clear</button>
+              </div>
+              <small class="client-search-status" id="clientSearchStatus">Loading clients...</small>
+              <div class="client-search-results is-hidden" id="clientSearchResults" role="listbox" aria-label="Client search results"></div>
             </div>
 
             <div class="divider">Subscriber Information</div>
@@ -2018,7 +2702,7 @@
             <article class="soa-sheet" id="soaSheet">
               <header class="company-header">
                 <div class="soa-logo-box">
-                  <img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH" data-capture-img data-asset="logo">
+                  <img src="./assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH" data-capture-img data-asset="logo">
                 </div>
                 <div class="contact-box">
                   <strong>TECHGEEKPH SOLUTIONS &amp; SERVICES INC.</strong>
@@ -2183,7 +2867,7 @@
                 <section class="ack-main">
                   <header class="ack-header">
                     <div class="ack-logo-row">
-                      <img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH" data-capture-img data-asset="logo">
+                      <img src="./assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH" data-capture-img data-asset="logo">
                     </div>
                     <div class="ack-company-contact">
                       <div>Lt. 74, Road 4, Purok 1,</div>
@@ -2242,7 +2926,10 @@
       userName: document.querySelector("#userName"),
       userRole: document.querySelector("#userRole"),
       logoutBtn: document.querySelector("#logoutBtn"),
-      clientSelect: document.querySelector("#clientSelect"),
+      clientSearch: document.querySelector("#clientSearch"),
+      clientSearchResults: document.querySelector("#clientSearchResults"),
+      clientSearchStatus: document.querySelector("#clientSearchStatus"),
+      clearClientSearchBtn: document.querySelector("#clearClientSearchBtn"),
       accountNo: document.querySelector("#accountNo"),
       clientName: document.querySelector("#clientName"),
       phoneNumber: document.querySelector("#phoneNumber"),
@@ -2424,6 +3111,14 @@
     }
 
     function normalize(value) { return String(value || "").trim().toLowerCase(); }
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
     function moneyNumber(value) { return String(value || "").replace(/[^0-9.-]/g, ""); }
     function num(value) { const n = Number(moneyNumber(value)); return Number.isFinite(n) ? n : 0; }
 
@@ -2451,50 +3146,187 @@
       if (el) el.textContent = value;
     }
 
-    async function callBackend(action, payload) {
+    function buildBackendParams(action, payload) {
       const data = Object.assign({}, payload || {});
       data.action = action;
       data.method = action;
+      data._t = Date.now();
       if (!data.token && !data.sessionToken) data.token = getSessionToken();
 
       const params = new URLSearchParams();
-      Object.keys(data).forEach(key => {
-        if (data[key] !== undefined && data[key] !== null) params.set(key, data[key]);
+      Object.keys(data).forEach(function(key) {
+        if (data[key] === undefined || data[key] === null) return;
+        params.set(key, typeof data[key] === "object" ? JSON.stringify(data[key]) : data[key]);
+      });
+      return params;
+    }
+
+    function callBackendViaJsonp(action, payload) {
+      return new Promise(function(resolve, reject) {
+        const callbackName = "__tgSoaJsonp_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+        const params = buildBackendParams(action, payload);
+        params.set("callback", callbackName);
+
+        const script = document.createElement("script");
+        let settled = false;
+        const timer = window.setTimeout(function() {
+          cleanup();
+          reject(new Error("Backend connection timed out."));
+        }, 20000);
+
+        function cleanup() {
+          if (settled) return;
+          settled = true;
+          window.clearTimeout(timer);
+          try { delete window[callbackName]; } catch (error) { window[callbackName] = undefined; }
+          if (script.parentNode) script.parentNode.removeChild(script);
+        }
+
+        window[callbackName] = function(result) {
+          cleanup();
+          resolve(result);
+        };
+
+        script.onerror = function() {
+          cleanup();
+          reject(new Error("Unable to connect to the Apps Script backend."));
+        };
+
+        script.src = BACKEND_URL + "?" + params.toString();
+        document.head.appendChild(script);
+      });
+    }
+
+    async function callBackend(action, payload) {
+      const params = buildBackendParams(action, payload);
+
+      try {
+        const response = await fetch(BACKEND_URL + "?" + params.toString(), {
+          method: "GET",
+          redirect: "follow",
+          cache: "no-store"
+        });
+        const text = await response.text();
+        const type = response.headers.get("content-type") || "";
+
+        if (type.includes("application/json") || /^[\s\r\n]*[\[{]/.test(text)) {
+          return JSON.parse(text);
+        }
+
+        throw new Error(text.trim() || "Unexpected response from backend.");
+      } catch (fetchError) {
+        return callBackendViaJsonp(action, payload);
+      }
+    }
+
+    function clientSearchParts(row) {
+      const account = keyValue(row, ["Account No.", "Account Number", "accountNo", "ClientID"]);
+      const name = keyValue(row, ["Client Name", "clientName", "Name"]);
+      const phone = keyValue(row, ["Phone Number", "Phone", "Contact Number", "phoneNumber"]);
+      const rdBlk = keyValue(row, ["RD / BLK", "RD/BLK", "RD BLK", "rdBlk", "Block/Lot"]);
+      const address = keyValue(row, ["Service Address", "Address", "serviceAddress"]);
+      return { account, name, phone, rdBlk, address };
+    }
+
+    function clientSearchText(row) {
+      const parts = clientSearchParts(row);
+      return normalize([parts.account, parts.name, parts.phone, parts.rdBlk, parts.address].join(" "));
+    }
+
+    function hideClientSearchResults() {
+      fields.clientSearchResults.classList.add("is-hidden");
+      fields.clientSearchResults.innerHTML = "";
+    }
+
+    function selectClientByIndex(index) {
+      const row = clientRecords[Number(index)];
+      if (!row) return;
+      const parts = clientSearchParts(row);
+      fields.clientSearch.value = [parts.account, parts.name].filter(Boolean).join(" - ");
+      fields.clientSearchStatus.textContent = "Selected: " + ([parts.account, parts.name].filter(Boolean).join(" - ") || "Client");
+      hideClientSearchResults();
+      fillFromClient(row);
+    }
+
+    function renderClientSearchResults() {
+      const query = normalize(fields.clientSearch.value);
+
+      if (!query) {
+        hideClientSearchResults();
+        fields.clientSearchStatus.textContent = clientRecords.length
+          ? clientRecords.length.toLocaleString() + " clients ready. Type account #, name, phone, or RD/BLK."
+          : "No clients loaded.";
+        return;
+      }
+
+      const matches = clientRecords.map(function(row, index) {
+        return { row: row, index: index, parts: clientSearchParts(row) };
+      }).filter(function(item) {
+        return clientSearchText(item.row).indexOf(query) !== -1;
+      }).slice(0, 15);
+
+      if (!matches.length) {
+        fields.clientSearchResults.innerHTML = '<div class="client-search-empty">No matching client found. You may still enter the SOA details manually.</div>';
+        fields.clientSearchResults.classList.remove("is-hidden");
+        fields.clientSearchStatus.textContent = "No match found.";
+        return;
+      }
+
+      const exact = matches.find(function(item) {
+        return normalize(item.parts.account) === query ||
+          normalize(String(item.parts.phone).replace(/\D/g, "")) === normalize(String(query).replace(/\D/g, ""));
       });
 
-      const response = await fetch(BACKEND_URL + "?" + params.toString(), { method: "GET", redirect: "follow" });
-      const text = await response.text();
-      const type = response.headers.get("content-type") || "";
-      if (type.includes("application/json") || /^[\s\r\n]*[\[{]/.test(text)) return JSON.parse(text);
-      return { ok: false, success: false, message: text.trim() || "Unexpected response from backend." };
+      if (exact && query.length >= 3) {
+        selectClientByIndex(exact.index);
+        return;
+      }
+
+      fields.clientSearchResults.innerHTML = matches.map(function(item) {
+        const p = item.parts;
+        const secondary = [p.phone, p.rdBlk, p.address].filter(Boolean).join(" | ");
+        return '<button type="button" class="client-search-option" role="option" data-client-index="' + item.index + '">' +
+          '<strong>' + escapeHtml(p.account || "No Account") + '</strong>' +
+          '<span>' + escapeHtml(p.name || "No Name") + '</span>' +
+          '<small>' + escapeHtml(secondary || "No additional details") + '</small>' +
+        '</button>';
+      }).join("");
+
+      fields.clientSearchResults.classList.remove("is-hidden");
+      fields.clientSearchStatus.textContent = matches.length + " matching client" + (matches.length === 1 ? "" : "s") + ". Click a result or press Enter.";
     }
 
     async function loadClients() {
+      fields.clientSearch.disabled = true;
+      fields.clientSearch.placeholder = "Loading clients...";
+      fields.clientSearchStatus.textContent = "Loading clients...";
       showNotice("Loading clients...");
+
       try {
         const response = await callBackend("listClients", {});
         if (!response || (!response.ok && !response.success)) {
-          clientRecords = [];
-          fields.clientSelect.innerHTML = '<option value="">Unable to load clients</option>';
-          showNotice((response && response.message) || "Unable to load clients.", "error");
-          return;
+          throw new Error((response && response.message) || "Unable to load clients.");
         }
 
         clientRecords = response.data || response.clients || response.rows || [];
-        fields.clientSelect.innerHTML = '<option value="">Select client</option>' + clientRecords.map((row, index) => {
-          const account = keyValue(row, ["Account No.", "Account Number", "accountNo", "ClientID"]);
-          const name = keyValue(row, ["Client Name", "clientName", "Name"]);
-          return `<option value="${index}">${account || "No Account"} - ${name || "No Name"}</option>`;
-        }).join("");
+        fields.clientSearch.disabled = false;
+        fields.clientSearch.placeholder = "Search account #, client name, phone, or RD/BLK";
+        fields.clientSearchStatus.textContent = clientRecords.length.toLocaleString() + " clients ready. Type to search.";
         hideNotice();
       } catch (error) {
         clientRecords = [];
-        fields.clientSelect.innerHTML = '<option value="">Unable to load clients</option>';
+        fields.clientSearch.disabled = false;
+        fields.clientSearch.placeholder = "Unable to load clients - you may enter details manually";
+        fields.clientSearchStatus.textContent = "Unable to load clients. Check login session and Apps Script deployment.";
         showNotice("Unable to load clients. " + (error && error.message ? error.message : ""), "error");
       }
     }
 
     function fillFromClient(row) {
+      const selectedParts = clientSearchParts(row);
+      if (fields.clientSearch && !fields.clientSearch.value) {
+        fields.clientSearch.value = [selectedParts.account, selectedParts.name].filter(Boolean).join(" - ");
+      }
       fields.accountNo.value = keyValue(row, ["Account No.", "Account Number", "accountNo", "ClientID"]);
       fields.clientName.value = keyValue(row, ["Client Name", "clientName", "Name"]);
       fields.phoneNumber.value = keyValue(row, ["Phone Number", "Phone", "Contact Number", "phoneNumber"]);
@@ -2785,6 +3617,13 @@
 
     function clearForm() {
       document.querySelector("#soaForm").reset();
+      if (fields.clientSearch) fields.clientSearch.value = "";
+      hideClientSearchResults();
+      if (fields.clientSearchStatus) {
+        fields.clientSearchStatus.textContent = clientRecords.length
+          ? clientRecords.length.toLocaleString() + " clients ready. Type to search."
+          : "No clients loaded.";
+      }
       setDefaults();
       hideNotice();
     }
@@ -2969,32 +3808,179 @@
 
       throw new Error("html2canvas library failed to load. Internet connection may be blocked.");
     }
+    // The official TechGeekPH logo is loaded from the repository assets folder.
+    // IMPORTANT: use a relative path, not /assets/... . A leading slash breaks
+    // GitHub project pages because it removes the repository name from the URL.
+    const LOGO_ASSET_RELATIVE_PATH = "./assets/TechGeekPH%20-%20logo.png";
 
-    async function srcToDataUrl(src) {
-      if (!src || src.startsWith("data:")) return src;
+    function getOfficialLogoAssetUrl() {
+      return new URL(LOGO_ASSET_RELATIVE_PATH, window.location.href).href;
+    }
 
-      const absoluteUrl = new URL(src, window.location.href).href;
+    const DEFAULT_CAPTURE_ASSETS = {
+      logo: getOfficialLogoAssetUrl()
+    };
 
-      if (absoluteUrl.startsWith("file:")) {
-        throw new Error("Local file image cannot be read directly by the browser. Use the PNG Image Assets file pickers.");
-      }
+    // PNG capture always uses the exact logo file from /assets.
 
-      const response = await fetch(absoluteUrl, { cache: "force-cache" });
+    // Stores the real repository images after they are read from the visible page.
+    // This prevents the downloaded PNG from replacing the original logo with a
+    // generated text-only fallback.
+    const CAPTURE_ASSET_DATA_URLS = {};
 
-      if (!response.ok) {
-        throw new Error("Unable to read image asset: " + absoluteUrl);
-      }
-
-      const blob = await response.blob();
-      return await new Promise((resolve, reject) => {
+    function blobToDataUrl(blob) {
+      return new Promise(function(resolve, reject) {
         const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
+        reader.onload = function() { resolve(String(reader.result || "")); };
+        reader.onerror = function() { reject(reader.error || new Error("Unable to read image blob.")); };
         reader.readAsDataURL(blob);
       });
     }
 
+    function loadImageForCapture(src) {
+      return new Promise(function(resolve, reject) {
+        const img = new Image();
+        img.decoding = "async";
+
+        try {
+          const absolute = new URL(src, document.baseURI);
+          if ((absolute.protocol === "http:" || absolute.protocol === "https:") && absolute.origin !== window.location.origin) {
+            img.crossOrigin = "anonymous";
+          }
+        } catch (error) {}
+
+        img.onload = function() { resolve(img); };
+        img.onerror = function() { reject(new Error("Unable to load image asset: " + src)); };
+        img.src = src;
+      });
+    }
+
+    function imageToDataUrl(img) {
+      const width = img.naturalWidth || img.width;
+      const height = img.naturalHeight || img.height;
+      if (!width || !height) throw new Error("Image has no readable size.");
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Canvas is not available.");
+
+      ctx.drawImage(img, 0, 0, width, height);
+      return canvas.toDataURL("image/png");
+    }
+
+
+    async function srcToDataUrl(src) {
+      if (!src) return "";
+      if (String(src).startsWith("data:")) return src;
+
+      const absoluteUrl = new URL(src, document.baseURI).href;
+
+      try {
+        const response = await fetch(absoluteUrl, {
+          method: "GET",
+          cache: "no-store",
+          credentials: "same-origin"
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          if (blob && blob.size) return await blobToDataUrl(blob);
+        }
+      } catch (fetchError) {
+        console.warn("Direct image fetch failed; trying loaded-image conversion.", absoluteUrl, fetchError);
+      }
+
+      const img = await loadImageForCapture(absoluteUrl);
+      return imageToDataUrl(img);
+    }
+
+    async function ensureCaptureImagesAreSafe(root) {
+      if (!root) return { converted: 0, fallback: 0 };
+
+      const images = Array.from(root.querySelectorAll("img"));
+      let converted = 0;
+      let fallback = 0;
+
+      for (let i = 0; i < images.length; i += 1) {
+        const img = images[i];
+        const assetKey = String(img.dataset.asset || "").trim();
+        let src = img.currentSrc || img.getAttribute("src") || img.src || "";
+
+        if (!src && assetKey && DEFAULT_CAPTURE_ASSETS[assetKey]) {
+          src = DEFAULT_CAPTURE_ASSETS[assetKey];
+          img.src = src;
+        }
+
+        if (!src || String(src).startsWith("data:")) continue;
+
+        try {
+          const dataUrl = await srcToDataUrl(src);
+          if (!dataUrl) throw new Error("Empty image data URL.");
+          img.removeAttribute("crossorigin");
+          img.src = dataUrl;
+          converted += 1;
+        } catch (error) {
+          console.warn("Unable to inline image for PNG capture:", src, error);
+          if (assetKey === "logo") {
+            throw new Error("The exact TechGeekPH logo asset could not be prepared for PNG capture.");
+          } else {
+            img.style.visibility = "hidden";
+            fallback += 1;
+          }
+        }
+      }
+
+      await waitForImages(root);
+      return { converted: converted, fallback: fallback };
+    }
+
+    async function captureDataUrlFromVisibleImage(sourceImg, src, assetKey) {
+      assetKey = String(assetKey || "").trim();
+
+      // Reuse a previously prepared copy of the exact image asset.
+      if (assetKey && CAPTURE_ASSET_DATA_URLS[assetKey]) {
+        return CAPTURE_ASSET_DATA_URLS[assetKey];
+      }
+
+      // First choice: convert the exact image that is already visible on the page.
+      // This guarantees that the downloaded PNG uses the same logo shown in preview.
+      if (sourceImg) {
+        try {
+          if (sourceImg.decode) {
+            try { await sourceImg.decode(); } catch (decodeError) {}
+          }
+
+          if (sourceImg.complete && sourceImg.naturalWidth > 0 && sourceImg.naturalHeight > 0) {
+            const dataUrl = imageToDataUrl(sourceImg);
+            if (dataUrl) {
+              if (assetKey) CAPTURE_ASSET_DATA_URLS[assetKey] = dataUrl;
+              return dataUrl;
+            }
+          }
+        } catch (visibleImageError) {
+          console.warn("Unable to convert the visible image; trying the repository asset.", visibleImageError);
+        }
+      }
+
+      // Second choice: load the exact repository file from /assets and inline it.
+      const sourcePath = src || (assetKey && DEFAULT_CAPTURE_ASSETS[assetKey]) || "";
+      if (sourcePath) {
+        const dataUrl = await srcToDataUrl(sourcePath);
+        if (dataUrl) {
+          if (assetKey) CAPTURE_ASSET_DATA_URLS[assetKey] = dataUrl;
+          return dataUrl;
+        }
+      }
+
+      throw new Error("Unable to prepare the exact image asset for PNG capture.");
+    }
+
     async function prepareCaptureClone(sourceNode) {
+      // Make sure the real visible image has finished loading before cloning.
+      await waitForImages(sourceNode);
+
       const clone = sourceNode.cloneNode(true);
       const width = sourceNode.offsetWidth || 794;
       const height = sourceNode.offsetHeight || sourceNode.scrollHeight || 1123;
@@ -3012,26 +3998,68 @@
       clone.style.transform = "none";
       clone.style.background = "#ffffff";
 
-      const originalImages = Array.from(sourceNode.querySelectorAll("img"));
+      const sourceImages = Array.from(sourceNode.querySelectorAll("img"));
       const cloneImages = Array.from(clone.querySelectorAll("img"));
       let skippedImages = 0;
 
       for (let i = 0; i < cloneImages.length; i += 1) {
-        const original = originalImages[i];
-        const img = cloneImages[i];
-        const src = original ? (original.currentSrc || original.src || img.src) : img.src;
+        const cloneImg = cloneImages[i];
+        const sourceImg = sourceImages[i] || null;
+        const assetKey = String(
+          cloneImg.dataset.asset ||
+          (sourceImg && sourceImg.dataset ? sourceImg.dataset.asset : "") ||
+          ""
+        ).trim();
+
+        const src =
+          (sourceImg && (sourceImg.currentSrc || sourceImg.getAttribute("src") || sourceImg.src)) ||
+          cloneImg.currentSrc ||
+          cloneImg.getAttribute("src") ||
+          cloneImg.src ||
+          (assetKey && DEFAULT_CAPTURE_ASSETS[assetKey]) ||
+          "";
+
+        // Preserve the exact displayed dimensions and avoid the generated
+        // text-logo appearance seen in the previous PNG downloads.
+        if (sourceImg) {
+          const rect = sourceImg.getBoundingClientRect();
+          if (rect.width > 0) cloneImg.style.width = rect.width + "px";
+          if (rect.height > 0) cloneImg.style.height = rect.height + "px";
+          cloneImg.style.maxWidth = "none";
+          cloneImg.style.objectFit = "contain";
+        }
 
         try {
-          const dataUrl = await srcToDataUrl(src);
-          if (dataUrl) {
-            img.removeAttribute("crossorigin");
-            img.src = dataUrl;
+          // Always inline the exact visible/repository image before rendering.
+          // In particular, never replace the logo with the old embedded fallback.
+          if (src || assetKey) {
+            cloneImg.removeAttribute("crossorigin");
+            cloneImg.src = await captureDataUrlFromVisibleImage(sourceImg, src, assetKey);
+          }
+
+          if (assetKey === "logo") {
+            cloneImg.style.visibility = "visible";
+            cloneImg.style.display = "block";
           }
         } catch (error) {
           skippedImages += 1;
-          // Keep the original image visible so html2canvas can still try to capture it
-          // when the page is hosted. If this page is opened as file://, use the
-          // PNG Image Assets file pickers so images become safe base64 data URLs.
+          console.error("Unable to inline the exact image asset for PNG capture.", src, error);
+
+          if (assetKey === "logo") {
+            // Keep the exact visible repository image URL. The direct html2canvas
+            // renderer below captures the same image already shown on screen.
+            const visibleSrc = sourceImg && (
+              sourceImg.currentSrc ||
+              sourceImg.getAttribute("src") ||
+              sourceImg.src
+            );
+            cloneImg.src = visibleSrc || DEFAULT_CAPTURE_ASSETS.logo;
+            cloneImg.style.visibility = "visible";
+            cloneImg.style.display = "block";
+            continue;
+          }
+
+          cloneImg.remove();
         }
       }
 
@@ -3045,7 +4073,7 @@
         "height: " + height + "px",
         "overflow: hidden",
         "background: #ffffff",
-        "z-index: -1",
+        "z-index: 0",
         "pointer-events: none"
       ].join(";");
 
@@ -3127,6 +4155,243 @@
       }
     }
 
+
+    function waitForSingleImage(img, timeoutMs) {
+      timeoutMs = Number(timeoutMs || 15000);
+
+      return new Promise(function(resolve, reject) {
+        if (!img) {
+          reject(new Error("Logo image element was not found."));
+          return;
+        }
+
+        if (img.complete && img.naturalWidth > 0 && img.naturalHeight > 0) {
+          resolve(img);
+          return;
+        }
+
+        let finished = false;
+        const timer = setTimeout(function() {
+          if (finished) return;
+          finished = true;
+          cleanup();
+          reject(new Error("Logo image loading timed out."));
+        }, timeoutMs);
+
+        function cleanup() {
+          clearTimeout(timer);
+          img.removeEventListener("load", onLoad);
+          img.removeEventListener("error", onError);
+        }
+
+        function onLoad() {
+          if (finished) return;
+          finished = true;
+          cleanup();
+          if (img.naturalWidth > 0 && img.naturalHeight > 0) resolve(img);
+          else reject(new Error("Logo image loaded without a readable size."));
+        }
+
+        function onError() {
+          if (finished) return;
+          finished = true;
+          cleanup();
+          reject(new Error("Logo image file could not be opened."));
+        }
+
+        img.addEventListener("load", onLoad, { once: true });
+        img.addEventListener("error", onError, { once: true });
+      });
+    }
+
+    function getLogoUrlCandidates() {
+      const encodedName = "TechGeekPH%20-%20logo.png";
+      const candidates = [];
+
+      function add(value) {
+        if (!value) return;
+        try {
+          const absolute = new URL(value, document.baseURI).href;
+          if (candidates.indexOf(absolute) === -1) candidates.push(absolute);
+        } catch (error) {}
+      }
+
+      // Keep the currently displayed source first.
+      document.querySelectorAll('img[data-asset="logo"]').forEach(function(img) {
+        add(img.currentSrc || img.getAttribute("src") || img.src);
+      });
+
+      // Normal repository layout: statement_of_account.html/assets/...
+      add("assets/" + encodedName);
+      add("./assets/" + encodedName);
+
+      // GitHub Pages-safe repository root candidate. This preserves the repo
+      // prefix, e.g. /admin-portal/assets/... instead of using /assets/ directly.
+      try {
+        const pathParts = window.location.pathname.split("/").filter(Boolean);
+        if (window.location.hostname.endsWith("github.io") && pathParts.length) {
+          add("/" + pathParts[0] + "/assets/" + encodedName);
+        }
+      } catch (error) {}
+
+      return candidates;
+    }
+
+    async function ensureExactVisibleLogo(root) {
+      const rootLogos = Array.from((root || document).querySelectorAll('img[data-asset="logo"]'));
+      const allLogos = Array.from(document.querySelectorAll('img[data-asset="logo"]'));
+      const logos = rootLogos.length ? rootLogos : allLogos;
+
+      if (!logos.length) return;
+
+      // The preview image is the source of truth. If it is already loaded,
+      // html2canvas can capture that exact image without converting it to base64.
+      for (let i = 0; i < logos.length; i += 1) {
+        const img = logos[i];
+        if (img.complete && img.naturalWidth > 0 && img.naturalHeight > 0) {
+          return;
+        }
+      }
+
+      const candidates = getLogoUrlCandidates();
+      let lastError = null;
+
+      for (let i = 0; i < candidates.length; i += 1) {
+        const candidate = candidates[i];
+
+        try {
+          logos.forEach(function(img) {
+            img.removeAttribute("crossorigin");
+            img.src = candidate;
+            img.style.display = "block";
+            img.style.visibility = "visible";
+          });
+
+          await waitForSingleImage(logos[0], 15000);
+          return;
+        } catch (error) {
+          lastError = error;
+        }
+      }
+
+      throw new Error(
+        "The logo preview itself is not loading. Confirm that assets/TechGeekPH - logo.png exists beside this HTML file and that uppercase/lowercase letters match exactly."
+      );
+    }
+
+    function applyOfficialFolderLogo(root) {
+      const scope = root || document;
+      const logoUrl = getOfficialLogoAssetUrl();
+      const logos = Array.from(scope.querySelectorAll('img[data-asset="logo"], .brand-logo img'));
+
+      logos.forEach(function(img) {
+        img.removeAttribute("crossorigin");
+        img.src = logoUrl;
+        img.style.display = "block";
+        img.style.visibility = "visible";
+      });
+
+      return { logos: logos, logoUrl: logoUrl };
+    }
+
+    async function prepareExactFolderLogoForCapture(root) {
+      const applied = applyOfficialFolderLogo(root || document);
+      const logos = applied.logos;
+      const logoUrl = applied.logoUrl;
+
+      if (!logos.length) {
+        throw new Error("TechGeekPH logo element was not found in the printable document.");
+      }
+
+      for (let i = 0; i < logos.length; i += 1) {
+        await waitForSingleImage(logos[i], 15000);
+      }
+
+      let safeDataUrl = "";
+      try {
+        // The image is loaded from the same GitHub repository using ./assets/...
+        // so drawing it to canvas is safe. No fetch() request is needed.
+        safeDataUrl = imageToDataUrl(logos[0]);
+      } catch (error) {
+        throw new Error(
+          "The logo file loaded from assets, but the browser could not prepare it for PNG export. " +
+          "Open this page through the published GitHub Pages https:// link and keep the HTML and " +
+          "assets/TechGeekPH - logo.png in the same repository folder. Details: " +
+          (error.message || error)
+        );
+      }
+
+      CAPTURE_ASSET_DATA_URLS.logo = safeDataUrl;
+
+      // Use the data URL only while html2canvas is running. It still comes from
+      // the exact file inside assets; this step only prevents canvas tainting.
+      logos.forEach(function(img) {
+        img.src = safeDataUrl;
+      });
+      await waitForImages(root || document);
+
+      return function restoreFolderLogo() {
+        logos.forEach(function(img) {
+          img.removeAttribute("crossorigin");
+          img.src = logoUrl;
+          img.style.display = "block";
+          img.style.visibility = "visible";
+        });
+      };
+    }
+
+    async function downloadVisibleElementAsPng(node, fileName) {
+      if (!node) throw new Error("Printable document was not found.");
+
+      await ensureHtml2Canvas();
+
+      let restoreFolderLogo = null;
+
+      try {
+        // Read the exact logo from ./assets/TechGeekPH - logo.png, then use a
+        // temporary safe copy only for canvas generation.
+        restoreFolderLogo = await prepareExactFolderLogoForCapture(node);
+        await waitForImages(node);
+
+        const width = Math.ceil(node.scrollWidth || node.offsetWidth || 794);
+        const height = Math.ceil(node.scrollHeight || node.offsetHeight || 1123);
+
+        const canvas = await window.html2canvas(node, {
+          scale: 2.5,
+          useCORS: true,
+          allowTaint: false,
+          foreignObjectRendering: false,
+          backgroundColor: "#ffffff",
+          logging: false,
+          width: width,
+          height: height,
+          windowWidth: Math.max(document.documentElement.clientWidth, width),
+          windowHeight: Math.max(document.documentElement.clientHeight, height),
+          scrollX: -window.scrollX,
+          scrollY: -window.scrollY,
+          imageTimeout: 30000,
+          removeContainer: true
+        });
+
+        const blob = await new Promise(function(resolve, reject) {
+          try {
+            canvas.toBlob(function(value) {
+              if (value) resolve(value);
+              else reject(new Error("PNG canvas returned an empty file."));
+            }, "image/png", 1);
+          } catch (error) {
+            reject(new Error("PNG export was blocked by an unsafe image: " + (error.message || error)));
+          }
+        });
+
+        downloadBlob(blob, fileName);
+      } finally {
+        if (typeof restoreFolderLogo === "function") {
+          restoreFolderLogo();
+        }
+      }
+    }
+
     async function downloadSoaAsPng() {
       calculateTotals();
 
@@ -3134,70 +4399,16 @@
       const btn = fields.downloadPngBtn;
       const oldText = btn.textContent;
       const fileName = safeFileName(fields.statementNo.value || fields.accountNo.value || "SOA") + ".png";
-      let capture = null;
 
       try {
         btn.disabled = true;
-        btn.textContent = "Preparing PNG...";
-        await waitForImages(node);
-
-        const missingDataImages = Array.from(node.querySelectorAll("img[data-asset]")).filter(function(img) {
-          return !(img.currentSrc || img.src || "").startsWith("data:");
-        });
-        if (window.location.protocol === "file:" && missingDataImages.length) {
-          showNotice("Logo/banner/payment image may not appear in PNG because this page is opened as local file. Use the PNG Image Assets file pickers above, then click Download again.", "error");
-        }
-
-        btn.textContent = "Loading PNG engine...";
-        await ensureHtml2Canvas();
-
-        btn.textContent = "Generating PNG...";
-        capture = await prepareCaptureClone(node);
-
-        const canvas = await window.html2canvas(capture.clone, {
-          scale: 3,
-          useCORS: true,
-          allowTaint: false,
-          backgroundColor: "#ffffff",
-          logging: false,
-          width: capture.width,
-          height: capture.height,
-          windowWidth: capture.width,
-          windowHeight: capture.height,
-          scrollX: 0,
-          scrollY: 0,
-          imageTimeout: 20000,
-          removeContainer: true
-        });
-
-        const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png", 1));
-        if (!blob) throw new Error("PNG generation failed");
-
-        downloadBlob(blob, fileName);
-        const msg = capture.skippedImages
-          ? "SOA PNG downloaded. Note: some image assets were not readable by the browser, so fallback text may appear."
-          : "SOA PNG image downloaded.";
-        showNotice(msg, "ok");
-
+        btn.textContent = "Preparing exact preview...";
+        await downloadVisibleElementAsPng(node, fileName);
+        showNotice("SOA PNG downloaded using the exact logo shown in the preview.", "ok");
       } catch (error) {
-        console.error("Primary PNG download failed:", error);
-
-        try {
-          btn.textContent = "Trying fallback PNG...";
-          const skipped = await downloadPngViaSvgFallback(node, fileName);
-          const msg = skipped
-            ? "SOA PNG downloaded using fallback. Some image assets were not readable by this browser."
-            : "SOA PNG image downloaded using fallback.";
-          showNotice(msg, "ok");
-        } catch (fallbackError) {
-          console.error("Fallback PNG download failed:", fallbackError);
-          showNotice(
-            "Unable to download PNG because the browser cannot read one or more image assets. Use the PNG Image Assets file pickers above for Logo, Banner, and Payment Method, then download again.",
-            "error"
-          );
-        }
+        console.error("SOA PNG download failed.", error);
+        showNotice("Unable to generate the SOA PNG: " + (error.message || error), "error");
       } finally {
-        if (capture && capture.wrapper) capture.wrapper.remove();
         btn.disabled = false;
         btn.textContent = oldText || "Download SOA as PNG";
       }
@@ -3213,60 +4424,50 @@
       const btn = fields.downloadReceiptPngBtn;
       const oldText = btn.textContent;
       const fileName = safeFileName(fields.receiptNo.value || fields.accountNo.value || "Acknowledgement-Receipt") + ".png";
-      let capture = null;
 
       try {
         btn.disabled = true;
-        btn.textContent = "Preparing PNG...";
-        await waitForImages(node);
-
-        btn.textContent = "Loading PNG engine...";
-        await ensureHtml2Canvas();
-
-        btn.textContent = "Generating PNG...";
-        capture = await prepareCaptureClone(node);
-
-        const canvas = await window.html2canvas(capture.clone, {
-          scale: 3,
-          useCORS: true,
-          allowTaint: false,
-          backgroundColor: "#ffffff",
-          logging: false,
-          width: capture.width,
-          height: capture.height,
-          windowWidth: capture.width,
-          windowHeight: capture.height,
-          scrollX: 0,
-          scrollY: 0,
-          imageTimeout: 20000,
-          removeContainer: true
-        });
-
-        const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png", 1));
-        if (!blob) throw new Error("PNG generation failed");
-
-        downloadBlob(blob, fileName);
-        showNotice("Acknowledgement receipt PNG image downloaded.", "ok");
+        btn.textContent = "Preparing exact preview...";
+        await downloadVisibleElementAsPng(node, fileName);
+        showNotice("Acknowledgement receipt PNG downloaded using the exact preview logo.", "ok");
       } catch (error) {
-        console.error("Receipt PNG download failed:", error);
-        try {
-          btn.textContent = "Trying fallback PNG...";
-          await downloadPngViaSvgFallback(node, fileName);
-          showNotice("Acknowledgement receipt PNG image downloaded using fallback.", "ok");
-        } catch (fallbackError) {
-          console.error("Receipt fallback PNG download failed:", fallbackError);
-          showNotice("Unable to download receipt PNG. Check if the logo image is accessible, or upload the image asset as base64 using the existing asset picker.", "error");
-        }
+        console.error("Receipt PNG download failed.", error);
+        showNotice("Unable to generate the receipt PNG: " + (error.message || error), "error");
       } finally {
-        if (capture && capture.wrapper) capture.wrapper.remove();
         btn.disabled = false;
         btn.textContent = oldText || "Download Receipt as PNG";
       }
     }
 
-    fields.clientSelect.addEventListener("change", function() {
-      const index = Number(fields.clientSelect.value);
-      if (Number.isFinite(index) && clientRecords[index]) fillFromClient(clientRecords[index]);
+    fields.clientSearch.addEventListener("input", renderClientSearchResults);
+    fields.clientSearch.addEventListener("focus", function() {
+      if (fields.clientSearch.value.trim()) renderClientSearchResults();
+    });
+    fields.clientSearch.addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        const first = fields.clientSearchResults.querySelector("[data-client-index]");
+        if (first) {
+          event.preventDefault();
+          selectClientByIndex(first.dataset.clientIndex);
+        }
+      }
+      if (event.key === "Escape") hideClientSearchResults();
+    });
+    fields.clientSearchResults.addEventListener("click", function(event) {
+      const option = event.target.closest("[data-client-index]");
+      if (!option) return;
+      selectClientByIndex(option.dataset.clientIndex);
+    });
+    fields.clearClientSearchBtn.addEventListener("click", function() {
+      fields.clientSearch.value = "";
+      fields.clientSearch.focus();
+      hideClientSearchResults();
+      fields.clientSearchStatus.textContent = clientRecords.length
+        ? clientRecords.length.toLocaleString() + " clients ready. Type to search."
+        : "No clients loaded.";
+    });
+    document.addEventListener("click", function(event) {
+      if (!event.target.closest(".client-search-row")) hideClientSearchResults();
     });
 
     [
@@ -3324,7 +4525,15 @@
     });
 
     fields.clearBtn.addEventListener("click", clearForm);
-    fields.printBtn.addEventListener("click", function() { calculateTotals(); window.print(); });
+    fields.printBtn.addEventListener("click", function() {
+      calculateTotals();
+      document.body.classList.add("print-soa-only");
+      window.print();
+    });
+
+    window.addEventListener("afterprint", function() {
+      document.body.classList.remove("print-soa-only");
+    });
     fields.downloadPngBtn.addEventListener("click", downloadSoaAsPng);
     fields.downloadReceiptPngBtn.addEventListener("click", downloadAckReceiptAsPng);
     fields.copyMessageBtn.addEventListener("click", copyMessage);
@@ -3357,8 +4566,20 @@
       });
     });
 
+    async function initializeVisibleLogoAssets() {
+      try {
+        const applied = applyOfficialFolderLogo(document);
+        for (let i = 0; i < applied.logos.length; i += 1) {
+          await waitForSingleImage(applied.logos[i], 15000);
+        }
+      } catch (error) {
+        console.warn("TechGeekPH logo from assets could not be initialized.", error);
+      }
+    }
+
     setUser(loadSession());
     setDefaults();
+    initializeVisibleLogoAssets();
     loadClients();
   </script>
   <script src="assets/admin-shell.js"></script>
