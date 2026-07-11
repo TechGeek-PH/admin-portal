@@ -128,10 +128,28 @@
     .payslip-table tr:last-child th{font-size:.55rem;background:#eef6ff;}
     #slipNetPay{font-size:.75rem;color:var(--blue);}
     .png-capture{box-shadow:none!important;border:0!important;margin:0!important;}
-    @media (max-width:1180px){.layout{grid-template-columns:1fr;}.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+    .payroll-results{display:grid;grid-template-columns:1fr;gap:18px;min-width:0;}
+    .deduction-panel,.attendance-panel{width:100%;min-width:0;}
+    .deduction-panel .calc-grid{grid-template-columns:repeat(4,minmax(0,1fr));}
+    .deduction-panel .calc-row.total,.deduction-panel .calc-row.net{grid-column:span 2;}
+    .attendance-table{min-width:1520px;table-layout:auto;}
+    .attendance-table th:nth-child(1),.attendance-table td:nth-child(1){min-width:135px;white-space:nowrap;}
+    .attendance-table th:nth-child(2),.attendance-table td:nth-child(2){min-width:240px;}
+    .attendance-table th:nth-child(3),.attendance-table td:nth-child(3),
+    .attendance-table th:nth-child(4),.attendance-table td:nth-child(4){min-width:100px;white-space:nowrap;}
+    .attendance-table th:nth-child(5),.attendance-table td:nth-child(5){min-width:285px;}
+    .attendance-table th:nth-child(6),.attendance-table td:nth-child(6),
+    .attendance-table th:nth-child(7),.attendance-table td:nth-child(7),
+    .attendance-table th:nth-child(8),.attendance-table td:nth-child(8),
+    .attendance-table th:nth-child(9),.attendance-table td:nth-child(9),
+    .attendance-table th:nth-child(10),.attendance-table td:nth-child(10),
+    .attendance-table th:nth-child(11),.attendance-table td:nth-child(11),
+    .attendance-table th:nth-child(12),.attendance-table td:nth-child(12){min-width:78px;white-space:nowrap;}
+    .attendance-table th:nth-child(13),.attendance-table td:nth-child(13){min-width:360px;}
+    @media (max-width:1180px){.layout{grid-template-columns:1fr;}.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.deduction-panel .calc-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.deduction-panel .calc-row.total,.deduction-panel .calc-row.net{grid-column:span 1;}}
     @media (max-width:1120px){.app{grid-template-columns:250px minmax(0,1fr);}}
     @media (max-width:860px){.app{display:block;}.sidebar{position:relative;height:auto;min-height:auto;padding:12px;gap:12px;}.brand{grid-template-columns:auto 1fr;align-items:center;gap:10px;padding-bottom:10px;}.brand-logo{width:118px;min-height:46px;}.nav,.nav-panel{grid-template-columns:1fr!important;}.nav a,.nav-toggle,.logout{justify-content:flex-start;text-align:left;}.sidebar-footer{margin-top:0;}.topbar{position:relative;min-height:auto;padding:14px 16px;}.content{padding:14px;}.form-grid,.calc-grid,.payslip-info,.payslip-tables{grid-template-columns:1fr;}.field.half{grid-column:auto;}}
-    @media (max-width:680px){.summary-grid{grid-template-columns:1fr;}.panel-head,.toolbar,.toolbar-left,.toolbar-right{display:grid;grid-template-columns:1fr;align-items:stretch;width:100%;}.primary-btn,.ghost-btn,.danger-btn,.ok-btn,.warn-btn{width:100%;}.brand{grid-template-columns:1fr;}.brand-logo{width:124px;}}
+    @media (max-width:680px){.summary-grid{grid-template-columns:1fr;}.panel-head,.toolbar,.toolbar-left,.toolbar-right{display:grid;grid-template-columns:1fr;align-items:stretch;width:100%;}.primary-btn,.ghost-btn,.danger-btn,.ok-btn,.warn-btn{width:100%;}.brand{grid-template-columns:1fr;}.brand-logo{width:124px;}.deduction-panel .calc-grid{grid-template-columns:1fr;}.deduction-panel .calc-row.total,.deduction-panel .calc-row.net{grid-column:auto;}}
     @media print{@page{size:A5 landscape;margin:0;}html,body{background:#fff!important;width:auto!important;height:auto!important;}.sidebar,.topbar,.no-print,.content>.notice,.content>.summary-grid,.content>.layout{display:none!important;}.app,.main,.content{display:block!important;min-height:auto!important;}.content{padding:0!important;max-width:none!important;margin:0!important;}.panel{box-shadow:none!important;border:0!important;margin:0!important;}.payslip{width:8.27in!important;min-height:5.83in!important;max-width:none!important;margin:0!important;padding:.5in!important;border:0!important;box-shadow:none!important;page-break-inside:avoid!important;}.payslip-info{grid-template-columns:repeat(5,minmax(0,1fr))!important;}.payslip-info:last-child{grid-template-columns:2fr 1fr!important;}.payslip-tables{grid-template-columns:1.15fr .85fr!important;}}
   
     .gov-control {
@@ -215,18 +233,19 @@
         <p class="notice" id="notice">Loading payroll data...</p>
         <div class="summary-grid">
           <article class="card"><span>Regular Hours</span><strong id="metricRegHours">0.00</strong><small>Max 8 hrs/day</small></article>
-          <article class="card"><span>Gross Pay</span><strong id="metricGross">PHP 0.00</strong><small>Base + allowance + OT + ND</small></article>
+          <article class="card"><span>Gross Pay</span><strong id="metricGross">PHP 0.00</strong><small>Regular pay + allowance + premiums</small></article>
           <article class="card"><span>Total Deduction</span><strong id="metricDeduction">PHP 0.00</strong><small>CA, loan, other, gov</small></article>
           <article class="card"><span>Net Pay</span><strong id="metricNet">PHP 0.00</strong><small>Take-home amount</small></article>
         </div>
 
         <section class="panel no-print">
-          <div class="panel-head"><div><h2>Payroll Controls</h2><p>No PIN needed. Uses login session, Attendance sheet, saved payroll rates, CA, loans, and optional government deductions.</p></div><span class="mode-chip" id="payrollStatus">Backend mode</span></div>
+          <div class="panel-head"><div><h2>Payroll Controls</h2><p>Regular and On Call employees use the saved Daily Rate. Regular employees receive eligible paid holidays and fixed government deductions per cutoff: SSS PHP 250, Pag-IBIG PHP 100, and PhilHealth PHP 125.</p></div><span class="mode-chip" id="payrollStatus">Backend mode</span></div>
           <div class="form-grid">
             <div class="field"><label>Employee</label><select id="employeeId"><option value="">Loading employees...</option></select></div>
+            <div class="field"><label>Employment Type</label><input id="employmentType" value="--" readonly><small class="field-hint">Set this in Employees sheet: Regular or On Call.</small></div>
             <div class="field"><label>Payroll Cutoff</label><select id="payrollKey"><option value="">Loading cutoff...</option></select></div>
             <div class="field"><label>Rest Day Mode</label><select id="restDayMode"><option value="none">None / Regular Days</option><option value="sunday">Sunday as Rest Day</option><option value="saturday-sunday">Saturday & Sunday as Rest Day</option></select></div>
-            <div class="field"><label>Daily Rate</label><input id="dailyRate" type="number" min="0" step="0.01" placeholder="500"></div>
+            <div class="field"><label>Daily Rate</label><input id="dailyRate" type="number" min="0" step="0.01" placeholder="700"><small class="field-hint">Used directly for regular hours, OT, rest day, holiday, and night differential computation.</small></div>
             <div class="field"><label>Allowance / Day</label><input id="allowancePerDay" type="number" min="0" step="0.01" placeholder="75"></div>
             <div class="field"><label>OT Multiplier</label><input id="otMultiplier" type="number" min="1" step="0.01" value="1.25"></div>
             <div class="field"><label>ND Rate</label><input id="nightDiffRate" type="number" min="0" step="0.01" value="0.10"><small class="field-hint">0.10 = 10%</small></div>
@@ -237,38 +256,35 @@
             <div class="field">
               <label>SSS Deduction</label>
               <div class="gov-control">
-                <select id="sssMode">
-                  <option value="disabled">Do not include</option>
-                  <option value="auto">Auto compute</option>
-                  <option value="manual">Manual amount</option>
+                <select id="sssMode" disabled>
+                  <option value="disabled">Not included (On Call)</option>
+                  <option value="fixed">Fixed per cutoff</option>
                 </select>
-                <input id="sssDeduction" type="number" min="0" step="0.01" value="0">
+                <input id="sssDeduction" type="number" min="0" step="0.01" value="0.00" readonly>
               </div>
-              <small class="field-hint">Auto = estimate per cutoff based on gross pay.</small>
+              <small class="field-hint">Regular employee: fixed at PHP 250.00 every cutoff.</small>
             </div>
             <div class="field">
               <label>Pag-IBIG Deduction</label>
               <div class="gov-control">
-                <select id="pagibigMode">
-                  <option value="disabled">Do not include</option>
-                  <option value="auto">Auto compute</option>
-                  <option value="manual">Manual amount</option>
+                <select id="pagibigMode" disabled>
+                  <option value="disabled">Not included (On Call)</option>
+                  <option value="fixed">Fixed per cutoff</option>
                 </select>
-                <input id="pagibigDeduction" type="number" min="0" step="0.01" value="0">
+                <input id="pagibigDeduction" type="number" min="0" step="0.01" value="0.00" readonly>
               </div>
-              <small class="field-hint">Auto = estimate per cutoff, capped based on government settings.</small>
+              <small class="field-hint">Regular employee: fixed at PHP 100.00 every cutoff.</small>
             </div>
             <div class="field">
               <label>PhilHealth Deduction</label>
               <div class="gov-control">
-                <select id="philhealthMode">
-                  <option value="disabled">Do not include</option>
-                  <option value="auto">Auto compute</option>
-                  <option value="manual">Manual amount</option>
+                <select id="philhealthMode" disabled>
+                  <option value="disabled">Not included (On Call)</option>
+                  <option value="fixed">Fixed per cutoff</option>
                 </select>
-                <input id="philhealthDeduction" type="number" min="0" step="0.01" value="0">
+                <input id="philhealthDeduction" type="number" min="0" step="0.01" value="0.00" readonly>
               </div>
-              <small class="field-hint">Auto = employee share estimate per cutoff.</small>
+              <small class="field-hint">Regular employee: fixed at PHP 125.00 every cutoff.</small>
             </div>
             <div class="field full"><label>Remarks</label><textarea id="remarks" placeholder="Optional payslip remarks"></textarea></div>
           </div>
@@ -278,23 +294,28 @@
           </div>
         </section>
 
-        <div class="layout no-print">
-          <section class="panel">
-            <div class="panel-head"><div><h2>Attendance Computation</h2><p>Auto-computed from Attendance sheet for selected cutoff. Regular day and rest day hours are separated.</p></div><span class="mode-chip" id="rowCount">0 rows</span></div>
-            <div class="table-wrap"><table><thead><tr><th>Date</th><th>Time In</th><th>Break Start</th><th>Break End</th><th>Time Out</th><th>Work Hrs</th><th>Regular</th><th>OT</th><th>RD</th><th>RDOT</th><th>ND</th><th>Remarks</th></tr></thead><tbody id="attendanceRows"><tr><td colspan="12">No preview yet.</td></tr></tbody></table></div>
-          </section>
-          <aside class="panel">
-            <div class="panel-head"><div><h2>Auto Deductions</h2><p>Cash Advance + Food from Expenses, plus loans from Employee_Loans.</p></div></div>
+        <div class="payroll-results no-print">
+          <section class="panel deduction-panel">
+            <div class="panel-head"><div><h2>Auto Deductions</h2><p>Cash Advance + Food from Expenses, loans from Employee_Loans, and government deductions.</p></div></div>
             <div class="calc-grid">
               <div class="calc-row"><span>Cash Advance / Food</span><strong id="autoCashAdvance">PHP 0.00</strong></div>
               <div class="calc-row"><span>Loan</span><strong id="autoLoan">PHP 0.00</strong></div>
               <div class="calc-row"><span>Other Deduction</span><strong id="autoOtherDeduction">PHP 0.00</strong></div>
               <div class="calc-row"><span>Gov. Deduction</span><strong id="autoGovDeduction">PHP 0.00</strong></div>
+              <div class="calc-row"><span>SSS</span><strong id="summarySss">PHP 0.00</strong></div>
+              <div class="calc-row"><span>Pag-IBIG</span><strong id="summaryPagibig">PHP 0.00</strong></div>
+              <div class="calc-row"><span>PhilHealth</span><strong id="summaryPhilhealth">PHP 0.00</strong></div>
+              <div class="calc-row"><span>Government Policy</span><strong id="govDeductionPolicy">--</strong></div>
               <div class="calc-row total"><span>Total Deduction</span><strong id="sideTotalDeduction">PHP 0.00</strong></div>
               <div class="calc-row net"><span>Net Pay</span><strong id="sideNetPay">PHP 0.00</strong></div>
             </div>
-            <div class="table-wrap"><table style="min-width:520px"><thead><tr><th>Type</th><th>Description</th><th class="amount">Amount</th></tr></thead><tbody id="deductionRows"><tr><td colspan="3">No deductions yet.</td></tr></tbody></table></div>
-          </aside>
+            <div class="table-wrap"><table style="min-width:760px"><thead><tr><th>Type</th><th>Description</th><th class="amount">Amount</th></tr></thead><tbody id="deductionRows"><tr><td colspan="3">No deductions yet.</td></tr></tbody></table></div>
+          </section>
+
+          <section class="panel attendance-panel">
+            <div class="panel-head"><div><h2>Attendance Computation</h2><p>Computed from Time In and Time Out. Automatic 1-hour breaks are applied by the backend. ND from 10:00 PM-6:00 AM is paid even during OT, RDOT, and holidays using the applicable multiplier.</p></div><span class="mode-chip" id="rowCount">0 rows</span></div>
+            <div class="table-wrap"><table class="attendance-table"><thead><tr><th>Date</th><th>Holiday</th><th>Time In</th><th>Time Out</th><th>Auto Break</th><th>Work Hrs</th><th>Regular</th><th>OT</th><th>RD</th><th>RDOT</th><th>ND Hrs</th><th>ND Pay</th><th>Remarks / Computation</th></tr></thead><tbody id="attendanceRows"><tr><td colspan="13">No preview yet.</td></tr></tbody></table></div>
+          </section>
         </div>
 
         <section class="panel" id="payslipPanel">
@@ -304,14 +325,17 @@
             <div class="payslip-info">
               <div><span>Payslip ID</span><strong id="slipPayslipId">Preview Only</strong></div><div><span>Generated At</span><strong id="slipGeneratedAt">--</strong></div>
               <div><span>Employee Name</span><strong id="slipEmployeeName">--</strong></div><div><span>Employee ID</span><strong id="slipEmployeeId">--</strong></div>
-              <div><span>Position</span><strong id="slipPosition">--</strong></div><div><span>Salary Date</span><strong id="slipSalaryDate">--</strong></div>
-              <div><span>Period Start</span><strong id="slipPeriodStart">--</strong></div><div><span>Period End</span><strong id="slipPeriodEnd">--</strong></div>
-              <div><span>Daily Rate</span><strong id="slipDailyRate">PHP 0.00</strong></div><div><span>Days Present</span><strong id="slipDaysPresent">0</strong></div>
+              <div><span>Position</span><strong id="slipPosition">--</strong></div><div><span>Employment Type</span><strong id="slipEmploymentType">--</strong></div>
+              <div><span>Salary Date</span><strong id="slipSalaryDate">--</strong></div><div><span>Period Start</span><strong id="slipPeriodStart">--</strong></div>
+              <div><span>Period End</span><strong id="slipPeriodEnd">--</strong></div><div><span>Daily Rate</span><strong id="slipDailyRate">PHP 0.00</strong></div>
+              <div><span>Days Present</span><strong id="slipDaysPresent">0</strong></div><div><span>Paid Holidays</span><strong id="slipPaidHolidayDays">0</strong></div>
+              <div><span>Regular Hours</span><strong id="slipRegularHoursInfo">0.00</strong></div><div><span>Total Work Hours</span><strong id="slipTotalWorkHours">0.00</strong></div>
             </div>
             <div class="payslip-tables">
             <table class="payslip-table"><thead><tr><th>Earnings</th><th class="amount">Hours/Days</th><th class="amount">Amount</th></tr></thead><tbody>
-              <tr><td>Base Pay</td><td class="amount" id="slipRegularHours">0.00</td><td class="amount" id="slipBasePay">PHP 0.00</td></tr>
-              <tr><td>Allowance</td><td class="amount" id="slipAllowanceDays">0</td><td class="amount" id="slipAllowance">PHP 0.00</td></tr>
+              <tr><td>Regular Pay</td><td class="amount" id="slipRegularHours">0.00</td><td class="amount" id="slipBasePay">PHP 0.00</td></tr>
+              <tr><td>Daily Allowance</td><td class="amount" id="slipAllowanceDays">0</td><td class="amount" id="slipAllowance">PHP 0.00</td></tr>
+              <tr><td>Holiday Pay</td><td class="amount" id="slipHolidayDays">0</td><td class="amount" id="slipHolidayPay">PHP 0.00</td></tr>
               <tr><td>OT Pay</td><td class="amount" id="slipOvertimeHours">0.00</td><td class="amount" id="slipOtPay">PHP 0.00</td></tr>
               <tr><td>Rest Day Pay</td><td class="amount" id="slipRestDayHours">0.00</td><td class="amount" id="slipRestDayPay">PHP 0.00</td></tr>
               <tr><td>RDOT Pay</td><td class="amount" id="slipRdotHours">0.00</td><td class="amount" id="slipRdotPay">PHP 0.00</td></tr>
@@ -330,7 +354,7 @@
               <tr><th>NET PAY</th><th class="amount" id="slipNetPay">PHP 0.00</th></tr>
             </tbody></table>
             </div>
-            <div class="payslip-info"><div><span>Remarks</span><strong id="slipRemarks">--</strong></div><div><span>Incomplete Logs</span><strong id="slipIncompleteLogs">0</strong></div></div>
+            <div class="payslip-info"><div><span>Remarks</span><strong id="slipRemarks">--</strong></div><div><span>Holiday Details</span><strong id="slipHolidayDetails">--</strong></div><div><span>Incomplete Logs</span><strong id="slipIncompleteLogs">0</strong></div></div>
           </div>
         </section>
       </div>
@@ -340,14 +364,17 @@
   <script>
     const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxDY5TsonrB58YaN8LGbrrrc_ZD1QVpF1WK0p6jToIR2FBSqGaHfsgaE1CCiH1MvukV/exec";
     const SESSION_KEY = "techgeekph_session";
-    const ADMIN_SESSION_KEY = "techgeekph_admin_session";
     const FALLBACK_SESSION_KEY = "techgeekph_employee_session";
+    const INITIAL_DATA_CACHE_PREFIX = "techgeekph_payslip_initial_v4:";
+    const INITIAL_DATA_CACHE_MAX_AGE = 30 * 60 * 1000;
     let currentPreview = null;
     let employeeMap = {};
+    let governmentDefaults = {};
 
     const els = {
       notice: document.querySelector("#notice"),
       employeeId: document.querySelector("#employeeId"),
+      employmentType: document.querySelector("#employmentType"),
       payrollKey: document.querySelector("#payrollKey"),
       dailyRate: document.querySelector("#dailyRate"),
       allowancePerDay: document.querySelector("#allowancePerDay"),
@@ -367,34 +394,22 @@
       remarks: document.querySelector("#remarks")
     };
 
-    function sessionTokenFrom(session){
-      session = session || {};
-      const data = session.data || {};
-      return session.token || session.sessionToken || session.accessToken ||
-        data.token || data.sessionToken || data.accessToken || "";
-    }
-
     function loadSession(){
-      const keys = [SESSION_KEY, ADMIN_SESSION_KEY, FALLBACK_SESSION_KEY];
-
-      for(const key of keys){
-        try {
-          const parsed = JSON.parse(localStorage.getItem(key) || "{}");
-          if(parsed && sessionTokenFrom(parsed)) return parsed;
-        } catch(e) {}
+      try {
+        const primary = JSON.parse(localStorage.getItem(SESSION_KEY) || "{}");
+        if (primary && Object.keys(primary).length) return primary;
+      } catch(e) {}
+      try {
+        const fallback = JSON.parse(localStorage.getItem(FALLBACK_SESSION_KEY) || "{}");
+        return fallback || {};
+      } catch(e) {
+        return {};
       }
-
-      return {};
     }
 
     function getToken(){
-      return sessionTokenFrom(loadSession());
-    }
-
-    function clearStoredSessions(){
-      [SESSION_KEY, ADMIN_SESSION_KEY, FALLBACK_SESSION_KEY].forEach(function(key){
-        try { localStorage.removeItem(key); } catch(e) {}
-      });
+      const session = loadSession();
+      return session.token || session.sessionToken || session.accessToken || "";
     }
 
     function getSessionToken(){
@@ -403,6 +418,21 @@
     function initialsFrom(v){return String(v||"TG").replace(/@.*/,"").split(/[.\s_-]+/).filter(Boolean).slice(0,2).map(p=>p[0].toUpperCase()).join("")||"TG";}
     function setUser(){const s=loadSession();const u=s.user||{};const name=u.fullName||u.name||u.email||s.email||"TechGeekPH User";const role=u.role||s.role||"portal";document.querySelector("#userName").textContent=name;document.querySelector("#userRole").textContent=String(role).charAt(0).toUpperCase()+String(role).slice(1).toLowerCase()+" access";document.querySelector("#avatar").textContent=initialsFrom(name);const adminLink=document.querySelector("#adminRecordsLink");if(adminLink&&String(role).toUpperCase()!=="ADMIN")adminLink.style.display="none";}
     function money(v){const n=Number(v||0);return "PHP "+n.toLocaleString("en-PH",{minimumFractionDigits:2,maximumFractionDigits:2});}
+    function formatDisplayDate(value){
+      const text=String(value||"").trim();
+      if(!text) return "--";
+      const iso=text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      const date=iso ? new Date(Number(iso[1]),Number(iso[2])-1,Number(iso[3])) : new Date(text);
+      if(Number.isNaN(date.getTime())) return text;
+      return new Intl.DateTimeFormat("en-US",{month:"long",day:"numeric",year:"numeric",timeZone:"Asia/Manila"}).format(date);
+    }
+    function formatDisplayDateTime(value){
+      const text=String(value||"").trim();
+      if(!text) return "--";
+      const date=new Date(text);
+      if(Number.isNaN(date.getTime())) return text;
+      return new Intl.DateTimeFormat("en-US",{month:"long",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit",hour12:true,timeZone:"Asia/Manila"}).format(date);
+    }
     function escapeHtml(v){return String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;");}
     function setText(id,value){const el=document.getElementById(id); if(el) el.textContent=value;}
     function numEl(el){return Number(String(el.value||0).replace(/,/g,""))||0;}
@@ -415,11 +445,13 @@
         text.includes("no session token") ||
         text.includes("please login again") ||
         text.includes("please log in again") ||
+        text.includes("access denied") ||
         text.includes("invalid token");
     }
 
     function redirectToLogin(message){
-      clearStoredSessions();
+      try { localStorage.removeItem(SESSION_KEY); } catch(e) {}
+      try { localStorage.removeItem(FALLBACK_SESSION_KEY); } catch(e) {}
       showNotice(message || "Session expired. Redirecting to login page...", "error");
       setTimeout(function(){
         window.location.replace("index.html");
@@ -498,7 +530,8 @@
         if(value === "disabled") {
           item.amount.value = 0;
           item.amount.readOnly = true;
-        } else if(value === "auto") {
+          item.mode.disabled = false;
+        } else if(value === "fixed" || value === "auto") {
           item.amount.readOnly = true;
         } else {
           item.amount.readOnly = false;
@@ -508,40 +541,118 @@
 
     function applyEmployeePayrollDefaults(){
       const e = employeeMap[els.employeeId.value];
-      if(!e) return;
-      setText("payrollStatus", e.position || "Employee selected");
+      if(!e) {
+        if(els.employmentType) els.employmentType.value = "--";
+        return;
+      }
+
+      const employmentType = e.employmentType || "On Call";
+      const isRegular = String(employmentType).toLowerCase() === "regular";
+
+      if(els.employmentType) els.employmentType.value = employmentType;
+      setText("payrollStatus", (e.position || "Employee") + " - " + employmentType);
       els.dailyRate.value = Number(e.dailyRate || 0);
       els.allowancePerDay.value = Number(e.allowancePerDay || 0);
       els.otMultiplier.value = Number(e.otMultiplier || 1.25);
       els.restDayMultiplier.value = Number(e.restDayMultiplier || 1.30);
       els.rdotMultiplier.value = Number(e.rdotMultiplier || 1.69);
       els.nightDiffRate.value = Number(e.nightDiffRate || 0.10);
+
+      // Regular employees always use the fixed deductions configured by the backend.
+      // On Call employees keep government deductions disabled by default.
+      const fixedSss = Number(governmentDefaults.fixedRegularSssPerCutoff || 250);
+      const fixedPagibig = Number(governmentDefaults.fixedRegularPagibigPerCutoff || 100);
+      const fixedPhilhealth = Number(governmentDefaults.fixedRegularPhilhealthPerCutoff || 125);
+
+      if(els.sssMode) { els.sssMode.value = isRegular ? "fixed" : "disabled"; els.sssMode.disabled = true; }
+      if(els.pagibigMode) { els.pagibigMode.value = isRegular ? "fixed" : "disabled"; els.pagibigMode.disabled = true; }
+      if(els.philhealthMode) { els.philhealthMode.value = isRegular ? "fixed" : "disabled"; els.philhealthMode.disabled = true; }
+
+      if(els.sssDeduction) els.sssDeduction.value = isRegular ? fixedSss.toFixed(2) : "0.00";
+      if(els.pagibigDeduction) els.pagibigDeduction.value = isRegular ? fixedPagibig.toFixed(2) : "0.00";
+      if(els.philhealthDeduction) els.philhealthDeduction.value = isRegular ? fixedPhilhealth.toFixed(2) : "0.00";
+      updateGovModeInputs();
     }
 
-    async function loadInitial(){
-      showNotice("Loading employees and payroll cutoffs...");
+    function getInitialDataCacheKey(){
+      const session = loadSession();
+      const user = session.user || {};
+      const identity = user.userId || user.employeeId || user.email || session.email || "unknown";
+      return INITIAL_DATA_CACHE_PREFIX + String(identity).replace(/[^a-z0-9@._-]/gi, "_");
+    }
+
+    function readInitialDataCache(){
+      try {
+        const raw = localStorage.getItem(getInitialDataCacheKey());
+        if(!raw) return null;
+        const item = JSON.parse(raw);
+        if(!item || !item.savedAt || !item.data) return null;
+        if(Date.now() - Number(item.savedAt) > INITIAL_DATA_CACHE_MAX_AGE) return null;
+        return item.data;
+      } catch(e) {
+        return null;
+      }
+    }
+
+    function writeInitialDataCache(data){
+      try {
+        localStorage.setItem(getInitialDataCacheKey(), JSON.stringify({
+          savedAt: Date.now(),
+          data: data
+        }));
+      } catch(e) {}
+    }
+
+    function clearInitialDataCache(){
+      try { localStorage.removeItem(getInitialDataCacheKey()); } catch(e) {}
+    }
+
+    function applyInitialData(res){
+      governmentDefaults = res.governmentDefaults || {};
+      const employees = res.employees || [];
+      employeeMap = {};
+      els.employeeId.innerHTML = '<option value="">Select employee</option>' + employees.map(e=>{
+        employeeMap[e.employeeId]=e;
+        return '<option value="'+escapeHtml(e.employeeId)+'">'+escapeHtml(e.employeeName)+' - '+escapeHtml(e.employeeId)+'</option>';
+      }).join("");
+
+      const options = res.payrollOptions || [];
+      els.payrollKey.innerHTML = options.map(o=>'<option value="'+escapeHtml(o.key)+'">'+escapeHtml(o.label)+'</option>').join("");
+      if(res.defaultPayrollKey) els.payrollKey.value = res.defaultPayrollKey;
+
+      if(employees.length === 1){
+        els.employeeId.value = employees[0].employeeId;
+        applyEmployeePayrollDefaults();
+      }
+      updateGovModeInputs();
+    }
+
+    async function loadInitial(forceRefresh){
+      const cached = forceRefresh ? null : readInitialDataCache();
+
+      if(cached){
+        applyInitialData(cached);
+        showNotice("Payroll controls are ready. Checking for the latest updates...", "ok");
+      } else {
+        showNotice("Loading employees and payroll cutoffs...");
+      }
+
       try{
-        const res = await callBackend("PAY_getInitialData", {});
-        const employees = res.employees || [];
-        employeeMap = {};
-        els.employeeId.innerHTML = '<option value="">Select employee</option>' + employees.map(e=>{employeeMap[e.employeeId]=e;return '<option value="'+escapeHtml(e.employeeId)+'">'+escapeHtml(e.employeeName)+' - '+escapeHtml(e.employeeId)+'</option>';}).join("");
-        const options = res.payrollOptions || [];
-        els.payrollKey.innerHTML = options.map(o=>'<option value="'+escapeHtml(o.key)+'">'+escapeHtml(o.label)+'</option>').join("");
-        if(res.defaultPayrollKey) els.payrollKey.value = res.defaultPayrollKey;
-        if(employees.length === 1){
-          els.employeeId.value = employees[0].employeeId;
-          applyEmployeePayrollDefaults();
-        }
-        updateGovModeInputs();
-        showNotice("Ready. Select employee and cutoff, then Preview Payslip. Rates auto-fill from Payroll_Rates / Employees sheet.","ok");
-      }catch(err){showNotice(err.message || String(err),"error");}
+        const res = await callBackend("PAY_getInitialData", {forceRefresh: !!forceRefresh});
+        applyInitialData(res);
+        writeInitialDataCache(res);
+        showNotice("Ready. Employee and payroll cutoff data loaded.", "ok");
+      }catch(err){
+        if(!cached) showNotice(err.message || String(err),"error");
+        else showNotice("Using saved payroll controls. Latest refresh failed: " + (err.message || String(err)), "error");
+      }
     }
 
     function renderPreview(p){
       currentPreview = p;
-      if(els.sssMode && p.sssMode) els.sssMode.value = p.sssMode;
-      if(els.pagibigMode && p.pagibigMode) els.pagibigMode.value = p.pagibigMode;
-      if(els.philhealthMode && p.philhealthMode) els.philhealthMode.value = p.philhealthMode;
+      if(els.sssMode && p.sssMode) { els.sssMode.value = p.sssMode; els.sssMode.disabled = true; }
+      if(els.pagibigMode && p.pagibigMode) { els.pagibigMode.value = p.pagibigMode; els.pagibigMode.disabled = true; }
+      if(els.philhealthMode && p.philhealthMode) { els.philhealthMode.value = p.philhealthMode; els.philhealthMode.disabled = true; }
       if(els.sssDeduction) els.sssDeduction.value = Number(p.sssDeduction || 0).toFixed(2);
       if(els.pagibigDeduction) els.pagibigDeduction.value = Number(p.pagibigDeduction || 0).toFixed(2);
       if(els.philhealthDeduction) els.philhealthDeduction.value = Number(p.philhealthDeduction || 0).toFixed(2);
@@ -550,26 +661,55 @@
       setText("metricGross", money(p.grossPay));
       setText("metricDeduction", money(p.totalDeduction));
       setText("metricNet", money(p.netPay));
-      setText("computedAt", p.saved ? "Saved: " + (p.payslipId || "") : "Preview: " + (p.generatedAt || ""));
+      setText("computedAt", p.saved ? "Saved: " + (p.payslipId || "") : "Preview: " + formatDisplayDateTime(p.generatedAt));
       setText("rowCount", (p.attendanceRows||[]).length + " rows");
       setText("autoCashAdvance", money(p.cashAdvanceDeduction));
       setText("autoLoan", money(p.loanDeduction));
       setText("autoOtherDeduction", money(p.otherDeduction));
       setText("autoGovDeduction", money((Number(p.sssDeduction||0)+Number(p.pagibigDeduction||0)+Number(p.philhealthDeduction||0))));
+      setText("summarySss", money(p.sssDeduction));
+      setText("summaryPagibig", money(p.pagibigDeduction));
+      setText("summaryPhilhealth", money(p.philhealthDeduction));
+      setText("govDeductionPolicy", p.isRegularEmployee ? "Fixed per cutoff" : (p.governmentDeductionPolicy || "Configurable"));
       setText("sideTotalDeduction", money(p.totalDeduction));
       setText("sideNetPay", money(p.netPay));
 
-      setText("slipPayslipId", p.payslipId || "Preview Only"); setText("slipGeneratedAt", p.generatedAt || "--"); setText("slipPayrollLabel", p.payrollLabel || "Salary computation summary");
-      setText("slipEmployeeName", p.employeeName || "--"); setText("slipEmployeeId", p.employeeId || "--"); setText("slipPosition", p.position || "--"); setText("slipSalaryDate", p.salaryDate || "--");
-      setText("slipPeriodStart", p.periodStart || "--"); setText("slipPeriodEnd", p.periodEnd || "--"); setText("slipDailyRate", money(p.dailyRate)); setText("slipDaysPresent", p.daysPresent || 0);
-      setText("slipRegularHours", Number(p.regularHours||0).toFixed(2)); setText("slipBasePay", money(p.basePay)); setText("slipAllowanceDays", p.daysPresent || 0); setText("slipAllowance", money(p.allowance));
+      setText("slipPayslipId", p.payslipId || "Preview Only"); setText("slipGeneratedAt", formatDisplayDateTime(p.generatedAt)); setText("slipPayrollLabel", p.payrollLabel || "Salary computation summary");
+      setText("slipEmployeeName", p.employeeName || "--"); setText("slipEmployeeId", p.employeeId || "--"); setText("slipPosition", p.position || "--"); setText("slipEmploymentType", p.employmentType || "--"); setText("slipSalaryDate", formatDisplayDate(p.salaryDate));
+      setText("slipPeriodStart", formatDisplayDate(p.periodStart)); setText("slipPeriodEnd", formatDisplayDate(p.periodEnd)); setText("slipDailyRate", money(p.dailyRate)); setText("slipDaysPresent", p.daysPresent || 0); setText("slipPaidHolidayDays", p.paidHolidayDays || 0);
+      setText("slipRegularHoursInfo", Number(p.regularHours||0).toFixed(2)); setText("slipTotalWorkHours", Number(p.totalWorkHours||0).toFixed(2));
+      setText("slipRegularHours", Number(p.regularHours||0).toFixed(2)); setText("slipBasePay", money(p.basePay)); setText("slipAllowanceDays", p.daysPresent || 0); setText("slipAllowance", money(p.allowance)); setText("slipHolidayDays", p.paidHolidayDays || 0); setText("slipHolidayPay", money(p.holidayPay));
       setText("slipOvertimeHours", Number(p.overtimeHours||0).toFixed(2)); setText("slipOtPay", money(p.otPay)); setText("slipRestDayHours", Number(p.restDayHours||0).toFixed(2)); setText("slipRestDayPay", money(p.restDayPay)); setText("slipRdotHours", Number(p.rdotHours||0).toFixed(2)); setText("slipRdotPay", money(p.rdotPay)); setText("slipNightDiffHours", Number(p.nightDiffHours||0).toFixed(2)); setText("slipNightDiffPay", money(p.nightDiffPay));
       setText("slipAdditionalPay", money(p.additionalPay)); setText("slipGross", money(p.grossPay)); setText("slipCashAdvance", money(p.cashAdvanceDeduction)); setText("slipLoan", money(p.loanDeduction));
       setText("slipOtherDeduction", money(p.otherDeduction)); setText("slipSss", money(p.sssDeduction)); setText("slipPagibig", money(p.pagibigDeduction)); setText("slipPhilhealth", money(p.philhealthDeduction));
-      setText("slipTotalDeduction", money(p.totalDeduction)); setText("slipNetPay", money(p.netPay)); setText("slipRemarks", p.remarks || "--"); setText("slipIncompleteLogs", p.incompleteLogs || 0);
+      setText("slipTotalDeduction", money(p.totalDeduction)); setText("slipNetPay", money(p.netPay)); setText("slipRemarks", p.remarks || "--"); setText("slipHolidayDetails", p.holidayDetails || "--"); setText("slipIncompleteLogs", p.incompleteLogs || 0);
 
       const attendanceRows = p.attendanceRows || [];
-      document.querySelector("#attendanceRows").innerHTML = attendanceRows.length ? attendanceRows.map(r=>'<tr><td>'+escapeHtml(r.date)+'</td><td>'+escapeHtml(r.timeIn||"--")+'</td><td>'+escapeHtml(r.breakStart||"--")+'</td><td>'+escapeHtml(r.breakEnd||"--")+'</td><td>'+escapeHtml(r.timeOut||"--")+'</td><td class="num">'+escapeHtml(r.workHours||"")+'</td><td class="num">'+escapeHtml(r.regularPaidHours||"")+'</td><td class="num">'+escapeHtml(r.overtimeHours||"")+'</td><td class="num">'+escapeHtml(r.restDayHours||"")+'</td><td class="num">'+escapeHtml(r.rdotHours||"")+'</td><td class="num">'+escapeHtml(r.nightDiffHours||"")+'</td><td>'+escapeHtml(r.remarks||"")+'</td></tr>').join("") : '<tr><td colspan="12">No attendance rows found for this cutoff.</td></tr>';
+      document.querySelector("#attendanceRows").innerHTML = attendanceRows.length ? attendanceRows.map(function(r){
+        const timeOutText = r.timeOut || (r.usedMinimumOpenShift ? "Open - 8h minimum" : "--");
+        const autoBreakText = (r.autoBreakHours === "" || r.autoBreakHours === undefined ? "--" : r.autoBreakHours + " hr") +
+          (r.autoBreakSchedule ? "<br><small>" + escapeHtml(r.autoBreakSchedule) + "</small>" : "");
+        const holidayText = r.holidayName
+          ? escapeHtml(r.holidayName) + '<br><small>' + escapeHtml(r.holidayType || "") + (Number(r.holidayPay || 0) ? " - " + money(r.holidayPay) : "") + '</small>'
+          : "--";
+        const note = [r.remarks, r.computationNote, r.holidayNote, r.nightDiffNote].filter(Boolean).join(" | ");
+
+        return '<tr>' +
+          '<td>' + escapeHtml(formatDisplayDate(r.date)) + '</td>' +
+          '<td>' + holidayText + '</td>' +
+          '<td>' + escapeHtml(r.timeIn || "--") + '</td>' +
+          '<td>' + escapeHtml(timeOutText) + '</td>' +
+          '<td class="num">' + autoBreakText + '</td>' +
+          '<td class="num">' + escapeHtml(r.workHours === "" ? "--" : r.workHours) + '</td>' +
+          '<td class="num">' + escapeHtml(r.regularPaidHours === "" ? "--" : r.regularPaidHours) + '</td>' +
+          '<td class="num">' + escapeHtml(r.overtimeHours === "" ? "--" : r.overtimeHours) + '</td>' +
+          '<td class="num">' + escapeHtml(r.restDayHours === "" ? "--" : r.restDayHours) + '</td>' +
+          '<td class="num">' + escapeHtml(r.rdotHours === "" ? "--" : r.rdotHours) + '</td>' +
+          '<td class="num">' + escapeHtml(r.nightDiffHours === "" ? "--" : r.nightDiffHours) + '</td>' +
+          '<td class="amount">' + money(r.nightDiffPay || 0) + '</td>' +
+          '<td>' + escapeHtml(note || "--") + '</td>' +
+        '</tr>';
+      }).join("") : '<tr><td colspan="13">No attendance rows found for this cutoff.</td></tr>';
 
       const deductionItems = p.autoDeductionItems || [];
       document.querySelector("#deductionRows").innerHTML = deductionItems.length ? deductionItems.map(d=>'<tr><td>'+escapeHtml(d.type)+'</td><td>'+escapeHtml(d.description)+'</td><td class="amount">'+money(d.amount)+'</td></tr>').join("") : '<tr><td colspan="3">No auto deductions for this cutoff.</td></tr>';
@@ -591,7 +731,7 @@
 
     async function saveRate(){
       const btn=document.querySelector("#saveRateBtn"); setBusy(btn,true); showNotice("Saving payroll rate...");
-      try{const data=payload(); data.rateNotes="Saved from Payslip Generator"; const res=await callBackend("PAY_savePayrollRate", data); if(!res || res.success===false) throw new Error(res && res.message ? res.message : "Unable to save rate."); showNotice(res.message || "Payroll rate saved.","ok");}
+      try{const data=payload(); data.rateNotes="Saved from Payslip Generator"; const res=await callBackend("PAY_savePayrollRate", data); if(!res || res.success===false) throw new Error(res && res.message ? res.message : "Unable to save rate."); clearInitialDataCache(); showNotice(res.message || "Payroll rate saved.","ok");}
       catch(err){showNotice(err.message||String(err),"error");}
       finally{setBusy(btn,false);}
     }
@@ -868,20 +1008,13 @@
       if(select) select.addEventListener("change", updateGovModeInputs);
     });
     document.querySelectorAll(".nav-toggle").forEach(button=>button.addEventListener("click",()=>{const group=button.closest(".nav-group"); if(group) group.classList.toggle("is-open");}));
-    document.querySelector("#logoutBtn").addEventListener("click", async ()=>{
-      const token = getToken();
-      try {
-        if(token) await callBackend("logout", {});
-      } catch(e) {}
-      clearStoredSessions();
-      window.location.replace("index.html");
-    });
+    document.querySelector("#logoutBtn").addEventListener("click",()=>{clearInitialDataCache();localStorage.removeItem(SESSION_KEY);localStorage.removeItem(FALLBACK_SESSION_KEY);window.location.replace("index.html");});
     document.querySelector("#previewBtn").addEventListener("click",previewPayslip);
     document.querySelector("#savePayslipBtn").addEventListener("click",savePayslip);
     document.querySelector("#saveRateBtn").addEventListener("click",saveRate);
     document.querySelector("#downloadPngBtn").addEventListener("click",downloadPayslipPng);
     document.querySelector("#printBtn").addEventListener("click",()=>window.print());
-    document.querySelector("#reloadBtn").addEventListener("click",loadInitial);
+    document.querySelector("#reloadBtn").addEventListener("click",()=>loadInitial(true));
     if(!getToken()){
       redirectToLogin("Session expired. Please login again.");
     } else {
@@ -889,5 +1022,6 @@
       loadInitial();
     }
   </script>
+  <script src="assets/employee-shell.js"></script>
 </body>
 </html>
