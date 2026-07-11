@@ -177,7 +177,7 @@
 </head>
 <body>
   <main class="app">
-      <aside class="sidebar" data-employee-sidebar>
+      <aside class="sidebar">
     <div class="brand">
       <div class="brand-logo">
         <img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH">
@@ -364,7 +364,9 @@
   <script>
     const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxDY5TsonrB58YaN8LGbrrrc_ZD1QVpF1WK0p6jToIR2FBSqGaHfsgaE1CCiH1MvukV/exec";
     const SESSION_KEY = "techgeekph_session";
+    const ADMIN_SESSION_KEY = "techgeekph_admin_session";
     const FALLBACK_SESSION_KEY = "techgeekph_employee_session";
+    const SESSION_KEYS = [ADMIN_SESSION_KEY, SESSION_KEY, FALLBACK_SESSION_KEY];
     const INITIAL_DATA_CACHE_PREFIX = "techgeekph_payslip_initial_v4:";
     const INITIAL_DATA_CACHE_MAX_AGE = 30 * 60 * 1000;
     let currentPreview = null;
@@ -394,29 +396,81 @@
       remarks: document.querySelector("#remarks")
     };
 
+    function sessionTokenFrom(session){
+      session = session || {};
+      const data = session.data || {};
+      return session.token || session.sessionToken || session.accessToken ||
+        data.token || data.sessionToken || data.accessToken || "";
+    }
+
+    function sessionUserFrom(session){
+      session = session || {};
+      const data = session.data || {};
+      return session.user || data.user || {};
+    }
+
+    function sessionRoleFrom(session){
+      const user = sessionUserFrom(session);
+      return String(user.role || session.role || (session.data && session.data.role) || "").trim().toUpperCase();
+    }
+
     function loadSession(){
-      try {
-        const primary = JSON.parse(localStorage.getItem(SESSION_KEY) || "{}");
-        if (primary && Object.keys(primary).length) return primary;
-      } catch(e) {}
-      try {
-        const fallback = JSON.parse(localStorage.getItem(FALLBACK_SESSION_KEY) || "{}");
-        return fallback || {};
-      } catch(e) {
-        return {};
-      }
+      const candidates = [];
+
+      SESSION_KEYS.forEach(function(key){
+        try {
+          const parsed = JSON.parse(localStorage.getItem(key) || "{}");
+          if(parsed && sessionTokenFrom(parsed)){
+            candidates.push({ key: key, session: parsed });
+          }
+        } catch(e) {}
+      });
+
+      // This page must prefer the active ADMIN login when both admin and
+      // employee/legacy sessions happen to exist in the same browser.
+      const admin = candidates.find(function(item){
+        return item.key === ADMIN_SESSION_KEY || sessionRoleFrom(item.session) === "ADMIN";
+      });
+
+      return admin ? admin.session : (candidates[0] ? candidates[0].session : {});
     }
 
     function getToken(){
-      const session = loadSession();
-      return session.token || session.sessionToken || session.accessToken || "";
+      return sessionTokenFrom(loadSession());
+    }
+
+    function clearStoredSessions(){
+      SESSION_KEYS.forEach(function(key){
+        try { localStorage.removeItem(key); } catch(e) {}
+      });
     }
 
     function getSessionToken(){
       return getToken();
     }
-    function initialsFrom(v){return String(v||"TG").replace(/@.*/,"").split(/[.\s_-]+/).filter(Boolean).slice(0,2).map(p=>p[0].toUpperCase()).join("")||"TG";}
-    function setUser(){const s=loadSession();const u=s.user||{};const name=u.fullName||u.name||u.email||s.email||"TechGeekPH User";const role=u.role||s.role||"portal";document.querySelector("#userName").textContent=name;document.querySelector("#userRole").textContent=String(role).charAt(0).toUpperCase()+String(role).slice(1).toLowerCase()+" access";document.querySelector("#avatar").textContent=initialsFrom(name);const adminLink=document.querySelector("#adminRecordsLink");if(adminLink&&String(role).toUpperCase()!=="ADMIN")adminLink.style.display="none";}
+
+    function initialsFrom(v){
+      return String(v||"TG").replace(/@.*/,"").split(/[.\s_-]+/).filter(Boolean).slice(0,2).map(function(p){return p[0].toUpperCase();}).join("")||"TG";
+    }
+
+    function setUser(){
+      const s = loadSession();
+      const u = sessionUserFrom(s);
+      const name = u.fullName || u.name || u.email || s.email || "TechGeekPH User";
+      const role = u.role || s.role || "portal";
+
+      document.querySelector("#userName").textContent = name;
+      document.querySelector("#userRole").textContent = String(role).charAt(0).toUpperCase() + String(role).slice(1).toLowerCase() + " access";
+      document.querySelector("#avatar").textContent = initialsFrom(name);
+
+      const isAdmin = String(role).trim().toUpperCase() === "ADMIN";
+      const brandTitle = document.querySelector(".brand strong");
+      const brandText = document.querySelector(".brand span");
+      if(isAdmin){
+        if(brandTitle) brandTitle.textContent = "TechGeekPH Admin";
+        if(brandText) brandText.textContent = "Admin payroll workspace for employee rates, attendance computation, deductions, and payslip generation.";
+      }
+    }
     function money(v){const n=Number(v||0);return "PHP "+n.toLocaleString("en-PH",{minimumFractionDigits:2,maximumFractionDigits:2});}
     function formatDisplayDate(value){
       const text=String(value||"").trim();
@@ -433,6 +487,50 @@
       if(Number.isNaN(date.getTime())) return text;
       return new Intl.DateTimeFormat("en-US",{month:"long",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit",hour12:true,timeZone:"Asia/Manila"}).format(date);
     }
+    function formatDisplayTime(value){
+      if(value === null || value === undefined || value === "") return "--";
+
+      const text = String(value).trim();
+      if(!text) return "--";
+
+      // Normal time text such as 9:17 AM, 09:17 AM, or 14:28.
+      const match = text.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?$/i);
+      if(match){
+        let hour = Number(match[1]);
+        const minute = Number(match[2]);
+        const ampm = match[4] ? match[4].toUpperCase() : "";
+
+        if(ampm === "PM" && hour < 12) hour += 12;
+        if(ampm === "AM" && hour === 12) hour = 0;
+
+        const displayAmpm = hour >= 12 ? "PM" : "AM";
+        const hour12 = hour % 12 || 12;
+        return String(hour12).padStart(2,"0") + ":" + String(minute).padStart(2,"0") + " " + displayAmpm;
+      }
+
+      // Google Sheets time-only cells may arrive as a Date based on Dec. 30, 1899.
+      // Display only the Philippine time instead of the full 1899 date string.
+      const date = new Date(text);
+      if(!Number.isNaN(date.getTime())){
+        const parts = new Intl.DateTimeFormat("en-US",{
+          hour:"2-digit",
+          minute:"2-digit",
+          hour12:true,
+          timeZone:"Asia/Manila"
+        }).formatToParts(date);
+
+        const part = function(type){
+          const found = parts.find(function(item){ return item.type === type; });
+          return found ? found.value : "";
+        };
+
+        return String(part("hour") || "").padStart(2,"0") + ":" +
+          String(part("minute") || "00").padStart(2,"0") + " " +
+          String(part("dayPeriod") || "").toUpperCase();
+      }
+
+      return text;
+    }
     function escapeHtml(v){return String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;");}
     function setText(id,value){const el=document.getElementById(id); if(el) el.textContent=value;}
     function numEl(el){return Number(String(el.value||0).replace(/,/g,""))||0;}
@@ -445,13 +543,11 @@
         text.includes("no session token") ||
         text.includes("please login again") ||
         text.includes("please log in again") ||
-        text.includes("access denied") ||
         text.includes("invalid token");
     }
 
     function redirectToLogin(message){
-      try { localStorage.removeItem(SESSION_KEY); } catch(e) {}
-      try { localStorage.removeItem(FALLBACK_SESSION_KEY); } catch(e) {}
+      clearStoredSessions();
       showNotice(message || "Session expired. Redirecting to login page...", "error");
       setTimeout(function(){
         window.location.replace("index.html");
@@ -686,7 +782,7 @@
 
       const attendanceRows = p.attendanceRows || [];
       document.querySelector("#attendanceRows").innerHTML = attendanceRows.length ? attendanceRows.map(function(r){
-        const timeOutText = r.timeOut || (r.usedMinimumOpenShift ? "Open - 8h minimum" : "--");
+        const timeOutText = r.timeOut ? formatDisplayTime(r.timeOut) : (r.usedMinimumOpenShift ? "Open - 8h minimum" : "--");
         const autoBreakText = (r.autoBreakHours === "" || r.autoBreakHours === undefined ? "--" : r.autoBreakHours + " hr") +
           (r.autoBreakSchedule ? "<br><small>" + escapeHtml(r.autoBreakSchedule) + "</small>" : "");
         const holidayText = r.holidayName
@@ -697,7 +793,7 @@
         return '<tr>' +
           '<td>' + escapeHtml(formatDisplayDate(r.date)) + '</td>' +
           '<td>' + holidayText + '</td>' +
-          '<td>' + escapeHtml(r.timeIn || "--") + '</td>' +
+          '<td>' + escapeHtml(formatDisplayTime(r.timeIn)) + '</td>' +
           '<td>' + escapeHtml(timeOutText) + '</td>' +
           '<td class="num">' + autoBreakText + '</td>' +
           '<td class="num">' + escapeHtml(r.workHours === "" ? "--" : r.workHours) + '</td>' +
@@ -1008,7 +1104,11 @@
       if(select) select.addEventListener("change", updateGovModeInputs);
     });
     document.querySelectorAll(".nav-toggle").forEach(button=>button.addEventListener("click",()=>{const group=button.closest(".nav-group"); if(group) group.classList.toggle("is-open");}));
-    document.querySelector("#logoutBtn").addEventListener("click",()=>{clearInitialDataCache();localStorage.removeItem(SESSION_KEY);localStorage.removeItem(FALLBACK_SESSION_KEY);window.location.replace("index.html");});
+    document.querySelector("#logoutBtn").addEventListener("click",function(){
+      clearInitialDataCache();
+      clearStoredSessions();
+      window.location.replace("index.html");
+    });
     document.querySelector("#previewBtn").addEventListener("click",previewPayslip);
     document.querySelector("#savePayslipBtn").addEventListener("click",savePayslip);
     document.querySelector("#saveRateBtn").addEventListener("click",saveRate);
@@ -1022,6 +1122,5 @@
       loadInitial();
     }
   </script>
-  <script src="assets/employee-shell.js"></script>
 </body>
 </html>
