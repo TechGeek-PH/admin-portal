@@ -791,6 +791,44 @@
       line-height: 1.45;
     }
 
+    .form-type-section {
+      border: 2px solid rgba(6, 79, 131, 0.30);
+      background: linear-gradient(135deg, #f7fbff, #ffffff);
+    }
+
+    .form-type-section .section-title {
+      background: #eef7ff;
+    }
+
+    .form-type-help {
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid #cde4f6;
+      border-radius: 8px;
+      background: #f0f8ff;
+      color: var(--blue-strong);
+      font-size: 0.82rem;
+      font-weight: 750;
+      line-height: 1.4;
+    }
+
+    .service-request-section {
+      border-color: rgba(201, 20, 72, 0.22);
+      background: #fffafd;
+    }
+
+    .service-request-section .section-title {
+      background: #fff5f8;
+    }
+
+    .service-request-section .section-title h3 {
+      color: var(--crimson);
+    }
+
+    .mode-hidden { display: none !important; }
+
     @media print {
       .sidebar,
       .topbar,
@@ -1107,8 +1145,8 @@
     <section class="main">
       <header class="topbar">
         <div class="title-block">
-          <h1>Application Form</h1>
-          <p>Save new client applications directly to the “New Client” sheet.</p>
+          <h1 id="pageTitle">Application & Service Forms</h1>
+          <p id="pageSubtitle">Create a new application, relocation request, or repair request.</p>
         </div>
         <div class="user-chip">
           <div class="avatar" id="avatar">TG</div>
@@ -1120,22 +1158,39 @@
         <p class="notice is-hidden" id="notice"></p>
 
         <div class="summary-grid">
-          <article class="card"><span>Total Applications</span><strong id="metricTotal">--</strong><small>Rows in New Client sheet</small></article>
+          <article class="card"><span>Total Records</span><strong id="metricTotal">--</strong><small>Application and service form records</small></article>
           <article class="card"><span>Today</span><strong id="metricToday">--</strong><small>Date Today = current date</small></article>
-          <article class="card"><span>Installed</span><strong id="metricInstalled">--</strong><small>With Date Installed</small></article>
+          <article class="card"><span>Completed / Installed</span><strong id="metricInstalled">--</strong><small>With completion or installation date</small></article>
           <article class="card"><span>Paid</span><strong id="metricPaid">--</strong><small>Amount Paid > 0</small></article>
         </div>
 
         <section class="panel">
           <div class="panel-head">
             <div>
-              <h2>New Client Application</h2>
-              <p>Fill up personal information, service details, network details, payment, photos, terms, and Google Maps location.</p>
+              <h2 id="formPanelTitle">New Client Application</h2>
+              <p id="formPanelDescription">Fill up personal information, service details, network details, payment, photos, terms, and Google Maps location.</p>
             </div>
             <span class="mode-chip" id="sheetChip">Sheet: New Client</span>
           </div>
 
           <form id="applicationForm" class="form-wrap">
+            <div class="section form-type-section">
+              <div class="section-title"><h3>Select Form Type</h3><span>Required</span></div>
+              <div class="form-grid">
+                <div class="field wide">
+                  <label for="formType">Form Type</label>
+                  <select id="formType" name="Form Type" required>
+                    <option value="New Application">New Client Application</option>
+                    <option value="Relocation">Relocation Form</option>
+                    <option value="Repair">Repair Form</option>
+                  </select>
+                </div>
+                <div class="field wide">
+                  <label>Selected Workflow</label>
+                  <div class="form-type-help" id="formTypeHelp">Use this form for a new internet service application and installation.</div>
+                </div>
+              </div>
+            </div>
             <div class="section">
               <div class="section-title"><h3>Personal Information</h3><span>Client identity</span></div>
               <div class="form-grid">
@@ -1149,7 +1204,7 @@
               </div>
             </div>
 
-            <div class="section">
+            <div class="section" data-form-modes="application">
               <div class="section-title"><h3>Address Line</h3><span>Installation address</span></div>
               <div class="form-grid">
                 <div class="field"><label for="houseNumber">House Number</label><input id="houseNumber" name="House Number" placeholder="Blk / Lot / House #"></div>
@@ -1161,11 +1216,45 @@
               </div>
             </div>
 
-            <div class="section">
+            <div class="section service-request-section" data-form-modes="relocation">
+              <div class="section-title"><h3>Relocation Details</h3><span>Existing client transfer request</span></div>
+              <div class="form-grid">
+                <div class="field full"><label for="currentServiceAddress">Current Service Address</label><textarea id="currentServiceAddress" name="Current Service Address" data-required-modes="relocation" placeholder="Complete current installation address"></textarea></div>
+                <div class="field"><label for="newHouseNumber">New House Number</label><input id="newHouseNumber" name="New House Number" data-required-modes="relocation" placeholder="Blk / Lot / House #"></div>
+                <div class="field wide"><label for="newStreetName">New Street Name</label><input id="newStreetName" name="New Street Name" data-required-modes="relocation" placeholder="Street / Purok"></div>
+                <div class="field"><label for="newBarangay">New Barangay</label><input id="newBarangay" name="New Barangay" data-required-modes="relocation" value="Sta. Ana"></div>
+                <div class="field"><label for="newCityMunicipality">New City/Municipality</label><input id="newCityMunicipality" name="New City/Municipality" data-required-modes="relocation" value="Taytay"></div>
+                <div class="field"><label for="newPostalCode">New Postal Code</label><input id="newPostalCode" name="New Postal Code" inputmode="numeric" value="1920"></div>
+                <div class="field"><label for="preferredRelocationDate">Preferred Relocation Date</label><input id="preferredRelocationDate" name="Preferred Relocation Date" type="date"></div>
+                <div class="field"><label for="relocationStatus">Relocation Status</label><select id="relocationStatus" name="Relocation Status"><option value="Pending" selected>Pending</option><option>For Site Survey</option><option>Scheduled</option><option>On Going</option><option>Completed</option><option>Rejected / Out of Coverage</option><option>Cancelled</option></select></div>
+                <div class="field"><label for="relocationFee">Relocation Fee</label><input id="relocationFee" name="Relocation Fee" inputmode="decimal" placeholder="0.00"></div>
+                <div class="field"><label for="oldNapNo">Old NAP No.</label><input id="oldNapNo" name="Old NAP No." placeholder="Current NAP"></div>
+                <div class="field"><label for="newNapNo">New NAP No.</label><input id="newNapNo" name="New NAP No." placeholder="New NAP"></div>
+                <div class="field full"><label for="relocationReason">Reason for Relocation</label><textarea id="relocationReason" name="Relocation Reason" data-required-modes="relocation" placeholder="Reason for transfer and special instructions"></textarea></div>
+              </div>
+            </div>
+
+            <div class="section service-request-section" data-form-modes="repair">
+              <div class="section-title"><h3>Repair Details</h3><span>Troubleshooting and service request</span></div>
+              <div class="form-grid">
+                <div class="field"><label for="repairCategory">Repair Category</label><select id="repairCategory" name="Repair Category" data-required-modes="repair"><option value="">Select concern</option><option>No Internet</option><option>LOS / Red Light</option><option>Slow Connection</option><option>Intermittent Connection</option><option>WiFi Problem</option><option>Router / ONU Problem</option><option>Drop Wire / Fiber Cut</option><option>SC Connector / Reading</option><option>Power Supply / Adapter</option><option>Relocation-related Repair</option><option>Others</option></select></div>
+                <div class="field"><label for="repairPriority">Priority</label><select id="repairPriority" name="Repair Priority"><option>Normal</option><option>Urgent</option><option>Emergency / Business</option></select></div>
+                <div class="field"><label for="dateReported">Date Reported</label><input id="dateReported" name="Date Reported" type="date"></div>
+                <div class="field"><label for="preferredRepairDate">Preferred Repair Date</label><input id="preferredRepairDate" name="Preferred Repair Date" type="date"></div>
+                <div class="field full"><label for="problemDescription">Problem Description</label><textarea id="problemDescription" name="Problem Description" data-required-modes="repair" placeholder="Describe the issue, when it started, and current router/ONU light status"></textarea></div>
+                <div class="field wide"><label for="initialDiagnosis">Initial Diagnosis</label><textarea id="initialDiagnosis" name="Initial Diagnosis" placeholder="Remote checking result or initial technician diagnosis"></textarea></div>
+                <div class="field wide"><label for="actionTaken">Action Taken</label><textarea id="actionTaken" name="Action Taken" placeholder="Repair work completed or recommended action"></textarea></div>
+                <div class="field wide"><label for="materialsUsed">Materials / Parts Used</label><input id="materialsUsed" name="Materials Used" placeholder="Example: SC connector, patch cord, drop wire"></div>
+                <div class="field"><label for="repairStatus">Repair Status</label><select id="repairStatus" name="Repair Status"><option value="Pending" selected>Pending</option><option>For Remote Checking</option><option>For Dispatch</option><option>Scheduled</option><option>On Going</option><option>Resolved</option><option>For Monitoring</option><option>Cancelled</option></select></div>
+                <div class="field"><label for="repairFee">Repair / Service Fee</label><input id="repairFee" name="Repair Fee" inputmode="decimal" placeholder="0.00"></div>
+              </div>
+            </div>
+
+            <div class="section" data-form-modes="application">
               <div class="section-title"><h3>Service Details</h3><span>Plan and speed</span></div>
               <div class="form-grid">
-                <div class="field"><label for="plan">Plan</label><select id="plan" name="Plan" required><option value="">Select plan</option><option>Student Plan</option><option>Basic Plan</option><option>Budget Plan</option><option>Starter Plan</option><option>Family Plan</option><option>Premium Plan</option><option>Biz Plan</option></select></div>
-                <div class="field"><label for="speed">Speed</label><select id="speed" name="Speed" required><option value="">Select speed</option></select><small id="planFeeNote">Select a plan to show available speed.</small></div>
+                <div class="field"><label for="plan">Plan</label><select id="plan" name="Plan" data-required-modes="application"><option value="">Select plan</option><option>Student Plan</option><option>Basic Plan</option><option>Budget Plan</option><option>Starter Plan</option><option>Family Plan</option><option>Premium Plan</option><option>Biz Plan</option></select></div>
+                <div class="field"><label for="speed">Speed</label><select id="speed" name="Speed" data-required-modes="application"><option value="">Select speed</option></select><small id="planFeeNote">Select a plan to show available speed.</small></div>
                 <div class="field"><label for="type">Type</label><select id="type" name="Type"><option value="">Select type</option><option>Single Band</option><option>Dual Band</option><option>Business</option><option>Own Router</option><option>Others</option></select></div>
                 <div class="field"><label for="ftthStart">FTTH Used Start</label><input id="ftthStart" name="FTTH Used Start" inputmode="decimal" placeholder="Meter start"></div>
                 <div class="field"><label for="ftthEnd">FTTH Used End</label><input id="ftthEnd" name="FTTH Used End" inputmode="decimal" placeholder="Meter end"></div>
@@ -1176,7 +1265,7 @@
             <div class="section">
               <div class="section-title"><h3>Account & Router Details</h3><span>Router credentials</span></div>
               <div class="form-grid">
-                <div class="field"><label for="accountNo">Account No.</label><input id="accountNo" name="Account No." placeholder="SATR0001"></div>
+                <div class="field"><label for="accountNo">Account No.</label><input id="accountNo" name="Account No." data-required-modes="relocation repair" placeholder="SATR0001"></div>
                 <div class="field"><label for="routerModel">Router Model</label><input id="routerModel" name="Router Model" placeholder="ZTE F670L"></div>
                 <div class="field"><label for="version">Version</label><input id="version" name="Version" placeholder="v2 / H2-2"></div>
                 <div class="field"><label for="serialNo">Serial No.</label><input id="serialNo" name="Serial No." placeholder="Serial number"></div>
@@ -1200,7 +1289,7 @@
               </div>
             </div>
 
-            <div class="section">
+            <div class="section" data-form-modes="application">
               <div class="section-title"><h3>Payment Method</h3><span>Cashout + optional prorated bill</span></div>
               <div class="form-grid">
                 <div class="field computed-field">
@@ -1274,10 +1363,10 @@
             </div>
 
             <div class="section">
-              <div class="section-title"><h3>Installation Date</h3><span>Schedule and technician</span></div>
+              <div class="section-title"><h3>Schedule & Work Details</h3><span>Installation, relocation, or repair</span></div>
               <div class="form-grid">
                 <div class="field"><label for="dateToday">Date Today</label><input id="dateToday" name="Date Today" type="date"></div>
-                <div class="field"><label for="dateInstalled">Date Installed</label><input id="dateInstalled" name="Date Installed" type="date"></div>
+                <div class="field"><label for="dateInstalled">Date Installed / Work Completed</label><input id="dateInstalled" name="Date Installed" type="date"></div>
                 <div class="field"><label for="timeStart">Time Start</label><input id="timeStart" name="Time Start" type="time"></div>
                 <div class="field"><label for="timeEnd">Time End</label><input id="timeEnd" name="Time End" type="time"></div>
                 <div class="field wide"><label for="assignedTechnician">Assigned Technician</label><input id="assignedTechnician" name="Assigned Technician" placeholder="Technician name"></div>
@@ -1285,39 +1374,39 @@
             </div>
 
             <div class="section">
-              <div class="section-title"><h3>Installation Photos</h3><span>Select files from phone or PC storage</span></div>
+              <div class="section-title"><h3>Supporting Photos</h3><span>Select files from phone or PC storage</span></div>
               <div class="form-grid">
                 <div class="field wide">
-                  <label for="fixPositionRouterPhoto">Fix Position Router Photo</label>
+                  <label for="fixPositionRouterPhoto">Router Position / Main Photo</label>
                   <input id="fixPositionRouterPhoto" name="Fix Position Router Photo" type="file" accept="image/*,.pdf">
                   <small class="file-note" id="fixPositionRouterPhotoNote">No file selected. Image/PDF will auto-upload to Drive when saved.</small>
                 </div>
                 <div class="field wide">
-                  <label for="scReadingPhoto">SC Connector Reading on Client Side Photo</label>
+                  <label for="scReadingPhoto">SC Connector Reading / Signal Photo</label>
                   <input id="scReadingPhoto" name="SC Connector Reading on Client Side Photo" type="file" accept="image/*,.pdf">
                   <small class="file-note" id="scReadingPhotoNote">No file selected. Image/PDF will auto-upload to Drive when saved.</small>
                 </div>
                 <div class="field wide">
-                  <label for="frontHousePhoto">Front House / See Full House on Frame</label>
+                  <label for="frontHousePhoto">Front House / Work Area Photo</label>
                   <input id="frontHousePhoto" name="Front House / See Full House on Frame" type="file" accept="image/*,.pdf">
                   <small class="file-note" id="frontHousePhotoNote">No file selected. Image/PDF will auto-upload to Drive when saved.</small>
                 </div>
                 <div class="field wide">
-                  <label for="idPicture">ID Picture</label>
+                  <label for="idPicture">ID / Additional Supporting Photo</label>
                   <input id="idPicture" name="ID Picture" type="file" accept="image/*,.pdf">
                   <small class="file-note" id="idPictureNote">No file selected. Image/PDF will auto-upload to Drive when saved.</small>
                 </div>
               </div>
             </div>
 
-            <div class="section">
+            <div class="section" data-form-modes="application">
               <div class="section-title"><h3>Referral & Payment</h3><span>Referral tracking</span></div>
               <div class="form-grid">
                 <div class="field wide"><label for="referralBy">Referral By</label><input id="referralBy" name="Referral By" placeholder="Agent / client / technician"></div>
               </div>
             </div>
 
-            <div class="section">
+            <div class="section" data-form-modes="application">
               <div class="section-title"><h3>Terms Acceptance</h3><span>Client must read before accepting</span></div>
               <div class="form-grid">
                 <div class="field full">
@@ -1393,9 +1482,9 @@
 
                 <div class="field full">
                   <label>Terms Accepted</label>
-                  <label class="checkline"><input id="termsAccepted" name="Terms Accepted" type="checkbox" value="Yes" required><span>I have read, understood, and accepted the TECHGEEKPH Service Terms &amp; Conditions.</span></label>
+                  <label class="checkline"><input id="termsAccepted" name="Terms Accepted" type="checkbox" value="Yes" data-required-modes="application"><span>I have read, understood, and accepted the TECHGEEKPH Service Terms &amp; Conditions.</span></label>
                 </div>
-                <div class="field wide"><label for="agreementNameSignature">Agreement Name / Signature</label><input id="agreementNameSignature" name="Agreement Name / Signature" placeholder="Client full name / signature name" required></div>
+                <div class="field wide"><label for="agreementNameSignature">Agreement Name / Signature</label><input id="agreementNameSignature" name="Agreement Name / Signature" data-required-modes="application" placeholder="Client full name / signature name"></div>
                 <div class="field wide"><label for="acceptedDateTime">Accepted Date & Time</label><input id="acceptedDateTime" name="Accepted Date & Time" readonly placeholder="Auto when terms accepted"></div>
               </div>
             </div>
@@ -1419,17 +1508,17 @@
 
         <section class="panel">
           <div class="panel-head">
-            <div><h2>Recent Applications</h2><p>Latest rows from the “New Client” sheet.</p></div>
+            <div><h2>Recent Form Records</h2><p>Latest application, relocation, and repair records returned by the backend.</p></div>
             <button class="ghost-btn" type="button" id="refreshBtn">Refresh</button>
           </div>
           <div class="toolbar">
-            <input class="search" id="searchInput" placeholder="Search name, account, contact, address, plan">
+            <input class="search" id="searchInput" placeholder="Search type, name, account, contact, address, concern">
             <span class="mode-chip" id="rowCount">0 records</span>
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Name</th><th>Account No.</th><th>Contact No</th><th>Plan</th><th>Speed</th><th>Amount Paid</th><th>Date Installed</th><th>Google Maps</th></tr></thead>
-              <tbody id="applicationRows"><tr><td colspan="8">Waiting for application data...</td></tr></tbody>
+              <thead><tr><th>Form Type</th><th>Name</th><th>Account No.</th><th>Contact No</th><th>Plan / Concern</th><th>Speed / Status</th><th>Amount / Fee</th><th>Completed</th><th>Google Maps</th></tr></thead>
+              <tbody id="applicationRows"><tr><td colspan="9">Waiting for form data...</td></tr></tbody>
             </table>
           </div>
         </section>
@@ -1460,6 +1549,39 @@
       { plan: "Biz Plan", speed: "200Mbps", fee: 1599, type: "Business" }
     ];
 
+    const FORM_MODE_CONFIG = {
+      application: {
+        value: "New Application",
+        title: "New Client Application",
+        description: "Fill up personal information, service details, network details, payment, photos, terms, and Google Maps location.",
+        help: "Use this form for a new internet service application and installation.",
+        chip: "Sheet: New Client",
+        saveLabel: "Save Application",
+        savingMessage: "Saving new client application to the New Client sheet...",
+        successMessage: "New client application saved to the New Client sheet."
+      },
+      relocation: {
+        value: "Relocation",
+        title: "Client Relocation Form",
+        description: "Record the existing account, current address, new address, requested schedule, fees, network transfer details, and supporting photos.",
+        help: "Use this form when an existing client requests transfer of internet service to a new address.",
+        chip: "Type: Relocation",
+        saveLabel: "Save Relocation",
+        savingMessage: "Saving relocation request...",
+        successMessage: "Relocation request saved."
+      },
+      repair: {
+        value: "Repair",
+        title: "Client Repair Form",
+        description: "Record the client concern, diagnosis, repair action, materials used, service status, fees, technician, and supporting photos.",
+        help: "Use this form for no internet, LOS, slow connection, router, fiber, WiFi, and other repair concerns.",
+        chip: "Type: Repair",
+        saveLabel: "Save Repair",
+        savingMessage: "Saving repair request...",
+        successMessage: "Repair request saved."
+      }
+    };
+
     let applications = [];
 
     const fields = {
@@ -1468,6 +1590,15 @@
       userName: document.querySelector("#userName"),
       userRole: document.querySelector("#userRole"),
       form: document.querySelector("#applicationForm"),
+      formType: document.querySelector("#formType"),
+      formTypeHelp: document.querySelector("#formTypeHelp"),
+      pageTitle: document.querySelector("#pageTitle"),
+      pageSubtitle: document.querySelector("#pageSubtitle"),
+      formPanelTitle: document.querySelector("#formPanelTitle"),
+      formPanelDescription: document.querySelector("#formPanelDescription"),
+      sheetChip: document.querySelector("#sheetChip"),
+      accountNo: document.querySelector("#accountNo"),
+      dateReported: document.querySelector("#dateReported"),
       plan: document.querySelector("#plan"),
       speed: document.querySelector("#speed"),
       type: document.querySelector("#type"),
@@ -1664,7 +1795,7 @@
               success: true,
               ok: true,
               opaqueResponse: true,
-              message: "Application submitted. The browser could not read the Apps Script response, but the request was sent. Please check the New Client sheet."
+              message: "Form submitted. The browser could not read the Apps Script response, but the request was sent. Please check the New Client sheet."
             };
           }
           throw fetchError;
@@ -1679,6 +1810,57 @@
       const url = BACKEND_URL + "?" + params.toString();
       const response = await fetch(url, { method: "GET", redirect: "follow" });
       return parseResponse(response);
+    }
+
+    function currentFormMode() {
+      const value = String(fields.formType && fields.formType.value || "New Application").toLowerCase();
+      if (value.indexOf("relocation") !== -1) return "relocation";
+      if (value.indexOf("repair") !== -1) return "repair";
+      return "application";
+    }
+
+    function setSectionEnabled(section, enabled) {
+      section.classList.toggle("mode-hidden", !enabled);
+      section.querySelectorAll("input, select, textarea, button").forEach(function(control) {
+        control.disabled = !enabled;
+      });
+    }
+
+    function updateRequiredFields(mode) {
+      fields.form.querySelectorAll("[data-required-modes]").forEach(function(control) {
+        const modes = String(control.getAttribute("data-required-modes") || "").split(/\s+/).filter(Boolean);
+        control.required = !control.disabled && modes.indexOf(mode) !== -1;
+      });
+    }
+
+    function updateFormMode() {
+      const mode = currentFormMode();
+      const config = FORM_MODE_CONFIG[mode];
+
+      document.querySelectorAll("[data-form-modes]").forEach(function(section) {
+        const modes = String(section.getAttribute("data-form-modes") || "").split(/\s+/).filter(Boolean);
+        setSectionEnabled(section, modes.indexOf(mode) !== -1);
+      });
+
+      updateRequiredFields(mode);
+      fields.pageTitle.textContent = "Application & Service Forms";
+      fields.pageSubtitle.textContent = "Current form: " + config.title;
+      fields.formPanelTitle.textContent = config.title;
+      fields.formPanelDescription.textContent = config.description;
+      fields.formTypeHelp.textContent = config.help;
+      fields.sheetChip.textContent = config.chip;
+      fields.saveBtn.textContent = config.saveLabel;
+
+      if (mode === "application") {
+        if (!fields.cashoutFee.value) fields.cashoutFee.value = "800";
+        if (!fields.cash.value) fields.cash.value = "800";
+      }
+      if (mode === "repair" && fields.dateReported && !fields.dateReported.value) {
+        fields.dateReported.value = todayInputValue();
+      }
+
+      updatePaymentComputation();
+      hideNotice();
     }
 
     function refreshSpeedOptions() {
@@ -1941,18 +2123,23 @@
         if (value instanceof File) return;
         data[key] = value;
       });
-      data["Terms Accepted"] = fields.termsAccepted.checked ? "Yes" : "No";
-      data["Accepted Date & Time"] = fields.acceptedDateTime.value || "";
+      const mode = currentFormMode();
+      data["Form Type"] = FORM_MODE_CONFIG[mode].value;
+      data["Record Type"] = FORM_MODE_CONFIG[mode].value;
+      data["Terms Accepted"] = mode === "application" && fields.termsAccepted.checked ? "Yes" : "No";
+      data["Accepted Date & Time"] = mode === "application" ? (fields.acceptedDateTime.value || "") : "";
       data["FTTH Total Meter"] = fields.ftthTotal.value || "";
 
-      data["Pay Prorated Bill"] = fields.payProratedBill.checked ? "Yes" : "No";
-      data["Monthly Fee"] = fields.monthlyFee.value || "";
-      data["Next Due Date"] = fields.nextDueDate.value || "";
-      data["Prorated Days"] = fields.proratedDays.value || "";
-      data["Prorated Bill"] = fields.proratedBill.value || "";
-      data["Total Initial Payment"] = fields.totalInitialPayment.value || "";
+      if (mode === "application") {
+        data["Pay Prorated Bill"] = fields.payProratedBill.checked ? "Yes" : "No";
+        data["Monthly Fee"] = fields.monthlyFee.value || "";
+        data["Next Due Date"] = fields.nextDueDate.value || "";
+        data["Prorated Days"] = fields.proratedDays.value || "";
+        data["Prorated Bill"] = fields.proratedBill.value || "";
+        data["Total Initial Payment"] = fields.totalInitialPayment.value || "";
+      }
 
-      ["Cashout / Activation Fee", "Cash", "GCash", "Others", "Monthly Fee", "Prorated Bill", "Total Initial Payment", "Amount Paid"].forEach(key => {
+      ["Cashout / Activation Fee", "Cash", "GCash", "Others", "Monthly Fee", "Prorated Bill", "Total Initial Payment", "Amount Paid", "Relocation Fee", "Repair Fee"].forEach(key => {
         if (data[key]) data[key] = moneyNumber(data[key]);
       });
 
@@ -1971,28 +2158,31 @@
       fields.saveBtn.textContent = "Preparing...";
 
       try {
+        const mode = currentFormMode();
+        const config = FORM_MODE_CONFIG[mode];
         const data = await formPayload();
         fields.saveBtn.textContent = "Saving...";
-        showNotice(data.__files && data.__files.length ? "Uploading photos and saving application..." : "Saving application to New Client sheet...");
+        showNotice(data.__files && data.__files.length ? "Uploading supporting files and saving " + config.title.toLowerCase() + "..." : config.savingMessage);
 
         const response = await callBackend("saveNewClientApplication", data, { usePost: true });
         if (response && (response.ok || response.success)) {
-          showNotice(response.opaqueResponse ? response.message : "Application saved to New Client sheet.", "ok");
+          showNotice(response.opaqueResponse ? response.message : config.successMessage, "ok");
           fields.form.reset();
           resetUploadNotes();
           fields.dateToday.value = todayInputValue();
           refreshSpeedOptions();
+          updateFormMode();
           updateFtthTotal();
           updatePaymentComputation();
           setTimeout(loadApplications, response.opaqueResponse ? 2500 : 0);
         } else {
-          showNotice((response && response.message) || "Unable to save application.", "error");
+          showNotice((response && response.message) || "Unable to save form record.", "error");
         }
       } catch (error) {
-        showNotice("Unable to save application. " + (error && error.message ? error.message : ""), "error");
+        showNotice("Unable to save form record. " + (error && error.message ? error.message : ""), "error");
       } finally {
         fields.saveBtn.disabled = false;
-        fields.saveBtn.textContent = "Save Application";
+        fields.saveBtn.textContent = FORM_MODE_CONFIG[currentFormMode()].saveLabel;
       }
     }
 
@@ -2001,13 +2191,14 @@
       resetUploadNotes();
       fields.dateToday.value = todayInputValue();
       refreshSpeedOptions();
+      updateFormMode();
       updateFtthTotal();
       updatePaymentComputation();
       hideNotice();
     }
 
     function applicationText(row) {
-      return ["Name", "Middle Name", "Surname", "Contact No", "Account No.", "House Number", "Street Name", "Barangay", "City/Municipality", "Plan", "Speed"].map(key => row[key] || "").join(" ").toLowerCase();
+      return ["Form Type", "Record Type", "Name", "Middle Name", "Surname", "Contact No", "Account No.", "House Number", "Street Name", "Barangay", "City/Municipality", "Current Service Address", "New Street Name", "New Barangay", "Plan", "Speed", "Repair Category", "Problem Description", "Repair Status", "Relocation Status"].map(key => row[key] || "").join(" ").toLowerCase();
     }
 
     function setMetrics(rows) {
@@ -2025,34 +2216,39 @@
       setMetrics(applications);
 
       if (!rows.length) {
-        fields.applicationRows.innerHTML = '<tr><td data-label="Status" colspan="8">No applications to show yet.</td></tr>';
+        fields.applicationRows.innerHTML = '<tr><td data-label="Status" colspan="9">No form records to show yet.</td></tr>';
         return;
       }
 
       fields.applicationRows.innerHTML = rows.slice(0, 80).map(row => {
         const fullName = [row["Name"], row["Middle Name"], row["Surname"]].filter(Boolean).join(" ");
         const maps = row["Google Maps Link"] || "";
+        const formType = row["Form Type"] || row["Record Type"] || "New Application";
+        const planOrConcern = row["Repair Category"] || row["Plan"] || (formType === "Relocation" ? "Relocation" : "");
+        const speedOrStatus = row["Repair Status"] || row["Relocation Status"] || row["Speed"] || "";
+        const amountOrFee = row["Repair Fee"] || row["Relocation Fee"] || row["Amount Paid"] || "";
         return "<tr>" +
+          '<td data-label="Form Type">' + escapeHtml(formType) + "</td>" +
           '<td data-label="Name">' + escapeHtml(fullName) + "</td>" +
           '<td data-label="Account No.">' + escapeHtml(row["Account No."] || "") + "</td>" +
           '<td data-label="Contact No">' + escapeHtml(row["Contact No"] || "") + "</td>" +
-          '<td data-label="Plan">' + escapeHtml(row["Plan"] || "") + "</td>" +
-          '<td data-label="Speed">' + escapeHtml(row["Speed"] || "") + "</td>" +
-          '<td data-label="Amount Paid">' + escapeHtml(formatMoney(row["Amount Paid"] || "")) + "</td>" +
-          '<td data-label="Date Installed">' + escapeHtml(row["Date Installed"] || "") + "</td>" +
+          '<td data-label="Plan / Concern">' + escapeHtml(planOrConcern) + "</td>" +
+          '<td data-label="Speed / Status">' + escapeHtml(speedOrStatus) + "</td>" +
+          '<td data-label="Amount / Fee">' + escapeHtml(formatMoney(amountOrFee)) + "</td>" +
+          '<td data-label="Completed">' + escapeHtml(row["Date Installed"] || row["Preferred Relocation Date"] || row["Preferred Repair Date"] || "") + "</td>" +
           '<td data-label="Google Maps">' + (maps ? '<a class="small-btn" href="' + escapeHtml(maps) + '" target="_blank" rel="noopener">Open Maps</a>' : "") + "</td>" +
         "</tr>";
       }).join("");
     }
 
     async function loadApplications() {
-      showNotice("Loading New Client applications...");
+      showNotice("Loading form records...");
       try {
         const response = await callBackend("listNewClientApplications", {});
         if (!response || (!response.ok && !response.success)) {
           applications = [];
           renderApplications();
-          showNotice((response && response.message) || "Unable to load applications.", "error");
+          showNotice((response && response.message) || "Unable to load form records.", "error");
           return;
         }
         applications = response.data || response.applications || response.rows || [];
@@ -2061,10 +2257,11 @@
       } catch (error) {
         applications = [];
         renderApplications();
-        showNotice("Unable to load applications. " + (error && error.message ? error.message : ""), "error");
+        showNotice("Unable to load form records. " + (error && error.message ? error.message : ""), "error");
       }
     }
 
+    fields.formType.addEventListener("change", updateFormMode);
     fields.plan.addEventListener("change", function() {
       refreshSpeedOptions();
       fields.speed.value = "";
@@ -2105,6 +2302,7 @@
     setUser(loadSession());
     fields.dateToday.value = todayInputValue();
     refreshSpeedOptions();
+    updateFormMode();
     updatePaymentComputation();
     loadApplications();
   </script>
