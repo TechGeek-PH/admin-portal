@@ -1,0 +1,1633 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#063f6c">
+  <title>Billing Control Center - TechGeekPH</title>
+  <link rel="stylesheet" href="assets/admin-shell.css">
+  <style>
+    :root {
+      --blue: #064f83;
+      --blue-strong: #023d6b;
+      --navy: #062e4d;
+      --crimson: #c91448;
+      --violet: #5a0b77;
+      --ink: #16202f;
+      --muted: #64748b;
+      --line: #d9e1ec;
+      --soft: #f3f6fa;
+      --surface: #ffffff;
+      --ok: #17825f;
+      --ok-soft: #e8f7f1;
+      --warn: #ad6800;
+      --warn-soft: #fff5df;
+      --danger: #b42345;
+      --danger-soft: #fff0f3;
+      --info-soft: #eaf4fb;
+      --shadow: 0 18px 50px rgba(16, 39, 64, .10);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { color-scheme: light; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 86% 2%, rgba(6, 79, 131, .10), transparent 28rem),
+        var(--soft);
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .58; }
+    a { color: inherit; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 272px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding: 24px 18px;
+      color: #fff;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.035), transparent 25%),
+        linear-gradient(165deg, #063f6c 0%, #042f52 58%, #29103f 118%);
+      box-shadow: 14px 0 36px rgba(2, 37, 64, .10);
+      overflow-y: auto;
+    }
+
+    .brand {
+      display: grid;
+      gap: 12px;
+      padding: 2px 6px 18px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+    }
+
+    .brand-logo {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 12px 26px rgba(0,0,0,.15);
+    }
+
+    .brand-logo img { width: 100%; height: 50px; display: block; object-fit: contain; }
+    .brand strong { display: block; font-size: 1rem; }
+    .brand span { display: block; margin-top: 4px; color: rgba(255,255,255,.64); font-size: .75rem; line-height: 1.45; }
+
+    .nav { display: grid; gap: 7px; }
+    .nav > a, .nav-toggle, .nav-panel a {
+      width: 100%;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      border: 0;
+      border-radius: 9px;
+      color: rgba(255,255,255,.78);
+      background: transparent;
+      text-decoration: none;
+      font-weight: 760;
+      font-size: .86rem;
+      text-align: left;
+    }
+
+    .nav > a:hover, .nav-toggle:hover, .nav-panel a:hover,
+    .nav a.is-active, .nav-toggle.is-active {
+      color: #fff;
+      background: rgba(255,255,255,.11);
+    }
+
+    .nav-group { display: grid; gap: 5px; }
+    .nav-toggle { justify-content: space-between; }
+    .nav-toggle::after { content: "›"; font-size: 1.2rem; transform: rotate(0); transition: transform .2s ease; }
+    .nav-group.is-open .nav-toggle::after { transform: rotate(90deg); }
+    .nav-panel { display: none; padding-left: 9px; border-left: 1px solid rgba(255,255,255,.13); margin-left: 12px; }
+    .nav-group.is-open .nav-panel { display: grid; gap: 3px; }
+    .nav-panel a { min-height: 37px; padding-block: 8px; font-size: .80rem; }
+
+    .sidebar-footer { margin-top: auto; }
+    .logout {
+      width: 100%;
+      min-height: 43px;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 9px;
+      color: #fff;
+      background: rgba(255,255,255,.07);
+      font-weight: 800;
+    }
+    .logout:hover { background: rgba(201,20,72,.24); }
+
+    .main { min-width: 0; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 15;
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 15px clamp(18px, 3vw, 34px);
+      border-bottom: 1px solid rgba(217,225,236,.92);
+      background: rgba(255,255,255,.91);
+      backdrop-filter: blur(15px);
+    }
+
+    .title-block h1 { margin: 0; font-size: clamp(1.35rem, 2.4vw, 1.9rem); }
+    .title-block p { margin: 5px 0 0; color: var(--muted); font-size: .86rem; }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+    }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      color: #fff;
+      background: linear-gradient(145deg, var(--blue), var(--violet));
+      font-size: .76rem;
+      font-weight: 900;
+    }
+    .user-chip strong, .user-chip span { display: block; }
+    .user-chip strong { font-size: .82rem; }
+    .user-chip span { margin-top: 2px; color: var(--muted); font-size: .70rem; }
+
+    .content {
+      width: min(100%, 1680px);
+      margin: 0 auto;
+      padding: clamp(18px, 3vw, 34px);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 18px;
+      padding: clamp(22px, 4vw, 34px);
+      border-radius: 16px;
+      color: #fff;
+      background:
+        linear-gradient(112deg, rgba(2,61,107,.99), rgba(6,79,131,.94) 58%, rgba(90,11,119,.86));
+      box-shadow: var(--shadow);
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -8% -75% auto;
+      width: 340px;
+      height: 340px;
+      border: 42px solid rgba(255,255,255,.07);
+      border-radius: 50%;
+    }
+    .hero-copy, .hero-actions { position: relative; z-index: 1; }
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 11px;
+      color: rgba(255,255,255,.72);
+      font-size: .74rem;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { content: ""; width: 24px; height: 3px; border-radius: 99px; background: #ff4c7d; }
+    .hero h2 { margin: 0; font-size: clamp(1.8rem, 4vw, 3.1rem); line-height: 1.03; }
+    .hero p { max-width: 760px; margin: 12px 0 0; color: rgba(255,255,255,.76); line-height: 1.55; }
+    .hero-actions { display: grid; justify-items: end; gap: 10px; min-width: 200px; }
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 11px;
+      border: 1px solid rgba(255,255,255,.17);
+      border-radius: 999px;
+      background: rgba(255,255,255,.09);
+      font-size: .76rem;
+      font-weight: 850;
+    }
+    .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #68e0b5; box-shadow: 0 0 0 4px rgba(104,224,181,.16); }
+
+    .btn {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 9px 14px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: var(--ink);
+      background: #fff;
+      font-weight: 840;
+      font-size: .84rem;
+      text-decoration: none;
+    }
+    .btn:hover { border-color: #9eb4c8; background: #f8fbfd; }
+    .btn.primary { color: #fff; border-color: var(--blue); background: linear-gradient(135deg, var(--blue), var(--blue-strong)); }
+    .btn.success { color: #fff; border-color: var(--ok); background: var(--ok); }
+    .btn.danger { color: #fff; border-color: var(--danger); background: var(--danger); }
+    .btn.ghost-light { color: #fff; border-color: rgba(255,255,255,.22); background: rgba(255,255,255,.11); }
+    .btn.small { min-height: 34px; padding: 7px 10px; font-size: .75rem; }
+
+    .notice {
+      display: none;
+      margin: 0 0 18px;
+      padding: 13px 15px;
+      border: 1px solid rgba(180,35,69,.18);
+      border-radius: 11px;
+      color: #8f1838;
+      background: var(--danger-soft);
+      font-size: .88rem;
+      line-height: 1.48;
+    }
+    .notice.is-visible { display: block; }
+    .notice.ok { color: #116447; border-color: rgba(23,130,95,.2); background: var(--ok-soft); }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .kpi {
+      position: relative;
+      overflow: hidden;
+      min-height: 126px;
+      padding: 18px;
+      border: 1px solid rgba(217,225,236,.9);
+      border-radius: 13px;
+      background: rgba(255,255,255,.94);
+      box-shadow: 0 8px 28px rgba(16,39,64,.05);
+    }
+    .kpi::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--blue);
+    }
+    .kpi.is-ok::before { background: var(--ok); }
+    .kpi.is-warn::before { background: #e49a20; }
+    .kpi.is-danger::before { background: var(--danger); }
+    .kpi span { display: block; color: var(--muted); font-size: .72rem; font-weight: 850; letter-spacing: .05em; text-transform: uppercase; }
+    .kpi strong { display: block; margin: 10px 0 5px; font-size: clamp(1.45rem, 2.7vw, 2.15rem); line-height: 1; }
+    .kpi small { color: var(--muted); font-size: .74rem; line-height: 1.35; }
+
+    .panel {
+      margin-bottom: 18px;
+      border: 1px solid rgba(217,225,236,.92);
+      border-radius: 14px;
+      background: rgba(255,255,255,.96);
+      box-shadow: 0 9px 30px rgba(16,39,64,.055);
+      overflow: hidden;
+    }
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+    .panel-head h3 { margin: 0; font-size: 1.05rem; }
+    .panel-head p { margin: 5px 0 0; color: var(--muted); font-size: .80rem; }
+
+    .automation-body { padding: 18px 20px 20px; }
+    .config-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .config-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      color: #116447;
+      background: var(--ok-soft);
+      font-size: .72rem;
+      font-weight: 850;
+    }
+    .config-chip::before { content: "✓"; }
+    .config-chip.missing { color: #8f1838; background: var(--danger-soft); }
+    .config-chip.missing::before { content: "!"; }
+
+    .reminder-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .reminder-card {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: linear-gradient(180deg, #fff, #f8fafc);
+    }
+    .reminder-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .reminder-step {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      color: #fff;
+      background: var(--blue);
+      font-size: .78rem;
+      font-weight: 950;
+    }
+    .reminder-card:nth-child(2) .reminder-step { background: var(--warn); }
+    .reminder-card:nth-child(3) .reminder-step { background: var(--danger); }
+    .reminder-card h4 { margin: 0 0 4px; font-size: .91rem; }
+    .reminder-card p { margin: 0; color: var(--muted); font-size: .74rem; }
+    .reminder-score { text-align: right; }
+    .reminder-score strong { display: block; font-size: 1.25rem; }
+    .reminder-score span { color: var(--muted); font-size: .68rem; }
+    .meter { height: 7px; margin-top: 14px; border-radius: 999px; background: #e7edf4; overflow: hidden; }
+    .meter span { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--blue), #2a91c8); transition: width .35s ease; }
+
+    .controls {
+      display: grid;
+      grid-template-columns: minmax(230px, 1.25fr) repeat(2, minmax(150px, .5fr)) auto;
+      gap: 10px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+    .control {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: var(--ink);
+      background: #fff;
+      padding: 9px 12px;
+      outline: none;
+    }
+    .control:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(6,79,131,.1); }
+
+    .tabs { display: flex; gap: 7px; padding: 14px 20px 0; overflow-x: auto; }
+    .tab {
+      white-space: nowrap;
+      min-height: 39px;
+      padding: 8px 13px;
+      border: 1px solid var(--line);
+      border-radius: 9px 9px 0 0;
+      color: var(--muted);
+      background: #f8fafc;
+      font-weight: 850;
+      font-size: .78rem;
+    }
+    .tab.is-active { color: #fff; border-color: var(--blue); background: var(--blue); }
+    .tab-count { margin-left: 5px; opacity: .78; }
+
+    .table-wrap { width: 100%; overflow: auto; }
+    table { width: 100%; min-width: 1180px; border-collapse: collapse; }
+    th, td { padding: 13px 14px; border-bottom: 1px solid #e8edf3; text-align: left; vertical-align: middle; }
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      color: #536174;
+      background: #f8fafc;
+      font-size: .69rem;
+      font-weight: 900;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    td { font-size: .80rem; }
+    tbody tr:hover { background: #fbfdff; }
+    .client-cell strong, .client-cell span, .money-cell strong, .money-cell span { display: block; }
+    .client-cell strong { margin-bottom: 3px; font-size: .84rem; }
+    .client-cell span, .money-cell span { color: var(--muted); font-size: .70rem; }
+    .account-tag {
+      display: inline-flex !important;
+      margin-top: 6px;
+      padding: 3px 7px;
+      border-radius: 6px;
+      color: var(--blue) !important;
+      background: var(--info-soft);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-weight: 850;
+    }
+    .money-cell strong { margin-bottom: 4px; font-size: .93rem; }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      max-width: 170px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      color: #46556a;
+      background: #edf2f7;
+      font-size: .67rem;
+      font-weight: 850;
+      line-height: 1.15;
+    }
+    .chip::before { content: ""; flex: 0 0 7px; width: 7px; height: 7px; border-radius: 50%; background: #8b98a8; }
+    .chip.ok { color: #116447; background: var(--ok-soft); }
+    .chip.ok::before { background: var(--ok); }
+    .chip.warn { color: #8a5600; background: var(--warn-soft); }
+    .chip.warn::before { background: #d98a14; }
+    .chip.danger { color: #8f1838; background: var(--danger-soft); }
+    .chip.danger::before { background: var(--danger); }
+    .chip.info { color: var(--blue); background: var(--info-soft); }
+    .chip.info::before { background: var(--blue); }
+    .reminder-meta { display: block; max-width: 150px; margin-top: 5px; color: var(--muted); font-size: .65rem; line-height: 1.35; }
+
+    .row-actions { display: flex; flex-wrap: wrap; gap: 6px; min-width: 130px; }
+    .empty {
+      padding: 50px 20px !important;
+      color: var(--muted);
+      text-align: center;
+      font-size: .88rem;
+    }
+    .table-summary { padding: 12px 20px; color: var(--muted); background: #fbfcfe; font-size: .75rem; }
+
+    .review-cards { display: none; padding: 16px 20px 20px; gap: 10px; }
+    .review-cards.is-visible { display: grid; }
+    .review-card {
+      display: grid;
+      grid-template-columns: minmax(190px, 1fr) repeat(3, minmax(130px, .45fr)) auto;
+      gap: 14px;
+      align-items: center;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #fff;
+    }
+    .review-card strong, .review-card span { display: block; }
+    .review-card span { margin-top: 4px; color: var(--muted); font-size: .72rem; }
+    .review-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+
+    .payment-list { display: grid; gap: 9px; padding: 14px 20px 20px; }
+    .payment-item {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) repeat(3, minmax(125px, .5fr)) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      font-size: .76rem;
+    }
+    .payment-item strong, .payment-item span { display: block; }
+    .payment-item span { margin-top: 3px; color: var(--muted); font-size: .68rem; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(4,25,43,.62);
+      backdrop-filter: blur(5px);
+    }
+    .modal-backdrop.is-open { display: flex; }
+    .modal {
+      width: min(100%, 580px);
+      max-height: calc(100vh - 36px);
+      overflow: auto;
+      border-radius: 15px;
+      background: #fff;
+      box-shadow: 0 30px 90px rgba(0,0,0,.28);
+    }
+    .modal-head { display: flex; justify-content: space-between; gap: 14px; padding: 20px; border-bottom: 1px solid var(--line); }
+    .modal-head h3 { margin: 0; font-size: 1.2rem; }
+    .modal-head p { margin: 5px 0 0; color: var(--muted); font-size: .78rem; }
+    .icon-btn { width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 9px; background: #fff; color: var(--muted); }
+    .modal-body { padding: 20px; }
+    .bill-preview {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+      padding: 14px;
+      border: 1px solid rgba(6,79,131,.16);
+      border-radius: 10px;
+      background: var(--info-soft);
+    }
+    .bill-preview span, .bill-preview strong { display: block; }
+    .bill-preview span { color: var(--muted); font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; }
+    .bill-preview strong { margin-top: 4px; font-size: .86rem; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { display: block; margin-bottom: 7px; color: #3c4a5d; font-size: .76rem; font-weight: 850; }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 10px 11px;
+      outline: none;
+    }
+    .field textarea { min-height: 78px; resize: vertical; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(6,79,131,.1); }
+    .safety-note {
+      margin-top: 16px;
+      padding: 12px 13px;
+      border-radius: 9px;
+      color: #6d4a0a;
+      background: var(--warn-soft);
+      font-size: .75rem;
+      line-height: 1.48;
+    }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 9px; padding: 16px 20px 20px; }
+
+    .toast {
+      position: fixed;
+      z-index: 150;
+      right: 20px;
+      bottom: 20px;
+      width: min(calc(100vw - 40px), 420px);
+      display: none;
+      padding: 14px 16px;
+      border-radius: 11px;
+      color: #fff;
+      background: #1f3449;
+      box-shadow: 0 18px 55px rgba(0,0,0,.24);
+      font-size: .82rem;
+      line-height: 1.4;
+    }
+    .toast.is-visible { display: block; animation: toastIn .22s ease; }
+    .toast.ok { background: #12694d; }
+    .toast.error { background: #9d1b3f; }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .loading {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: none;
+      place-items: center;
+      background: rgba(243,246,250,.72);
+      backdrop-filter: blur(3px);
+    }
+    .loading.is-visible { display: grid; }
+    .loader-card { display: flex; align-items: center; gap: 12px; padding: 16px 18px; border-radius: 11px; background: #fff; box-shadow: var(--shadow); font-size: .84rem; font-weight: 800; }
+    .spinner { width: 20px; height: 20px; border: 3px solid #dce8f2; border-top-color: var(--blue); border-radius: 50%; animation: spin .75s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 1380px) {
+      .kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 1080px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { position: relative; height: auto; padding: 16px; }
+      .nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .nav-group { min-width: 0; }
+      .sidebar-footer { margin-top: 4px; }
+      .topbar { top: 0; }
+      .review-card, .payment-item { grid-template-columns: 1fr 1fr; }
+      .review-actions { justify-content: flex-start; }
+    }
+    @media (max-width: 760px) {
+      .content { padding: 14px; }
+      .topbar { align-items: flex-start; padding: 13px 14px; }
+      .user-chip { display: none; }
+      .hero { align-items: flex-start; flex-direction: column; }
+      .hero-actions { justify-items: start; min-width: 0; }
+      .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .reminder-grid { grid-template-columns: 1fr; }
+      .controls { grid-template-columns: 1fr 1fr; padding: 12px 14px; }
+      .controls .search { grid-column: 1 / -1; }
+      .panel-head { padding-inline: 14px; }
+      .tabs { padding-inline: 14px; }
+      .review-card, .payment-item { grid-template-columns: 1fr; }
+      .form-grid, .bill-preview { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+    }
+    @media (max-width: 480px) {
+      .nav { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: 1fr; }
+      .controls { grid-template-columns: 1fr; }
+      .controls .search { grid-column: auto; }
+      .hero h2 { font-size: 1.75rem; }
+      .modal-actions { flex-direction: column-reverse; }
+      .modal-actions .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <aside class="sidebar" data-admin-sidebar>
+      <div class="brand">
+        <div class="brand-logo">
+          <img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH">
+        </div>
+        <div>
+          <strong>TechGeekPH Admin</strong>
+          <span>Secure branch operations and billing control.</span>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Admin navigation">
+        <a href="dashboard.html">Dashboard</a>
+
+        <div class="nav-group is-open">
+          <button class="nav-toggle is-active" type="button">Operations</button>
+          <div class="nav-panel">
+            <a href="application_form.html">Application Form</a>
+            <a href="clients.html">Clients</a>
+            <a href="tickets.html">Tickets</a>
+            <a href="nap-checker.html">NAP Checker</a>
+            <a href="statement_of_account.html">Statement of Account</a>
+            <a class="is-active" href="billing_control.html">Billing Control Center</a>
+          </div>
+        </div>
+
+        <div class="nav-group">
+          <button class="nav-toggle" type="button">Attendance &amp; Expenses</button>
+          <div class="nav-panel">
+            <a href="daily_time_record.html">My Time Record</a>
+            <a href="daily_time_record_admin.html">Admin Time Records</a>
+            <a href="my_expense_request.html">My Expense Request</a>
+            <a href="expense_approval.html">Expense Approval</a>
+            <a href="payslip_generator.html">Payslip Generator</a>
+          </div>
+        </div>
+
+        <div class="nav-group">
+          <button class="nav-toggle" type="button">Stock &amp; Assets</button>
+          <div class="nav-panel">
+            <a href="consumable_stock.html">Consumable Stock</a>
+            <a href="company_assets.html">Company Assets</a>
+          </div>
+        </div>
+
+        <div class="nav-group">
+          <button class="nav-toggle" type="button">Investor</button>
+          <div class="nav-panel">
+            <a href="investor_morwin_gapud.html">Morwin Gapud</a>
+            <a href="investor_marivie_viana_gapud.html">Marivie Viana Gapud</a>
+          </div>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="logout" type="button" id="logoutBtn">Log out</button>
+      </div>
+    </aside>
+
+    <section class="main">
+      <header class="topbar">
+        <div class="title-block">
+          <h1>Billing Control Center</h1>
+          <p id="syncLabel">Connecting to billing records…</p>
+        </div>
+        <div class="top-actions">
+          <button class="btn" type="button" id="refreshTopBtn">↻ Refresh</button>
+          <div class="user-chip">
+            <div class="avatar" id="avatar">TG</div>
+            <div>
+              <strong id="userName">Admin</strong>
+              <span id="userRole">Secure access</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="hero">
+          <div class="hero-copy">
+            <div class="eyebrow">Messenger billing command center</div>
+            <h2>One view. Every bill.<br>Every reminder.</h2>
+            <p>Track Due Bill, Day‑5 Reminder, Final Reminder, paid and unpaid accounts, payment reviews, and Meta confirmations without opening several Sheet tabs.</p>
+          </div>
+          <div class="hero-actions">
+            <span class="live-pill"><span class="live-dot"></span><span id="liveStatus">Live data connected</span></span>
+            <button class="btn ghost-light" type="button" id="exportBtn">Export current view</button>
+          </div>
+        </section>
+
+        <div class="notice" id="notice" role="status" aria-live="polite"></div>
+
+        <section class="kpi-grid" aria-label="Billing summary">
+          <article class="kpi is-warn">
+            <span>Unpaid accounts</span>
+            <strong id="unpaidCount">—</strong>
+            <small id="partialCount">Includes partial balances</small>
+          </article>
+          <article class="kpi is-danger">
+            <span>Outstanding</span>
+            <strong id="outstandingTotal">—</strong>
+            <small>Remaining balance this period</small>
+          </article>
+          <article class="kpi is-ok">
+            <span>Paid accounts</span>
+            <strong id="paidCount">—</strong>
+            <small>Fully settled billing records</small>
+          </article>
+          <article class="kpi is-ok">
+            <span>Collected</span>
+            <strong id="collectedTotal">—</strong>
+            <small>Verified payments posted</small>
+          </article>
+          <article class="kpi">
+            <span>Payment reviews</span>
+            <strong id="reviewCount">—</strong>
+            <small>Waiting for admin verification</small>
+          </article>
+          <article class="kpi is-danger">
+            <span>Needs attention</span>
+            <strong id="issueCount">—</strong>
+            <small>Mapping, reminder, or confirmation issue</small>
+          </article>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Automation health</h3>
+              <p>Configured Botcake flows and successful reminder progress for the selected period.</p>
+            </div>
+            <span class="chip info" id="periodBadge">Current period</span>
+          </div>
+          <div class="automation-body">
+            <div class="config-row" id="configRow"></div>
+            <div class="reminder-grid">
+              <article class="reminder-card">
+                <div class="reminder-card-top">
+                  <div style="display:flex;gap:10px">
+                    <span class="reminder-step">01</span>
+                    <div><h4>Due Bill</h4><p>Sent on the account due date</p></div>
+                  </div>
+                  <div class="reminder-score"><strong id="dueScore">0/0</strong><span>sent-like</span></div>
+                </div>
+                <div class="meter"><span id="dueMeter"></span></div>
+              </article>
+              <article class="reminder-card">
+                <div class="reminder-card-top">
+                  <div style="display:flex;gap:10px">
+                    <span class="reminder-step">05</span>
+                    <div><h4>Day‑5 Reminder</h4><p>Five days after due date</p></div>
+                  </div>
+                  <div class="reminder-score"><strong id="day5Score">0/0</strong><span>sent-like</span></div>
+                </div>
+                <div class="meter"><span id="day5Meter"></span></div>
+              </article>
+              <article class="reminder-card">
+                <div class="reminder-card-top">
+                  <div style="display:flex;gap:10px">
+                    <span class="reminder-step">07</span>
+                    <div><h4>Final Reminder</h4><p>Grace day 7 before 5 PM cutoff</p></div>
+                  </div>
+                  <div class="reminder-score"><strong id="finalScore">0/0</strong><span>sent-like</span></div>
+                </div>
+                <div class="meter"><span id="finalMeter"></span></div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Client billing monitor</h3>
+              <p>Paid/unpaid status and all three Meta reminder checkpoints.</p>
+            </div>
+            <button class="btn small" type="button" id="refreshBtn">Refresh records</button>
+          </div>
+
+          <div class="tabs" role="tablist" aria-label="Billing views">
+            <button class="tab is-active" type="button" data-tab="UNPAID">Unpaid <span class="tab-count" id="tabUnpaidCount">0</span></button>
+            <button class="tab" type="button" data-tab="PAID">Paid <span class="tab-count" id="tabPaidCount">0</span></button>
+            <button class="tab" type="button" data-tab="ALL">All bills <span class="tab-count" id="tabAllCount">0</span></button>
+            <button class="tab" type="button" data-tab="REVIEW">Payment review <span class="tab-count" id="tabReviewCount">0</span></button>
+          </div>
+
+          <div class="controls">
+            <input class="control search" id="searchInput" type="search" placeholder="Search client, account, phone, Billing ID…" autocomplete="off">
+            <select class="control" id="periodSelect" aria-label="Billing period"></select>
+            <select class="control" id="attentionFilter" aria-label="Attention filter">
+              <option value="ALL">All reminder states</option>
+              <option value="ISSUES">Needs attention</option>
+              <option value="MISSING_META">Missing Meta mapping</option>
+              <option value="DUE_NOT_SENT">Due Bill not sent</option>
+              <option value="DAY5_NOT_SENT">Day‑5 not sent</option>
+              <option value="FINAL_NOT_SENT">Final reminder not sent</option>
+              <option value="INACTIVE">Inactive / disconnected</option>
+            </select>
+            <button class="btn" type="button" id="clearFiltersBtn">Clear</button>
+          </div>
+
+          <div class="table-wrap" id="billTableWrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Client / Account</th>
+                  <th>Bill &amp; Due Date</th>
+                  <th>Payment</th>
+                  <th>Due Bill</th>
+                  <th>Day‑5</th>
+                  <th>Final Reminder</th>
+                  <th>Meta Link</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="billRows">
+                <tr><td class="empty" colspan="8">Loading billing records…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="review-cards" id="reviewCards"></div>
+          <div class="table-summary" id="tableSummary">Waiting for live records…</div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Recent verified payments &amp; Meta confirmations</h3>
+              <p>Confirmation status is tracked separately from payment posting.</p>
+            </div>
+          </div>
+          <div class="payment-list" id="paymentList">
+            <div class="empty">No payment data loaded yet.</div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="paidModal" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="paidModalTitle">
+      <div class="modal-head">
+        <div>
+          <h3 id="paidModalTitle">Record verified payment</h3>
+          <p>Posting the payment will cancel pending reminders for a fully paid bill.</p>
+        </div>
+        <button class="icon-btn" type="button" id="closePaidModal" aria-label="Close">×</button>
+      </div>
+      <form id="paidForm">
+        <div class="modal-body">
+          <div class="bill-preview">
+            <div><span>Client</span><strong id="modalClient">—</strong></div>
+            <div><span>Account</span><strong id="modalAccount">—</strong></div>
+            <div><span>Billing ID</span><strong id="modalBillingId">—</strong></div>
+            <div><span>Current balance</span><strong id="modalBalance">—</strong></div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="paymentAmount">Amount received</label>
+              <input id="paymentAmount" name="amount" type="number" min="0.01" step="0.01" required>
+            </div>
+            <div class="field">
+              <label for="paymentDate">Payment date</label>
+              <input id="paymentDate" name="paymentDate" type="date" required>
+            </div>
+            <div class="field">
+              <label for="paymentChannel">Payment channel</label>
+              <select id="paymentChannel" name="paymentChannel" required>
+                <option value="GCash">GCash</option>
+                <option value="Maya">Maya</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="Cash">Cash</option>
+                <option value="Other Online Payment">Other Online Payment</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="paymentReference">Reference number</label>
+              <input id="paymentReference" name="reference" placeholder="Optional for cash">
+            </div>
+            <div class="field full">
+              <label for="paymentRemarks">Admin remarks</label>
+              <textarea id="paymentRemarks" name="remarks" placeholder="Optional note for the audit trail"></textarea>
+            </div>
+          </div>
+
+          <div class="safety-note">
+            This action creates a verified Payments record, updates the Billing Ledger, cancels remaining bill reminders when fully paid, and queues one Meta payment confirmation. Repeated clicks are blocked by Payment ID/reference checks.
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn" type="button" id="cancelPaidBtn">Cancel</button>
+          <button class="btn success" type="submit" id="confirmPaidBtn">Confirm payment &amp; notify client</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="loading" id="loading" aria-hidden="true">
+    <div class="loader-card"><span class="spinner"></span><span id="loadingText">Loading billing records…</span></div>
+  </div>
+
+  <script>
+    const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxDY5TsonrB58YaN8LGbrrrc_ZD1QVpF1WK0p6jToIR2FBSqGaHfsgaE1CCiH1MvukV/exec";
+    const SESSION_KEY = "techgeekph_admin_session";
+    const LEGACY_SESSION_KEY = "techgeekph_session";
+    const SENT_LIKE = ["FLOW_TRIGGERED", "CONTEXT_LOADED", "SENT", "DELIVERED"];
+    const CONFIRMATION_RETRYABLE = ["FAILED", "RETRY", "PENDING_CONFIG", "NEEDS_MAPPING"];
+
+    const state = {
+      data: null,
+      bills: [],
+      filteredBills: [],
+      activeTab: "UNPAID",
+      selectedBill: null,
+      toastTimer: null,
+      busy: false
+    };
+
+    const el = {
+      syncLabel: document.querySelector("#syncLabel"),
+      liveStatus: document.querySelector("#liveStatus"),
+      userName: document.querySelector("#userName"),
+      userRole: document.querySelector("#userRole"),
+      avatar: document.querySelector("#avatar"),
+      notice: document.querySelector("#notice"),
+      unpaidCount: document.querySelector("#unpaidCount"),
+      partialCount: document.querySelector("#partialCount"),
+      outstandingTotal: document.querySelector("#outstandingTotal"),
+      paidCount: document.querySelector("#paidCount"),
+      collectedTotal: document.querySelector("#collectedTotal"),
+      reviewCount: document.querySelector("#reviewCount"),
+      issueCount: document.querySelector("#issueCount"),
+      periodBadge: document.querySelector("#periodBadge"),
+      configRow: document.querySelector("#configRow"),
+      dueScore: document.querySelector("#dueScore"),
+      day5Score: document.querySelector("#day5Score"),
+      finalScore: document.querySelector("#finalScore"),
+      dueMeter: document.querySelector("#dueMeter"),
+      day5Meter: document.querySelector("#day5Meter"),
+      finalMeter: document.querySelector("#finalMeter"),
+      searchInput: document.querySelector("#searchInput"),
+      periodSelect: document.querySelector("#periodSelect"),
+      attentionFilter: document.querySelector("#attentionFilter"),
+      billRows: document.querySelector("#billRows"),
+      billTableWrap: document.querySelector("#billTableWrap"),
+      reviewCards: document.querySelector("#reviewCards"),
+      tableSummary: document.querySelector("#tableSummary"),
+      paymentList: document.querySelector("#paymentList"),
+      paidModal: document.querySelector("#paidModal"),
+      paidForm: document.querySelector("#paidForm"),
+      modalClient: document.querySelector("#modalClient"),
+      modalAccount: document.querySelector("#modalAccount"),
+      modalBillingId: document.querySelector("#modalBillingId"),
+      modalBalance: document.querySelector("#modalBalance"),
+      paymentAmount: document.querySelector("#paymentAmount"),
+      paymentDate: document.querySelector("#paymentDate"),
+      confirmPaidBtn: document.querySelector("#confirmPaidBtn"),
+      toast: document.querySelector("#toast"),
+      loading: document.querySelector("#loading"),
+      loadingText: document.querySelector("#loadingText")
+    };
+
+    function loadSession() {
+      const keys = [SESSION_KEY, LEGACY_SESSION_KEY];
+      const storages = [localStorage, sessionStorage];
+      for (let i = 0; i < storages.length; i++) {
+        for (let j = 0; j < keys.length; j++) {
+          try {
+            const value = JSON.parse(storages[i].getItem(keys[j]) || "null");
+            if (value && (value.token || value.sessionToken)) return value;
+          } catch (error) {}
+        }
+      }
+      return {};
+    }
+
+    function sessionToken() {
+      const session = loadSession();
+      return session.token || session.sessionToken || "";
+    }
+
+    function sessionRole() {
+      const session = loadSession();
+      return String((session.user && session.user.role) || session.role || "").toUpperCase();
+    }
+
+    function ensureAdminSession() {
+      if (!sessionToken() || (sessionRole() && sessionRole() !== "ADMIN")) {
+        window.location.replace("index.html");
+        return false;
+      }
+      return true;
+    }
+
+    function initials(value) {
+      return String(value || "TG").replace(/@.*/, "").split(/[.\s_-]+/)
+        .filter(Boolean).slice(0, 2).map(function(part) {
+          return part.charAt(0).toUpperCase();
+        }).join("") || "TG";
+    }
+
+    function escapeHtml(value) {
+      return String(value === undefined || value === null ? "" : value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function money(value) {
+      return new Intl.NumberFormat("en-PH", {
+        style: "currency",
+        currency: "PHP",
+        minimumFractionDigits: 2
+      }).format(Number(value || 0));
+    }
+
+    function periodLabel(period) {
+      const match = String(period || "").match(/^(\d{4})-(\d{2})$/);
+      if (!match) return period || "Current period";
+      return new Date(Number(match[1]), Number(match[2]) - 1, 1).toLocaleDateString("en-PH", {
+        month: "long",
+        year: "numeric"
+      });
+    }
+
+    function todayInputValue() {
+      const date = new Date();
+      return date.getFullYear() + "-" +
+        String(date.getMonth() + 1).padStart(2, "0") + "-" +
+        String(date.getDate()).padStart(2, "0");
+    }
+
+    function statusLabel(status) {
+      const labels = {
+        DELIVERED: "Delivered",
+        SENT: "Sent",
+        CONTEXT_LOADED: "Details loaded",
+        FLOW_TRIGGERED: "Flow triggered",
+        DISPATCHING: "Sending",
+        REVIEW_REQUIRED: "Review required",
+        FAILED: "Failed",
+        RETRY: "For retry",
+        PENDING_CONFIG: "Flow ID missing",
+        NEEDS_MAPPING: "No Meta mapping",
+        PENDING_BOTCAKE_UTILITY: "Queued",
+        QUEUED: "Queued",
+        PENDING: "Pending",
+        NOT_DUE: "Not due yet",
+        NOT_NEEDED: "Not needed",
+        NOT_QUEUED: "Not queued",
+        CANCELLED_PAID: "Cancelled — paid",
+        CANCELLED_INACTIVE: "Cancelled — inactive",
+        CANCELLED_DUPLICATE: "Duplicate blocked",
+        PAID: "Paid",
+        PARTIAL: "Partial",
+        OVERDUE: "Overdue",
+        OPEN: "Open",
+        NOT_APPLICABLE: "Not applicable"
+      };
+      return labels[String(status || "").toUpperCase()] || String(status || "Unknown").replace(/_/g, " ");
+    }
+
+    function statusTone(status) {
+      const value = String(status || "").toUpperCase();
+      if (SENT_LIKE.indexOf(value) !== -1 || ["PAID", "CANCELLED_PAID", "DELIVERED"].indexOf(value) !== -1) return "ok";
+      if (["FAILED", "REVIEW_REQUIRED", "NEEDS_MAPPING", "NOT_QUEUED", "OVERDUE"].indexOf(value) !== -1) return "danger";
+      if (["PENDING", "RETRY", "PENDING_CONFIG", "PENDING_BOTCAKE_UTILITY", "DISPATCHING", "PARTIAL"].indexOf(value) !== -1) return "warn";
+      return "info";
+    }
+
+    function isSent(reminder) {
+      return reminder && SENT_LIKE.indexOf(String(reminder.status || "").toUpperCase()) !== -1;
+    }
+
+    function showLoading(show, message) {
+      state.busy = show;
+      el.loading.classList.toggle("is-visible", show);
+      el.loading.setAttribute("aria-hidden", show ? "false" : "true");
+      if (message) el.loadingText.textContent = message;
+    }
+
+    function showToast(message, type) {
+      window.clearTimeout(state.toastTimer);
+      el.toast.className = "toast is-visible " + (type || "");
+      el.toast.textContent = message;
+      state.toastTimer = window.setTimeout(function() {
+        el.toast.className = "toast";
+      }, 4800);
+    }
+
+    function showNotice(message, type) {
+      el.notice.textContent = message || "";
+      el.notice.className = message ? "notice is-visible " + (type || "") : "notice";
+    }
+
+    async function callBackend(action, payload) {
+      const body = new URLSearchParams();
+      body.set("action", action);
+      body.set("method", action);
+      body.set("token", sessionToken());
+      Object.keys(payload || {}).forEach(function(key) {
+        const value = payload[key];
+        if (value !== undefined && value !== null) body.set(key, value);
+      });
+
+      const response = await fetch(BACKEND_URL, {
+        method: "POST",
+        body: body,
+        redirect: "follow"
+      });
+      const text = await response.text();
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch (error) {
+        throw new Error(/<html[\s>]/i.test(text)
+          ? "Apps Script returned an HTML page. Deploy the newest Web App version."
+          : (text.trim() || "Unexpected backend response."));
+      }
+      if (!result || (!result.ok && !result.success)) {
+        const message = result && result.message ? result.message : "Backend request failed.";
+        if (/session expired|no session token|login again/i.test(message)) {
+          localStorage.removeItem(SESSION_KEY);
+          window.location.replace("index.html");
+        }
+        throw new Error(message);
+      }
+      return result;
+    }
+
+    async function loadBilling(options) {
+      options = options || {};
+      if (!ensureAdminSession() || state.busy) return;
+      showLoading(!options.silent, "Loading billing records…");
+      showNotice("");
+      try {
+        const result = await callBackend("getBillingControlCenter", {
+          period: options.period || el.periodSelect.value || ""
+        });
+        state.data = result;
+        state.bills = Array.isArray(result.bills) ? result.bills : [];
+        renderAll();
+        const updated = new Date().toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" });
+        el.syncLabel.textContent = "Live from Google Sheets • Updated " + updated;
+        el.liveStatus.textContent = "Live data connected";
+      } catch (error) {
+        el.liveStatus.textContent = "Connection needs attention";
+        showNotice(error.message || "Unable to load billing records.");
+        if (!options.silent) showToast(error.message || "Unable to load records.", "error");
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function renderAll() {
+      const data = state.data || {};
+      const summary = data.summary || {};
+      const user = data.user || {};
+      el.userName.textContent = user.name || "Admin";
+      el.userRole.textContent = (user.role || "ADMIN") + " access";
+      el.avatar.textContent = initials(user.name);
+
+      el.unpaidCount.textContent = Number(summary.unpaid_clients || 0).toLocaleString();
+      el.partialCount.textContent = Number(summary.partial_clients || 0) + " partial payment(s)";
+      el.outstandingTotal.textContent = money(summary.outstanding_balance);
+      el.paidCount.textContent = Number(summary.paid_clients || 0).toLocaleString();
+      el.collectedTotal.textContent = money(summary.amount_collected);
+      el.reviewCount.textContent = Number(summary.pending_payment_reviews || 0).toLocaleString();
+      el.issueCount.textContent = Number(
+        summary.reminder_issues || 0
+      ) + Number(summary.confirmation_issues || 0);
+      el.periodBadge.textContent = periodLabel(data.selected_period);
+
+      renderPeriods();
+      renderConfiguration();
+      renderReminderScores();
+      renderTabs();
+      renderBillTable();
+      renderPayments();
+    }
+
+    function renderPeriods() {
+      const data = state.data || {};
+      const periods = Array.isArray(data.available_periods) ? data.available_periods : [];
+      const selected = data.selected_period || "";
+      el.periodSelect.innerHTML = periods.map(function(period) {
+        return '<option value="' + escapeHtml(period) + '"' +
+          (period === selected ? " selected" : "") + ">" +
+          escapeHtml(periodLabel(period)) + "</option>";
+      }).join("") || '<option value="">No billing period</option>';
+    }
+
+    function renderConfiguration() {
+      const config = (state.data && state.data.configuration) || {};
+      const items = [
+        ["Botcake API token", config.botcake_token_configured],
+        ["Due Bill Flow", config.due_flow_configured],
+        ["Day‑5 Flow", config.day5_flow_configured],
+        ["Final Reminder Flow", config.final_flow_configured],
+        ["Payment Confirmed Flow", config.payment_confirmed_flow_configured]
+      ];
+      el.configRow.innerHTML = items.map(function(item) {
+        return '<span class="config-chip ' + (item[1] ? "" : "missing") + '">' +
+          escapeHtml(item[0]) + (item[1] ? " ready" : " missing") + "</span>";
+      }).join("");
+      const missing = items.filter(function(item) { return !item[1]; }).map(function(item) { return item[0]; });
+      if (missing.length) {
+        showNotice("Configuration needed: " + missing.join(", ") + ". Payment records will still save, but affected Meta flows will stay queued.", "");
+      }
+    }
+
+    function renderReminderScores() {
+      const summary = (state.data && state.data.summary) || {};
+      const total = Number(summary.total_bills || 0);
+      const values = [
+        [el.dueScore, el.dueMeter, Number(summary.due_notice_sent || 0)],
+        [el.day5Score, el.day5Meter, Number(summary.day5_notice_sent || 0)],
+        [el.finalScore, el.finalMeter, Number(summary.final_notice_sent || 0)]
+      ];
+      values.forEach(function(item) {
+        item[0].textContent = item[2] + "/" + total;
+        item[1].style.width = (total ? Math.min(100, item[2] / total * 100) : 0) + "%";
+      });
+    }
+
+    function renderTabs() {
+      const summary = (state.data && state.data.summary) || {};
+      document.querySelector("#tabUnpaidCount").textContent = Number(summary.unpaid_clients || 0);
+      document.querySelector("#tabPaidCount").textContent = Number(summary.paid_clients || 0);
+      document.querySelector("#tabAllCount").textContent = Number(summary.total_bills || 0);
+      document.querySelector("#tabReviewCount").textContent = Number(summary.pending_payment_reviews || 0);
+      document.querySelectorAll(".tab").forEach(function(button) {
+        button.classList.toggle("is-active", button.dataset.tab === state.activeTab);
+      });
+    }
+
+    function reminderMatchesFilter(bill, filter) {
+      if (filter === "ALL") return true;
+      if (filter === "ISSUES") return Boolean(bill.has_reminder_issue);
+      if (filter === "MISSING_META") return !bill.meta_linked;
+      if (filter === "INACTIVE") return !bill.active_client;
+      const keyMap = {
+        DUE_NOT_SENT: "due",
+        DAY5_NOT_SENT: "day5",
+        FINAL_NOT_SENT: "final"
+      };
+      const key = keyMap[filter];
+      if (!key) return true;
+      const reminder = bill.reminders && bill.reminders[key];
+      if (!reminder) return true;
+      return !isSent(reminder) && ["NOT_DUE", "NOT_NEEDED", "CANCELLED_PAID"].indexOf(reminder.status) === -1;
+    }
+
+    function getFilteredBills() {
+      const query = String(el.searchInput.value || "").trim().toLowerCase();
+      const attention = el.attentionFilter.value || "ALL";
+      const rows = state.bills.filter(function(bill) {
+        if (state.activeTab === "UNPAID" && bill.billing_status === "PAID") return false;
+        if (state.activeTab === "PAID" && bill.billing_status !== "PAID") return false;
+        if (!reminderMatchesFilter(bill, attention)) return false;
+        if (!query) return true;
+        return [
+          bill.client_name, bill.account_no, bill.phone_number,
+          bill.billing_id, bill.plan, bill.speed
+        ].join(" ").toLowerCase().indexOf(query) !== -1;
+      });
+      state.filteredBills = rows;
+      return rows;
+    }
+
+    function reminderCell(reminder) {
+      reminder = reminder || {};
+      const meta = reminder.timestamp ||
+        (reminder.scheduled_date ? "Schedule: " + reminder.scheduled_date : "") ||
+        reminder.error || "";
+      return '<span class="chip ' + statusTone(reminder.status) + '">' +
+        escapeHtml(statusLabel(reminder.status)) + "</span>" +
+        (meta ? '<small class="reminder-meta" title="' + escapeHtml(reminder.error || "") + '">' + escapeHtml(meta) + "</small>" : "");
+    }
+
+    function renderBillTable() {
+      const reviewMode = state.activeTab === "REVIEW";
+      el.billTableWrap.style.display = reviewMode ? "none" : "block";
+      el.reviewCards.classList.toggle("is-visible", reviewMode);
+      if (reviewMode) {
+        renderPaymentReviews();
+        return;
+      }
+
+      const rows = getFilteredBills();
+      if (!rows.length) {
+        el.billRows.innerHTML = '<tr><td class="empty" colspan="8">No billing records match this view.</td></tr>';
+        el.tableSummary.textContent = "0 records shown.";
+        return;
+      }
+
+      el.billRows.innerHTML = rows.map(function(bill) {
+        const paymentTone = bill.billing_status === "PAID" ? "ok" :
+          (bill.amount_paid > 0 ? "warn" : "danger");
+        const metaHtml = bill.meta_linked
+          ? '<span class="chip ok">Verified</span>'
+          : '<span class="chip danger">Missing mapping</span>';
+        const action = bill.billing_status === "PAID"
+          ? '<span class="chip ' + statusTone(bill.confirmation_status) + '">' +
+              escapeHtml(statusLabel(bill.confirmation_status)) + "</span>"
+          : '<button class="btn success small" type="button" data-action="mark-paid" data-id="' +
+              escapeHtml(bill.billing_id) + '">Mark Paid</button>';
+        const activeTag = bill.active_client
+          ? ""
+          : '<span class="chip danger" style="margin-top:6px">Inactive</span>';
+
+        return "<tr>" +
+          '<td class="client-cell"><strong>' + escapeHtml(bill.client_name || "Unnamed client") + "</strong>" +
+          '<span>' + escapeHtml(bill.phone_number || "No phone") + "</span>" +
+          '<span class="account-tag">' + escapeHtml(bill.account_no) + "</span>" + activeTag + "</td>" +
+          '<td class="client-cell"><strong>' + escapeHtml(bill.billing_id) + "</strong>" +
+          '<span>' + escapeHtml(periodLabel(bill.billing_period)) + "</span>" +
+          '<span>Due ' + escapeHtml(bill.due_date_label || bill.due_date || "—") + "</span></td>" +
+          '<td class="money-cell"><strong>' + escapeHtml(money(bill.balance)) + "</strong>" +
+          '<span>Paid ' + escapeHtml(money(bill.amount_paid)) + " / " + escapeHtml(money(bill.amount_due)) + "</span>" +
+          '<span class="chip ' + paymentTone + '" style="margin-top:6px">' + escapeHtml(statusLabel(bill.billing_status)) + "</span></td>" +
+          "<td>" + reminderCell(bill.reminders && bill.reminders.due) + "</td>" +
+          "<td>" + reminderCell(bill.reminders && bill.reminders.day5) + "</td>" +
+          "<td>" + reminderCell(bill.reminders && bill.reminders.final) + "</td>" +
+          "<td>" + metaHtml + "</td>" +
+          '<td><div class="row-actions">' + action + "</div></td>" +
+          "</tr>";
+      }).join("");
+
+      const filteredBalance = rows.reduce(function(sum, bill) { return sum + Number(bill.balance || 0); }, 0);
+      el.tableSummary.textContent = rows.length + " of " + state.bills.length +
+        " bill(s) shown • Visible outstanding balance: " + money(filteredBalance);
+    }
+
+    function renderPaymentReviews() {
+      const payments = (state.data && state.data.pending_payments) || [];
+      const query = String(el.searchInput.value || "").trim().toLowerCase();
+      const filtered = payments.filter(function(payment) {
+        if (!query) return true;
+        return [
+          payment.client_name, payment.account_no, payment.payment_id,
+          payment.gateway_reference, payment.billing_id
+        ].join(" ").toLowerCase().indexOf(query) !== -1;
+      });
+
+      el.reviewCards.innerHTML = filtered.map(function(payment) {
+        const proof = payment.proof_url
+          ? '<a class="btn small" href="' + escapeHtml(payment.proof_url) + '" target="_blank" rel="noopener">View proof</a>'
+          : '<span class="chip warn">No proof URL</span>';
+        return '<article class="review-card">' +
+          '<div><strong>' + escapeHtml(payment.client_name || "Client") + "</strong>" +
+            '<span>' + escapeHtml(payment.account_no) + " • " + escapeHtml(payment.payment_id) + "</span></div>" +
+          '<div><strong>' + escapeHtml(money(payment.amount)) + "</strong><span>Submitted amount</span></div>" +
+          '<div><strong>' + escapeHtml(payment.payment_channel || "Online") + "</strong><span>" +
+            escapeHtml(payment.gateway_reference || "No reference") + "</span></div>" +
+          "<div>" + proof + "</div>" +
+          '<div class="review-actions">' +
+            '<button class="btn success small" type="button" data-action="approve-payment" data-id="' + escapeHtml(payment.payment_id) + '">Confirm</button>' +
+            '<button class="btn danger small" type="button" data-action="reject-payment" data-id="' + escapeHtml(payment.payment_id) + '">Not Received</button>' +
+          "</div></article>";
+      }).join("") || '<div class="empty">No pending payment submissions for this period.</div>';
+      el.tableSummary.textContent = filtered.length + " payment submission(s) waiting for verification.";
+    }
+
+    function renderPayments() {
+      const payments = (state.data && state.data.recent_payments) || [];
+      if (!payments.length) {
+        el.paymentList.innerHTML = '<div class="empty">No verified payments for this period.</div>';
+        return;
+      }
+      el.paymentList.innerHTML = payments.slice(0, 20).map(function(payment) {
+        const retry = CONFIRMATION_RETRYABLE.indexOf(payment.confirmation_status) !== -1
+          ? '<button class="btn small" type="button" data-action="retry-confirmation" data-id="' +
+              escapeHtml(payment.payment_id) + '">Retry confirmation</button>'
+          : "";
+        return '<article class="payment-item">' +
+          '<div><strong>' + escapeHtml(payment.client_name || "Client") + "</strong><span>" +
+            escapeHtml(payment.account_no) + " • " + escapeHtml(payment.payment_id) + "</span></div>" +
+          '<div><strong>' + escapeHtml(money(payment.amount)) + "</strong><span>" +
+            escapeHtml(payment.payment_channel || "Payment") + "</span></div>" +
+          '<div><strong>' + escapeHtml(payment.gateway_reference || "No reference") + "</strong><span>Reference</span></div>" +
+          '<div><span class="chip ' + statusTone(payment.confirmation_status) + '">' +
+            escapeHtml(statusLabel(payment.confirmation_status)) + "</span><span>" +
+            escapeHtml(payment.confirmation_timestamp || payment.verified_at || "") + "</span></div>" +
+          "<div>" + retry + "</div></article>";
+      }).join("");
+    }
+
+    function openPaidModal(billingId) {
+      const bill = state.bills.find(function(item) { return item.billing_id === billingId; });
+      if (!bill) return;
+      state.selectedBill = bill;
+      el.modalClient.textContent = bill.client_name || "Client";
+      el.modalAccount.textContent = bill.account_no || "—";
+      el.modalBillingId.textContent = bill.billing_id || "—";
+      el.modalBalance.textContent = money(bill.balance);
+      el.paymentAmount.value = Number(bill.balance || 0).toFixed(2);
+      el.paymentAmount.max = Number(bill.balance || 0).toFixed(2);
+      el.paymentDate.value = todayInputValue();
+      document.querySelector("#paymentChannel").value = "GCash";
+      document.querySelector("#paymentReference").value = "";
+      document.querySelector("#paymentRemarks").value = "";
+      el.paidModal.classList.add("is-open");
+      el.paidModal.setAttribute("aria-hidden", "false");
+      window.setTimeout(function() { el.paymentAmount.focus(); }, 50);
+    }
+
+    function closePaidModal(force) {
+      if (state.busy && !force) return;
+      el.paidModal.classList.remove("is-open");
+      el.paidModal.setAttribute("aria-hidden", "true");
+      state.selectedBill = null;
+    }
+
+    async function submitPaidForm(event) {
+      event.preventDefault();
+      if (!state.selectedBill || state.busy) return;
+      const data = Object.fromEntries(new FormData(el.paidForm).entries());
+      data.billingId = state.selectedBill.billing_id;
+      el.confirmPaidBtn.disabled = true;
+      showLoading(true, "Posting payment and preparing Meta confirmation…");
+      try {
+        const result = await callBackend("billingControlMarkPaid", data);
+        closePaidModal(true);
+        const confirmation = result.confirmation || {};
+        const delivery = confirmation.delivery || {};
+        const extra = delivery.sent_to_flow
+          ? " Meta confirmation flow triggered."
+          : " Payment saved; Meta confirmation remains queued.";
+        showToast((result.message || "Payment saved.") + extra, "ok");
+        await loadBilling({ period: (state.data && state.data.selected_period) || "", silent: true });
+      } catch (error) {
+        showToast(error.message || "Unable to post payment.", "error");
+      } finally {
+        showLoading(false);
+        el.confirmPaidBtn.disabled = false;
+      }
+    }
+
+    async function approvePayment(paymentId) {
+      if (!window.confirm("Confirm that payment " + paymentId + " was received and post it to the Billing Ledger?")) return;
+      showLoading(true, "Verifying payment and updating the ledger…");
+      try {
+        const result = await callBackend("billingControlApprovePayment", {
+          paymentId: paymentId,
+          remarks: "Confirmed from Billing Control Center."
+        });
+        showToast((result.message || "Payment verified.") + " Meta confirmation was queued.", "ok");
+        await loadBilling({ period: (state.data && state.data.selected_period) || "", silent: true });
+      } catch (error) {
+        showToast(error.message || "Unable to approve payment.", "error");
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    async function rejectPayment(paymentId) {
+      const reason = window.prompt("Reason payment was not received/rejected:");
+      if (reason === null) return;
+      if (!String(reason).trim()) {
+        showToast("A rejection reason is required.", "error");
+        return;
+      }
+      showLoading(true, "Updating payment review…");
+      try {
+        const result = await callBackend("billingControlRejectPayment", {
+          paymentId: paymentId,
+          remarks: reason
+        });
+        showToast(result.message || "Payment marked as not received.", "ok");
+        await loadBilling({ period: (state.data && state.data.selected_period) || "", silent: true });
+      } catch (error) {
+        showToast(error.message || "Unable to reject payment.", "error");
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    async function retryConfirmation(paymentId) {
+      if (!window.confirm("Retry the Meta payment confirmation for " + paymentId + "? Duplicate-safe checks will run first.")) return;
+      showLoading(true, "Running safe confirmation retry…");
+      try {
+        const result = await callBackend("billingControlRetryConfirmation", { paymentId: paymentId });
+        showToast(result.message || "Confirmation retry processed.", result.already_sent ? "" : "ok");
+        await loadBilling({ period: (state.data && state.data.selected_period) || "", silent: true });
+      } catch (error) {
+        showToast(error.message || "Unable to retry confirmation.", "error");
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function exportCurrentView() {
+      const rows = state.activeTab === "REVIEW" ? [] : getFilteredBills();
+      if (!rows.length) {
+        showToast("No billing rows to export in the current view.");
+        return;
+      }
+      const headers = [
+        "Billing ID", "Period", "Account No", "Client", "Phone",
+        "Service Status", "Amount Due", "Amount Paid", "Balance", "Billing Status",
+        "Due Date", "Due Notice", "Day 5 Reminder", "Final Reminder", "Meta Linked"
+      ];
+      const values = rows.map(function(bill) {
+        return [
+          bill.billing_id, bill.billing_period, bill.account_no, bill.client_name,
+          bill.phone_number, bill.service_status, bill.amount_due, bill.amount_paid,
+          bill.balance, bill.billing_status, bill.due_date,
+          bill.reminders.due.status, bill.reminders.day5.status,
+          bill.reminders.final.status, bill.meta_linked ? "YES" : "NO"
+        ];
+      });
+      const csv = [headers].concat(values).map(function(row) {
+        return row.map(function(value) {
+          return '"' + String(value === undefined ? "" : value).replace(/"/g, '""') + '"';
+        }).join(",");
+      }).join("\r\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "TechGeekPH_Billing_" + ((state.data && state.data.selected_period) || "export") + ".csv";
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+
+    document.querySelectorAll(".nav-toggle").forEach(function(button) {
+      button.addEventListener("click", function() {
+        const group = button.closest(".nav-group");
+        if (group) group.classList.toggle("is-open");
+      });
+    });
+
+    document.querySelectorAll(".tab").forEach(function(button) {
+      button.addEventListener("click", function() {
+        state.activeTab = button.dataset.tab;
+        renderTabs();
+        renderBillTable();
+      });
+    });
+
+    el.searchInput.addEventListener("input", renderBillTable);
+    el.attentionFilter.addEventListener("change", renderBillTable);
+    el.periodSelect.addEventListener("change", function() {
+      loadBilling({ period: el.periodSelect.value });
+    });
+    document.querySelector("#clearFiltersBtn").addEventListener("click", function() {
+      el.searchInput.value = "";
+      el.attentionFilter.value = "ALL";
+      renderBillTable();
+    });
+
+    document.querySelector("#refreshBtn").addEventListener("click", function() { loadBilling({}); });
+    document.querySelector("#refreshTopBtn").addEventListener("click", function() { loadBilling({}); });
+    document.querySelector("#exportBtn").addEventListener("click", exportCurrentView);
+    document.querySelector("#closePaidModal").addEventListener("click", closePaidModal);
+    document.querySelector("#cancelPaidBtn").addEventListener("click", closePaidModal);
+    el.paidForm.addEventListener("submit", submitPaidForm);
+    el.paidModal.addEventListener("click", function(event) {
+      if (event.target === el.paidModal) closePaidModal();
+    });
+
+    document.body.addEventListener("click", function(event) {
+      const button = event.target.closest("[data-action]");
+      if (!button || state.busy) return;
+      const id = button.dataset.id;
+      if (button.dataset.action === "mark-paid") openPaidModal(id);
+      if (button.dataset.action === "approve-payment") approvePayment(id);
+      if (button.dataset.action === "reject-payment") rejectPayment(id);
+      if (button.dataset.action === "retry-confirmation") retryConfirmation(id);
+    });
+
+    document.addEventListener("keydown", function(event) {
+      if (event.key === "Escape" && el.paidModal.classList.contains("is-open")) closePaidModal();
+    });
+
+    document.querySelector("#logoutBtn").addEventListener("click", function() {
+      [SESSION_KEY, LEGACY_SESSION_KEY, "techgeekph_employee_session"].forEach(function(key) {
+        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
+      });
+      window.location.href = "index.html";
+    });
+
+    window.setInterval(function() {
+      if (document.visibilityState === "visible" && !state.busy &&
+          !el.paidModal.classList.contains("is-open")) {
+        loadBilling({ period: (state.data && state.data.selected_period) || "", silent: true });
+      }
+    }, 60000);
+
+    if (ensureAdminSession()) loadBilling({});
+  </script>
+  <script src="assets/admin-shell.js"></script>
+</body>
+</html>
