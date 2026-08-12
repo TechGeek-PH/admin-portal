@@ -4,6 +4,7 @@
   <base target="_top">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
   <title>Admin Portal - TechGeekPH</title>
   <style>
     :root {
@@ -20,7 +21,6 @@
     }
 
     * { box-sizing: border-box; }
-
     body {
       min-height: 100vh;
       margin: 0;
@@ -170,36 +170,7 @@
     .accent span:nth-child(1) { background: var(--blue); }
     .accent span:nth-child(2) { background: var(--crimson); }
     .accent span:nth-child(3) { background: var(--violet); }
-
     .login-body { padding: clamp(26px, 4vw, 40px); }
-
-    .portal-tabs {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 24px;
-    }
-
-    .portal-tabs a {
-      display: grid;
-      place-items: center;
-      min-height: 42px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      color: var(--blue);
-      background: #fff;
-      text-decoration: none;
-      font-weight: 850;
-      font-size: .86rem;
-    }
-
-    .portal-tabs a.is-active {
-      color: #fff;
-      border-color: var(--blue);
-      background: var(--blue);
-    }
-
-
 
     .admin-only-note {
       display: flex;
@@ -222,20 +193,14 @@
       height: 10px;
       margin-top: .42em;
       border-radius: 50%;
-      background: var(--blue);
-      box-shadow: 0 0 0 4px rgba(6,79,131,.12);
+      background: var(--ok);
+      box-shadow: 0 0 0 4px rgba(31,138,102,.12);
     }
 
-    .admin-only-note b {
-      display: block;
-      color: var(--ink);
-      margin-bottom: 2px;
-    }
-
+    .admin-only-note b { display: block; color: var(--ink); margin-bottom: 2px; }
     .form-header { margin-bottom: 28px; }
     .form-header h2 { margin: 0 0 8px; font-size: clamp(1.7rem, 3vw, 2.2rem); }
     .form-header p { margin: 0; color: var(--muted); line-height: 1.55; }
-
     .field-stack { display: grid; gap: 18px; }
 
     .field label {
@@ -246,12 +211,7 @@
       font-weight: 750;
     }
 
-    .field-control {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
+    .field-control { position: relative; display: flex; align-items: center; }
     .field-icon {
       position: absolute;
       left: 14px;
@@ -294,26 +254,6 @@
 
     .toggle-password:hover { background: #eef3f8; color: var(--blue); }
 
-    .form-options {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      margin: 18px 0 22px;
-      color: var(--muted);
-      font-size: .9rem;
-    }
-
-    .checkbox {
-      display: inline-flex;
-      align-items: center;
-      gap: 9px;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .checkbox input { width: 18px; height: 18px; accent-color: var(--blue); }
-
     .primary-btn {
       display: inline-flex;
       align-items: center;
@@ -321,6 +261,7 @@
       gap: 10px;
       width: 100%;
       min-height: 52px;
+      margin-top: 22px;
       border-radius: 8px;
       border: 1px solid transparent;
       color: #fff;
@@ -329,16 +270,7 @@
       font-weight: 850;
     }
 
-    .back-link {
-      display: inline-flex;
-      justify-content: center;
-      width: 100%;
-      margin-top: 14px;
-      color: var(--blue);
-      text-decoration: none;
-      font-weight: 800;
-      font-size: .9rem;
-    }
+    .primary-btn:disabled { opacity: .7; cursor: wait; }
 
     .message {
       display: none;
@@ -353,31 +285,27 @@
     .message.error { border: 1px solid rgba(201,20,72,.2); background: rgba(201,20,72,.08); color: #99183d; }
     .message.success { border: 1px solid rgba(31,138,102,.2); background: rgba(31,138,102,.08); color: #16644d; }
 
+    .migration-note {
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.45;
+      text-align: center;
+    }
+
     @media (max-width: 980px) {
       .page { grid-template-columns: 1fr; }
-      .brand {
-        min-height: auto;
-        padding-block: 42px;
-      }
-      .portal {
-        align-items: start;
-        padding-top: 32px;
-      }
+      .brand { min-height: auto; padding-block: 42px; }
+      .portal { align-items: start; padding-top: 32px; }
     }
 
     @media (max-width: 640px) {
       .brand, .portal { padding: 22px; }
       .brand { min-height: auto; gap: 28px; }
-      .logo-wrap {
-        width: 100%;
-        min-height: 82px;
-        padding: 12px;
-      }
+      .logo-wrap { width: 100%; min-height: 82px; padding: 12px; }
       .eyebrow { margin-top: 26px; }
       .status-row { grid-template-columns: 1fr; }
       .status-pill { min-height: auto; }
-      .form-options { align-items: flex-start; flex-direction: column; }
-      .portal-tabs { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -388,69 +316,56 @@
         <div class="logo-wrap">
           <img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH Solutions & Services Inc.">
         </div>
-        <div class="eyebrow">Admin secure access</div>
+        <div class="eyebrow">Supabase secure access</div>
         <h1>Admin Portal</h1>
-        <p class="brand-copy">Admin-only access for client records, tickets, investors, expenses, assets, stock, SOA, payroll, and system operations.</p>
+        <p class="brand-copy">Secure access for TechGeekPH operations. Authentication and client permissions are now protected by Supabase Auth and Row Level Security.</p>
       </div>
 
       <div class="status-row">
-        <div class="status-pill"><b>Admin Access</b><span>Manage full operations</span></div>
-        <div class="status-pill"><b>Investor Reports</b><span>View monthly computation</span></div>
-        <div class="status-pill"><b>System Control</b><span>Clients, assets, and records</span></div>
+        <div class="status-pill"><b>Supabase Auth</b><span>Secure email and password login</span></div>
+        <div class="status-pill"><b>RLS Protected</b><span>Database access based on staff role</span></div>
+        <div class="status-pill"><b>Live Clients</b><span>Client records now sourced from PostgreSQL</span></div>
       </div>
     </section>
 
     <section class="portal">
       <div class="login">
         <div class="accent"><span></span><span></span><span></span></div>
-
         <div class="login-body">
-
-
           <div class="admin-only-note">
             <span></span>
-            <div><b>Admin only login</b>Employee, client, and other non-admin accounts are blocked on this page.</div>
+            <div><b>Authorized staff only</b>OWNER and approved ADMIN accounts can enter this portal.</div>
           </div>
 
           <div class="form-header">
             <h2>Admin Login</h2>
-            <p>Sign in to access the admin workspace.</p>
+            <p>Sign in using your Supabase staff account.</p>
           </div>
 
           <form id="loginForm" novalidate>
-            <input type="hidden" id="role" name="role" value="ADMIN">
-            <input type="hidden" id="requestedRole" name="requestedRole" value="ADMIN">
-
             <div class="field-stack">
               <div class="field">
-                <label for="email">Email or Admin ID</label>
+                <label for="email">Email address</label>
                 <div class="field-control">
-                  <svg class="field-icon" viewBox="0 0 24 24" fill="none">
+                  <svg class="field-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-9Z" stroke="currentColor" stroke-width="2"/>
                     <path d="m5 7 7 6 7-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                  <input id="email" name="email" autocomplete="username" placeholder="admin@techgeekph.com" required>
+                  <input id="email" name="email" type="email" autocomplete="username" placeholder="admin@techgeekph.com" required>
                 </div>
               </div>
 
               <div class="field">
                 <label for="password">Password</label>
                 <div class="field-control">
-                  <svg class="field-icon" viewBox="0 0 24 24" fill="none">
+                  <svg class="field-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M7 11V8a5 5 0 0 1 10 0v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     <path d="M6.5 11h11A1.5 1.5 0 0 1 19 12.5v6A1.5 1.5 0 0 1 17.5 20h-11A1.5 1.5 0 0 1 5 18.5v-6A1.5 1.5 0 0 1 6.5 11Z" stroke="currentColor" stroke-width="2"/>
                   </svg>
-                  <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter password" minlength="4" required>
+                  <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter password" required>
                   <button class="toggle-password" type="button" id="togglePassword" aria-label="Show password">Show</button>
                 </div>
               </div>
-            </div>
-
-            <div class="form-options">
-              <label class="checkbox">
-                <input type="checkbox" id="remember" name="remember">
-                <span>Remember me</span>
-              </label>
             </div>
 
             <button class="primary-btn" type="submit" id="submitBtn">
@@ -459,145 +374,189 @@
 
             <div class="message" id="message" role="status" aria-live="polite"></div>
           </form>
+
+          <p class="migration-note">TechGeekPH Portal · Supabase migration phase</p>
         </div>
       </div>
     </section>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/supabase-config.js"></script>
   <script>
-    const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxDY5TsonrB58YaN8LGbrrrc_ZD1QVpF1WK0p6jToIR2FBSqGaHfsgaE1CCiH1MvukV/exec";
-    const SESSION_KEY = "techgeekph_admin_session";
+    (function () {
+      "use strict";
 
-    const form = document.querySelector("#loginForm");
-    const message = document.querySelector("#message");
-    const password = document.querySelector("#password");
-    const togglePassword = document.querySelector("#togglePassword");
-    const submitBtn = document.querySelector("#submitBtn");
+      const SESSION_KEY = "techgeekph_admin_session";
+      const client = window.TechGeekSupabase;
+      const form = document.querySelector("#loginForm");
+      const message = document.querySelector("#message");
+      const passwordInput = document.querySelector("#password");
+      const togglePassword = document.querySelector("#togglePassword");
+      const submitBtn = document.querySelector("#submitBtn");
+      const emailInput = document.querySelector("#email");
 
-    function showMessage(type, text) {
-      message.className = "message " + type + " is-visible";
-      message.textContent = text;
-    }
-
-    function setLoading(isLoading) {
-      submitBtn.disabled = isLoading;
-      submitBtn.querySelector("span").textContent = isLoading ? "Signing in..." : "Sign in to Admin Portal";
-    }
-
-    async function callBackend(action, payload) {
-      const body = new URLSearchParams();
-      body.set("action", action);
-      body.set("method", action);
-
-      Object.keys(payload || {}).forEach(function(key) {
-        body.set(key, payload[key]);
-      });
-
-      const response = await fetch(BACKEND_URL, {
-        method: "POST",
-        body: body,
-        redirect: "follow"
-      });
-
-      const text = await response.text();
-      const type = response.headers.get("content-type") || "";
-
-      if (type.indexOf("application/json") !== -1 || /^[\s\r\n]*[\[{]/.test(text)) {
-        return JSON.parse(text);
+      function showMessage(type, text) {
+        message.className = "message " + type + " is-visible";
+        message.textContent = text;
       }
 
-      if (/<html[\s>]/i.test(text) || /sandboxFrame/i.test(text)) {
+      function clearMessage() {
+        message.className = "message";
+        message.textContent = "";
+      }
+
+      function setLoading(isLoading) {
+        submitBtn.disabled = isLoading;
+        submitBtn.querySelector("span").textContent = isLoading ? "Signing in securely..." : "Sign in to Admin Portal";
+      }
+
+      function allowedRole(role) {
+        const clean = String(role || "").trim().toUpperCase();
+        return clean === "OWNER" || clean === "ADMIN";
+      }
+
+      async function getProfile(userId) {
+        const result = await client
+          .from("staff_profiles")
+          .select("user_id, full_name, role, active")
+          .eq("user_id", userId)
+          .single();
+
+        if (result.error) throw result.error;
+        return result.data;
+      }
+
+      async function getClientMetrics() {
+        const totalRequest = client
+          .from("clients")
+          .select("id", { count: "exact", head: true });
+
+        const activeRequest = client
+          .from("clients")
+          .select("id", { count: "exact", head: true })
+          .ilike("account_status", "Active%");
+
+        const results = await Promise.all([totalRequest, activeRequest]);
+        const total = results[0];
+        const active = results[1];
+
         return {
-          ok: false,
-          htmlResponse: true,
-          message: "Backend returned Apps Script page instead of JSON."
+          totalClients: total.error ? null : total.count,
+          activeClients: active.error ? null : active.count,
+          openTickets: null,
+          lowStockItems: null
         };
       }
 
-      return {
-        ok: false,
-        message: text.trim() || "Unexpected backend response."
-      };
-    }
+      async function createPortalSession(authSession, authUser, profile) {
+        let dashboard = {};
+        try {
+          dashboard = await getClientMetrics();
+        } catch (error) {
+          dashboard = {};
+        }
 
-    function goToDashboard(user, dashboardData, source, token) {
-      const cleanRole = String(user && user.role || "").trim().toUpperCase();
+        localStorage.removeItem("techgeekph_session");
+        localStorage.removeItem("techgeekph_employee_session");
+        localStorage.removeItem("techgeekph_client_session");
 
-      if (cleanRole !== "ADMIN") {
-        showMessage("error", "Admin account only. This login page blocks non-admin users.");
-        return;
+        localStorage.setItem(SESSION_KEY, JSON.stringify({
+          provider: "supabase",
+          token: authSession && authSession.access_token || "",
+          sessionToken: authSession && authSession.access_token || "",
+          user: {
+            id: authUser.id,
+            email: authUser.email || "",
+            name: profile.full_name || authUser.email || "TechGeekPH User",
+            role: profile.role
+          },
+          email: authUser.email || "",
+          role: profile.role,
+          dashboard: dashboard,
+          source: "supabase-auth",
+          loginAt: new Date().toISOString()
+        }));
       }
 
-      if (!token) {
-        showMessage("error", "Login accepted but no session token was returned. Please check backend deployment.");
-        return;
+      async function authorizeSession(authSession) {
+        if (!authSession || !authSession.user) return false;
+
+        const profile = await getProfile(authSession.user.id);
+        if (!profile.active || !allowedRole(profile.role)) {
+          await client.auth.signOut();
+          localStorage.removeItem(SESSION_KEY);
+          throw new Error("This account does not have active Admin Portal access.");
+        }
+
+        await createPortalSession(authSession, authSession.user, profile);
+        return true;
       }
 
-      localStorage.removeItem("techgeekph_session");
-      localStorage.removeItem("techgeekph_employee_session");
-      localStorage.removeItem("techgeekph_client_session");
+      togglePassword.addEventListener("click", function () {
+        const hidden = passwordInput.type === "password";
+        passwordInput.type = hidden ? "text" : "password";
+        togglePassword.textContent = hidden ? "Hide" : "Show";
+        togglePassword.setAttribute("aria-label", hidden ? "Hide password" : "Show password");
+      });
 
-      localStorage.setItem(SESSION_KEY, JSON.stringify({
-        token: token || "",
-        sessionToken: token || "",
-        user: user || {},
-        email: user && (user.email || user.username) || "",
-        role: "ADMIN",
-        dashboard: dashboardData || {},
-        source: source || "admin-login",
-        loginAt: new Date().toISOString()
-      }));
+      form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        clearMessage();
 
-      window.location.href = "dashboard.html";
-    }
-
-    togglePassword.addEventListener("click", function() {
-      const isHidden = password.type === "password";
-      password.type = isHidden ? "text" : "password";
-      togglePassword.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
-      togglePassword.textContent = isHidden ? "Hide" : "Show";
-    });
-
-    form.addEventListener("submit", async function(event) {
-      event.preventDefault();
-      message.className = "message";
-
-      if (!form.checkValidity()) {
-        showMessage("error", "Please enter valid admin login details.");
-        form.reportValidity();
-        return;
-      }
-
-      const data = Object.fromEntries(new FormData(form).entries());
-      data.role = "ADMIN";
-      data.requestedRole = "ADMIN";
-
-      setLoading(true);
-
-      try {
-        const response = await callBackend("validateLogin", data);
-        setLoading(false);
-
-        if (!response || !response.ok) {
-          showMessage("error", response && response.message ? response.message : "Login failed.");
+        if (!client) {
+          showMessage("error", "Supabase connection could not be initialized.");
           return;
         }
 
-        const loginUser = response.user || data;
-        const role = String(loginUser.role || "").trim().toUpperCase();
-
-        if (role !== "ADMIN") {
-          showMessage("error", "Admin account only. Non-admin accounts cannot login here.");
+        if (!form.checkValidity()) {
+          showMessage("error", "Please enter a valid email and password.");
+          form.reportValidity();
           return;
         }
 
-        showMessage("success", "Admin login accepted.");
-        goToDashboard(loginUser, response.dashboard, "backend-json", response.token || response.sessionToken);
-      } catch (error) {
-        setLoading(false);
-        showMessage("error", "Unable to connect to login server. Please check deployment URL.");
+        setLoading(true);
+
+        try {
+          const email = emailInput.value.trim();
+          const password = passwordInput.value;
+
+          const authResult = await client.auth.signInWithPassword({ email, password });
+          if (authResult.error) throw authResult.error;
+
+          const authSession = authResult.data.session;
+          await authorizeSession(authSession);
+
+          showMessage("success", "Secure login accepted. Opening dashboard...");
+          window.location.href = "dashboard.html";
+        } catch (error) {
+          await client.auth.signOut().catch(function () {});
+          localStorage.removeItem(SESSION_KEY);
+          showMessage("error", error && error.message ? error.message : "Login failed.");
+          setLoading(false);
+        }
+      });
+
+      async function restoreExistingSession() {
+        if (!client) return;
+
+        try {
+          const result = await client.auth.getSession();
+          const session = result.data && result.data.session;
+          if (!session) return;
+
+          setLoading(true);
+          await authorizeSession(session);
+          window.location.href = "dashboard.html";
+        } catch (error) {
+          await client.auth.signOut().catch(function () {});
+          localStorage.removeItem(SESSION_KEY);
+          setLoading(false);
+        }
       }
-    });
+
+      restoreExistingSession();
+    })();
   </script>
 </body>
 </html>
