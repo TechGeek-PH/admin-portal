@@ -22,13 +22,19 @@
     });
   }
 
-  loadScript(CORE_URL, "admin-core")
+  loadScript("assets/auth-session-bridge.js?v=20260812-1", "auth-session-bridge")
+    .then(function () {
+      return window.TechGeekAuthReady || null;
+    })
+    .then(function () {
+      return loadScript(CORE_URL, "admin-core");
+    })
     .then(function () {
       if (currentFile === "application_form.html") {
         return loadScript("assets/application-supabase-loader.js?v=20260812-2", "application-supabase-loader");
       }
       if (currentFile === "statement_of_account.html" || currentFile === "statement_of_account_v3.html") {
-        return loadScript("assets/soa-supabase.js?v=20260812-1", "soa-supabase");
+        return loadScript("assets/soa-supabase.js?v=20260812-2", "soa-supabase");
       }
       return null;
     })
