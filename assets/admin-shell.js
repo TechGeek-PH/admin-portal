@@ -25,7 +25,7 @@
   loadScript(CORE_URL, "admin-core")
     .then(function () {
       if (currentFile === "application_form.html") {
-        return loadScript("assets/application-supabase.js?v=20260812-1", "application-supabase");
+        return loadScript("assets/application-supabase-loader.js?v=20260812-2", "application-supabase-loader");
       }
       return null;
     })
