@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>TechGeekPH Supabase Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: Arial, sans-serif;
+      background: #0b1220;
+      color: #e5e7eb;
+    }
+    .card {
+      width: min(100%, 460px);
+      background: #111827;
+      border: 1px solid #253047;
+      border-radius: 18px;
+      padding: 26px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    }
+    h1 { margin: 0 0 8px; font-size: 24px; }
+    .muted { color: #9ca3af; margin: 0 0 22px; line-height: 1.5; }
+    label { display: block; margin: 12px 0 6px; font-size: 13px; color: #cbd5e1; }
+    input, button {
+      width: 100%;
+      min-height: 46px;
+      border-radius: 10px;
+      font: inherit;
+    }
+    input {
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: #fff;
+      padding: 0 13px;
+      outline: none;
+    }
+    input:focus { border-color: #64748b; }
+    button {
+      margin-top: 16px;
+      border: 0;
+      cursor: pointer;
+      font-weight: 700;
+      padding: 0 14px;
+    }
+    #loginBtn { background: #fff; color: #111827; }
+    #logoutBtn { background: #263244; color: #fff; display: none; }
+    #result {
+      margin-top: 18px;
+      min-height: 90px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      border-radius: 10px;
+      padding: 14px;
+      background: #0b1020;
+      border: 1px solid #263244;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>TechGeekPH Supabase Test</h1>
+    <p class="muted">Tests Supabase Auth, OWNER profile, RLS, and access to the Clients database.</p>
+
+    <label for="email">Owner Email</label>
+    <input type="email" id="email" autocomplete="username" placeholder="Owner email">
+
+    <label for="password">Password</label>
+    <input type="password" id="password" autocomplete="current-password" placeholder="Password">
+
+    <button id="loginBtn" type="button">Login & Test Database</button>
+    <button id="logoutBtn" type="button">Sign Out</button>
+
+    <div id="result">Waiting for login test...</div>
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://tcexzfztdgximrzuosqs.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_8H8_S7NTWvzPCLvYUe2C4g_k3Ltjfiz";
+
+    const supabaseClient = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY,
+      {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true
+        }
+      }
+    );
+
+    const emailEl = document.getElementById("email");
+    const passwordEl = document.getElementById("password");
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const resultEl = document.getElementById("result");
+
+    function setResult(message) {
+      resultEl.textContent = message;
+    }
+
+    function setLoggedInUi(loggedIn) {
+      loginBtn.style.display = loggedIn ? "none" : "block";
+      logoutBtn.style.display = loggedIn ? "block" : "none";
+      emailEl.disabled = loggedIn;
+      passwordEl.disabled = loggedIn;
+      if (loggedIn) passwordEl.value = "";
+    }
+
+    async function testDatabase(user) {
+      setResult("Login success. Checking OWNER profile and database access...");
+
+      const { data: profile, error: profileError } = await supabaseClient
+        .from("staff_profiles")
+        .select("full_name, role, active")
+        .eq("user_id", user.id)
+        .single();
+
+      if (profileError) {
+        setResult("LOGIN SUCCESS\n\nSTAFF PROFILE FAILED:\n" + profileError.message);
+        return;
+      }
+
+      const { count: clientCount, error: clientError } = await supabaseClient
+        .from("clients")
+        .select("id", { count: "exact", head: true });
+
+      if (clientError) {
+        setResult(
+          "LOGIN SUCCESS\n\n" +
+          "Name: " + profile.full_name + "\n" +
+          "Role: " + profile.role + "\n\n" +
+          "CLIENT ACCESS FAILED:\n" + clientError.message
+        );
+        return;
+      }
+
+      setResult(
+        "✅ LOGIN SUCCESS\n\n" +
+        "Name: " + profile.full_name + "\n" +
+        "Role: " + profile.role + "\n" +
+        "Active: " + profile.active + "\n\n" +
+        "✅ SUPABASE DATABASE ACCESS OK\n" +
+        "Total Clients: " + clientCount
+      );
+    }
+
+    loginBtn.addEventListener("click", async () => {
+      const email = emailEl.value.trim();
+      const password = passwordEl.value;
+
+      if (!email || !password) {
+        setResult("Please enter email and password.");
+        return;
+      }
+
+      loginBtn.disabled = true;
+      setResult("Logging in...");
+
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      loginBtn.disabled = false;
+
+      if (error) {
+        setLoggedInUi(false);
+        setResult("LOGIN FAILED\n\n" + error.message);
+        return;
+      }
+
+      setLoggedInUi(true);
+      await testDatabase(data.user);
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      await supabaseClient.auth.signOut();
+      setLoggedInUi(false);
+      emailEl.disabled = false;
+      passwordEl.disabled = false;
+      setResult("Signed out.");
+    });
+
+    (async () => {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session?.user) {
+        setLoggedInUi(true);
+        emailEl.value = session.user.email || "";
+        await testDatabase(session.user);
+      }
+    })();
+  </script>
+</body>
+</html>
