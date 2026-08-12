@@ -133,7 +133,7 @@
 
     .nav summary::-webkit-details-marker { display: none; }
     .nav summary::after {
-      content: "▾";
+      content: "v";
       margin-left: auto;
       font-size: 0.78rem;
       opacity: 0.72;
@@ -1144,7 +1144,7 @@
     }
 
     .nav-toggle::after {
-      content: "›" !important;
+      content: ">" !important;
       margin-left: auto !important;
       font-size: 0.95rem !important;
       opacity: 0.75 !important;
@@ -1228,7 +1228,199 @@
       }
     }
 
-  </style>
+  
+
+    /* ==========================================================
+       Ticket workspace: queue first, forms next, resolved last
+       ========================================================== */
+    .ticket-center-panel {
+      width: 100%;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .ticket-tabs-four {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .subpanel-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .subpanel-heading h3 {
+      margin: 0;
+      color: var(--blue);
+      font-size: 1rem;
+    }
+
+    .subpanel-heading p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: .8rem;
+      line-height: 1.4;
+    }
+
+    .ticket-form-wide {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      align-items: start;
+    }
+
+    .full-row {
+      grid-column: 1 / -1;
+    }
+
+    .form-actions.full-row {
+      position: relative;
+      bottom: auto;
+      justify-content: flex-end;
+      border-top: 1px solid var(--line);
+      margin: 0 -14px -14px;
+      padding: 14px;
+    }
+
+    .copy-btn {
+      border-color: #cde4f6 !important;
+      background: #f0f8ff !important;
+      color: var(--blue) !important;
+    }
+
+    .copy-btn.is-copied {
+      border-color: #c8eadb !important;
+      background: #eefaf5 !important;
+      color: var(--ok) !important;
+    }
+
+    .client-selector-toolbar {
+      grid-template-columns: minmax(0, 1fr) auto;
+      overflow: visible;
+    }
+
+    .client-search-wrap {
+      position: relative;
+      min-width: 0;
+    }
+
+    .client-search-wrap .search {
+      width: 100%;
+    }
+
+    .client-search-results {
+      position: absolute;
+      z-index: 30;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      max-height: 320px;
+      overflow-y: auto;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 16px 36px rgba(14, 34, 55, .16);
+    }
+
+    .client-search-result {
+      display: grid;
+      gap: 4px;
+      width: 100%;
+      min-height: 58px;
+      border: 0;
+      border-bottom: 1px solid #edf1f6;
+      background: #fff;
+      padding: 10px 12px;
+      color: var(--ink);
+      text-align: left;
+    }
+
+    .client-search-result:last-child { border-bottom: 0; }
+
+    .client-search-result:hover,
+    .client-search-result.is-active { background: #f0f8ff; }
+
+    .client-search-result strong {
+      color: var(--blue-strong);
+      font-size: .86rem;
+      overflow-wrap: anywhere;
+    }
+
+    .client-search-result span {
+      color: var(--muted);
+      font-size: .76rem;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .client-search-empty {
+      padding: 12px;
+      color: var(--muted);
+      font-size: .82rem;
+      text-align: center;
+    }
+
+    .client-preview.full-row {
+      grid-column: 1 / -1;
+      border: 1px solid #e6edf5;
+      border-radius: 12px;
+      overflow: hidden;
+      padding: 14px;
+      background: #fbfdff;
+    }
+
+    .client-preview-actions {
+      display: flex;
+      justify-content: flex-end;
+      padding-top: 2px;
+    }
+
+    .ticket-update-actions {
+      min-width: 250px;
+    }
+
+    @media (max-width: 1180px) {
+      .ticket-tabs-four {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .ticket-form-wide {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 680px) {
+      .ticket-tabs-four,
+      .ticket-form-wide,
+      .client-selector-toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .subpanel-heading {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .full-row,
+      .client-preview.full-row {
+        grid-column: auto;
+      }
+
+      .form-actions.full-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        margin: 0 -14px -14px;
+      }
+
+      .form-actions.full-row .primary-btn,
+      .form-actions.full-row .ghost-btn {
+        width: 100%;
+      }
+    }
+
+</style>
   <link rel="stylesheet" href="assets/admin-shell.css">
 </head>
 <body>
@@ -1252,9 +1444,9 @@
         <div class="nav-panel">
           <a href="application_form.html">Application Form</a>
           <a href="clients.html">Clients</a>
-          <a href="tickets.html">Tickets</a>
+          <a href="tickets.html" class="is-active">Tickets</a>
           <a href="nap-checker.html">NAP Checker</a>
-          <a href="statement_of_account.html">Statement of Account</a>
+          <a href="statement_of_account_v3.html">Statement of Account</a>
         </div>
       </div>
 
@@ -1307,114 +1499,177 @@
           <article class="card"><span>Urgent</span><strong id="metricUrgent">--</strong><small>High priority work</small></article>
         </div>
 
-        <div class="ticket-layout">
-          <section class="workspace">
-            <section class="panel">
-              <div class="panel-head">
-                <div><h2>Ticket Work Queue</h2><p>New installation and old client concern tickets show in the same list.</p></div>
-                <button class="ghost-btn" type="button" id="refreshBtn">Refresh</button>
+        <section class="panel ticket-center-panel">
+          <div class="panel-head">
+            <div>
+              <h2>Create Ticket</h2>
+              <p>View the work queue, create installation or client concern tickets, and review completed work.</p>
+            </div>
+            <button class="ghost-btn" type="button" id="refreshBtn">Refresh All</button>
+          </div>
+
+          <div class="ticket-tabs ticket-tabs-four">
+            <button class="tab-btn is-active" type="button" data-tab="workQueuePanel">Ticket Work Queue</button>
+            <button class="tab-btn" type="button" data-tab="newInstallPanel">New Installation</button>
+            <button class="tab-btn" type="button" data-tab="oldConcernPanel">Old Client Concern</button>
+            <button class="tab-btn" type="button" data-tab="resolvedTicketsPanel">Resolved Tickets</button>
+          </div>
+
+          <div class="ticket-panel is-active" id="workQueuePanel">
+            <div class="subpanel-heading">
+              <div>
+                <h3>Ticket Work Queue</h3>
+                <p>Pending, assigned, ongoing, and for-checking tickets only.</p>
               </div>
-              <div class="toolbar">
-                <input class="search" id="searchInput" placeholder="Search ticket, account, client, tech, issue">
-                <select class="filter" id="statusFilter">
-                  <option value="">All status</option>
-                  <option>Pending</option>
-                  <option>Assigned</option>
-                  <option>On Going</option>
-                  <option>For Checking</option>
-                  <option>Done</option>
-                  <option>Cancelled</option>
-                </select>
+              <span class="mode-chip" id="openTicketCount">0 open tickets</span>
+            </div>
+            <div class="toolbar">
+              <input class="search" id="queueSearchInput" placeholder="Search ticket, account, client, tech, issue">
+              <select class="filter" id="queueStatusFilter">
+                <option value="">All open status</option>
+                <option>Pending</option>
+                <option>Assigned</option>
+                <option>On Going</option>
+                <option>For Checking</option>
+                <option>Cancelled</option>
+              </select>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Ticket ID</th>
+                    <th>Date Created</th>
+                    <th>Account #</th>
+                    <th>Client</th>
+                    <th>Phone</th>
+                    <th>Ticket Type</th>
+                    <th>Issue / Purpose</th>
+                    <th>Priority</th>
+                    <th>Assigned Tech</th>
+                    <th>Status</th>
+                    <th>Schedule Date</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="activeTicketRows"><tr><td colspan="12">Waiting for open ticket data...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="ticket-panel" id="newInstallPanel">
+            <div class="subpanel-heading">
+              <div>
+                <h3>New Installation</h3>
+                <p>Create an installation work order and copy the complete details for the assigned technician.</p>
               </div>
-              <div class="table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Ticket ID</th>
-                      <th>Date Created</th>
-                      <th>Account #</th>
-                      <th>Client</th>
-                      <th>Phone</th>
-                      <th>Ticket Type</th>
-                      <th>Issue / Purpose</th>
-                      <th>Priority</th>
-                      <th>Assigned Tech</th>
-                      <th>Status</th>
-                      <th>Schedule Date</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody id="ticketRows"><tr><td colspan="12">Waiting for ticket data...</td></tr></tbody>
-                </table>
+            </div>
+            <form class="form-grid ticket-form-wide" id="newInstallForm">
+              <div class="field"><label for="newAccountNo">Account #</label><input id="newAccountNo" name="clientId" placeholder="Optional / Auto from admin"></div>
+              <div class="field"><label for="newClientName">Client Name</label><input id="newClientName" name="clientName" placeholder="Juan Dela Cruz" required></div>
+              <div class="field"><label for="newContactNumber">Phone</label><input id="newContactNumber" name="contactNumber" placeholder="639xxxxxxxxx"></div>
+              <div class="field"><label for="newRdBlk">RD/BLK</label><input id="newRdBlk" name="rdBlk" placeholder="BLK19"></div>
+              <div class="field wide"><label for="newAddress">Service Address</label><textarea id="newAddress" name="address" placeholder="Complete installation address"></textarea></div>
+              <div class="field wide"><label for="newMapsLink">Google Maps Link</label><input id="newMapsLink" name="googleMapsLink" placeholder="https://www.google.com/maps?q=..."></div>
+              <div class="field"><label for="newPriority">Priority</label><select id="newPriority" name="priority"><option>Normal</option><option>Low</option><option>High</option><option>Urgent</option></select></div>
+              <div class="field"><label for="newAssignedTech">Assigned Tech</label><input id="newAssignedTech" name="assignedTech" placeholder="Technician name"></div>
+              <div class="field"><label for="newScheduleDate">Schedule Date</label><input id="newScheduleDate" name="scheduleDate" type="date"></div>
+              <div class="field wide"><label for="newIssue">Installation Notes</label><textarea id="newIssue" name="issuePurpose" placeholder="Plan, landmark, installation instruction, or notes"></textarea></div>
+              <input type="hidden" name="ticketType" value="Installation">
+              <input type="hidden" name="status" value="Pending">
+              <div class="form-actions full-row">
+                <button class="ghost-btn copy-btn" type="button" id="copyNewInstallBtn">Copy Details for Tech</button>
+                <button class="primary-btn" type="submit">Save New Installation Ticket</button>
               </div>
-            </section>
-          </section>
+            </form>
+          </div>
 
-          <aside class="ticket-forms">
-            <section class="panel">
-              <div class="panel-head"><div><h2>Create Ticket</h2><p>Choose ticket type first.</p></div></div>
-              <div class="ticket-tabs">
-                <button class="tab-btn is-active" type="button" data-tab="newInstallPanel">New Installation</button>
-                <button class="tab-btn" type="button" data-tab="oldConcernPanel">Old Client Concern</button>
+          <div class="ticket-panel" id="oldConcernPanel">
+            <div class="subpanel-heading">
+              <div>
+                <h3>Old Client Concern</h3>
+                <p>Search the client by account number, name, phone, or RD/BLK. A single match is selected automatically.</p>
+              </div>
+            </div>
+
+            <div class="mini-toolbar client-selector-toolbar">
+              <div class="client-search-wrap">
+                <input
+                  class="search"
+                  id="clientSearchInput"
+                  placeholder="Type account #, client name, phone, or RD/BLK"
+                  autocomplete="off"
+                  aria-autocomplete="list"
+                  aria-controls="clientSearchResults"
+                  aria-expanded="false"
+                >
+                <div class="client-search-results is-hidden" id="clientSearchResults" role="listbox"></div>
+              </div>
+              <button class="ghost-btn" type="button" id="clearSelectedClientBtn">Clear Client</button>
+            </div>
+
+            <form class="form-grid ticket-form-wide" id="oldConcernForm">
+              <div class="client-preview full-row" id="clientPreview">
+                <p class="notice">Mag-type sa search bar. Kapag iisa ang matching client, automatic na lalabas ang complete client details at Google Maps Link.</p>
               </div>
 
-              <div class="ticket-panel is-active" id="newInstallPanel">
-                <form class="form-grid" id="newInstallForm">
-                  <div class="field"><label for="newAccountNo">Account #</label><input id="newAccountNo" name="clientId" placeholder="Optional / Auto from admin"></div>
-                  <div class="field"><label for="newClientName">Client Name</label><input id="newClientName" name="clientName" placeholder="Juan Dela Cruz" required></div>
-                  <div class="field"><label for="newContactNumber">Phone</label><input id="newContactNumber" name="contactNumber" placeholder="639xxxxxxxxx"></div>
-                  <div class="field"><label for="newRdBlk">RD/BLK</label><input id="newRdBlk" name="rdBlk" placeholder="BLK19"></div>
-                  <div class="field"><label for="newAddress">Service Address</label><textarea id="newAddress" name="address" placeholder="Complete installation address"></textarea></div>
-                  <div class="field"><label for="newMapsLink">Google Maps Link</label><input id="newMapsLink" name="googleMapsLink" placeholder="https://maps.google.com/..."></div>
-                  <div class="field"><label for="newPriority">Priority</label><select id="newPriority" name="priority"><option>Normal</option><option>Low</option><option>High</option><option>Urgent</option></select></div>
-                  <div class="field"><label for="newAssignedTech">Assigned Tech</label><input id="newAssignedTech" name="assignedTech" placeholder="Technician name"></div>
-                  <div class="field"><label for="newScheduleDate">Schedule Date</label><input id="newScheduleDate" name="scheduleDate" type="date"></div>
-                  <div class="field"><label for="newIssue">Installation Notes</label><textarea id="newIssue" name="issuePurpose" placeholder="Plan, landmark, installation instruction, or notes"></textarea></div>
-                  <input type="hidden" name="ticketType" value="Installation">
-                  <input type="hidden" name="status" value="Pending">
-                  <div class="form-actions stack"><button class="primary-btn" type="submit">Save New Installation Ticket</button></div>
-                </form>
+              <div class="field"><label for="oldTicketType">Ticket Type</label><select id="oldTicketType" name="ticketType"><option>Repair</option><option>No Internet</option><option>Slow Connection</option><option>Relocation</option><option>Change Router</option><option>Fiber Cut</option><option>Payment Concern</option><option>Others</option></select></div>
+              <div class="field"><label for="oldPriority">Priority</label><select id="oldPriority" name="priority"><option>Normal</option><option>Low</option><option>High</option><option>Urgent</option></select></div>
+              <div class="field"><label for="oldAssignedTech">Assigned Tech</label><input id="oldAssignedTech" name="assignedTech" placeholder="Technician name"></div>
+              <div class="field"><label for="oldScheduleDate">Schedule Date</label><input id="oldScheduleDate" name="scheduleDate" type="date"></div>
+              <div class="field full"><label for="oldIssue">Concern / Issue</label><textarea id="oldIssue" name="issuePurpose" placeholder="Describe the client concern" required></textarea></div>
+              <input type="hidden" name="clientId" id="oldClientId">
+              <input type="hidden" name="clientName" id="oldClientName">
+              <input type="hidden" name="contactNumber" id="oldContactNumber">
+              <input type="hidden" name="address" id="oldAddress">
+              <input type="hidden" name="status" value="Pending">
+              <div class="form-actions full-row">
+                <button class="ghost-btn copy-btn" type="button" id="copyOldConcernBtn">Copy Client Details for Tech</button>
+                <button class="primary-btn" type="submit">Save Old Client Concern Ticket</button>
               </div>
+            </form>
+          </div>
 
-              <div class="ticket-panel" id="oldConcernPanel">
-                <div class="mini-toolbar">
-                  <input class="search" id="clientSearchInput" placeholder="Search existing client: account, name, phone, RD/BLK">
-                  <button class="ghost-btn" type="button" id="clearSelectedClientBtn">Clear</button>
-                </div>
-
-                <form class="form-grid" id="oldConcernForm">
-                  <div class="field">
-                    <label for="existingClientSelect">Existing Client</label>
-                    <select id="existingClientSelect" name="existingClient">
-                      <option value="">Select existing client</option>
-                    </select>
-                  </div>
-
-                  <div class="client-preview" id="clientPreview">
-                    <p class="notice">Select existing client para lumabas dito ang Account #, Name, RD/BLK, Phone, Bill / Month, Due Date, Service Address, at Google Maps Link.</p>
-                  </div>
-
-                  <div class="field"><label for="oldTicketType">Ticket Type</label><select id="oldTicketType" name="ticketType"><option>Repair</option><option>No Internet</option><option>Slow Connection</option><option>Relocation</option><option>Change Router</option><option>Fiber Cut</option><option>Payment Concern</option><option>Others</option></select></div>
-                  <div class="field"><label for="oldPriority">Priority</label><select id="oldPriority" name="priority"><option>Normal</option><option>Low</option><option>High</option><option>Urgent</option></select></div>
-                  <div class="field"><label for="oldAssignedTech">Assigned Tech</label><input id="oldAssignedTech" name="assignedTech" placeholder="Technician name"></div>
-                  <div class="field"><label for="oldScheduleDate">Schedule Date</label><input id="oldScheduleDate" name="scheduleDate" type="date"></div>
-                  <div class="field"><label for="oldIssue">Concern / Issue</label><textarea id="oldIssue" name="issuePurpose" placeholder="Describe the client concern" required></textarea></div>
-                  <input type="hidden" name="clientId" id="oldClientId">
-                  <input type="hidden" name="clientName" id="oldClientName">
-                  <input type="hidden" name="contactNumber" id="oldContactNumber">
-                  <input type="hidden" name="address" id="oldAddress">
-                  <input type="hidden" name="status" value="Pending">
-                  <div class="form-actions stack"><button class="primary-btn" type="submit">Save Old Client Concern Ticket</button></div>
-                </form>
+          <div class="ticket-panel" id="resolvedTicketsPanel">
+            <div class="subpanel-heading">
+              <div>
+                <h3>Resolved Tickets</h3>
+                <p>Completed tickets are separated from the active work queue.</p>
               </div>
-            </section>
+              <span class="mode-chip" id="resolvedTicketCount">0 resolved tickets</span>
+            </div>
+            <div class="toolbar">
+              <input class="search" id="resolvedSearchInput" placeholder="Search resolved ticket, client, tech, or issue">
+              <button class="ghost-btn" type="button" id="clearResolvedSearchBtn">Clear Search</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Ticket ID</th>
+                    <th>Date Created</th>
+                    <th>Account #</th>
+                    <th>Client</th>
+                    <th>Phone</th>
+                    <th>Ticket Type</th>
+                    <th>Issue / Purpose</th>
+                    <th>Priority</th>
+                    <th>Assigned Tech</th>
+                    <th>Status</th>
+                    <th>Schedule Date</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="resolvedTicketRows"><tr><td colspan="12">Waiting for resolved ticket data...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
 
-            <section class="panel">
-              <div class="panel-head"><div><h2>Workflow</h2><p>Recommended ticket flow</p></div></div>
-              <div class="form-grid"><p class="notice">Pending → Assigned → On Going → For Checking → Done. Use Cancelled only when the request should no longer continue.</p></div>
-            </section>
-          </aside>
-        </div>
+        <section class="panel">
+          <div class="panel-head"><div><h2>Workflow</h2><p>Recommended ticket flow</p></div></div>
+          <div class="form-grid"><p class="notice">Pending → Assigned → On Going → For Checking → Done. Done tickets automatically appear under Resolved Tickets.</p></div>
+        </section>
       </div>
     </section>
   </main>
@@ -1422,11 +1677,14 @@
   <script>
     const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxDY5TsonrB58YaN8LGbrrrc_ZD1QVpF1WK0p6jToIR2FBSqGaHfsgaE1CCiH1MvukV/exec";
     const SESSION_KEY = "techgeekph_admin_session";
-    const FALLBACK_SESSION_KEY = "techgeekph_admin_session";
+    const FALLBACK_SESSION_KEY = "techgeekph_session";
+    const LOGIN_PAGE = "index.html";
 
     let tickets = [];
     let clients = [];
     let selectedClient = null;
+    let clientSearchMatches = [];
+    let activeClientSuggestionIndex = -1;
 
     const fields = {
       notice: document.querySelector("#notice"),
@@ -1439,13 +1697,23 @@
       metricUrgent: document.querySelector("#metricUrgent"),
       refreshBtn: document.querySelector("#refreshBtn"),
       logoutBtn: document.querySelector("#logoutBtn"),
-      ticketRows: document.querySelector("#ticketRows"),
-      searchInput: document.querySelector("#searchInput"),
-      statusFilter: document.querySelector("#statusFilter"),
+
+      activeTicketRows: document.querySelector("#activeTicketRows"),
+      resolvedTicketRows: document.querySelector("#resolvedTicketRows"),
+      queueSearchInput: document.querySelector("#queueSearchInput"),
+      queueStatusFilter: document.querySelector("#queueStatusFilter"),
+      resolvedSearchInput: document.querySelector("#resolvedSearchInput"),
+      clearResolvedSearchBtn: document.querySelector("#clearResolvedSearchBtn"),
+      openTicketCount: document.querySelector("#openTicketCount"),
+      resolvedTicketCount: document.querySelector("#resolvedTicketCount"),
+
       newInstallForm: document.querySelector("#newInstallForm"),
       oldConcernForm: document.querySelector("#oldConcernForm"),
+      copyNewInstallBtn: document.querySelector("#copyNewInstallBtn"),
+      copyOldConcernBtn: document.querySelector("#copyOldConcernBtn"),
+
       clientSearchInput: document.querySelector("#clientSearchInput"),
-      existingClientSelect: document.querySelector("#existingClientSelect"),
+      clientSearchResults: document.querySelector("#clientSearchResults"),
       clientPreview: document.querySelector("#clientPreview"),
       clearSelectedClientBtn: document.querySelector("#clearSelectedClientBtn"),
       oldClientId: document.querySelector("#oldClientId"),
@@ -1456,7 +1724,11 @@
 
     function loadSession() {
       try {
-        return JSON.parse(localStorage.getItem(SESSION_KEY) || localStorage.getItem(FALLBACK_SESSION_KEY) || "{}");
+        return JSON.parse(
+          localStorage.getItem(SESSION_KEY) ||
+          localStorage.getItem(FALLBACK_SESSION_KEY) ||
+          "{}"
+        );
       } catch (error) {
         return {};
       }
@@ -1465,6 +1737,29 @@
     function getSessionToken() {
       const session = loadSession();
       return session.token || session.sessionToken || session.accessToken || "";
+    }
+
+    function clearSessionAndLogin() {
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(FALLBACK_SESSION_KEY);
+      window.location.replace(LOGIN_PAGE);
+    }
+
+    function isSessionError(message) {
+      const text = normalize(message);
+      return text.indexOf("no session token") !== -1 ||
+        text.indexOf("session expired") !== -1 ||
+        text.indexOf("please login again") !== -1 ||
+        text.indexOf("access denied") !== -1;
+    }
+
+    function handleSessionFailure(response) {
+      const message = response && response.message ? response.message : "";
+      if (isSessionError(message)) {
+        clearSessionAndLogin();
+        return true;
+      }
+      return false;
     }
 
     function initialsFrom(value) {
@@ -1481,8 +1776,12 @@
       const user = session.user || {};
       const name = user.fullName || user.name || user.email || session.email || "TechGeekPH User";
       const role = user.role || session.role || "portal";
+
       fields.userName.textContent = name;
-      fields.userRole.textContent = String(role).charAt(0).toUpperCase() + String(role).slice(1).toLowerCase() + " access";
+      fields.userRole.textContent =
+        String(role).charAt(0).toUpperCase() +
+        String(role).slice(1).toLowerCase() +
+        " access";
       fields.avatar.textContent = initialsFrom(name);
     }
 
@@ -1501,11 +1800,32 @@
     function keyValue(row, keys) {
       for (let i = 0; i < keys.length; i += 1) {
         const key = keys[i];
-        if (row && Object.prototype.hasOwnProperty.call(row, key) && String(row[key] || "").trim() !== "") {
+        if (
+          row &&
+          Object.prototype.hasOwnProperty.call(row, key) &&
+          String(row[key] === undefined || row[key] === null ? "" : row[key]).trim() !== ""
+        ) {
           return row[key];
         }
       }
       return "";
+    }
+
+    function formatDate(value) {
+      if (!value) return "";
+      const raw = String(value);
+      const date = new Date(raw);
+
+      if (!Number.isNaN(date.getTime())) {
+        return date.toLocaleDateString("en-PH", {
+          timeZone: "Asia/Manila",
+          year: "numeric",
+          month: "short",
+          day: "2-digit"
+        });
+      }
+
+      return raw;
     }
 
     function moneyNumber(value) {
@@ -1516,9 +1836,14 @@
     function formatMoney(value) {
       const cleaned = moneyNumber(value);
       if (!cleaned) return "";
+
       const number = Number(cleaned);
       if (!Number.isFinite(number)) return String(value || "");
-      return "₱ " + number.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      return "PHP " + number.toLocaleString("en-PH", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
     }
 
     function formatMetric(value) {
@@ -1533,21 +1858,35 @@
       return keyValue(row, ["Status", "status"]) || "Pending";
     }
 
+    function isResolvedTicket(row) {
+      const status = normalize(getTicketStatus(row));
+      return ["done", "resolved", "completed", "complete"].indexOf(status) !== -1;
+    }
+
     function getTicketText(row) {
       return [
         keyValue(row, ["TicketID", "ticketId", "Ticket ID"]),
         keyValue(row, ["ClientID", "clientId", "Account No.", "Account #"]),
         keyValue(row, ["Client Name", "clientName"]),
         keyValue(row, ["Contact Number", "contactNumber", "Phone Number", "phone"]),
+        keyValue(row, ["Address", "address", "Service Address"]),
         keyValue(row, ["Ticket Type", "ticketType"]),
         keyValue(row, ["Issue/Purpose", "issuePurpose", "Issue", "Purpose"]),
         keyValue(row, ["Assigned Tech", "assignedTech"]),
-        keyValue(row, ["Status", "status"])
+        keyValue(row, ["Status", "status"]),
+        keyValue(row, ["Admin Remarks", "adminRemarks"]),
+        keyValue(row, ["Tech Remarks", "techRemarks"])
       ].join(" ").toLowerCase();
     }
 
     function getClientAccountNo(row) {
-      return keyValue(row, ["Account No.", "Account Number", "accountNo", "clientId", "ClientID"]);
+      return keyValue(row, [
+        "Account No.",
+        "Account Number",
+        "accountNo",
+        "clientId",
+        "ClientID"
+      ]);
     }
 
     function getClientName(row) {
@@ -1555,21 +1894,68 @@
     }
 
     function getClientPhone(row) {
-      return keyValue(row, ["Phone Number", "phoneNumber", "Contact Number", "Phone"]);
+      return keyValue(row, [
+        "Phone Number",
+        "phoneNumber",
+        "Contact Number",
+        "Phone"
+      ]);
     }
 
     function getClientAddress(row) {
-      return keyValue(row, ["Service Address", "serviceAddress", "Address"]);
+      return keyValue(row, [
+        "Service Address",
+        "serviceAddress",
+        "Address",
+        "address"
+      ]);
+    }
+
+    function getClientMaps(row) {
+      return keyValue(row, [
+        "Google Maps Link",
+        "googleMapsLink",
+        "Maps Link",
+        "Google Map Link"
+      ]);
+    }
+
+    function getClientRdBlk(row) {
+      return keyValue(row, [
+        "RD / BLK",
+        "RD/BLK",
+        "rdBlk",
+        "Block/Lot",
+        "RD BLK"
+      ]);
     }
 
     function getClientSearchText(row) {
       return [
         getClientAccountNo(row),
         getClientName(row),
-        keyValue(row, ["RD / BLK", "RD/BLK", "rdBlk", "Block/Lot"]),
+        getClientRdBlk(row),
         getClientPhone(row),
         getClientAddress(row)
       ].join(" ").toLowerCase();
+    }
+
+    function extractUrl(value) {
+      const match = String(value || "").match(/https?:\/\/[^\s|]+/i);
+      return match ? match[0] : "";
+    }
+
+    function getTicketMapLink(row) {
+      const direct = keyValue(row, [
+        "Google Maps Link",
+        "googleMapsLink",
+        "Maps Link"
+      ]);
+      if (direct) return direct;
+
+      return extractUrl(
+        keyValue(row, ["Admin Remarks", "adminRemarks", "Remarks", "remarks"])
+      );
     }
 
     async function callBackend(action, payload) {
@@ -1584,7 +1970,10 @@
       const params = new URLSearchParams();
       Object.keys(data).forEach(function(key) {
         if (data[key] !== undefined && data[key] !== null) {
-          params.set(key, data[key]);
+          params.set(
+            key,
+            typeof data[key] === "object" ? JSON.stringify(data[key]) : data[key]
+          );
         }
       });
 
@@ -1635,50 +2024,83 @@
       if (text === "assigned") return "assigned";
       if (text === "ongoing") return "ongoing";
       if (text === "forchecking") return "checking";
-      if (text === "done") return "done";
+      if (["done", "resolved", "completed", "complete"].indexOf(text) !== -1) return "done";
       if (text === "cancelled" || text === "canceled") return "cancelled";
       return "";
     }
 
     function setMetrics() {
       const openStatuses = ["pending", "assigned", "on going", "ongoing", "for checking"];
+
       fields.metricTotal.textContent = formatMetric(tickets.length);
-      fields.metricOpen.textContent = formatMetric(tickets.filter(function(row) {
-        return openStatuses.indexOf(normalize(getTicketStatus(row))) !== -1;
-      }).length);
-      fields.metricDone.textContent = formatMetric(tickets.filter(function(row) {
-        return normalize(getTicketStatus(row)) === "done";
-      }).length);
-      fields.metricUrgent.textContent = formatMetric(tickets.filter(function(row) {
-        const p = normalize(keyValue(row, ["Priority", "priority"]));
-        return p === "urgent" || p === "high";
-      }).length);
+      fields.metricOpen.textContent = formatMetric(
+        tickets.filter(function(row) {
+          return openStatuses.indexOf(normalize(getTicketStatus(row))) !== -1;
+        }).length
+      );
+      fields.metricDone.textContent = formatMetric(
+        tickets.filter(isResolvedTicket).length
+      );
+      fields.metricUrgent.textContent = formatMetric(
+        tickets.filter(function(row) {
+          const priority = normalize(keyValue(row, ["Priority", "priority"]));
+          return priority === "urgent" || priority === "high";
+        }).length
+      );
     }
 
-    function filteredTickets() {
-      const query = normalize(fields.searchInput.value);
-      const status = normalize(fields.statusFilter.value);
+    function filteredQueueTickets() {
+      const query = normalize(fields.queueSearchInput.value);
+      const status = normalize(fields.queueStatusFilter.value);
+
       return tickets.filter(function(row) {
+        if (isResolvedTicket(row)) return false;
+
         const matchesQuery = !query || getTicketText(row).indexOf(query) !== -1;
         const matchesStatus = !status || normalize(getTicketStatus(row)) === status;
         return matchesQuery && matchesStatus;
       });
     }
 
-    function actionButton(label, action, ticketId, extraClass) {
-      return '<button class="small-btn ' + escapeHtml(extraClass || "") + '" type="button" data-ticket-action="' + escapeHtml(action) + '" data-ticket-id="' + escapeHtml(ticketId) + '">' + escapeHtml(label) + '</button>';
+    function filteredResolvedTickets() {
+      const query = normalize(fields.resolvedSearchInput.value);
+
+      return tickets.filter(function(row) {
+        if (!isResolvedTicket(row)) return false;
+        return !query || getTicketText(row).indexOf(query) !== -1;
+      });
     }
 
-    function ticketActionButtons(row) {
+    function actionButton(label, action, ticketId, extraClass) {
+      return '<button class="small-btn ' +
+        escapeHtml(extraClass || "") +
+        '" type="button" data-ticket-action="' +
+        escapeHtml(action) +
+        '" data-ticket-id="' +
+        escapeHtml(ticketId) +
+        '">' +
+        escapeHtml(label) +
+        "</button>";
+    }
+
+    function copyTicketButton(ticketId) {
+      return '<button class="small-btn copy-btn" type="button" data-copy-ticket-id="' +
+        escapeHtml(ticketId) +
+        '">Copy Details</button>';
+    }
+
+    function ticketActionButtons(row, resolvedMode) {
       const ticketId = getTicketId(row);
-      const statusRaw = getTicketStatus(row);
-      const status = normalize(statusRaw);
+      const status = normalize(getTicketStatus(row));
 
       if (!ticketId) return "-";
-      if (status === "done") return '<span class="status-pill done">Resolved</span>';
-      if (status === "cancelled" || status === "canceled") return '<span class="status-pill cancelled">Cancelled</span>';
 
-      const buttons = [];
+      const buttons = [copyTicketButton(ticketId)];
+
+      if (resolvedMode || isResolvedTicket(row)) {
+        buttons.push('<span class="status-pill done">Resolved</span>');
+        return '<div class="ticket-update-actions">' + buttons.join("") + "</div>";
+      }
 
       if (!status || status === "pending") {
         buttons.push(actionButton("Take", "takeTicket", ticketId, "take-btn"));
@@ -1697,27 +2119,42 @@
         buttons.push(actionButton("Resolve", "resolveTicket", ticketId, "resolve-btn"));
       }
 
-      buttons.push(actionButton("Cancel", "cancelTicket", ticketId, "cancel-btn"));
+      if (status !== "cancelled" && status !== "canceled") {
+        buttons.push(actionButton("Cancel", "cancelTicket", ticketId, "cancel-btn"));
+      } else {
+        buttons.push('<span class="status-pill cancelled">Cancelled</span>');
+      }
 
-      return '<div class="ticket-update-actions">' + buttons.join("") + '</div>';
+      return '<div class="ticket-update-actions">' + buttons.join("") + "</div>";
     }
 
-    function renderTickets() {
-      setMetrics();
-      const rows = filteredTickets();
-
+    function renderTicketRows(rows, target, resolvedMode) {
       if (!rows.length) {
-        fields.ticketRows.innerHTML = '<tr><td data-label="Status" colspan="12">No tickets found.</td></tr>';
+        target.innerHTML =
+          '<tr><td data-label="Status" colspan="12">' +
+          (resolvedMode ? "No resolved tickets found." : "No open tickets found.") +
+          "</td></tr>";
         return;
       }
 
-      fields.ticketRows.innerHTML = rows.map(function(row) {
+      target.innerHTML = rows.slice().reverse().map(function(row) {
         const status = getTicketStatus(row);
-        const accountNo = keyValue(row, ["ClientID", "clientId", "Account No.", "Account #"]);
-        const phone = keyValue(row, ["Contact Number", "contactNumber", "Phone Number", "phone"]);
+        const accountNo = keyValue(row, [
+          "ClientID",
+          "clientId",
+          "Account No.",
+          "Account #"
+        ]);
+        const phone = keyValue(row, [
+          "Contact Number",
+          "contactNumber",
+          "Phone Number",
+          "phone"
+        ]);
+
         return "<tr>" +
           '<td data-label="Ticket ID">' + escapeHtml(getTicketId(row)) + "</td>" +
-          '<td data-label="Date Created">' + escapeHtml(keyValue(row, ["Date Created", "dateCreated"])) + "</td>" +
+          '<td data-label="Date Created">' + escapeHtml(formatDate(keyValue(row, ["Date Created", "dateCreated"]))) + "</td>" +
           '<td data-label="Account #">' + escapeHtml(accountNo) + "</td>" +
           '<td data-label="Client">' + escapeHtml(keyValue(row, ["Client Name", "clientName"])) + "</td>" +
           '<td data-label="Phone">' + escapeHtml(phone) + "</td>" +
@@ -1726,28 +2163,140 @@
           '<td data-label="Priority">' + escapeHtml(keyValue(row, ["Priority", "priority"])) + "</td>" +
           '<td data-label="Assigned Tech">' + escapeHtml(keyValue(row, ["Assigned Tech", "assignedTech"])) + "</td>" +
           '<td data-label="Status"><span class="status-pill ' + statusClass(status) + '">' + escapeHtml(status) + "</span></td>" +
-          '<td data-label="Schedule Date">' + escapeHtml(keyValue(row, ["Schedule Date", "scheduleDate"])) + "</td>" +
-          '<td data-label="Action">' + ticketActionButtons(row) + "</td>" +
+          '<td data-label="Schedule Date">' + escapeHtml(formatDate(keyValue(row, ["Schedule Date", "scheduleDate"]))) + "</td>" +
+          '<td data-label="Action">' + ticketActionButtons(row, resolvedMode) + "</td>" +
         "</tr>";
       }).join("");
     }
 
-    function renderClientOptions() {
-      const query = normalize(fields.clientSearchInput.value);
-      const currentValue = fields.existingClientSelect.value;
-      const filtered = clients.filter(function(row) {
-        return !query || getClientSearchText(row).indexOf(query) !== -1;
-      }).slice(0, 250);
+    function renderTickets() {
+      setMetrics();
 
-      fields.existingClientSelect.innerHTML = '<option value="">Select existing client</option>' + filtered.map(function(row) {
+      const queueRows = filteredQueueTickets();
+      const resolvedRows = filteredResolvedTickets();
+      const allOpen = tickets.filter(function(row) { return !isResolvedTicket(row); }).length;
+      const allResolved = tickets.filter(isResolvedTicket).length;
+
+      fields.openTicketCount.textContent =
+        allOpen + " open ticket" + (allOpen === 1 ? "" : "s");
+      fields.resolvedTicketCount.textContent =
+        allResolved + " resolved ticket" + (allResolved === 1 ? "" : "s");
+
+      renderTicketRows(queueRows, fields.activeTicketRows, false);
+      renderTicketRows(resolvedRows, fields.resolvedTicketRows, true);
+    }
+
+    function getClientDisplayLabel(row) {
+      const accountNo = getClientAccountNo(row);
+      const name = getClientName(row);
+      const rdBlk = getClientRdBlk(row);
+      const phone = getClientPhone(row);
+
+      return [accountNo, name, rdBlk, phone].filter(function(value) {
+        return String(value || "").trim() !== "";
+      }).join(" - ");
+    }
+
+    function hideClientSearchResults() {
+      clientSearchMatches = [];
+      activeClientSuggestionIndex = -1;
+      fields.clientSearchResults.innerHTML = "";
+      fields.clientSearchResults.classList.add("is-hidden");
+      fields.clientSearchInput.setAttribute("aria-expanded", "false");
+    }
+
+    function chooseClientFromSearch(row) {
+      if (!row) return;
+      setSelectedClient(row);
+      fields.clientSearchInput.value = getClientDisplayLabel(row);
+      hideClientSearchResults();
+    }
+
+    function updateActiveClientSuggestion() {
+      const buttons = fields.clientSearchResults.querySelectorAll("button[data-client-index]");
+      buttons.forEach(function(button, index) {
+        const active = index === activeClientSuggestionIndex;
+        button.classList.toggle("is-active", active);
+        button.setAttribute("aria-selected", active ? "true" : "false");
+        if (active) button.scrollIntoView({ block: "nearest" });
+      });
+    }
+
+    function renderClientSearchResults(options) {
+      options = options || {};
+      const rawQuery = String(fields.clientSearchInput.value || "").trim();
+      const query = normalize(rawQuery);
+
+      if (!query) {
+        hideClientSearchResults();
+        return;
+      }
+
+      if (selectedClient && query === normalize(getClientDisplayLabel(selectedClient))) {
+        hideClientSearchResults();
+        return;
+      }
+
+      const matches = clients.filter(function(row) {
+        return getClientSearchText(row).indexOf(query) !== -1;
+      }).slice(0, 12);
+
+      const exactMatch = matches.find(function(row) {
+        return [
+          getClientAccountNo(row),
+          getClientName(row),
+          getClientPhone(row),
+          getClientRdBlk(row),
+          getClientDisplayLabel(row)
+        ].some(function(value) {
+          return normalize(value) === query;
+        });
+      });
+
+      if (options.autoSelect !== false && exactMatch) {
+        chooseClientFromSearch(exactMatch);
+        return;
+      }
+
+      if (options.autoSelect !== false && matches.length === 1 && query.length >= 2) {
+        chooseClientFromSearch(matches[0]);
+        return;
+      }
+
+      clientSearchMatches = matches;
+      activeClientSuggestionIndex = -1;
+
+      if (!matches.length) {
+        fields.clientSearchResults.innerHTML = '<div class="client-search-empty">No matching client found.</div>';
+        fields.clientSearchResults.classList.remove("is-hidden");
+        fields.clientSearchInput.setAttribute("aria-expanded", "true");
+        return;
+      }
+
+      fields.clientSearchResults.innerHTML = matches.map(function(row, index) {
         const accountNo = getClientAccountNo(row);
         const name = getClientName(row);
-        const rdBlk = keyValue(row, ["RD / BLK", "RD/BLK", "rdBlk", "Block/Lot"]);
+        const rdBlk = getClientRdBlk(row);
         const phone = getClientPhone(row);
-        return '<option value="' + escapeHtml(accountNo) + '">' + escapeHtml(accountNo + " - " + name + (rdBlk ? " - " + rdBlk : "") + (phone ? " - " + phone : "")) + '</option>';
+        const address = getClientAddress(row);
+
+        return '<button class="client-search-result" type="button" role="option" ' +
+          'data-client-index="' + index + '" aria-selected="false">' +
+          '<strong>' + escapeHtml(accountNo + " - " + name) + '</strong>' +
+          '<span>' + escapeHtml([rdBlk, phone, address].filter(Boolean).join(" • ")) + '</span>' +
+          '</button>';
       }).join("");
 
-      if (currentValue) fields.existingClientSelect.value = currentValue;
+      fields.clientSearchResults.classList.remove("is-hidden");
+      fields.clientSearchInput.setAttribute("aria-expanded", "true");
+    }
+
+    function clientInfoItem(label, value, allowHtml) {
+      return '<div class="client-info-item"><span>' +
+        escapeHtml(label) +
+        "</span><strong>" +
+        (allowHtml ? value : escapeHtml(value || "-")) +
+        "</strong></div>";
     }
 
     function setSelectedClient(row) {
@@ -1758,48 +2307,264 @@
         fields.oldClientName.value = "";
         fields.oldContactNumber.value = "";
         fields.oldAddress.value = "";
-        fields.clientPreview.innerHTML = '<p class="notice">Select existing client para lumabas dito ang Account #, Name, RD/BLK, Phone, Bill / Month, Due Date, Service Address, at Google Maps Link.</p>';
+        fields.clientPreview.innerHTML =
+          '<p class="notice">Mag-type sa search bar. Kapag iisa ang matching client, automatic na lalabas ang complete client details at Google Maps Link.</p>';
         return;
       }
 
       const accountNo = getClientAccountNo(selectedClient);
       const name = getClientName(selectedClient);
-      const rdBlk = keyValue(selectedClient, ["RD / BLK", "RD/BLK", "rdBlk", "Block/Lot"]);
+      const rdBlk = getClientRdBlk(selectedClient);
       const phone = getClientPhone(selectedClient);
-      const bill = keyValue(selectedClient, ["Monthly Bill", "monthlyBill", "Monthly Fee", "Bill / Month"]);
+      const plan = keyValue(selectedClient, ["Plan", "plan"]);
+      const speed = keyValue(selectedClient, ["Speed", "speed"]);
+      const bill = keyValue(selectedClient, [
+        "Monthly Bill",
+        "monthlyBill",
+        "Monthly Fee",
+        "Bill / Month"
+      ]);
       const due = keyValue(selectedClient, ["Due Date", "dueDate"]);
       const address = getClientAddress(selectedClient);
-      const maps = keyValue(selectedClient, ["Google Maps Link", "googleMapsLink", "Maps Link"]);
+      const maps = getClientMaps(selectedClient);
 
       fields.oldClientId.value = accountNo;
       fields.oldClientName.value = name;
       fields.oldContactNumber.value = phone;
       fields.oldAddress.value = address;
 
-      fields.clientPreview.innerHTML = '<div class="client-preview-grid">' +
-        clientInfoItem("Account #", accountNo) +
-        clientInfoItem("Name", name) +
-        clientInfoItem("RD/BLK", rdBlk) +
-        clientInfoItem("Phone", phone) +
-        clientInfoItem("Bill / Month", formatMoney(bill)) +
-        clientInfoItem("Due Date", due) +
-        clientInfoItem("Service Address", address) +
-        clientInfoItem("Google Maps Link", maps ? '<a href="' + escapeHtml(maps) + '" target="_blank" rel="noopener">Open Maps</a>' : "") +
-      '</div>';
+      const mapHtml = maps
+        ? '<a href="' + escapeHtml(maps) + '" target="_blank" rel="noopener">Open Google Maps</a>'
+        : "-";
+
+      fields.clientPreview.innerHTML =
+        '<div class="client-preview-grid">' +
+          clientInfoItem("Account #", accountNo) +
+          clientInfoItem("Name", name) +
+          clientInfoItem("RD/BLK", rdBlk) +
+          clientInfoItem("Phone", phone) +
+          clientInfoItem("Plan", [plan, speed].filter(Boolean).join(" - ")) +
+          clientInfoItem("Bill / Month", formatMoney(bill)) +
+          clientInfoItem("Due Date", due) +
+          clientInfoItem("Service Address", address) +
+          clientInfoItem("Google Maps Link", mapHtml, true) +
+        "</div>" +
+        '<div class="client-preview-actions">' +
+          '<button class="small-btn copy-btn" type="button" data-copy-selected-client="true">Copy Client Details</button>' +
+        "</div>";
     }
 
-    function clientInfoItem(label, value) {
-      return '<div class="client-info-item"><span>' + escapeHtml(label) + '</span><strong>' + (String(value || "").indexOf("<a ") === 0 ? value : escapeHtml(value || "-")) + '</strong></div>';
+    function findClientForTicket(ticketRow) {
+      const accountNo = normalize(keyValue(ticketRow, [
+        "ClientID",
+        "clientId",
+        "Account No.",
+        "Account #"
+      ]));
+      const phone = normalize(keyValue(ticketRow, [
+        "Contact Number",
+        "contactNumber",
+        "Phone Number",
+        "phone"
+      ]));
+      const name = normalize(keyValue(ticketRow, ["Client Name", "clientName"]));
+
+      if (accountNo) {
+        const byAccount = clients.find(function(client) {
+          return normalize(getClientAccountNo(client)) === accountNo;
+        });
+        if (byAccount) return byAccount;
+      }
+
+      if (phone) {
+        const byPhone = clients.find(function(client) {
+          return normalize(getClientPhone(client)) === phone;
+        });
+        if (byPhone) return byPhone;
+      }
+
+      if (name) {
+        return clients.find(function(client) {
+          return normalize(getClientName(client)) === name;
+        }) || null;
+      }
+
+      return null;
+    }
+
+    function cleanLine(label, value) {
+      const text = String(value || "").trim();
+      return text ? label + ": " + text : "";
+    }
+
+    function buildTechMessage(ticketRow, clientRow) {
+      const client = clientRow || findClientForTicket(ticketRow) || {};
+      const accountNo =
+        keyValue(ticketRow, ["ClientID", "clientId", "Account No.", "Account #"]) ||
+        getClientAccountNo(client);
+      const name =
+        keyValue(ticketRow, ["Client Name", "clientName"]) ||
+        getClientName(client);
+      const phone =
+        keyValue(ticketRow, ["Contact Number", "contactNumber", "Phone Number", "phone"]) ||
+        getClientPhone(client);
+      const address =
+        keyValue(ticketRow, ["Address", "address", "Service Address"]) ||
+        getClientAddress(client);
+      const maps =
+        getClientMaps(client) ||
+        getTicketMapLink(ticketRow);
+      const rdBlk =
+        getClientRdBlk(client) ||
+        keyValue(ticketRow, ["RD / BLK", "RD/BLK", "rdBlk"]);
+      const plan = keyValue(client, ["Plan", "plan"]);
+      const speed = keyValue(client, ["Speed", "speed"]);
+      const landmark = keyValue(client, ["Landmark", "landmark"]);
+      const bill = keyValue(client, [
+        "Monthly Bill",
+        "monthlyBill",
+        "Monthly Fee",
+        "Bill / Month"
+      ]);
+      const due = keyValue(client, ["Due Date", "dueDate"]);
+
+      return [
+        "TECHGEEKPH SERVICE WORK ORDER",
+        "--------------------------------",
+        cleanLine("Ticket ID", getTicketId(ticketRow)),
+        cleanLine("Ticket Type", keyValue(ticketRow, ["Ticket Type", "ticketType"])),
+        cleanLine("Priority", keyValue(ticketRow, ["Priority", "priority"])),
+        cleanLine("Status", getTicketStatus(ticketRow)),
+        cleanLine("Schedule", formatDate(keyValue(ticketRow, ["Schedule Date", "scheduleDate"]))),
+        cleanLine("Assigned Tech", keyValue(ticketRow, ["Assigned Tech", "assignedTech"])),
+        "",
+        "CLIENT DETAILS",
+        cleanLine("Account #", accountNo),
+        cleanLine("Client", name),
+        cleanLine("Phone", phone),
+        cleanLine("RD/BLK", rdBlk),
+        cleanLine("Plan", [plan, speed].filter(Boolean).join(" - ")),
+        cleanLine("Monthly Bill", formatMoney(bill)),
+        cleanLine("Due Date", due),
+        cleanLine("Landmark", landmark),
+        cleanLine("Address", address),
+        cleanLine("Google Maps", maps),
+        "",
+        cleanLine("Concern / Work", keyValue(ticketRow, [
+          "Issue/Purpose",
+          "issuePurpose",
+          "Issue",
+          "Purpose"
+        ])),
+        cleanLine("Tech Remarks", keyValue(ticketRow, ["Tech Remarks", "techRemarks"])),
+        "--------------------------------",
+        "Please contact the client before proceeding."
+      ].filter(function(line, index, array) {
+        if (line !== "") return true;
+        return index > 0 && array[index - 1] !== "";
+      }).join("\n").trim();
+    }
+
+    function buildClientOnlyMessage(client) {
+      return [
+        "TECHGEEKPH CLIENT DETAILS",
+        "--------------------------------",
+        cleanLine("Account #", getClientAccountNo(client)),
+        cleanLine("Client", getClientName(client)),
+        cleanLine("Phone", getClientPhone(client)),
+        cleanLine("RD/BLK", getClientRdBlk(client)),
+        cleanLine("Plan", [
+          keyValue(client, ["Plan", "plan"]),
+          keyValue(client, ["Speed", "speed"])
+        ].filter(Boolean).join(" - ")),
+        cleanLine("Monthly Bill", formatMoney(keyValue(client, [
+          "Monthly Bill",
+          "monthlyBill",
+          "Monthly Fee",
+          "Bill / Month"
+        ]))),
+        cleanLine("Due Date", keyValue(client, ["Due Date", "dueDate"])),
+        cleanLine("Landmark", keyValue(client, ["Landmark", "landmark"])),
+        cleanLine("Address", getClientAddress(client)),
+        cleanLine("Google Maps", getClientMaps(client))
+      ].filter(Boolean).join("\n");
+    }
+
+    async function copyText(text, button, successMessage) {
+      if (!String(text || "").trim()) {
+        showNotice("No client details available to copy.", "error");
+        return;
+      }
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const textarea = document.createElement("textarea");
+          textarea.value = text;
+          textarea.setAttribute("readonly", "");
+          textarea.style.position = "fixed";
+          textarea.style.opacity = "0";
+          document.body.appendChild(textarea);
+          textarea.select();
+          const copied = document.execCommand("copy");
+          textarea.remove();
+          if (!copied) throw new Error("Copy command was blocked.");
+        }
+
+        showNotice(successMessage || "Details copied. Ready to send to the technician.", "ok");
+
+        if (button) {
+          const oldText = button.textContent;
+          button.classList.add("is-copied");
+          button.textContent = "Copied";
+          window.setTimeout(function() {
+            button.classList.remove("is-copied");
+            button.textContent = oldText;
+          }, 1800);
+        }
+      } catch (error) {
+        showNotice("Unable to copy automatically. Please copy the details manually.", "error");
+      }
+    }
+
+    function getNewInstallCopyData() {
+      const data = formPayload(fields.newInstallForm);
+      const client = {
+        "Account No.": data.clientId || "",
+        "Client Name": data.clientName || "",
+        "Phone Number": data.contactNumber || "",
+        "RD / BLK": data.rdBlk || "",
+        "Service Address": data.address || "",
+        "Google Maps Link": data.googleMapsLink || ""
+      };
+
+      return { ticket: data, client: client };
+    }
+
+    function getOldConcernCopyData() {
+      return {
+        ticket: formPayload(fields.oldConcernForm),
+        client: selectedClient || {}
+      };
     }
 
     async function loadTickets() {
       showNotice("Loading ticket records...");
+
       try {
         const response = await callBackend("listTickets", {});
+
         if (!response || (!response.ok && !response.success)) {
+          if (handleSessionFailure(response)) return;
+
           tickets = [];
           renderTickets();
-          showNotice((response && response.message) || "Unable to load tickets. Please login again or check backend deployment.", "error");
+          showNotice(
+            (response && response.message) ||
+            "Unable to load tickets. Check backend deployment.",
+            "error"
+          );
           return;
         }
 
@@ -1809,28 +2574,37 @@
       } catch (error) {
         tickets = [];
         renderTickets();
-        showNotice("Unable to load tickets. " + (error && error.message ? error.message : ""), "error");
+        showNotice(
+          "Unable to load tickets. " +
+          (error && error.message ? error.message : ""),
+          "error"
+        );
       }
     }
 
     async function loadClients() {
       try {
         const response = await callBackend("listClients", {});
+
         if (!response || (!response.ok && !response.success)) {
+          if (handleSessionFailure(response)) return;
+
           clients = [];
-          renderClientOptions();
+          renderClientSearchResults({ autoSelect: false });
           return;
         }
+
         clients = response.data || response.clients || response.rows || [];
-        renderClientOptions();
+        renderClientSearchResults({ autoSelect: false });
       } catch (error) {
         clients = [];
-        renderClientOptions();
+        renderClientSearchResults({ autoSelect: false });
       }
     }
 
     function formPayload(form) {
       const data = {};
+
       new FormData(form).forEach(function(value, key) {
         data[key] = value;
       });
@@ -1841,9 +2615,38 @@
 
       const session = loadSession();
       const user = session.user || {};
-      data.createdBy = user.fullName || user.name || user.email || session.email || "Portal User";
+      data.createdBy =
+        user.fullName ||
+        user.name ||
+        user.email ||
+        session.email ||
+        "Portal User";
+
+      if (form === fields.newInstallForm) {
+        const notes = [];
+        if (data.rdBlk) notes.push("RD/BLK: " + data.rdBlk);
+        if (data.googleMapsLink) notes.push("Google Maps: " + data.googleMapsLink);
+        data.adminRemarks = notes.join("\n");
+      }
+
+      if (form === fields.oldConcernForm && selectedClient) {
+        data.adminRemarks = [
+          getClientRdBlk(selectedClient) ? "RD/BLK: " + getClientRdBlk(selectedClient) : "",
+          getClientMaps(selectedClient) ? "Google Maps: " + getClientMaps(selectedClient) : ""
+        ].filter(Boolean).join("\n");
+      }
 
       return data;
+    }
+
+    function activateTab(panelId) {
+      document.querySelectorAll(".tab-btn").forEach(function(button) {
+        button.classList.toggle("is-active", button.dataset.tab === panelId);
+      });
+
+      document.querySelectorAll(".ticket-panel").forEach(function(panel) {
+        panel.classList.toggle("is-active", panel.id === panelId);
+      });
     }
 
     async function submitTicket(form, successMessage) {
@@ -1860,16 +2663,33 @@
 
       try {
         const response = await callBackend("saveTicket", data);
+
         if (response && (response.ok || response.success)) {
           showNotice(successMessage || "Ticket saved.", "ok");
           form.reset();
-          setSelectedClient(null);
+
+          if (form === fields.oldConcernForm) {
+            fields.clientSearchInput.value = "";
+            hideClientSearchResults();
+            setSelectedClient(null);
+          }
+
           await loadTickets();
+          activateTab("workQueuePanel");
         } else {
-          showNotice((response && response.message) || "Unable to save ticket.", "error");
+          if (handleSessionFailure(response)) return;
+
+          showNotice(
+            (response && response.message) || "Unable to save ticket.",
+            "error"
+          );
         }
       } catch (error) {
-        showNotice("Unable to save ticket. " + (error && error.message ? error.message : ""), "error");
+        showNotice(
+          "Unable to save ticket. " +
+          (error && error.message ? error.message : ""),
+          "error"
+        );
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;
@@ -1892,7 +2712,9 @@
         cancelTicket: "cancel this ticket"
       };
 
-      if (!confirm("Proceed to " + (actionNames[action] || "update this ticket") + "?")) return;
+      if (!confirm("Proceed to " + (actionNames[action] || "update this ticket") + "?")) {
+        return;
+      }
 
       let techRemarks = "";
 
@@ -1901,15 +2723,21 @@
       }
 
       if (action === "forCheckingTicket") {
-        techRemarks = prompt("Tech remarks / checking notes:", "For checking / verification.") || "For checking / verification.";
+        techRemarks =
+          prompt("Tech remarks / checking notes:", "For checking / verification.") ||
+          "For checking / verification.";
       }
 
       if (action === "resolveTicket") {
-        techRemarks = prompt("Resolution remarks:", "Resolved.") || "Resolved.";
+        techRemarks =
+          prompt("Resolution remarks:", "Resolved.") ||
+          "Resolved.";
       }
 
       if (action === "cancelTicket") {
-        techRemarks = prompt("Reason for cancellation:", "Cancelled.") || "Cancelled.";
+        techRemarks =
+          prompt("Reason for cancellation:", "Cancelled.") ||
+          "Cancelled.";
       }
 
       showNotice("Updating ticket status...");
@@ -1924,50 +2752,171 @@
         if (response && (response.ok || response.success)) {
           showNotice("Ticket updated successfully.", "ok");
           await loadTickets();
+
+          if (action === "resolveTicket") {
+            activateTab("resolvedTicketsPanel");
+          }
         } else {
-          showNotice((response && response.message) || "Unable to update ticket.", "error");
+          if (handleSessionFailure(response)) return;
+
+          showNotice(
+            (response && response.message) || "Unable to update ticket.",
+            "error"
+          );
         }
       } catch (error) {
-        showNotice("Unable to update ticket. " + (error && error.message ? error.message : ""), "error");
+        showNotice(
+          "Unable to update ticket. " +
+          (error && error.message ? error.message : ""),
+          "error"
+        );
       }
+    }
+
+    function findTicketById(ticketId) {
+      return tickets.find(function(row) {
+        return normalize(getTicketId(row)) === normalize(ticketId);
+      }) || null;
+    }
+
+    function handleTicketTableClick(event) {
+      const copyButton = event.target.closest("button[data-copy-ticket-id]");
+      if (copyButton) {
+        const ticket = findTicketById(copyButton.dataset.copyTicketId);
+        if (!ticket) {
+          showNotice("Ticket details could not be found.", "error");
+          return;
+        }
+
+        copyText(
+          buildTechMessage(ticket, findClientForTicket(ticket)),
+          copyButton,
+          "Ticket and client details copied with Google Maps link."
+        );
+        return;
+      }
+
+      const actionButtonElement = event.target.closest("button[data-ticket-action]");
+      if (!actionButtonElement) return;
+
+      updateTicketAction(
+        actionButtonElement.dataset.ticketAction,
+        actionButtonElement.dataset.ticketId
+      );
     }
 
     document.querySelectorAll(".tab-btn").forEach(function(button) {
       button.addEventListener("click", function() {
-        document.querySelectorAll(".tab-btn").forEach(function(btn) { btn.classList.remove("is-active"); });
-        document.querySelectorAll(".ticket-panel").forEach(function(panel) { panel.classList.remove("is-active"); });
-        button.classList.add("is-active");
-        document.querySelector("#" + button.dataset.tab).classList.add("is-active");
+        activateTab(button.dataset.tab);
       });
     });
 
-    fields.ticketRows.addEventListener("click", function(event) {
-      const button = event.target.closest("button[data-ticket-action]");
-      if (!button) return;
-      updateTicketAction(button.dataset.ticketAction, button.dataset.ticketId);
+    fields.activeTicketRows.addEventListener("click", handleTicketTableClick);
+    fields.resolvedTicketRows.addEventListener("click", handleTicketTableClick);
+
+    fields.queueSearchInput.addEventListener("input", renderTickets);
+    fields.queueStatusFilter.addEventListener("change", renderTickets);
+    fields.resolvedSearchInput.addEventListener("input", renderTickets);
+
+    fields.clearResolvedSearchBtn.addEventListener("click", function() {
+      fields.resolvedSearchInput.value = "";
+      renderTickets();
     });
 
-    fields.searchInput.addEventListener("input", renderTickets);
-    fields.statusFilter.addEventListener("change", renderTickets);
     fields.refreshBtn.addEventListener("click", function() {
       loadTickets();
       loadClients();
     });
 
-    fields.clientSearchInput.addEventListener("input", renderClientOptions);
-    fields.existingClientSelect.addEventListener("change", function() {
-      const accountNo = fields.existingClientSelect.value;
-      const row = clients.find(function(client) {
-        return normalize(getClientAccountNo(client)) === normalize(accountNo);
-      }) || null;
-      setSelectedClient(row);
+    fields.clientSearchInput.addEventListener("input", function() {
+      if (selectedClient && normalize(fields.clientSearchInput.value) !== normalize(getClientDisplayLabel(selectedClient))) {
+        setSelectedClient(null);
+      }
+      renderClientSearchResults({ autoSelect: true });
+    });
+
+    fields.clientSearchInput.addEventListener("focus", function() {
+      renderClientSearchResults({ autoSelect: false });
+    });
+
+    fields.clientSearchInput.addEventListener("keydown", function(event) {
+      if (event.key === "Escape") {
+        hideClientSearchResults();
+        return;
+      }
+
+      if (fields.clientSearchResults.classList.contains("is-hidden") || !clientSearchMatches.length) return;
+
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        activeClientSuggestionIndex = Math.min(activeClientSuggestionIndex + 1, clientSearchMatches.length - 1);
+        updateActiveClientSuggestion();
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        activeClientSuggestionIndex = Math.max(activeClientSuggestionIndex - 1, 0);
+        updateActiveClientSuggestion();
+      } else if (event.key === "Enter" && activeClientSuggestionIndex >= 0) {
+        event.preventDefault();
+        chooseClientFromSearch(clientSearchMatches[activeClientSuggestionIndex]);
+      }
+    });
+
+    fields.clientSearchResults.addEventListener("click", function(event) {
+      const button = event.target.closest("button[data-client-index]");
+      if (!button) return;
+      chooseClientFromSearch(clientSearchMatches[Number(button.dataset.clientIndex)]);
+    });
+
+    document.addEventListener("click", function(event) {
+      if (!event.target.closest(".client-search-wrap")) hideClientSearchResults();
     });
 
     fields.clearSelectedClientBtn.addEventListener("click", function() {
       fields.clientSearchInput.value = "";
-      fields.existingClientSelect.value = "";
-      renderClientOptions();
+      hideClientSearchResults();
       setSelectedClient(null);
+      fields.clientSearchInput.focus();
+    });
+
+    fields.clientPreview.addEventListener("click", function(event) {
+      const button = event.target.closest("button[data-copy-selected-client]");
+      if (!button || !selectedClient) return;
+
+      copyText(
+        buildClientOnlyMessage(selectedClient),
+        button,
+        "Client details copied with Google Maps link."
+      );
+    });
+
+    fields.copyNewInstallBtn.addEventListener("click", function() {
+      const data = getNewInstallCopyData();
+
+      if (!data.ticket.clientName) {
+        showNotice("Enter the client name before copying the installation details.", "error");
+        return;
+      }
+
+      copyText(
+        buildTechMessage(data.ticket, data.client),
+        fields.copyNewInstallBtn,
+        "Installation details copied and ready to send to the technician."
+      );
+    });
+
+    fields.copyOldConcernBtn.addEventListener("click", function() {
+      if (!selectedClient) {
+        showNotice("Please select an existing client first.", "error");
+        return;
+      }
+
+      const data = getOldConcernCopyData();
+
+      copyText(
+        buildTechMessage(data.ticket, data.client),
+        fields.copyOldConcernBtn,
+        "Client concern details copied with Google Maps link."
+      );
     });
 
     fields.newInstallForm.addEventListener("submit", function(event) {
@@ -1977,22 +2926,28 @@
 
     fields.oldConcernForm.addEventListener("submit", function(event) {
       event.preventDefault();
+
       if (!selectedClient) {
         showNotice("Please select an existing client first.", "error");
         return;
       }
-      submitTicket(fields.oldConcernForm, "Old client concern ticket saved.");
+
+      submitTicket(
+        fields.oldConcernForm,
+        "Old client concern ticket saved."
+      );
     });
 
-    fields.logoutBtn.addEventListener("click", function() {
-      localStorage.removeItem(SESSION_KEY);
-      localStorage.removeItem(FALLBACK_SESSION_KEY);
-      window.location.href = "index.html";
-    });
+    fields.logoutBtn.addEventListener("click", clearSessionAndLogin);
 
-    setUser(loadSession());
-    loadTickets();
-    loadClients();
+    const initialSession = loadSession();
+    if (!getSessionToken()) {
+      clearSessionAndLogin();
+    } else {
+      setUser(initialSession);
+      loadTickets();
+      loadClients();
+    }
   </script>
 
   <script>
