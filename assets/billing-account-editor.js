@@ -115,6 +115,9 @@
 
       syncVisibleTags(account, next);
       showMessage(account + " account tag changed to " + next + ".", true);
+      document.dispatchEvent(new CustomEvent("techgeek:billing-updated", {
+        detail: { account: account, accountTag: next }
+      }));
     } catch (error) {
       select.value = previous;
       select.dataset.current = previous;
@@ -126,7 +129,6 @@
     }
   }
 
-  // Capture Account Tag changes before billing.html's older confirmation handler.
   document.addEventListener("change", function (event) {
     const target = event.target;
     if (!(target instanceof HTMLSelectElement)) return;
