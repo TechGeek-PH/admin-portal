@@ -30,7 +30,7 @@
       return loadScript(CORE_URL, "admin-core");
     })
     .then(function () {
-      return loadScript("assets/admin-nav.js?v=20260813-1", "admin-nav");
+      return loadScript("assets/admin-nav.js?v=20260813-5", "admin-nav");
     })
     .then(function () {
       if (currentFile === "application_form.html") {
@@ -38,6 +38,9 @@
       }
       if (currentFile === "statement_of_account.html" || currentFile === "statement_of_account_v3.html") {
         return loadScript("assets/soa-supabase.js?v=20260812-2", "soa-supabase");
+      }
+      if (currentFile === "billing.html") {
+        return loadScript("assets/billing-payment-editor.js?v=20260813-1", "billing-payment-editor");
       }
       if (currentFile === "billing_control.html") {
         return loadScript("assets/billing-expired-tag.js?v=20260813-1", "billing-expired-tag");
