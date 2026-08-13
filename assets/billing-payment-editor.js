@@ -11,6 +11,7 @@
   });
 
   const ledgerById = new Map();
+  const repairingAccounts = new Set();
   let loading = false;
   let decorating = false;
 
@@ -100,9 +101,7 @@
     wrap.className = "billing-payment-editor tag-editor";
 
     const select = document.createElement("select");
-    // IMPORTANT: do not use the generic .tag-select class here. The Billing page
-    // listens to .tag-select for Account Tag changes; sharing that class caused
-    // Paid/Unpaid to overwrite clients.account_status.
+    // Do NOT share the generic .tag-select class with Account Tag.
     select.className = "billing-status-select";
     select.dataset.billingId = billingId;
     select.dataset.account = getAccountNo(row);
@@ -112,7 +111,6 @@
       '<option value="PAID">Paid</option>';
     select.value = status;
 
-    // Keep the same visual style without sharing the Account Tag event selector.
     select.style.width = "100%";
     select.style.minHeight = "34px";
     select.style.border = "1px solid " + (status === "PAID" ? "#9fd4c2" : "#efb1c2");
@@ -130,7 +128,6 @@
       : "Editable for personal/cash payments";
 
     select.addEventListener("change", function (event) {
-      // Stop this event before the Billing page's Account Tag handler sees it.
       event.stopPropagation();
       updateBillingStatus(row, select, note);
     });
@@ -138,6 +135,40 @@
     wrap.appendChild(select);
     wrap.appendChild(note);
     return wrap;
+  }
+
+  async function repairInvalidAccountTag(row, paymentStatus) {
+    if (paymentStatus !== "PAID" || !row || !row.cells || row.cells.length < 9) return;
+    const account = getAccountNo(row);
+    if (!account || repairingAccounts.has(account)) return;
+
+    const tagSelect = row.cells[8] && row.cells[8].querySelector(".tag-select");
+    const badTag = normalize(tagSelect && tagSelect.value);
+    if (badTag !== "PAID" && badTag !== "UNPAID") return;
+
+    repairingAccounts.add(account);
+    try {
+      const result = await db
+        .from("clients")
+        .update({ account_status: "Active", service_status: "Active" })
+        .eq("account_no", account)
+        .select("account_no")
+        .maybeSingle();
+      if (result.error) throw result.error;
+      if (tagSelect) {
+        tagSelect.innerHTML =
+          '<option value="Active">Active</option>' +
+          '<option value="Pending">Pending</option>' +
+          '<option value="Expired">Expired</option>' +
+          '<option value="Disconnected">Disconnected</option>';
+        tagSelect.value = "Active";
+        tagSelect.dataset.current = "Active";
+        tagSelect.dataset.tone = "active";
+      }
+      console.info("Repaired invalid billing-derived account tag for", account);
+    } catch (error) {
+      console.warn("Unable to repair invalid account tag for " + account, error);
+    }
   }
 
   function decorate() {
@@ -149,10 +180,13 @@
         const billingId = getBillingId(row);
         if (!billingId) return;
         const ledger = ledgerById.get(billingId);
+        const paymentStatus = currentPaymentStatus(ledger, row);
         const cell = row.cells[7];
-        if (!cell || cell.querySelector(".billing-payment-editor")) return;
-        cell.innerHTML = "";
-        cell.appendChild(makeEditor(row, billingId, ledger));
+        if (cell && !cell.querySelector(".billing-payment-editor")) {
+          cell.innerHTML = "";
+          cell.appendChild(makeEditor(row, billingId, ledger));
+        }
+        repairInvalidAccountTag(row, paymentStatus);
       });
     } finally {
       decorating = false;
@@ -194,38 +228,28 @@
 
     try {
       const patch = {};
-      if (Object.prototype.hasOwnProperty.call(ledger, "amount_paid")) {
-        patch.amount_paid = next === "PAID" ? amountDue : 0;
-      }
-      if (Object.prototype.hasOwnProperty.call(ledger, "balance")) {
-        patch.balance = next === "PAID" ? 0 : amountDue;
-      }
-      if (Object.prototype.hasOwnProperty.call(ledger, "remaining_balance")) {
-        patch.remaining_balance = next === "PAID" ? 0 : amountDue;
-      }
-      if (Object.prototype.hasOwnProperty.call(ledger, "payment_status")) {
-        patch.payment_status = next;
-      }
-      if (Object.prototype.hasOwnProperty.call(ledger, "billing_status")) {
-        patch.billing_status = next;
-      }
+      if (Object.prototype.hasOwnProperty.call(ledger, "amount_paid")) patch.amount_paid = next === "PAID" ? amountDue : 0;
+      if (Object.prototype.hasOwnProperty.call(ledger, "balance")) patch.balance = next === "PAID" ? 0 : amountDue;
+      if (Object.prototype.hasOwnProperty.call(ledger, "remaining_balance")) patch.remaining_balance = next === "PAID" ? 0 : amountDue;
+      if (Object.prototype.hasOwnProperty.call(ledger, "payment_status")) patch.payment_status = next;
+      if (Object.prototype.hasOwnProperty.call(ledger, "billing_status")) patch.billing_status = next;
+
       if (next === "PAID") {
         const today = new Date().toISOString().slice(0, 10);
         if (Object.prototype.hasOwnProperty.call(ledger, "date_paid")) patch.date_paid = today;
         const nowIso = new Date().toISOString();
         if (Object.prototype.hasOwnProperty.call(ledger, "last_payment_date")) patch.last_payment_date = nowIso;
         if (Object.prototype.hasOwnProperty.call(ledger, "paid_at")) patch.paid_at = nowIso;
-      } else {
-        if (Object.prototype.hasOwnProperty.call(ledger, "date_paid")) patch.date_paid = null;
+      } else if (Object.prototype.hasOwnProperty.call(ledger, "date_paid")) {
+        patch.date_paid = null;
       }
 
-      if (!Object.keys(patch).length) {
-        throw new Error("Billing Ledger payment columns were not detected.");
-      }
+      if (!Object.keys(patch).length) throw new Error("Billing Ledger payment columns were not detected.");
 
       let ledgerUpdate = db.from("billing_ledger").update(patch);
       if (ledger.billing_id !== undefined) ledgerUpdate = ledgerUpdate.eq("billing_id", billingId);
       else ledgerUpdate = ledgerUpdate.eq("id", billingId);
+
       const ledgerResult = await ledgerUpdate.select("*").maybeSingle();
       if (ledgerResult.error) throw ledgerResult.error;
       if (!ledgerResult.data) throw new Error("Billing record was not updated. Check Supabase update permission.");
@@ -256,9 +280,7 @@
           queueUpdate = queueUpdate.eq("billing_id", billingId);
         }
         const queueResult = await queueUpdate;
-        if (queueResult.error) {
-          console.warn("Paid status saved, but reminder queue could not be updated:", queueResult.error);
-        }
+        if (queueResult.error) console.warn("Paid status saved, but reminder queue could not be updated:", queueResult.error);
 
         showMessage(account + " marked PAID. Account automatically changed to Active and pending reminders for this bill were stopped.", true);
       } else {
