@@ -33,6 +33,31 @@
     return "";
   }
 
+  function syncVisibleTags(account, tag) {
+    document.querySelectorAll("#rows tr").forEach(function (row) {
+      const accountCell = row.querySelector(".account");
+      if (!accountCell || String(accountCell.textContent || "").trim() !== account) return;
+
+      const select = row.cells && row.cells[8] ? row.cells[8].querySelector(".tag-select") : null;
+      if (select) {
+        select.value = tag;
+        select.dataset.current = tag;
+        select.dataset.tone = toneFor(tag);
+      }
+
+      const note = row.cells && row.cells[8] ? row.cells[8].querySelector(".tag-note") : null;
+      if (note) {
+        if (norm(tag) === "DISCONNECTED") note.textContent = "Router/device pulled out — notifications blocked";
+        else if (norm(tag) === "EXPIRED") note.textContent = "Expired account";
+        else note.textContent = "Editable account tag";
+      }
+
+      if (norm(tag) === "DISCONNECTED" && row.cells && row.cells[9]) {
+        row.cells[9].innerHTML = '<span class="blocked">Blocked — Disconnected</span>';
+      }
+    });
+  }
+
   async function bestEffortServiceStatus(account, tag) {
     const n = norm(tag);
     if (n !== "ACTIVE" && n !== "DISCONNECTED") return;
@@ -85,19 +110,15 @@
       if (result.error) throw result.error;
       if (!result.data) throw new Error("Account tag was not updated. Check Supabase update permission.");
 
-      select.dataset.current = next;
-      select.dataset.tone = toneFor(next);
-
       await bestEffortServiceStatus(account, next);
       if (norm(next) === "DISCONNECTED") await skipDisconnectedReminders(account);
 
+      syncVisibleTags(account, next);
       showMessage(account + " account tag changed to " + next + ".", true);
-
-      window.setTimeout(function () {
-        window.location.reload();
-      }, 350);
     } catch (error) {
       select.value = previous;
+      select.dataset.current = previous;
+      select.dataset.tone = toneFor(previous);
       showMessage(error.message || "Unable to update account tag.", false);
     } finally {
       saving.delete(account);
@@ -114,6 +135,7 @@
     if (!target.dataset.account) return;
 
     event.stopImmediatePropagation();
+    event.preventDefault();
     saveTag(target);
   }, true);
 })();
