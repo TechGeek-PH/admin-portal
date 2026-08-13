@@ -23,7 +23,7 @@
   }
 
   if (currentFile === "billing.html") {
-    loadScript("assets/billing-payment-editor.js?v=20260813-3", "billing-payment-editor")
+    loadScript("assets/billing-payment-editor.js?v=20260813-4", "billing-payment-editor")
       .catch(function (error) {
         console.error("Billing payment editor failed to load:", error && error.message ? error.message : error);
       });
@@ -47,7 +47,7 @@
         return loadScript("assets/soa-supabase.js?v=20260812-2", "soa-supabase");
       }
       if (currentFile === "billing.html") {
-        return loadScript("assets/billing-payment-editor.js?v=20260813-3", "billing-payment-editor");
+        return loadScript("assets/billing-payment-editor.js?v=20260813-4", "billing-payment-editor");
       }
       if (currentFile === "billing_control.html") {
         return loadScript("assets/billing-expired-tag.js?v=20260813-1", "billing-expired-tag");
