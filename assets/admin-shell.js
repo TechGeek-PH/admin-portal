@@ -22,16 +22,20 @@
     });
   }
 
-  if (currentFile === "billing.html") {
-    loadScript("assets/billing-account-editor.js?v=20260813-1", "billing-account-editor")
-      .catch(function (error) {
-        console.error("Billing account editor failed to load:", error && error.message ? error.message : error);
+  function loadBillingEditors() {
+    return loadScript("assets/billing-no-reload.js?v=20260813-1", "billing-no-reload")
+      .then(function () {
+        return loadScript("assets/billing-account-editor.js?v=20260813-2", "billing-account-editor");
+      })
+      .then(function () {
+        return loadScript("assets/billing-payment-editor.js?v=20260813-5", "billing-payment-editor");
       });
+  }
 
-    loadScript("assets/billing-payment-editor.js?v=20260813-5", "billing-payment-editor")
-      .catch(function (error) {
-        console.error("Billing payment editor failed to load:", error && error.message ? error.message : error);
-      });
+  if (currentFile === "billing.html") {
+    loadBillingEditors().catch(function (error) {
+      console.error("Billing editors failed to load:", error && error.message ? error.message : error);
+    });
   }
 
   loadScript("assets/auth-session-bridge.js?v=20260812-1", "auth-session-bridge")
@@ -52,10 +56,7 @@
         return loadScript("assets/soa-supabase.js?v=20260812-2", "soa-supabase");
       }
       if (currentFile === "billing.html") {
-        return Promise.all([
-          loadScript("assets/billing-account-editor.js?v=20260813-1", "billing-account-editor"),
-          loadScript("assets/billing-payment-editor.js?v=20260813-5", "billing-payment-editor")
-        ]);
+        return loadBillingEditors();
       }
       if (currentFile === "billing_control.html") {
         return loadScript("assets/billing-expired-tag.js?v=20260813-1", "billing-expired-tag");
