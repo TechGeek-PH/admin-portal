@@ -28,7 +28,10 @@
         return loadScript("assets/billing-account-editor.js?v=20260813-2", "billing-account-editor");
       })
       .then(function () {
-        return loadScript("assets/billing-payment-editor.js?v=20260813-5", "billing-payment-editor");
+        return loadScript("assets/billing-payment-editor.js?v=20260813-6", "billing-payment-editor");
+      })
+      .then(function () {
+        return loadScript("assets/billing-advanced-filter.js?v=20260813-1", "billing-advanced-filter");
       });
   }
 
