@@ -25,7 +25,7 @@
   function loadBillingEditors() {
     return loadScript("assets/billing-account-editor.js?v=20260813-3", "billing-account-editor")
       .then(function () {
-        return loadScript("assets/billing-payment-editor.js?v=20260813-6", "billing-payment-editor");
+        return loadScript("assets/billing-payment-editor.js?v=20260813-7", "billing-payment-editor");
       })
       .then(function () {
         return loadScript("assets/billing-advanced-filter.js?v=20260813-1", "billing-advanced-filter");
