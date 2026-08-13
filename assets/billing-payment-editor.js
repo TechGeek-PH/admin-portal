@@ -4,6 +4,7 @@
   const SUPABASE_URL = "https://tcexzfztdgximrzuosqs.supabase.co";
   const SUPABASE_KEY = "sb_publishable_8H8_S7NTWvzPCLvYUe2C4g_k3Ltjfiz";
   const BILLING_MESSENGER_URL = SUPABASE_URL + "/functions/v1/billing-messenger";
+  const EDITOR_VERSION = "20260813-8";
 
   if (!window.supabase || typeof window.supabase.createClient !== "function") return;
 
@@ -88,6 +89,19 @@
     select.style.fontWeight = "800";
   }
 
+  function styleConfirmationButton(button) {
+    button.type = "button";
+    button.style.minHeight = "30px";
+    button.style.padding = "5px 8px";
+    button.style.border = "1px solid #9fd4c2";
+    button.style.borderRadius = "7px";
+    button.style.background = "#f2fbf7";
+    button.style.color = "#116447";
+    button.style.fontSize = ".64rem";
+    button.style.fontWeight = "800";
+    button.style.cursor = "pointer";
+  }
+
   async function loadLedger() {
     if (loading) return;
     loading = true;
@@ -109,38 +123,6 @@
     } finally {
       loading = false;
     }
-  }
-
-  function makeEditor(row, billingId, ledger) {
-    const status = currentPaymentStatus(ledger, row);
-    const wrap = document.createElement("div");
-    wrap.className = "billing-payment-editor tag-editor";
-
-    const select = document.createElement("select");
-    select.className = "billing-status-select";
-    select.dataset.billingId = billingId;
-    select.dataset.account = getAccountNo(row);
-    select.dataset.previous = status;
-    select.innerHTML =
-      '<option value="UNPAID">Unpaid</option>' +
-      '<option value="PAID">Paid</option>';
-    select.value = status;
-    styleSelect(select, status);
-
-    const note = document.createElement("span");
-    note.className = "tag-note";
-    note.textContent = status === "PAID"
-      ? "Paid — account Active"
-      : "Editable for personal/cash payments";
-
-    select.addEventListener("change", function (event) {
-      event.stopPropagation();
-      updateBillingStatus(row, select, note);
-    });
-
-    wrap.appendChild(select);
-    wrap.appendChild(note);
-    return wrap;
   }
 
   function syncVisibleAccountTags(account, tag) {
@@ -211,6 +193,87 @@
     return data;
   }
 
+  async function sendConfirmationNow(billingId, account, note, button) {
+    if (!billingId) return;
+    if (button) button.disabled = true;
+    if (note) note.textContent = "Paid — sending confirmation…";
+
+    try {
+      const confirmation = await queuePaymentConfirmation(billingId);
+      if (confirmation.triggered) {
+        if (note) note.textContent = "Paid — confirmation triggered";
+        showMessage(account + " payment confirmation was triggered to Messenger.", true);
+      } else if (confirmation.code === "NO_VERIFIED_MESSENGER_MAPPING") {
+        if (note) note.textContent = "Paid — no Messenger mapping";
+        showMessage(account + " is Paid, but no verified Messenger mapping was found.", false);
+      } else if (confirmation.already_in_progress_or_sent) {
+        if (note) note.textContent = "Paid — confirmation already queued/sent";
+        showMessage(account + " payment confirmation is already in progress or was already sent. Duplicate send was blocked.", true);
+      } else if (confirmation.code === "DEFERRED_RECIPIENT_BUSY") {
+        if (note) note.textContent = "Paid — confirmation queued";
+        showMessage(account + " payment confirmation is queued and will send after the current Messenger job finishes.", true);
+      } else {
+        if (note) note.textContent = "Paid — confirmation queued";
+        showMessage(account + " payment confirmation was queued.", true);
+      }
+      return confirmation;
+    } catch (error) {
+      console.warn("Payment confirmation could not be triggered:", error);
+      if (note) note.textContent = "Paid — confirmation needs review";
+      showMessage(account + " is Paid, but Messenger confirmation could not be triggered: " + (error.message || error), false);
+      throw error;
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
+
+  function makeEditor(row, billingId, ledger) {
+    const status = currentPaymentStatus(ledger, row);
+    const account = getAccountNo(row);
+    const wrap = document.createElement("div");
+    wrap.className = "billing-payment-editor tag-editor";
+    wrap.dataset.editorVersion = EDITOR_VERSION;
+
+    const select = document.createElement("select");
+    select.className = "billing-status-select";
+    select.dataset.billingId = billingId;
+    select.dataset.account = account;
+    select.dataset.previous = status;
+    select.innerHTML =
+      '<option value="UNPAID">Unpaid</option>' +
+      '<option value="PAID">Paid</option>';
+    select.value = status;
+    styleSelect(select, status);
+
+    const note = document.createElement("span");
+    note.className = "tag-note";
+    note.textContent = status === "PAID"
+      ? "Paid — account Active"
+      : "Editable for personal/cash payments";
+
+    const sendButton = document.createElement("button");
+    sendButton.className = "billing-send-confirmation";
+    sendButton.textContent = "Send Confirmation";
+    styleConfirmationButton(sendButton);
+    sendButton.hidden = status !== "PAID";
+
+    select.addEventListener("change", function (event) {
+      event.stopPropagation();
+      updateBillingStatus(row, select, note, sendButton);
+    });
+
+    sendButton.addEventListener("click", function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      sendConfirmationNow(billingId, account, note, sendButton).catch(function () {});
+    });
+
+    wrap.appendChild(select);
+    wrap.appendChild(note);
+    wrap.appendChild(sendButton);
+    return wrap;
+  }
+
   async function repairInvalidAccountTag(row, paymentStatus) {
     if (paymentStatus !== "PAID" || !row || !row.cells || row.cells.length < 9) return;
     const account = getAccountNo(row);
@@ -249,7 +312,8 @@
         const ledger = ledgerById.get(billingId);
         const paymentStatus = currentPaymentStatus(ledger, row);
         const cell = row.cells[7];
-        if (cell && !cell.querySelector(".billing-payment-editor")) {
+        const existing = cell && cell.querySelector(".billing-payment-editor");
+        if (cell && (!existing || existing.dataset.editorVersion !== EDITOR_VERSION)) {
           cell.innerHTML = "";
           cell.appendChild(makeEditor(row, billingId, ledger));
         }
@@ -275,7 +339,7 @@
     document.dispatchEvent(new CustomEvent("techgeek:billing-updated", { detail: detail || {} }));
   }
 
-  async function updateBillingStatus(row, select, note) {
+  async function updateBillingStatus(row, select, note, sendButton) {
     const billingId = select.dataset.billingId;
     const account = select.dataset.account;
     const previous = select.dataset.previous || "UNPAID";
@@ -286,6 +350,7 @@
     if (next === previous) return;
 
     select.disabled = true;
+    if (sendButton) sendButton.disabled = true;
     note.textContent = "Saving…";
 
     try {
@@ -345,39 +410,20 @@
         select.value = "PAID";
         select.dataset.previous = "PAID";
         styleSelect(select, "PAID");
-        note.textContent = "Paid — sending confirmation…";
-
-        let confirmationMessage = "";
-        try {
-          const confirmation = await queuePaymentConfirmation(billingId);
-          if (confirmation.triggered) {
-            confirmationMessage = " Payment confirmation was triggered to Messenger.";
-            note.textContent = "Paid — confirmation triggered";
-          } else if (confirmation.code === "NO_VERIFIED_MESSENGER_MAPPING") {
-            confirmationMessage = " Paid was saved, but no verified Messenger mapping was found for this client.";
-            note.textContent = "Paid — no Messenger mapping";
-          } else if (confirmation.already_in_progress_or_sent) {
-            confirmationMessage = " Payment confirmation is already in progress or was already sent.";
-            note.textContent = "Paid — confirmation already queued";
-          } else if (confirmation.code === "DEFERRED_RECIPIENT_BUSY") {
-            confirmationMessage = " Payment confirmation was queued and will send after the recipient's current Messenger job finishes.";
-            note.textContent = "Paid — confirmation queued";
-          } else {
-            confirmationMessage = " Payment confirmation was queued.";
-            note.textContent = "Paid — confirmation queued";
-          }
-        } catch (confirmationError) {
-          console.warn("Bill was marked Paid but payment confirmation could not be triggered:", confirmationError);
-          confirmationMessage = " Paid was saved, but Messenger confirmation could not be triggered: " + (confirmationError.message || confirmationError);
-          note.textContent = "Paid — confirmation needs review";
+        if (sendButton) {
+          sendButton.hidden = false;
+          sendButton.disabled = false;
         }
 
-        showMessage(account + " marked Paid. Balance is now ₱0 and account tag changed to Active." + confirmationMessage, true);
+        try {
+          await sendConfirmationNow(billingId, account, note, sendButton);
+        } catch (_) {}
       } else {
         select.value = "UNPAID";
         select.dataset.previous = "UNPAID";
         styleSelect(select, "UNPAID");
         note.textContent = "Editable for personal/cash payments";
+        if (sendButton) sendButton.hidden = true;
         showMessage(account + " changed to Unpaid. Full balance restored.", true);
       }
 
@@ -393,9 +439,11 @@
       select.value = previous;
       styleSelect(select, previous);
       note.textContent = "Update failed";
+      if (sendButton) sendButton.hidden = previous !== "PAID";
       showMessage(error.message || "Unable to update billing status.", false);
     } finally {
       select.disabled = false;
+      if (sendButton) sendButton.disabled = false;
     }
   }
 
