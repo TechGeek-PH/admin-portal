@@ -17,7 +17,7 @@
       items: [
         { label: "Application Form", href: "application_form.html" },
         { label: "Clients", href: "clients.html" },
-        { label: "Billing Control", href: "billing_control.html" },
+        { label: "Billing Control", href: "billing.html", aliases: ["billing_control.html"] },
         { label: "Tickets", href: "tickets.html" },
         { label: "NAP Checker", href: "nap-checker.html" },
         { label: "Statement of Account", href: "statement_of_account_v3.html", aliases: ["statement_of_account.html"] }
