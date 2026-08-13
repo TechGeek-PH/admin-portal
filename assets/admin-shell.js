@@ -36,6 +36,9 @@
         return loadScript("assets/billing-payment-editor.js?v=20260813-8", "billing-payment-editor");
       })
       .then(function () {
+        return loadScript("assets/billing-unpaid-reset.js?v=20260813-1", "billing-unpaid-reset");
+      })
+      .then(function () {
         return loadScript("assets/billing-advanced-filter.js?v=20260813-1", "billing-advanced-filter");
       });
   }
