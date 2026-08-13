@@ -3,6 +3,7 @@
 
   const SUPABASE_URL = "https://tcexzfztdgximrzuosqs.supabase.co";
   const SUPABASE_KEY = "sb_publishable_8H8_S7NTWvzPCLvYUe2C4g_k3Ltjfiz";
+  const BILLING_MESSENGER_URL = SUPABASE_URL + "/functions/v1/billing-messenger";
 
   if (!window.supabase || typeof window.supabase.createClient !== "function") return;
 
@@ -181,6 +182,35 @@
     return result.data;
   }
 
+  async function queuePaymentConfirmation(billingId) {
+    const sessionResult = await db.auth.getSession();
+    if (sessionResult.error) throw sessionResult.error;
+    const accessToken = sessionResult.data && sessionResult.data.session
+      ? sessionResult.data.session.access_token
+      : "";
+    if (!accessToken) throw new Error("Session expired. Please sign in again before sending payment confirmation.");
+
+    const response = await fetch(BILLING_MESSENGER_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + accessToken,
+        "apikey": SUPABASE_KEY
+      },
+      body: JSON.stringify({
+        action: "QUEUE_PAYMENT_CONFIRMATION",
+        billing_id: billingId
+      })
+    });
+
+    let data = {};
+    try { data = await response.json(); } catch (_) {}
+    if (!response.ok || data.ok === false) {
+      throw new Error(data.message || ("Payment confirmation request failed (HTTP " + response.status + ")."));
+    }
+    return data;
+  }
+
   async function repairInvalidAccountTag(row, paymentStatus) {
     if (paymentStatus !== "PAID" || !row || !row.cells || row.cells.length < 9) return;
     const account = getAccountNo(row);
@@ -303,7 +333,8 @@
             last_error: "Skipped because billing was manually marked Paid from Billing Control."
           })
           .eq("account_no", account)
-          .in("status", ["PENDING", "FAILED"]);
+          .in("status", ["PENDING", "FAILED"])
+          .neq("event_type", "PAYMENT_CONFIRMED");
 
         if (ledgerResult.data && Object.prototype.hasOwnProperty.call(ledgerResult.data, "billing_id")) {
           queueUpdate = queueUpdate.eq("billing_id", billingId);
@@ -314,8 +345,34 @@
         select.value = "PAID";
         select.dataset.previous = "PAID";
         styleSelect(select, "PAID");
-        note.textContent = "Paid — account Active";
-        showMessage(account + " marked Paid. Balance is now ₱0 and account tag changed to Active.", true);
+        note.textContent = "Paid — sending confirmation…";
+
+        let confirmationMessage = "";
+        try {
+          const confirmation = await queuePaymentConfirmation(billingId);
+          if (confirmation.triggered) {
+            confirmationMessage = " Payment confirmation was triggered to Messenger.";
+            note.textContent = "Paid — confirmation triggered";
+          } else if (confirmation.code === "NO_VERIFIED_MESSENGER_MAPPING") {
+            confirmationMessage = " Paid was saved, but no verified Messenger mapping was found for this client.";
+            note.textContent = "Paid — no Messenger mapping";
+          } else if (confirmation.already_in_progress_or_sent) {
+            confirmationMessage = " Payment confirmation is already in progress or was already sent.";
+            note.textContent = "Paid — confirmation already queued";
+          } else if (confirmation.code === "DEFERRED_RECIPIENT_BUSY") {
+            confirmationMessage = " Payment confirmation was queued and will send after the recipient's current Messenger job finishes.";
+            note.textContent = "Paid — confirmation queued";
+          } else {
+            confirmationMessage = " Payment confirmation was queued.";
+            note.textContent = "Paid — confirmation queued";
+          }
+        } catch (confirmationError) {
+          console.warn("Bill was marked Paid but payment confirmation could not be triggered:", confirmationError);
+          confirmationMessage = " Paid was saved, but Messenger confirmation could not be triggered: " + (confirmationError.message || confirmationError);
+          note.textContent = "Paid — confirmation needs review";
+        }
+
+        showMessage(account + " marked Paid. Balance is now ₱0 and account tag changed to Active." + confirmationMessage, true);
       } else {
         select.value = "UNPAID";
         select.dataset.previous = "UNPAID";
