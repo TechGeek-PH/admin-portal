@@ -46,10 +46,16 @@
 
   function currentPaymentStatus(ledger, row) {
     if (ledger) {
-      const direct = ledger.payment_status || ledger.billing_status || "";
-      if (normalize(direct) === "PAID" || normalize(direct) === "SETTLED") return "PAID";
-      if (Number(ledger.balance || 0) <= 0 && Number(ledger.amount_due || ledger.monthly_bill || 0) > 0) return "PAID";
+      const direct = normalize(ledger.payment_status || ledger.billing_status || "");
+      const due = Number(ledger.amount_due || ledger.monthly_bill || ledger.current_bill || 0) || 0;
+      const paid = Number(ledger.amount_paid || 0) || 0;
+      const bal = Number(ledger.balance != null ? ledger.balance : ledger.remaining_balance || 0) || 0;
+
+      if (direct === "PAID" || direct === "SETTLED") return "PAID";
+      if (due > 0 && paid >= due) return "PAID";
+      if (due > 0 && bal <= 0) return "PAID";
     }
+
     const cell = row && row.cells && row.cells[7];
     return normalize(cell && cell.textContent).includes("PAID") ? "PAID" : "UNPAID";
   }
@@ -91,10 +97,13 @@
   function makeEditor(row, billingId, ledger) {
     const status = currentPaymentStatus(ledger, row);
     const wrap = document.createElement("div");
-    wrap.className = "billing-payment-editor";
+    wrap.className = "billing-payment-editor tag-editor";
 
     const select = document.createElement("select");
-    select.className = "tag-select billing-status-select";
+    // IMPORTANT: do not use the generic .tag-select class here. The Billing page
+    // listens to .tag-select for Account Tag changes; sharing that class caused
+    // Paid/Unpaid to overwrite clients.account_status.
+    select.className = "billing-status-select";
     select.dataset.billingId = billingId;
     select.dataset.account = getAccountNo(row);
     select.dataset.previous = status;
@@ -102,7 +111,17 @@
       '<option value="UNPAID">Unpaid</option>' +
       '<option value="PAID">Paid</option>';
     select.value = status;
-    select.dataset.tone = status === "PAID" ? "active" : "expired";
+
+    // Keep the same visual style without sharing the Account Tag event selector.
+    select.style.width = "100%";
+    select.style.minHeight = "34px";
+    select.style.border = "1px solid " + (status === "PAID" ? "#9fd4c2" : "#efb1c2");
+    select.style.borderRadius = "7px";
+    select.style.padding = "6px 8px";
+    select.style.background = status === "PAID" ? "#f2fbf7" : "#fff5f7";
+    select.style.color = status === "PAID" ? "#116447" : "#8f1838";
+    select.style.fontSize = ".7rem";
+    select.style.fontWeight = "800";
 
     const note = document.createElement("span");
     note.className = "tag-note";
@@ -110,7 +129,9 @@
       ? "Paid — account should be Active"
       : "Editable for personal/cash payments";
 
-    select.addEventListener("change", function () {
+    select.addEventListener("change", function (event) {
+      // Stop this event before the Billing page's Account Tag handler sees it.
+      event.stopPropagation();
       updateBillingStatus(row, select, note);
     });
 
@@ -189,9 +210,13 @@
         patch.billing_status = next;
       }
       if (next === "PAID") {
+        const today = new Date().toISOString().slice(0, 10);
+        if (Object.prototype.hasOwnProperty.call(ledger, "date_paid")) patch.date_paid = today;
         const nowIso = new Date().toISOString();
         if (Object.prototype.hasOwnProperty.call(ledger, "last_payment_date")) patch.last_payment_date = nowIso;
         if (Object.prototype.hasOwnProperty.call(ledger, "paid_at")) patch.paid_at = nowIso;
+      } else {
+        if (Object.prototype.hasOwnProperty.call(ledger, "date_paid")) patch.date_paid = null;
       }
 
       if (!Object.keys(patch).length) {
@@ -240,9 +265,12 @@
         showMessage(account + " changed back to UNPAID. Full balance restored. Old reminders were not automatically requeued.", true);
       }
 
+      select.dataset.previous = next;
       window.setTimeout(function () {
-        window.location.reload();
-      }, 900);
+        const url = new URL(window.location.href);
+        url.searchParams.set("refresh", Date.now().toString());
+        window.location.replace(url.toString());
+      }, 700);
     } catch (error) {
       select.value = previous;
       select.disabled = false;
