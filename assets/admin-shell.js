@@ -22,10 +22,18 @@
     });
   }
 
+  function ensureLatestBillingPaymentEditor() {
+    const existing = document.querySelector('script[data-techgeek-module="billing-payment-editor"]');
+    if (existing && String(existing.src || "").indexOf("v=20260813-8") === -1) {
+      existing.remove();
+    }
+  }
+
   function loadBillingEditors() {
+    ensureLatestBillingPaymentEditor();
     return loadScript("assets/billing-account-editor.js?v=20260813-3", "billing-account-editor")
       .then(function () {
-        return loadScript("assets/billing-payment-editor.js?v=20260813-7", "billing-payment-editor");
+        return loadScript("assets/billing-payment-editor.js?v=20260813-8", "billing-payment-editor");
       })
       .then(function () {
         return loadScript("assets/billing-advanced-filter.js?v=20260813-1", "billing-advanced-filter");
@@ -46,7 +54,7 @@
       return loadScript(CORE_URL, "admin-core");
     })
     .then(function () {
-      return loadScript("assets/admin-nav.js?v=20260813-5", "admin-nav");
+      return loadScript("assets/admin-nav.js?v=20260813-6", "admin-nav");
     })
     .then(function () {
       if (currentFile === "application_form.html") {
