@@ -23,6 +23,13 @@
     return Number(String(value == null ? "" : value).replace(/[^0-9.-]/g, "")) || 0;
   }
 
+  function formatMoney(value) {
+    return new Intl.NumberFormat("en-PH", {
+      style: "currency",
+      currency: "PHP"
+    }).format(Number(value || 0));
+  }
+
   function getBillingId(row) {
     const cell = row && row.cells && row.cells[2];
     if (!cell) return "";
@@ -135,17 +142,21 @@
     return wrap;
   }
 
-  function setVisibleAccountTag(row, tag) {
-    if (!row || !row.cells || row.cells.length < 9) return;
-    const tagSelect = row.cells[8] && row.cells[8].querySelector(".tag-select");
-    if (!tagSelect) return;
+  function syncVisibleAccountTags(account, tag) {
+    document.querySelectorAll("#rows tr").forEach(function (row) {
+      if (getAccountNo(row) !== account || !row.cells || row.cells.length < 9) return;
+      const tagSelect = row.cells[8] && row.cells[8].querySelector(".tag-select");
+      if (!tagSelect) return;
 
-    const allowed = ["Active", "Pending", "Expired", "Disconnected"];
-    if (!allowed.some(function (x) { return normalize(x) === normalize(tag); })) return;
+      const allowed = ["Active", "Pending", "Expired", "Disconnected"];
+      if (!allowed.some(function (x) { return normalize(x) === normalize(tag); })) return;
 
-    tagSelect.value = tag;
-    tagSelect.dataset.current = tag;
-    tagSelect.dataset.tone = normalize(tag).toLowerCase();
+      tagSelect.value = tag;
+      tagSelect.dataset.current = tag;
+      tagSelect.dataset.tone = normalize(tag).toLowerCase();
+      const tagNote = row.cells[8].querySelector(".tag-note");
+      if (tagNote) tagNote.textContent = "Editable account tag";
+    });
   }
 
   async function setAccountActive(account) {
@@ -158,6 +169,15 @@
 
     if (result.error) throw result.error;
     if (!result.data) throw new Error("Bill was saved, but the Account Tag could not be changed to Active.");
+
+    const serviceResult = await db
+      .from("clients")
+      .update({ service_status: "Active" })
+      .eq("account_no", account);
+    if (serviceResult.error) {
+      console.warn("Account tag changed to Active, but service_status could not be changed:", serviceResult.error);
+    }
+
     return result.data;
   }
 
@@ -179,7 +199,7 @@
           '<option value="Pending">Pending</option>' +
           '<option value="Expired">Expired</option>' +
           '<option value="Disconnected">Disconnected</option>';
-        setVisibleAccountTag(row, "Active");
+        syncVisibleAccountTags(account, "Active");
       }
     } catch (error) {
       console.warn("Unable to repair invalid account tag for " + account, error);
@@ -210,6 +230,21 @@
     }
   }
 
+  function updateVisibleBillingRow(row, status, amountDue) {
+    if (!row || !row.cells || row.cells.length < 8) return;
+    if (status === "PAID") {
+      row.cells[5].textContent = formatMoney(amountDue);
+      row.cells[6].textContent = formatMoney(0);
+    } else {
+      row.cells[5].textContent = formatMoney(0);
+      row.cells[6].textContent = formatMoney(amountDue);
+    }
+  }
+
+  function notifyPage(detail) {
+    document.dispatchEvent(new CustomEvent("techgeek:billing-updated", { detail: detail || {} }));
+  }
+
   async function updateBillingStatus(row, select, note) {
     const billingId = select.dataset.billingId;
     const account = select.dataset.account;
@@ -220,7 +255,6 @@
 
     if (next === previous) return;
 
-    // Save immediately. No browser confirmation popup.
     select.disabled = true;
     note.textContent = "Saving…";
 
@@ -253,10 +287,11 @@
       if (!ledgerResult.data) throw new Error("Billing record was not updated. Check Supabase update permission.");
       ledgerById.set(billingId, ledgerResult.data);
 
+      updateVisibleBillingRow(row, next, amountDue);
+
       if (next === "PAID") {
-        // Account Tag must return to Active when a bill is marked Paid.
         await setAccountActive(account);
-        setVisibleAccountTag(row, "Active");
+        syncVisibleAccountTags(account, "Active");
 
         let queueUpdate = db
           .from("billing_notification_queue")
@@ -280,18 +315,23 @@
         select.dataset.previous = "PAID";
         styleSelect(select, "PAID");
         note.textContent = "Paid — account Active";
-        showMessage(account + " marked Paid. Account tag changed to Active.", true);
+        showMessage(account + " marked Paid. Balance is now ₱0 and account tag changed to Active.", true);
       } else {
         select.value = "UNPAID";
         select.dataset.previous = "UNPAID";
         styleSelect(select, "UNPAID");
         note.textContent = "Editable for personal/cash payments";
-        showMessage(account + " changed to Unpaid.", true);
+        showMessage(account + " changed to Unpaid. Full balance restored.", true);
       }
 
-      window.setTimeout(function () {
-        window.location.reload();
-      }, 500);
+      notifyPage({
+        account: account,
+        billingId: billingId,
+        status: next,
+        amountDue: amountDue,
+        amountPaid: next === "PAID" ? amountDue : 0,
+        balance: next === "PAID" ? 0 : amountDue
+      });
     } catch (error) {
       select.value = previous;
       styleSelect(select, previous);
