@@ -63,13 +63,21 @@
 
   function showMessage(message, ok) {
     const notice = document.querySelector("#notice");
-    if (!notice) {
-      window.alert(message);
-      return;
-    }
+    if (!notice) return;
     notice.textContent = message;
     notice.className = "notice show" + (ok ? " ok" : "");
-    notice.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function styleSelect(select, status) {
+    select.style.width = "100%";
+    select.style.minHeight = "34px";
+    select.style.border = "1px solid " + (status === "PAID" ? "#9fd4c2" : "#efb1c2");
+    select.style.borderRadius = "7px";
+    select.style.padding = "6px 8px";
+    select.style.background = status === "PAID" ? "#f2fbf7" : "#fff5f7";
+    select.style.color = status === "PAID" ? "#116447" : "#8f1838";
+    select.style.fontSize = ".7rem";
+    select.style.fontWeight = "800";
   }
 
   async function loadLedger() {
@@ -101,7 +109,6 @@
     wrap.className = "billing-payment-editor tag-editor";
 
     const select = document.createElement("select");
-    // Do NOT share the generic .tag-select class with Account Tag.
     select.className = "billing-status-select";
     select.dataset.billingId = billingId;
     select.dataset.account = getAccountNo(row);
@@ -110,21 +117,12 @@
       '<option value="UNPAID">Unpaid</option>' +
       '<option value="PAID">Paid</option>';
     select.value = status;
-
-    select.style.width = "100%";
-    select.style.minHeight = "34px";
-    select.style.border = "1px solid " + (status === "PAID" ? "#9fd4c2" : "#efb1c2");
-    select.style.borderRadius = "7px";
-    select.style.padding = "6px 8px";
-    select.style.background = status === "PAID" ? "#f2fbf7" : "#fff5f7";
-    select.style.color = status === "PAID" ? "#116447" : "#8f1838";
-    select.style.fontSize = ".7rem";
-    select.style.fontWeight = "800";
+    styleSelect(select, status);
 
     const note = document.createElement("span");
     note.className = "tag-note";
     note.textContent = status === "PAID"
-      ? "Paid — account should be Active"
+      ? "Paid — account Active"
       : "Editable for personal/cash payments";
 
     select.addEventListener("change", function (event) {
@@ -135,6 +133,32 @@
     wrap.appendChild(select);
     wrap.appendChild(note);
     return wrap;
+  }
+
+  function setVisibleAccountTag(row, tag) {
+    if (!row || !row.cells || row.cells.length < 9) return;
+    const tagSelect = row.cells[8] && row.cells[8].querySelector(".tag-select");
+    if (!tagSelect) return;
+
+    const allowed = ["Active", "Pending", "Expired", "Disconnected"];
+    if (!allowed.some(function (x) { return normalize(x) === normalize(tag); })) return;
+
+    tagSelect.value = tag;
+    tagSelect.dataset.current = tag;
+    tagSelect.dataset.tone = normalize(tag).toLowerCase();
+  }
+
+  async function setAccountActive(account) {
+    const result = await db
+      .from("clients")
+      .update({ account_status: "Active" })
+      .eq("account_no", account)
+      .select("account_no,account_status,service_status")
+      .maybeSingle();
+
+    if (result.error) throw result.error;
+    if (!result.data) throw new Error("Bill was saved, but the Account Tag could not be changed to Active.");
+    return result.data;
   }
 
   async function repairInvalidAccountTag(row, paymentStatus) {
@@ -148,26 +172,19 @@
 
     repairingAccounts.add(account);
     try {
-      const result = await db
-        .from("clients")
-        .update({ account_status: "Active", service_status: "Active" })
-        .eq("account_no", account)
-        .select("account_no")
-        .maybeSingle();
-      if (result.error) throw result.error;
+      await setAccountActive(account);
       if (tagSelect) {
         tagSelect.innerHTML =
           '<option value="Active">Active</option>' +
           '<option value="Pending">Pending</option>' +
           '<option value="Expired">Expired</option>' +
           '<option value="Disconnected">Disconnected</option>';
-        tagSelect.value = "Active";
-        tagSelect.dataset.current = "Active";
-        tagSelect.dataset.tone = "active";
+        setVisibleAccountTag(row, "Active");
       }
-      console.info("Repaired invalid billing-derived account tag for", account);
     } catch (error) {
       console.warn("Unable to repair invalid account tag for " + account, error);
+    } finally {
+      repairingAccounts.delete(account);
     }
   }
 
@@ -203,28 +220,9 @@
 
     if (next === previous) return;
 
-    if (next === "PAID") {
-      const confirmed = window.confirm(
-        "Mark " + account + " / " + billingId + " as PAID?\n\n" +
-        "Use this when payment was personally received/cash. The bill balance will become ₱0, pending reminders for this bill will be stopped, and the client account will automatically be set to Active."
-      );
-      if (!confirmed) {
-        select.value = previous;
-        return;
-      }
-    } else {
-      const confirmed = window.confirm(
-        "Change " + account + " / " + billingId + " back to UNPAID?\n\n" +
-        "This will reset Amount Paid for this bill to ₱0 and restore the full bill balance. The account tag will NOT be disconnected automatically, and old reminders will NOT be automatically re-sent."
-      );
-      if (!confirmed) {
-        select.value = previous;
-        return;
-      }
-    }
-
+    // Save immediately. No browser confirmation popup.
     select.disabled = true;
-    note.textContent = "Saving to Supabase…";
+    note.textContent = "Saving…";
 
     try {
       const patch = {};
@@ -256,13 +254,9 @@
       ledgerById.set(billingId, ledgerResult.data);
 
       if (next === "PAID") {
-        const clientResult = await db
-          .from("clients")
-          .update({ account_status: "Active", service_status: "Active" })
-          .eq("account_no", account)
-          .select("account_no")
-          .maybeSingle();
-        if (clientResult.error) throw clientResult.error;
+        // Account Tag must return to Active when a bill is marked Paid.
+        await setAccountActive(account);
+        setVisibleAccountTag(row, "Active");
 
         let queueUpdate = db
           .from("billing_notification_queue")
@@ -282,22 +276,29 @@
         const queueResult = await queueUpdate;
         if (queueResult.error) console.warn("Paid status saved, but reminder queue could not be updated:", queueResult.error);
 
-        showMessage(account + " marked PAID. Account automatically changed to Active and pending reminders for this bill were stopped.", true);
+        select.value = "PAID";
+        select.dataset.previous = "PAID";
+        styleSelect(select, "PAID");
+        note.textContent = "Paid — account Active";
+        showMessage(account + " marked Paid. Account tag changed to Active.", true);
       } else {
-        showMessage(account + " changed back to UNPAID. Full balance restored. Old reminders were not automatically requeued.", true);
+        select.value = "UNPAID";
+        select.dataset.previous = "UNPAID";
+        styleSelect(select, "UNPAID");
+        note.textContent = "Editable for personal/cash payments";
+        showMessage(account + " changed to Unpaid.", true);
       }
 
-      select.dataset.previous = next;
       window.setTimeout(function () {
-        const url = new URL(window.location.href);
-        url.searchParams.set("refresh", Date.now().toString());
-        window.location.replace(url.toString());
-      }, 700);
+        window.location.reload();
+      }, 500);
     } catch (error) {
       select.value = previous;
-      select.disabled = false;
+      styleSelect(select, previous);
       note.textContent = "Update failed";
       showMessage(error.message || "Unable to update billing status.", false);
+    } finally {
+      select.disabled = false;
     }
   }
 
