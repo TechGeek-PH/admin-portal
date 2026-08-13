@@ -111,14 +111,35 @@
     });
   }
 
+  function ensureBillingPaymentEditor() {
+    if (currentFile() !== "billing.html") return;
+    if (document.querySelector('script[data-techgeek-module="billing-payment-editor"]')) return;
+
+    const script = document.createElement("script");
+    script.src = "assets/billing-payment-editor.js?v=20260813-3";
+    script.async = false;
+    script.dataset.techgeekModule = "billing-payment-editor";
+    script.onload = function () {
+      console.log("TechGeekPH billing Paid/Unpaid editor loaded.");
+    };
+    script.onerror = function () {
+      console.error("Unable to load TechGeekPH billing Paid/Unpaid editor.");
+    };
+    document.head.appendChild(script);
+  }
+
   window.TechGeekAdminNav = {
     items: NAV_ITEMS,
     render: renderNav
   };
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", renderNav, { once: true });
+    document.addEventListener("DOMContentLoaded", function () {
+      renderNav();
+      ensureBillingPaymentEditor();
+    }, { once: true });
   } else {
     renderNav();
+    ensureBillingPaymentEditor();
   }
 })();
