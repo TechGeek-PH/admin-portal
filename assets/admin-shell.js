@@ -30,6 +30,9 @@
       return loadScript(CORE_URL, "admin-core");
     })
     .then(function () {
+      return loadScript("assets/admin-nav.js?v=20260813-1", "admin-nav");
+    })
+    .then(function () {
       if (currentFile === "application_form.html") {
         return loadScript("assets/application-supabase-loader.js?v=20260812-2", "application-supabase-loader");
       }
