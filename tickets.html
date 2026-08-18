@@ -12,7 +12,7 @@
     .mark{width:52px;height:52px;margin:0 auto 14px;display:grid;place-items:center;border-radius:50%;background:#064f83;color:#fff;font-weight:900}
     h1{margin:0;font-size:1.1rem}p{margin:8px 0 0;color:#64748b;font-size:.82rem;line-height:1.5}.error{color:#a42342}
   </style>
-  <script src="assets/auth-session-bridge.js?v=20260818-3"></script>
+  <script src="assets/auth-session-bridge.js?v=20260818-4"></script>
 </head>
 <body>
   <main class="boot"><section class="card"><div class="mark">TG</div><h1>Opening Tickets…</h1><p id="status">Restoring your secure admin session.</p></section></main>
@@ -27,19 +27,20 @@
         return;
       }
 
-      var response = await fetch("tickets-app.html?v=20260818-3", { cache: "no-store", credentials: "same-origin" });
+      var response = await fetch("tickets-app.html?v=20260818-4", { cache: "no-store", credentials: "same-origin" });
       if (!response.ok) throw new Error("Tickets module could not be loaded (" + response.status + ").");
       var html = await response.text();
 
-      // Load the Supabase adapter before the legacy inline Tickets script.
-      // The existing UI can stay unchanged while all ticket/client reads and writes
-      // are handled by the authenticated Supabase admin session.
+      // Load Supabase + the adapter before the legacy inline Tickets script.
+      // Existing UI stays unchanged while all ticket/client reads and writes use Supabase.
       html = html.replace(
         '<script>\n    const BACKEND_URL',
-        '<script src="assets/tickets-supabase-adapter.js?v=20260818-3"><\/script>\n  <script>\n    const BACKEND_URL'
+        '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>\n' +
+        '  <script src="assets/tickets-supabase-adapter.js?v=20260818-4"><\/script>\n' +
+        '  <script>\n    const BACKEND_URL'
       );
 
-      // Keep valid Supabase OWNER/ADMIN sessions even if an old backend error text appears.
+      // A legacy backend error message must never destroy a valid Supabase admin session.
       html = html.replace(
         /function handleSessionFailure\(response\)\s*\{[\s\S]*?return false;\s*\}/,
         'function handleSessionFailure(response) {\n' +
