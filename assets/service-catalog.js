@@ -1,6 +1,6 @@
 (function(){'use strict';
 const categories={
-'Internet / ISP':['No Internet Connection','Intermittent Connection','Slow Internet','High Latency / High Ping','Packet Loss','Wi-Fi Connection Issue','Weak Wi-Fi Signal','Router Configuration','Router Replacement','Modem / ONU Issue','PPPoE Configuration','IP Address Configuration','Static IP Request','DNS Issue','LAN / Ethernet Issue','Network Cable Replacement','Network Port Issue','Access Point Installation','Network Expansion','Network Maintenance','Internet Installation','Internet Relocation / Transfer','Internet Upgrade / Downgrade','Internet Disconnection / Termination','Fiber Line Issue','Fiber Cut / Damaged Cable','LOS / Red LOS','NAP Box / Port Issue','OLT / ONU Connectivity Issue'],
+'Internet / ISP':['No Internet Connection','Intermittent Connection','Slow Internet','High Latency / High Ping','Packet Loss','Wi-Fi Connection Issue','Weak Wi-Fi Signal','Router Configuration','Router Replacement','Modem / ONU Issue','PPPoE Configuration','IP Address Configuration','Static IP Request','DNS Issue','LAN / Ethernet Issue','Network Cable Replacement','Network Port Issue','Access Point Installation','Network Expansion','Network Maintenance','Internet Installation','Internet Relocation / Transfer','Internet Upgrade / Downgrade','Internet Disconnection / Termination','Disconnected Client / Pullout Network Device','Fiber Line Issue','Fiber Cut / Damaged Cable','LOS / Red LOS','NAP Box / Port Issue','OLT / ONU Connectivity Issue'],
 'Network / Wi-Fi':['Wi-Fi Installation','Wi-Fi Configuration','Weak Wi-Fi Signal','Wi-Fi Dead Spot','Wi-Fi Extender Installation','Mesh Wi-Fi Installation','Access Point Installation','Access Point Configuration','Wi-Fi Password Change','Guest Wi-Fi Setup','Wireless Bridge Setup','Point-to-Point Wireless Setup'],
 'CCTV':['CCTV Installation','CCTV Camera Replacement','CCTV Camera Relocation','No Camera Display','Camera Offline','Blurry Camera','No Night Vision','Camera Color / Image Issue','CCTV Cable Issue','CCTV Power Supply Issue','DVR Issue','NVR Issue','DVR / NVR Replacement','Hard Drive / Storage Issue','No Recording','Recording Playback Issue','CCTV Remote Viewing Setup','CCTV Mobile App Setup','CCTV Remote Viewing Issue','CCTV Password Reset','CCTV Network Configuration','CCTV Preventive Maintenance','CCTV System Upgrade','Additional Camera Installation'],
 'Computer / Laptop':["Computer Won't Turn On",'No Display','Slow Computer','Computer Freezing / Hanging','Automatic Restart','Blue Screen / BSOD','Windows Error','Windows Installation / Reinstallation','Windows Activation','Driver Installation','Software Installation','Software Error','Virus / Malware Removal','Computer Cleanup / Optimization','RAM Upgrade','SSD / HDD Upgrade','Storage Replacement','Power Supply Replacement','Motherboard Issue','GPU / Graphics Issue','CPU / Overheating Issue','Laptop Battery Issue','Laptop Charger Issue','Keyboard Issue','Touchpad Issue','LCD / Monitor Issue','Data Backup','Data Recovery','Computer Preventive Maintenance'],
@@ -16,10 +16,10 @@ const categories={
 'Site Survey / Inspection':['Site Inspection','Network Site Survey','CCTV Site Survey','Wi-Fi Site Survey','Fiber Route Survey','Equipment Assessment','Technical Consultation','Project Assessment','Quotation Request'],
 'IT Project / Deployment':['New Network Setup','Office Network Deployment','CCTV System Deployment','Structured Cabling Project','Server Deployment','Wi-Fi Deployment','System Migration','Network Upgrade','CCTV Upgrade','Office IT Setup'],
 'Other IT Services':['Other IT Service / Technical Support']};
-const SERVICE_TYPES=['Installation','Repair','Troubleshooting','Configuration','Replacement','Upgrade','Relocation','Maintenance','Inspection','Consultation'];
+const SERVICE_TYPES=['Installation','Repair','Troubleshooting','Configuration','Replacement','Upgrade','Relocation','Maintenance','Inspection','Consultation','Pullout / Recovery'];
 const PRIORITIES=['Low','Normal','High','Urgent','Critical'];
 const STATUSES=['New','Assigned','Acknowledged','On the Way','On Site','Diagnosing','In Progress','Waiting for Client','Waiting for Parts / Materials','For Reschedule','For Monitoring','Resolved','Completed','Cancelled'];
-const RESOLUTIONS=['Fixed','Reconfigured','Replaced','Repaired','Reinstalled','Cable Replaced','Fiber Re-Spliced','Client Educated / Assisted','No Issue Found','For Replacement','For Further Investigation','Escalated'];
+const RESOLUTIONS=['Fixed','Reconfigured','Replaced','Repaired','Reinstalled','Cable Replaced','Fiber Re-Spliced','Equipment Pulled Out / Recovered','Client Educated / Assisted','No Issue Found','For Replacement','For Further Investigation','Escalated'];
 const TECHNICIANS=['Mark Anthony Francisco','Cyrus Miguel Saldo','Jezriel Jayobo','Ralf Wilson Manuel','John Lloyd Jayobo','Mark C. De Mesa'];
 const n=v=>String(v||'').trim().toLowerCase();
 function findCategory(concern,fallback){if(fallback&&categories[fallback])return fallback;const q=n(concern);for(const k of Object.keys(categories)){if(categories[k].some(v=>n(v)===q))return k}for(const k of Object.keys(categories)){if(q&&categories[k].some(v=>q.includes(n(v))||n(v).includes(q)))return k}return fallback||'Other IT Services'}
@@ -70,7 +70,7 @@ if(/technician-checklist\.html$/i.test(location.pathname)){
 
 /* Shared client finder + Google Maps enhancement for Tickets and Technician Checklist. */
 const ux=document.createElement('script');
-ux.src='assets/client-map-enhancements.js?v=20260818-1';
+ux.src='assets/client-map-enhancements.js?v=20260818-2';
 ux.async=false;
 document.head.appendChild(ux);
 })();
