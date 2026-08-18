@@ -24,4 +24,47 @@ const TECHNICIANS=['Mark Anthony Francisco','Cyrus Miguel Saldo','Jezriel Jayobo
 const n=v=>String(v||'').trim().toLowerCase();
 function findCategory(concern,fallback){if(fallback&&categories[fallback])return fallback;const q=n(concern);for(const k of Object.keys(categories)){if(categories[k].some(v=>n(v)===q))return k}for(const k of Object.keys(categories)){if(q&&categories[k].some(v=>q.includes(n(v))||n(v).includes(q)))return k}return fallback||'Other IT Services'}
 window.TechGeekServiceCatalog={categories,categoryNames:Object.keys(categories),SERVICE_TYPES,PRIORITIES,STATUSES,RESOLUTIONS,TECHNICIANS,concerns:c=>(categories[c]||[]).slice(),findCategory};
+
+/* Technician Checklist: mobile card layout — no horizontal scrolling. */
+if(/technician-checklist\.html$/i.test(location.pathname)){
+  const style=document.createElement('style');
+  style.id='techgeek-mobile-ticket-cards';
+  style.textContent=`
+  @media (max-width: 760px){
+    .shell{padding:7px!important;overflow-x:hidden!important}
+    .card{border:0!important;background:transparent!important;overflow:visible!important}
+    .wrap{overflow:visible!important;max-height:none!important}
+    .wrap table{display:block!important;width:100%!important;min-width:0!important;border-collapse:separate!important}
+    .wrap thead{display:none!important}
+    .wrap tbody{display:grid!important;gap:12px!important;width:100%!important}
+    .wrap tr{display:block!important;width:100%!important;border:1px solid #dbe4ee!important;border-radius:12px!important;background:#fff!important;box-shadow:0 5px 16px rgba(20,43,70,.06)!important;overflow:hidden!important}
+    .wrap td{display:grid!important;grid-template-columns:112px minmax(0,1fr)!important;gap:10px!important;align-items:start!important;width:100%!important;min-width:0!important;padding:9px 11px!important;border-right:0!important;border-bottom:1px solid #edf1f5!important;font-size:.72rem!important;white-space:normal!important;overflow-wrap:anywhere!important}
+    .wrap td:last-child{border-bottom:0!important}
+    .wrap td::before{color:#66758a!important;font-size:.6rem!important;font-weight:900!important;text-transform:uppercase!important;letter-spacing:.03em!important;line-height:1.35!important}
+    .wrap td:nth-child(1)::before{content:'Ticket'}
+    .wrap td:nth-child(2)::before{content:'Category'}
+    .wrap td:nth-child(3)::before{content:'Concern / Service'}
+    .wrap td:nth-child(4)::before{content:'Client / Location'}
+    .wrap td:nth-child(5)::before{content:'Priority'}
+    .wrap td:nth-child(6)::before{content:'Ticket Status'}
+    .wrap td:nth-child(7)::before{content:'Checklist'}
+    .wrap td:nth-child(8)::before{content:'Assigned Tech'}
+    .wrap td:nth-child(9)::before{content:'Done / Updated By'}
+    .wrap td:nth-child(10)::before{content:'Resolution'}
+    .wrap td:nth-child(11)::before{content:'Action'}
+    .wrap .checks{min-width:0!important;width:100%!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:8px!important}
+    .wrap .bar{width:100%!important;align-self:center!important}
+    .wrap .edit{width:100%!important;min-height:40px!important}
+    .wrap .sub{font-size:.66rem!important;line-height:1.45!important;margin-top:4px!important}
+    .wrap .badge{white-space:normal!important;text-align:center!important;justify-self:start!important}
+    .toolbar{grid-template-columns:1fr 1fr!important}
+    .toolbar .search,.toolbar .primary{grid-column:1/-1!important}
+    .toolbar input[type=date]{width:100%!important}
+  }
+  @media (max-width: 430px){
+    .wrap td{grid-template-columns:1fr!important;gap:4px!important;padding:9px 10px!important}
+    .wrap td::before{margin-bottom:1px!important}
+  }`;
+  document.head.appendChild(style);
+}
 })();
