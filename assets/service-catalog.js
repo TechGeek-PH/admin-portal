@@ -68,9 +68,11 @@ if(/technician-checklist\.html$/i.test(location.pathname)){
   document.head.appendChild(style);
 }
 
-/* Shared client finder + Google Maps enhancement for Tickets and Technician Checklist. */
+/* Load separate enhancements so technician workflow cannot conflict with admin client finder. */
+const page=(location.pathname.split('/').pop()||'').toLowerCase();
 const ux=document.createElement('script');
-ux.src='assets/client-map-enhancements.js?v=20260819-3';
+if(page==='technician-checklist.html') ux.src='assets/technician-page-enhancements.js?v=20260819-4';
+else ux.src='assets/client-map-enhancements.js?v=20260819-4';
 ux.async=false;
 document.head.appendChild(ux);
 })();
