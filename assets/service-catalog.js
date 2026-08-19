@@ -70,7 +70,7 @@ if(/technician-checklist\.html$/i.test(location.pathname)){
 
 /* Shared client finder + Google Maps enhancement for Tickets and Technician Checklist. */
 const ux=document.createElement('script');
-ux.src='assets/client-map-enhancements.js?v=20260818-2';
+ux.src='assets/client-map-enhancements.js?v=20260819-3';
 ux.async=false;
 document.head.appendChild(ux);
 })();
