@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#073b78">
+<title>TechGeekPH Installer</title>
+<style>
+:root{--navy:#073b78;--blue:#0b69c7;--sky:#42b8ff;--ink:#16324f;--muted:#64748b;--line:#dbe5ef;--bg:#f4f8fc;--white:#fff;--ok:#0d7a48}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#eaf4ff 0,#f7faff 280px,#f4f8fc 100%);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink)}
+.hero{background:linear-gradient(135deg,#052e62,#073b78 52%,#0c62ad);color:#fff;padding:36px 20px 52px;text-align:center}.logo{width:88px;height:88px;border-radius:22px;background:#fff;object-fit:contain;padding:9px;box-shadow:0 12px 35px #001c3b66}.hero h1{font-size:27px;margin:15px 0 5px}.hero p{margin:0;opacity:.88;font-size:14px}
+.wrap{width:min(760px,calc(100% - 28px));margin:-26px auto 40px}.card{background:#fff;border:1px solid #dce7f1;border-radius:22px;padding:22px;margin-bottom:16px;box-shadow:0 12px 32px #0b376012}.platform{display:flex;gap:13px;align-items:center}.platform .badge{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;background:#edf6ff;font-size:25px}.platform h2{margin:0;font-size:19px}.platform small{color:var(--muted)}
+.download{display:block;text-decoration:none;text-align:center;font-weight:800;color:#fff;background:linear-gradient(135deg,#0873d1,#073b78);padding:15px 18px;border-radius:14px;margin:18px 0 15px;box-shadow:0 8px 20px #073b7830}.download:active{transform:translateY(1px)}
+.steps{margin:13px 0 0;padding:0;list-style:none;counter-reset:s}.steps li{counter-increment:s;position:relative;padding:0 0 15px 42px;min-height:34px}.steps li:before{content:counter(s);position:absolute;left:0;top:-2px;width:28px;height:28px;border-radius:50%;background:#eaf4ff;color:#075eb1;font-weight:800;display:grid;place-items:center;font-size:13px}.note{background:#f7fafc;border:1px solid #e1e8ef;border-radius:13px;padding:13px 14px;color:#526579;font-size:13px;line-height:1.45}.status{display:inline-flex;align-items:center;gap:7px;color:var(--ok);background:#eaf8f1;border:1px solid #ccebd9;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:700;margin-top:12px}.dot{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.ios{background:#111;color:#fff}.ios .platform small{color:#b6c0cb}.ios .platform .badge{background:#222}.ios .note{background:#181818;border-color:#2d2d2d;color:#c7c7c7}.ios .status{background:#242424;border-color:#383838;color:#d9d9d9}.ios .dot{background:#f6b73c}.disabled{display:block;text-align:center;font-weight:800;color:#7a8795;background:#e8edf2;padding:15px 18px;border-radius:14px;margin:18px 0 15px;cursor:not-allowed}
+.footer{text-align:center;color:#789;font-size:12px;padding:6px 0 18px}b{color:inherit}@media(max-width:480px){.hero{padding-top:28px}.card{padding:18px}.wrap{width:min(100% - 20px,760px)}}
+</style>
+</head>
+<body>
+<header class="hero">
+<img class="logo" src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH">
+<h1>TechGeekPH Installer</h1>
+<p>Official Technician Checklist Mobile App</p>
+</header>
+<main class="wrap">
+<section class="card" id="android">
+<div class="platform"><div class="badge">🤖</div><div><h2>Android Installer</h2><small>Samsung, Xiaomi, Oppo, Vivo, realme and other Android phones</small></div></div>
+<div class="status"><span class="dot"></span> Native fullscreen APK</div>
+<a class="download" href="downloads/TechGeekPH-Installer.apk" download>Download TechGeekPH Installer APK</a>
+<ol class="steps">
+<li>Tap <b>Download TechGeekPH Installer APK</b>.</li>
+<li>After downloading, open <b>TechGeekPH-Installer.apk</b> from Downloads or the notification panel.</li>
+<li>If Android asks for permission, choose <b>Settings → Allow from this source</b>, then return to the installer.</li>
+<li>Tap <b>Install</b>.</li>
+<li>Open <b>TechGeekPH Installer</b>. The Technician Checklist launches directly in fullscreen app mode.</li>
+</ol>
+<div class="note">Android may show an “unknown app” warning because the APK is installed directly rather than through Google Play. Only use the installer from this official TechGeekPH page.</div>
+</section>
+
+<section class="card ios" id="ios">
+<div class="platform"><div class="badge"></div><div><h2>iPhone / iOS Installer</h2><small>Official Apple installation via TestFlight or App Store</small></div></div>
+<div class="status"><span class="dot"></span> Apple signing required before public installation</div>
+<span class="disabled">TestFlight Installer — Apple signing pending</span>
+<ol class="steps">
+<li>Install <b>TestFlight</b> from the App Store.</li>
+<li>Open the official TechGeekPH TestFlight invitation link once it is published.</li>
+<li>Tap <b>Accept</b>, then <b>Install</b>.</li>
+<li>Open <b>TechGeekPH Installer</b>. It runs as a normal fullscreen iPhone app, not a Home Screen website shortcut.</li>
+</ol>
+<div class="note">Apple does not allow a universal unsigned IPA installer. The iPhone build must be signed with an Apple Developer account and distributed through TestFlight/App Store (or an authorized enterprise/MDM deployment).</div>
+</section>
+<div class="footer">TechGeekPH Solutions &amp; Services Inc. • Technician Mobile Installer</div>
+</main>
+<script>
+const ua=navigator.userAgent||'';
+if(/Android/i.test(ua)) document.getElementById('android').scrollIntoView({block:'start'});
+else if(/iPhone|iPad|iPod/i.test(ua)) document.getElementById('ios').scrollIntoView({block:'start'});
+</script>
+</body>
+</html>
