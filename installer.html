@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#073b78">
-<title>TechGeekPH Installer</title>
+<title>TechGeekPH</title>
 <style>
 :root{--navy:#073b78;--blue:#0b69c7;--ink:#16324f;--muted:#64748b;--bg:#f4f8fc;--white:#fff;--ok:#0d7a48;--warn:#9a6700}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#eaf4ff 0,#f7faff 280px,#f4f8fc 100%);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink)}
@@ -14,23 +14,23 @@
 </style>
 </head>
 <body>
-<header class="hero"><img class="logo" src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH"><h1>TechGeekPH Installer</h1><p>Official Technician Checklist Mobile App</p></header>
+<header class="hero"><img class="logo" src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH"><h1>TechGeekPH</h1><p>Official Technician Mobile App</p></header>
 <main class="wrap">
 <section class="card" id="android">
-<div class="platform"><div class="badge">🤖</div><div><h2>Android Installer</h2><small>Samsung, Xiaomi, Oppo, Vivo, realme and other Android phones</small></div></div>
+<div class="platform"><div class="badge">🤖</div><div><h2>Android</h2><small>Samsung, Xiaomi, Oppo, Vivo, realme and other Android phones</small></div></div>
 <div id="apkStatus" class="status pending"><span class="dot"></span><span>Checking APK availability…</span></div>
-<a id="apkButton" class="disabled" href="#" aria-disabled="true">Checking installer…</a>
-<ol class="steps"><li>Tap <b>Download TechGeekPH Installer APK</b>.</li><li>Open <b>TechGeekPH-Installer.apk</b> after download.</li><li>If Android asks for permission, choose <b>Settings → Allow from this source</b>.</li><li>Tap <b>Install</b>.</li><li>Open <b>TechGeekPH Installer</b>. The Technician Checklist launches directly in fullscreen app mode.</li></ol>
-<div class="note">The download button only activates when the real APK file exists. This prevents Chrome from downloading a 404 HTML page as a fake installer.</div>
+<a id="apkButton" class="disabled" href="#" aria-disabled="true">Checking app…</a>
+<ol class="steps"><li>Tap <b>Download TechGeekPH APK</b>.</li><li>Open <b>TechGeekPH.apk</b> after download.</li><li>If Android asks for permission, choose <b>Settings → Allow from this source</b>.</li><li>Tap <b>Install</b>.</li><li>Open <b>TechGeekPH</b>. The Technician Checklist launches directly in fullscreen app mode.</li></ol>
+<div class="note">The download button only activates when the real APK file exists.</div>
 </section>
-<section class="card ios" id="ios"><div class="platform"><div class="badge"></div><div><h2>iPhone / iOS Installer</h2><small>Official Apple installation via TestFlight or App Store</small></div></div><div class="status pending"><span class="dot"></span>Apple signing required before public installation</div><span class="disabled">TestFlight Installer — Apple signing pending</span><ol class="steps"><li>Install <b>TestFlight</b> from the App Store.</li><li>Open the official TechGeekPH TestFlight invitation link once it is published.</li><li>Tap <b>Accept</b>, then <b>Install</b>.</li><li>Open <b>TechGeekPH Installer</b>.</li></ol><div class="note">Apple requires a signed iOS build for TestFlight/App Store distribution.</div></section>
-<div class="footer">TechGeekPH Solutions &amp; Services Inc. • Technician Mobile Installer</div>
+<section class="card ios" id="ios"><div class="platform"><div class="badge"></div><div><h2>iPhone / iOS</h2><small>Official Apple installation via TestFlight or App Store</small></div></div><div class="status pending"><span class="dot"></span>Apple signing required before public installation</div><span class="disabled">TestFlight — Apple signing pending</span><ol class="steps"><li>Install <b>TestFlight</b> from the App Store.</li><li>Open the official TechGeekPH TestFlight invitation link once published.</li><li>Tap <b>Accept</b>, then <b>Install</b>.</li><li>Open <b>TechGeekPH</b>.</li></ol><div class="note">Apple requires a signed iOS build for TestFlight/App Store distribution.</div></section>
+<div class="footer">TechGeekPH Solutions &amp; Services Inc. • Technician Mobile App</div>
 </main>
 <script>
-const apk='downloads/TechGeekPH-Installer.apk';
+const apk='downloads/TechGeekPH.apk';
 const statusEl=document.getElementById('apkStatus');
 const button=document.getElementById('apkButton');
-(async()=>{try{const r=await fetch(apk+'?v='+Date.now(),{method:'HEAD',cache:'no-store'});const type=(r.headers.get('content-type')||'').toLowerCase();if(r.ok && !type.includes('text/html')){statusEl.className='status ready';statusEl.innerHTML='<span class="dot"></span><span>APK ready to install</span>';button.className='download';button.href=apk;button.removeAttribute('aria-disabled');button.textContent='Download TechGeekPH Installer APK';}else{throw new Error('APK not published');}}catch(e){statusEl.className='status pending';statusEl.innerHTML='<span class="dot"></span><span>APK build is still pending</span>';button.className='disabled';button.removeAttribute('href');button.setAttribute('aria-disabled','true');button.textContent='Installer is being prepared';}})();
+(async()=>{try{const r=await fetch(apk+'?v='+Date.now(),{method:'HEAD',cache:'no-store'});const type=(r.headers.get('content-type')||'').toLowerCase();if(r.ok && !type.includes('text/html')){statusEl.className='status ready';statusEl.innerHTML='<span class="dot"></span><span>APK ready to install</span>';button.className='download';button.href=apk;button.removeAttribute('aria-disabled');button.textContent='Download TechGeekPH APK';}else{throw new Error('APK not published');}}catch(e){statusEl.className='status pending';statusEl.innerHTML='<span class="dot"></span><span>APK build is still pending</span>';button.className='disabled';button.removeAttribute('href');button.setAttribute('aria-disabled','true');button.textContent='App is being prepared';}})();
 const ua=navigator.userAgent||'';if(/Android/i.test(ua))document.getElementById('android').scrollIntoView({block:'start'});else if(/iPhone|iPad|iPod/i.test(ua))document.getElementById('ios').scrollIntoView({block:'start'});
 </script>
 </body></html>
