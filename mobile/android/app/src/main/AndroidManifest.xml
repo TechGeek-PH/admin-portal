@@ -4,7 +4,7 @@
 
     <application
         android:allowBackup="true"
-        android:label="TechGeekPH Installer"
+        android:label="TechGeekPH"
         android:icon="@drawable/ic_launcher"
         android:theme="@style/Theme.TechGeekPH.Fullscreen"
         android:usesCleartextTraffic="false">
