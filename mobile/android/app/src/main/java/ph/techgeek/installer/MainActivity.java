@@ -21,151 +21,60 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-    private static final String APP_URL = "https://techgeek-ph.github.io/admin-portal/technician-checklist.html?source=android-app&v=20260821-3";
+    private static final String APP_URL = "https://techgeek-ph.github.io/admin-portal/technician-checklist-core.html?v=20260821-app4";
     private static final int FILE_CHOOSER_REQUEST = 101;
-
     private WebView webView;
     private ValueCallback<Uri[]> filePathCallback;
     private ProgressBar progressBar;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         enterImmersiveMode();
-
-        try {
-            buildWebApp(savedInstanceState);
-        } catch (Throwable error) {
-            showStartupError(error);
-        }
+        try { buildWebApp(savedInstanceState); } catch (Throwable error) { showStartupError(error); }
     }
 
     private void buildWebApp(Bundle savedInstanceState) {
         FrameLayout root = new FrameLayout(this);
         root.setBackgroundColor(Color.WHITE);
-
         webView = new WebView(this);
-        root.addView(webView, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-
+        root.addView(webView,new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT));
         progressBar = new ProgressBar(this);
-        FrameLayout.LayoutParams progressParams = new FrameLayout.LayoutParams(64, 64);
-        progressParams.gravity = Gravity.CENTER;
-        root.addView(progressBar, progressParams);
-
+        FrameLayout.LayoutParams pp = new FrameLayout.LayoutParams(64,64); pp.gravity=Gravity.CENTER; root.addView(progressBar,pp);
         setContentView(root);
 
-        WebSettings settings = webView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true);
-        settings.setDatabaseEnabled(true);
-        settings.setLoadsImagesAutomatically(true);
-        settings.setAllowFileAccess(true);
-        settings.setAllowContentAccess(true);
-        settings.setBuiltInZoomControls(false);
-        settings.setDisplayZoomControls(false);
-        settings.setUseWideViewPort(true);
-        settings.setLoadWithOverviewMode(true);
-        settings.setMediaPlaybackRequiresUserGesture(false);
+        WebSettings s=webView.getSettings();
+        s.setJavaScriptEnabled(true); s.setDomStorageEnabled(true); s.setDatabaseEnabled(true); s.setLoadsImagesAutomatically(true);
+        s.setAllowFileAccess(true); s.setAllowContentAccess(true); s.setBuiltInZoomControls(false); s.setDisplayZoomControls(false);
+        s.setUseWideViewPort(true); s.setLoadWithOverviewMode(true); s.setMediaPlaybackRequiresUserGesture(false);
+        CookieManager cm=CookieManager.getInstance(); cm.setAcceptCookie(true); cm.setAcceptThirdPartyCookies(webView,true);
 
-        CookieManager cookieManager = CookieManager.getInstance();
-        cookieManager.setAcceptCookie(true);
-        cookieManager.setAcceptThirdPartyCookies(webView, true);
-
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                Uri uri = request.getUrl();
-                String host = uri.getHost();
-                if (host != null && (host.equals("techgeek-ph.github.io") || host.endsWith(".techgeek-ph.github.io"))) {
-                    return false;
-                }
-                try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, uri));
-                } catch (ActivityNotFoundException ignored) { }
-                return true;
+        webView.setWebViewClient(new WebViewClient(){
+            @Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request){
+                Uri uri=request.getUrl(); String host=uri.getHost();
+                if(host!=null&&(host.equals("techgeek-ph.github.io")||host.endsWith(".techgeek-ph.github.io")||host.contains("supabase"))) return false;
+                try{startActivity(new Intent(Intent.ACTION_VIEW,uri));}catch(ActivityNotFoundException ignored){} return true;
             }
-
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                if (progressBar != null) progressBar.setVisibility(View.GONE);
+            @Override public void onPageFinished(WebView view,String url){super.onPageFinished(view,url);if(progressBar!=null)progressBar.setVisibility(View.GONE);}
+            @Override public void onReceivedError(WebView view,int errorCode,String description,String failingUrl){
+                if(progressBar!=null)progressBar.setVisibility(View.GONE);
+                super.onReceivedError(view,errorCode,description,failingUrl);
             }
         });
-
-        webView.setWebChromeClient(new WebChromeClient() {
-            @Override
-            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePath,
-                                             FileChooserParams fileChooserParams) {
-                if (filePathCallback != null) filePathCallback.onReceiveValue(null);
-                filePathCallback = filePath;
-                try {
-                    startActivityForResult(fileChooserParams.createIntent(), FILE_CHOOSER_REQUEST);
-                    return true;
-                } catch (ActivityNotFoundException e) {
-                    filePathCallback = null;
-                    return false;
-                }
+        webView.setWebChromeClient(new WebChromeClient(){
+            @Override public boolean onShowFileChooser(WebView w,ValueCallback<Uri[]> cb,FileChooserParams p){
+                if(filePathCallback!=null)filePathCallback.onReceiveValue(null); filePathCallback=cb;
+                try{startActivityForResult(p.createIntent(),FILE_CHOOSER_REQUEST);return true;}catch(ActivityNotFoundException e){filePathCallback=null;return false;}
             }
         });
-
-        if (savedInstanceState != null && webView.restoreState(savedInstanceState) != null) {
-            return;
-        }
+        if(savedInstanceState!=null&&webView.restoreState(savedInstanceState)!=null)return;
+        webView.clearCache(true);
         webView.loadUrl(APP_URL);
     }
 
-    @SuppressWarnings("deprecation")
-    private void enterImmersiveMode() {
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-        );
-    }
-
-    private void showStartupError(Throwable error) {
-        TextView message = new TextView(this);
-        message.setText("TechGeekPH Installer\n\nUnable to start the app.\nPlease reinstall the latest installer.\n\n" + error.getClass().getSimpleName());
-        message.setTextSize(18);
-        message.setTextColor(Color.rgb(7, 59, 120));
-        message.setGravity(Gravity.CENTER);
-        message.setPadding(32, 32, 32, 32);
-        setContentView(message);
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) enterImmersiveMode();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        if (webView != null) webView.saveState(outState);
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == FILE_CHOOSER_REQUEST && filePathCallback != null) {
-            Uri[] results = WebChromeClient.FileChooserParams.parseResult(resultCode, data);
-            filePathCallback.onReceiveValue(results);
-            filePathCallback = null;
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (webView != null && webView.canGoBack()) {
-            webView.goBack();
-        } else {
-            super.onBackPressed();
-        }
-    }
+    @SuppressWarnings("deprecation") private void enterImmersiveMode(){getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY|View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN|View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_LAYOUT_STABLE);}
+    private void showStartupError(Throwable e){TextView m=new TextView(this);m.setText("TechGeekPH\n\nUnable to start the app.\nPlease check your internet connection and reinstall the latest version.\n\n"+e.getClass().getSimpleName());m.setTextSize(18);m.setTextColor(Color.rgb(7,59,120));m.setGravity(Gravity.CENTER);m.setPadding(32,32,32,32);setContentView(m);}
+    @Override public void onWindowFocusChanged(boolean f){super.onWindowFocusChanged(f);if(f)enterImmersiveMode();}
+    @Override protected void onSaveInstanceState(Bundle o){if(webView!=null)webView.saveState(o);super.onSaveInstanceState(o);}
+    @Override protected void onActivityResult(int r,int c,Intent d){super.onActivityResult(r,c,d);if(r==FILE_CHOOSER_REQUEST&&filePathCallback!=null){filePathCallback.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(c,d));filePathCallback=null;}}
+    @Override public void onBackPressed(){if(webView!=null&&webView.canGoBack())webView.goBack();else super.onBackPressed();}
 }
