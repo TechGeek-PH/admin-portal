@@ -1,0 +1,27 @@
+{
+  "name": "TechGeekPH Installer",
+  "short_name": "TG Installer",
+  "description": "TechGeekPH technician installation and service checklist.",
+  "id": "/admin-portal/technician-checklist.html",
+  "start_url": "/admin-portal/technician-checklist.html?source=pwa",
+  "scope": "/admin-portal/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f3f6fb",
+  "theme_color": "#073b78",
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/admin-portal/assets/TechGeekPH%20-%20logo.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/admin-portal/assets/TechGeekPH%20-%20logo.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
