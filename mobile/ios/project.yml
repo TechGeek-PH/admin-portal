@@ -1,0 +1,19 @@
+name: TechGeekPHInstaller
+options:
+  bundleIdPrefix: ph.techgeek
+  deploymentTarget:
+    iOS: '16.0'
+targets:
+  TechGeekPHInstaller:
+    type: application
+    platform: iOS
+    sources:
+      - TechGeekPHInstaller
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: ph.techgeek.installer
+        PRODUCT_NAME: TechGeekPH Installer
+        SWIFT_VERSION: 5.0
+        TARGETED_DEVICE_FAMILY: '1,2'
+        INFOPLIST_FILE: TechGeekPHInstaller/Info.plist
+        CODE_SIGN_STYLE: Automatic
