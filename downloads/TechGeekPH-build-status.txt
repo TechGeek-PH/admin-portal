@@ -1,2 +1,2 @@
 Build exit code: 0
--rw-r--r-- 1 runner runner 15K Aug 22 14:06 mobile/android/app/build/outputs/apk/debug/app-debug.apk
+-rw-r--r-- 1 runner runner 15K Aug 22 14:19 mobile/android/app/build/outputs/apk/debug/app-debug.apk
