@@ -173,3 +173,121 @@
     setupBindingTestEnhancement();
   }
 })();
+
+// TechGeekPH app.html: professional OWNER/ADMIN workspace launcher.
+// Keeps the polished mobile GUI and exposes all admin HTML modules directly,
+// so admins no longer need to pass through the legacy dashboard sidebar.
+(function () {
+  "use strict";
+
+  if (!/(^|\/)app\.html$/i.test(window.location.pathname) && !/(^|\/)app$/i.test(window.location.pathname)) return;
+
+  const MODULE_GROUPS = [
+    {
+      label: "Operations",
+      items: [
+        ["application_form.html", "＋", "Application Form", "New client application"],
+        ["clients.html", "👥", "Clients", "Client master records"],
+        ["billing.html", "₱", "Billing Control", "Billing, balances and payments"],
+        ["tickets.html", "🎫", "Tickets", "Service requests and repairs"],
+        ["technician-checklist.html?source=app", "🛠", "Tickets & Checklist", "Technician operations"],
+        ["nap-checker.html", "◉", "NAP Checker", "NAP ports and client assignments"],
+        ["statement_of_account_v3.html", "▤", "Statement of Account", "Generate client SOA"]
+      ]
+    },
+    {
+      label: "Attendance & Expenses",
+      items: [
+        ["daily_time_record.html", "⏱", "My Time Record", "Time in, time out and breaks"],
+        ["daily_time_record_admin.html", "◷", "Admin Time Records", "All staff attendance"],
+        ["my_expense_request.html", "₱", "My Expense Request", "Submit and review own requests"],
+        ["expense_approval.html", "✓", "Expense Approval", "Review staff expenses"],
+        ["payslip_generator.html", "▥", "Payslip Generator", "Prepare employee payslips"]
+      ]
+    },
+    {
+      label: "Stock & Assets",
+      items: [
+        ["consumable_stock.html", "▦", "Consumable Stock", "Inventory and stock monitoring"],
+        ["company_assets.html", "◆", "Company Assets", "Company equipment and assets"]
+      ]
+    },
+    {
+      label: "Investors",
+      items: [
+        ["investor_morwin_gapud.html", "M", "Morwin Gapud", "Investor account and reports"],
+        ["investor_marivie_viana_gapud.html", "V", "Marivie Viana Gapud", "Investor account and reports"]
+      ]
+    }
+  ];
+
+  function esc(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function tile(item) {
+    return '<a class="tile" href="' + esc(item[0]) + '">' +
+      '<span class="ico">' + esc(item[1]) + '</span>' +
+      '<b>' + esc(item[2]) + '</b>' +
+      '<small>' + esc(item[3]) + '</small>' +
+      '</a>';
+  }
+
+  function groupHeading(label) {
+    return '<div data-app-module-heading style="grid-column:1/-1;margin:8px 2px 0;padding:3px 0;color:#51657a;font-size:.68rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em">' + esc(label) + '</div>';
+  }
+
+  function renderCompleteAdminWorkspace() {
+    const grid = document.getElementById("menuGrid");
+    const title = document.getElementById("menuTitle");
+    const role = document.getElementById("welcomeRole");
+    if (!grid || !title || !role) return false;
+
+    const roleText = String(role.textContent || "").trim().toUpperCase();
+    const titleText = String(title.textContent || "").trim().toUpperCase();
+    const isAdmin = titleText === "ADMIN WORKSPACE" || roleText === "OWNER" || roleText === "ADMIN" || roleText.indexOf("OWNER") !== -1 || roleText.indexOf("ADMIN") !== -1;
+    if (!isAdmin) return false;
+    if (grid.dataset.completeAdminWorkspace === "1") return true;
+
+    grid.dataset.completeAdminWorkspace = "1";
+    grid.classList.add("admin-grid");
+    grid.innerHTML = MODULE_GROUPS.map(function (group) {
+      return groupHeading(group.label) + group.items.map(tile).join("");
+    }).join("");
+
+    const activityLabel = document.getElementById("activityLabel");
+    if (activityLabel) activityLabel.textContent = "Full operations access · direct modules";
+    return true;
+  }
+
+  function setup() {
+    const grid = document.getElementById("menuGrid");
+    if (!grid) {
+      window.setTimeout(setup, 200);
+      return;
+    }
+
+    renderCompleteAdminWorkspace();
+
+    const observer = new MutationObserver(function () {
+      if (grid.dataset.completeAdminWorkspace === "1") return;
+      renderCompleteAdminWorkspace();
+    });
+    observer.observe(grid, { childList: true, subtree: true });
+
+    window.setTimeout(renderCompleteAdminWorkspace, 250);
+    window.setTimeout(renderCompleteAdminWorkspace, 800);
+    window.setTimeout(renderCompleteAdminWorkspace, 1800);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setup, { once: true });
+  } else {
+    setup();
+  }
+})();
