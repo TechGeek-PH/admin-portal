@@ -3,18 +3,48 @@
 
   const params = new URLSearchParams(window.location.search);
   const embedded = params.get("embed") === "1" || params.get("source") === "app-embed";
-  if (embedded) {
+  const currentFile = (window.location.pathname.split("/").pop() || "index.html").toLowerCase();
+
+  function applyEmbeddedShell() {
+    if (!embedded) return;
     document.documentElement.classList.add("tg-embedded");
-    const markBody = function () {
-      if (document.body) document.body.classList.add("tg-embedded");
-    };
-    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", markBody, { once: true });
-    else markBody();
+    if (document.body) document.body.classList.add("tg-embedded");
+
+    if (!document.getElementById("tg-embedded-inline-style")) {
+      const style = document.createElement("style");
+      style.id = "tg-embedded-inline-style";
+      let css = [
+        "html.tg-embedded,body.tg-embedded{margin:0!important;background:#f3f6fa!important;}",
+        "html.tg-embedded .sidebar,body.tg-embedded .sidebar,html.tg-embedded [data-admin-sidebar],body.tg-embedded [data-admin-sidebar],html.tg-embedded .topbar,body.tg-embedded .topbar{display:none!important;}",
+        "html.tg-embedded .app,body.tg-embedded .app{display:block!important;grid-template-columns:1fr!important;min-height:0!important;width:100%!important;}",
+        "html.tg-embedded .main,body.tg-embedded .main{display:block!important;width:100%!important;min-width:0!important;}",
+        "html.tg-embedded .content,body.tg-embedded .content{width:100%!important;max-width:none!important;padding:12px!important;}",
+        "html.tg-embedded .workspace,body.tg-embedded .workspace{width:100%!important;}"
+      ];
+
+      if (currentFile === "statement_of_account.html" || currentFile === "statement_of_account_v3.html") {
+        css = css.concat([
+          "body.tg-embedded .content{grid-template-columns:minmax(300px,420px) minmax(0,1fr)!important;gap:14px!important;padding:10px!important;align-items:start!important;}",
+          "body.tg-embedded .panel{box-shadow:none!important;border-radius:12px!important;}",
+          "body.tg-embedded .preview-area{min-width:0!important;overflow:auto!important;}",
+          "body.tg-embedded .soa-paper-wrap{overflow:auto!important;max-width:100%!important;}",
+          "@media(max-width:900px){body.tg-embedded .content{grid-template-columns:1fr!important;}body.tg-embedded .form-grid{grid-template-columns:1fr!important;}body.tg-embedded .preview-actions{display:grid!important;grid-template-columns:1fr 1fr!important;}body.tg-embedded .preview-actions button{width:100%!important;}}",
+          "@media(max-width:560px){body.tg-embedded .content{padding:8px!important;}body.tg-embedded .preview-actions{grid-template-columns:1fr!important;}}"
+        ]);
+      }
+
+      style.textContent = css.join("");
+      document.head.appendChild(style);
+    }
+  }
+
+  if (embedded) {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", applyEmbeddedShell, { once: true });
+    else applyEmbeddedShell();
   }
 
   const CORE_BUILD = "9d49133f04208f86428d59461aaf235b9caff027";
   const CORE_URL = "https://cdn.jsdelivr.net/gh/TechGeek-PH/admin-portal@" + CORE_BUILD + "/assets/admin-shell.js";
-  const currentFile = (window.location.pathname.split("/").pop() || "index.html").toLowerCase();
 
   function loadScript(src, marker) {
     return new Promise(function (resolve, reject) {
