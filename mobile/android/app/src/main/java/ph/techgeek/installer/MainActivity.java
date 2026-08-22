@@ -24,7 +24,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-    private static final String APP_URL = "https://techgeek-ph.github.io/admin-portal/app.html?source=android-app&v=20260822";
+    private static final String APP_URL = "https://techgeek-ph.github.io/admin-portal/app.html?source=android-app&v=1.2.0";
     private static final int FILE_CHOOSER_REQUEST = 101;
     private WebView webView;
     private ValueCallback<Uri[]> filePathCallback;
@@ -60,8 +60,8 @@ public class MainActivity extends Activity {
         s.setUseWideViewPort(true);
         s.setLoadWithOverviewMode(true);
         s.setMediaPlaybackRequiresUserGesture(false);
-        s.setCacheMode(WebSettings.LOAD_DEFAULT);
-        s.setUserAgentString(s.getUserAgentString()+" TechGeekPHApp/1.1.0");
+        s.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        s.setUserAgentString(s.getUserAgentString()+" TechGeekPHApp/1.2.0");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) s.setOffscreenPreRaster(true);
 
         CookieManager cm=CookieManager.getInstance();
@@ -108,7 +108,7 @@ public class MainActivity extends Activity {
         });
 
         if(savedInstanceState!=null && webView.restoreState(savedInstanceState)!=null) return;
-        webView.loadUrl(APP_URL);
+        webView.loadUrl(APP_URL + "&t=" + System.currentTimeMillis());
     }
 
     private View buildLoadingView(){
@@ -152,7 +152,7 @@ public class MainActivity extends Activity {
     private void showLoadError(String detail){
         if(webView==null)return;
         String safe=(detail==null?"Network error":detail).replace("&","&amp;").replace("<","&lt;").replace(">","&gt;");
-        String html="<html><meta name='viewport' content='width=device-width,initial-scale=1'><body style='font-family:sans-serif;text-align:center;padding:70px 22px;color:#064f83;background:#f7fafc'><h2>TechGeekPH</h2><p>Unable to load the app.</p><p style='color:#64748b'>"+safe+"</p><button style='padding:12px 22px;border:0;border-radius:10px;background:#064f83;color:white' onclick=\"location.href='"+APP_URL+"'\">Retry</button></body></html>";
+        String html="<html><meta name='viewport' content='width=device-width,initial-scale=1'><body style='font-family:sans-serif;text-align:center;padding:70px 22px;color:#064f83;background:#f7fafc'><h2>TechGeekPH</h2><p>Unable to load the app.</p><p style='color:#64748b'>"+safe+"</p><button style='padding:12px 22px;border:0;border-radius:10px;background:#064f83;color:white' onclick=\"location.href='"+APP_URL+"&t='+Date.now()\">Retry</button></body></html>";
         webView.loadDataWithBaseURL("https://techgeek-ph.github.io/",html,"text/html","UTF-8",null);
     }
 
