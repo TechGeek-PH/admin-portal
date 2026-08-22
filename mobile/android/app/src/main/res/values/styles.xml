@@ -5,9 +5,13 @@
         <item name="android:windowActionModeOverlay">true</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
-        <item name="android:colorAccent">#073B78</item>
-        <item name="android:statusBarColor">#073B78</item>
-        <item name="android:navigationBarColor">#073B78</item>
+        <item name="android:windowBackground">#FFFFFF</item>
+        <item name="android:windowDisablePreview">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:colorAccent">#064F83</item>
+        <item name="android:statusBarColor">#064F83</item>
+        <item name="android:navigationBarColor">#064F83</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
     </style>
 </resources>
