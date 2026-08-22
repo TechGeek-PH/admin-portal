@@ -1,6 +1,17 @@
 (function () {
   "use strict";
 
+  const params = new URLSearchParams(window.location.search);
+  const embedded = params.get("embed") === "1" || params.get("source") === "app-embed";
+  if (embedded) {
+    document.documentElement.classList.add("tg-embedded");
+    const markBody = function () {
+      if (document.body) document.body.classList.add("tg-embedded");
+    };
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", markBody, { once: true });
+    else markBody();
+  }
+
   // =========================================================
   // TECHGEEKPH ADMIN NAVIGATION
   // Add/edit sidebar HTML links ONLY in this file.
@@ -40,6 +51,13 @@
       items: [
         { label: "Consumable Stock", href: "consumable_stock.html" },
         { label: "Company Assets", href: "company_assets.html" }
+      ]
+    },
+    {
+      type: "group",
+      label: "Administration",
+      items: [
+        { label: "User Accounts", href: "admin_accounts.html" }
       ]
     },
     {
