@@ -336,3 +336,59 @@
     applyEmbeddedClientsView();
   }
 })();
+
+// OWNER-only User Accounts module inside app.html.
+// Adds the account-management tile to both Home and All Modules after the OWNER profile is rendered.
+(function () {
+  "use strict";
+
+  if (!/(^|\/)app\.html$/i.test(window.location.pathname) && !/(^|\/)app$/i.test(window.location.pathname)) return;
+
+  function roleIsOwner() {
+    const role = document.getElementById("welcomeRole");
+    return !!role && String(role.textContent || "").trim().toUpperCase() === "OWNER";
+  }
+
+  function accountTile() {
+    return '<a class="tile" href="admin_accounts.html" data-module-title="User Accounts" data-owner-accounts="1">' +
+      '<span class="ico">⚙</span>' +
+      '<b>User Accounts</b>' +
+      '<small>Create users, reset passwords and activate access</small>' +
+      '</a>';
+  }
+
+  function addTile(grid) {
+    if (!grid || grid.querySelector('[data-owner-accounts="1"]')) return;
+    grid.insertAdjacentHTML("beforeend", accountTile());
+  }
+
+  function syncOwnerAccountsTile() {
+    if (!roleIsOwner()) return false;
+    addTile(document.getElementById("menuGrid"));
+    addTile(document.getElementById("allModulesGrid"));
+    return true;
+  }
+
+  function setupOwnerAccountsTile() {
+    const shell = document.getElementById("appShell");
+    if (!shell) {
+      window.setTimeout(setupOwnerAccountsTile, 150);
+      return;
+    }
+
+    const observer = new MutationObserver(function () {
+      syncOwnerAccountsTile();
+    });
+    observer.observe(shell, { childList: true, subtree: true, characterData: true });
+
+    [200, 500, 900, 1500, 2500].forEach(function (delay) {
+      window.setTimeout(syncOwnerAccountsTile, delay);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupOwnerAccountsTile, { once: true });
+  } else {
+    setupOwnerAccountsTile();
+  }
+})();
