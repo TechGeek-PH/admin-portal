@@ -5,7 +5,7 @@
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_8H8_S7NTWvzPCLvYUe2C4g_k3Ltjfiz";
   const ADMIN_SESSION_KEY = "techgeekph_admin_session";
   const params = new URLSearchParams(window.location.search);
-  const embedded = params.get("embed") === "1" || params.get("source") === "app-embed";
+  const embedded = params.get("embed") === "1" || params.get("source") === "app-embed" || window.parent !== window;
 
   function readPortalSession() {
     try { return JSON.parse(localStorage.getItem(ADMIN_SESSION_KEY) || "{}"); }
@@ -110,7 +110,6 @@
       session = result && result.data ? result.data.session : null;
     } catch (_) {}
 
-    // Embedded modules inherit the already-authenticated parent app session.
     if (!session) {
       const parentSession = await getParentSupabaseSession();
       if (parentSession && parentSession.access_token && parentSession.refresh_token) {
@@ -133,7 +132,6 @@
     }
 
     if (!session) {
-      // Never kick an embedded module to the old login page while its parent app is open.
       if (!embedded) {
         const portal = readPortalSession();
         if (portal && portal.provider === "supabase") {
@@ -163,12 +161,11 @@
   });
 })();
 
-// Embedded Tickets view for the unified TechGeekPH app shell.
 (function () {
   "use strict";
 
   const isTickets = /(^|\/)tickets\.html$/i.test(window.location.pathname) || /(^|\/)tickets$/i.test(window.location.pathname);
-  const isEmbed = new URLSearchParams(window.location.search).get("embed") === "1";
+  const isEmbed = new URLSearchParams(window.location.search).get("embed") === "1" || window.parent !== window;
   if (!isTickets || !isEmbed) return;
 
   const style = document.createElement("style");
