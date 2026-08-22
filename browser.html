@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#064f83">
+  <meta name="robots" content="noindex,nofollow">
+  <title>TechGeekPH Browser App</title>
+  <style>
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+    #appFrame{display:block;width:100%;height:100vh;height:100dvh;border:0;background:#fff}
+    #loading{position:fixed;inset:0;z-index:10;display:grid;place-items:center;background:#fff;color:#064f83;text-align:center;padding:24px}
+    #loading.hidden{display:none}
+    .brand{width:min(280px,72vw);height:auto}
+    .spin{width:38px;height:38px;margin:24px auto 0;border:4px solid #dbe7f2;border-top-color:#064f83;border-radius:50%;animation:spin .8s linear infinite}
+    .msg{margin-top:12px;color:#64748b;font-size:14px}
+    .retry{display:inline-block;margin-top:18px;padding:12px 18px;border-radius:10px;background:#064f83;color:#fff;text-decoration:none;font-weight:800}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+  <div id="loading">
+    <div>
+      <img class="brand" src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH">
+      <div class="spin"></div>
+      <div class="msg">Loading the latest TechGeekPH app…</div>
+      <a id="directLink" class="retry" href="app.html?source=browser" target="_top">Open directly</a>
+    </div>
+  </div>
+  <iframe id="appFrame" title="TechGeekPH" allow="camera; geolocation; clipboard-read; clipboard-write" referrerpolicy="same-origin"></iframe>
+  <script>
+    (function(){
+      var frame=document.getElementById('appFrame');
+      var loading=document.getElementById('loading');
+      var direct=document.getElementById('directLink');
+      var stamp=Date.now();
+      var src='app.html?source=browser&live=1&t='+stamp;
+      frame.src=src;
+      direct.href=src;
+      frame.addEventListener('load',function(){loading.classList.add('hidden');});
+      setTimeout(function(){loading.classList.add('hidden');},7000);
+    })();
+  </script>
+</body>
+</html>
