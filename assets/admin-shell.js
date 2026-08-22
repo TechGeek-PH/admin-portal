@@ -96,7 +96,7 @@
     });
   }
 
-  loadScript("assets/auth-session-bridge.js?v=20260812-1", "auth-session-bridge")
+  loadScript("assets/auth-session-bridge-v2.js?v=20260822-1", "auth-session-bridge-v2")
     .then(function () { return window.TechGeekAuthReady || null; })
     .then(function () { return loadScript(CORE_URL, "admin-core"); })
     .then(function () { return loadScript("assets/admin-nav.js?v=20260813-6", "admin-nav"); })
