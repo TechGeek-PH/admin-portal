@@ -1,6 +1,17 @@
 (function () {
   "use strict";
 
+  const params = new URLSearchParams(window.location.search);
+  const embedded = params.get("embed") === "1" || params.get("source") === "app-embed";
+  if (embedded) {
+    document.documentElement.classList.add("tg-embedded");
+    const markBody = function () {
+      if (document.body) document.body.classList.add("tg-embedded");
+    };
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", markBody, { once: true });
+    else markBody();
+  }
+
   const CORE_BUILD = "9d49133f04208f86428d59461aaf235b9caff027";
   const CORE_URL = "https://cdn.jsdelivr.net/gh/TechGeek-PH/admin-portal@" + CORE_BUILD + "/assets/admin-shell.js";
   const currentFile = (window.location.pathname.split("/").pop() || "index.html").toLowerCase();
@@ -24,23 +35,15 @@
 
   function ensureLatestBillingPaymentEditor() {
     const existing = document.querySelector('script[data-techgeek-module="billing-payment-editor"]');
-    if (existing && String(existing.src || "").indexOf("v=20260813-8") === -1) {
-      existing.remove();
-    }
+    if (existing && String(existing.src || "").indexOf("v=20260813-8") === -1) existing.remove();
   }
 
   function loadBillingEditors() {
     ensureLatestBillingPaymentEditor();
     return loadScript("assets/billing-account-editor.js?v=20260813-3", "billing-account-editor")
-      .then(function () {
-        return loadScript("assets/billing-payment-editor.js?v=20260813-8", "billing-payment-editor");
-      })
-      .then(function () {
-        return loadScript("assets/billing-unpaid-reset.js?v=20260813-1", "billing-unpaid-reset");
-      })
-      .then(function () {
-        return loadScript("assets/billing-advanced-filter.js?v=20260813-1", "billing-advanced-filter");
-      });
+      .then(function () { return loadScript("assets/billing-payment-editor.js?v=20260813-8", "billing-payment-editor"); })
+      .then(function () { return loadScript("assets/billing-unpaid-reset.js?v=20260813-1", "billing-unpaid-reset"); })
+      .then(function () { return loadScript("assets/billing-advanced-filter.js?v=20260813-1", "billing-advanced-filter"); });
   }
 
   if (currentFile === "billing.html") {
@@ -50,28 +53,14 @@
   }
 
   loadScript("assets/auth-session-bridge.js?v=20260812-1", "auth-session-bridge")
+    .then(function () { return window.TechGeekAuthReady || null; })
+    .then(function () { return loadScript(CORE_URL, "admin-core"); })
+    .then(function () { return loadScript("assets/admin-nav.js?v=20260813-6", "admin-nav"); })
     .then(function () {
-      return window.TechGeekAuthReady || null;
-    })
-    .then(function () {
-      return loadScript(CORE_URL, "admin-core");
-    })
-    .then(function () {
-      return loadScript("assets/admin-nav.js?v=20260813-6", "admin-nav");
-    })
-    .then(function () {
-      if (currentFile === "application_form.html") {
-        return loadScript("assets/application-supabase-loader.js?v=20260812-2", "application-supabase-loader");
-      }
-      if (currentFile === "statement_of_account.html" || currentFile === "statement_of_account_v3.html") {
-        return loadScript("assets/soa-supabase.js?v=20260812-2", "soa-supabase");
-      }
-      if (currentFile === "billing.html") {
-        return loadBillingEditors();
-      }
-      if (currentFile === "billing_control.html") {
-        return loadScript("assets/billing-expired-tag.js?v=20260813-1", "billing-expired-tag");
-      }
+      if (currentFile === "application_form.html") return loadScript("assets/application-supabase-loader.js?v=20260812-2", "application-supabase-loader");
+      if (currentFile === "statement_of_account.html" || currentFile === "statement_of_account_v3.html") return loadScript("assets/soa-supabase.js?v=20260812-2", "soa-supabase");
+      if (currentFile === "billing.html") return loadBillingEditors();
+      if (currentFile === "billing_control.html") return loadScript("assets/billing-expired-tag.js?v=20260813-1", "billing-expired-tag");
       return null;
     })
     .catch(function (error) {
