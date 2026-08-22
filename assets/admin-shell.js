@@ -2,7 +2,7 @@
   "use strict";
 
   const params = new URLSearchParams(window.location.search);
-  const embedded = params.get("embed") === "1" || params.get("source") === "app-embed";
+  const embedded = params.get("embed") === "1" || params.get("source") === "app-embed" || window.parent !== window;
   const currentFile = (window.location.pathname.split("/").pop() || "index.html").toLowerCase();
 
   function routeEmployeePayslips() {
@@ -32,7 +32,7 @@
         "html.tg-embedded .sidebar,body.tg-embedded .sidebar,html.tg-embedded [data-admin-sidebar],body.tg-embedded [data-admin-sidebar],html.tg-embedded .topbar,body.tg-embedded .topbar{display:none!important;}",
         "html.tg-embedded .app,body.tg-embedded .app{display:block!important;grid-template-columns:1fr!important;min-height:0!important;width:100%!important;}",
         "html.tg-embedded .main,body.tg-embedded .main{display:block!important;width:100%!important;min-width:0!important;}",
-        "html.tg-embedded .content,body.tg-embedded .content{width:100%!important;max-width:none!important;padding:12px!important;}",
+        "html.tg-embedded .content,body.tg-embedded .content{width:100%!important;max-width:none!important;padding:12px!important;margin:0!important;}",
         "html.tg-embedded .workspace,body.tg-embedded .workspace{width:100%!important;}"
       ];
 
@@ -96,7 +96,7 @@
     });
   }
 
-  loadScript("assets/auth-session-bridge-v2.js?v=20260822-1", "auth-session-bridge-v2")
+  loadScript("assets/auth-session-bridge-v2.js?v=20260822-2", "auth-session-bridge-v2")
     .then(function () { return window.TechGeekAuthReady || null; })
     .then(function () { return loadScript(CORE_URL, "admin-core"); })
     .then(function () { return loadScript("assets/admin-nav.js?v=20260813-6", "admin-nav"); })
@@ -104,7 +104,7 @@
       if (currentFile === "application_form.html") {
         return loadScript("assets/application-independent-service.js?v=20260822-2", "application-independent-service")
           .then(function () { return loadScript("assets/application-existing-client-lookup.js?v=20260822-1", "application-existing-client-lookup"); })
-          .then(function () { return loadScript("assets/application-supabase-loader.js?v=20260822-3", "application-supabase-loader"); });
+          .then(function () { return loadScript("assets/application-supabase-loader.js?v=20260822-4", "application-supabase-loader"); });
       }
       if (currentFile === "statement_of_account.html" || currentFile === "statement_of_account_v3.html") return loadScript("assets/soa-supabase.js?v=20260812-2", "soa-supabase");
       if (currentFile === "billing.html") return loadBillingEditors();
