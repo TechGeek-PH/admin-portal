@@ -33,43 +33,71 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Install Android SDK 35
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          sdkmanager --list_installed | grep -E "platforms;android-35|build-tools;35.0.0" || true
+
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
 
       - name: Build APK
-        run: gradle -p mobile/android clean assembleDebug --stacktrace
+        run: gradle -p mobile/android clean assembleDebug --stacktrace --no-daemon
+
+      - name: Verify built APK
+        run: |
+          test -f mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          ls -lh mobile/android/app/build/outputs/apk/debug/app-debug.apk
 
       - name: Prepare public APK
         run: |
           mkdir -p downloads
           cp mobile/android/app/build/outputs/apk/debug/app-debug.apk downloads/TechGeekPH.apk
           cp mobile/android/app/build/outputs/apk/debug/app-debug.apk downloads/TechGeekPH-v1.2.0.apk
+          ls -lh downloads/TechGeekPH.apk downloads/TechGeekPH-v1.2.0.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: TechGeekPH-v1.2.0
           path: downloads/TechGeekPH-v1.2.0.apk
+          if-no-files-found: error
 
       - name: Publish APK to GitHub Pages repository
+        shell: bash
         run: |
+          set -euo pipefail
           cp downloads/TechGeekPH.apk /tmp/TechGeekPH.apk
           cp downloads/TechGeekPH-v1.2.0.apk /tmp/TechGeekPH-v1.2.0.apk
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git fetch origin main
-          git reset --hard origin/main
-          mkdir -p downloads
-          cp /tmp/TechGeekPH.apk downloads/TechGeekPH.apk
-          cp /tmp/TechGeekPH-v1.2.0.apk downloads/TechGeekPH-v1.2.0.apk
-          git add downloads/TechGeekPH.apk downloads/TechGeekPH-v1.2.0.apk
-          if git diff --cached --quiet; then
-            echo "APK unchanged"
-          else
-            git commit -m "Publish TechGeekPH v1.2.0 APK [skip ci]"
-            git push origin HEAD:main
-          fi
 
-# Rebuild trigger: 2026-08-22 v1.2.0
+          for attempt in 1 2 3; do
+            echo "Publish attempt $attempt"
+            git fetch origin main
+            git reset --hard origin/main
+            mkdir -p downloads
+            cp /tmp/TechGeekPH.apk downloads/TechGeekPH.apk
+            cp /tmp/TechGeekPH-v1.2.0.apk downloads/TechGeekPH-v1.2.0.apk
+            git add downloads/TechGeekPH.apk downloads/TechGeekPH-v1.2.0.apk
+
+            if git diff --cached --quiet; then
+              echo "APK files already published"
+              exit 0
+            fi
+
+            git commit -m "Publish TechGeekPH v1.2.0 APK [skip ci]"
+            if git push origin HEAD:main; then
+              echo "APK published successfully"
+              exit 0
+            fi
+
+            echo "Push conflict; retrying..."
+            sleep 3
+          done
+
+          echo "Unable to publish APK after 3 attempts"
+          exit 1
