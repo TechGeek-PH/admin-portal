@@ -15,7 +15,14 @@
 <body>
   <div class="card"><strong>Loading updated SOA page…</strong></div>
   <script>
-    window.location.replace("statement_of_account.html?build=20260711-session-v5");
+    (function(){
+      var current=new URLSearchParams(window.location.search);
+      var next=new URLSearchParams();
+      next.set('build','20260822-unified-app');
+      if(current.get('embed')==='1') next.set('embed','1');
+      if(current.get('source')) next.set('source',current.get('source'));
+      window.location.replace('statement_of_account.html?'+next.toString());
+    })();
   </script>
 </body>
 </html>
