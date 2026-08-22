@@ -82,7 +82,7 @@ public class MainActivity extends Activity {
                 return true;
             }
             @Override public void onPageStarted(WebView view,String url,android.graphics.Bitmap favicon){
-                super.onPageStarted(view,url);
+                super.onPageStarted(view,url,favicon);
                 showLoading();
             }
             @Override public void onPageFinished(WebView view,String url){
