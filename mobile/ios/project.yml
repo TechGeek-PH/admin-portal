@@ -12,7 +12,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: ph.techgeek.installer
-        PRODUCT_NAME: TechGeekPH Installer
+        PRODUCT_NAME: TechGeekPH
         SWIFT_VERSION: 5.0
         TARGETED_DEVICE_FAMILY: '1,2'
         INFOPLIST_FILE: TechGeekPHInstaller/Info.plist
