@@ -108,3 +108,35 @@
     return null;
   });
 })();
+
+// Embedded Tickets view for the unified TechGeekPH app shell.
+(function () {
+  "use strict";
+
+  const isTickets = /(^|\/)tickets\.html$/i.test(window.location.pathname) || /(^|\/)tickets$/i.test(window.location.pathname);
+  const isEmbed = new URLSearchParams(window.location.search).get("embed") === "1";
+  if (!isTickets || !isEmbed) return;
+
+  const style = document.createElement("style");
+  style.id = "techgeek-tickets-embed-style";
+  style.textContent = [
+    "html,body{margin:0!important;min-height:0!important;background:#f3f6fa!important;}",
+    ".app{display:block!important;min-height:0!important;width:100%!important;}",
+    ".sidebar,.topbar{display:none!important;}",
+    ".main{display:block!important;width:100%!important;min-width:0!important;}",
+    ".content{width:100%!important;max-width:none!important;margin:0!important;padding:12px 10px 28px!important;gap:12px!important;}",
+    ".metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;}",
+    ".metric{padding:12px!important;box-shadow:none!important;min-width:0!important;}",
+    ".metric strong{font-size:1.3rem!important;}",
+    ".metric span{font-size:.6rem!important;}",
+    ".panel{border-radius:12px!important;box-shadow:none!important;overflow:hidden!important;}",
+    ".tabs{padding:9px!important;gap:6px!important;}",
+    ".tab{min-height:36px!important;padding:0 10px!important;font-size:.68rem!important;}",
+    ".panel-head{padding:12px!important;}",
+    ".toolbar{padding:10px!important;gap:7px!important;}",
+    ".form{padding:12px!important;gap:10px!important;}",
+    "dialog{z-index:1200!important;}",
+    "@media(max-width:520px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important;}.content{padding:9px 8px 24px!important;}.tabs{display:grid!important;grid-template-columns:1fr!important;}.tab{width:100%!important;}.form{grid-template-columns:1fr!important;}.client-preview{grid-template-columns:1fr 1fr!important;}}"
+  ].join("");
+  document.head.appendChild(style);
+})();
