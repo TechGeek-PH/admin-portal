@@ -1,2 +1,2 @@
-Build exit code: 1
-APK file was not produced.
+Build exit code: 0
+-rw-r--r-- 1 runner runner 14K Aug 22 13:30 mobile/android/app/build/outputs/apk/debug/app-debug.apk
