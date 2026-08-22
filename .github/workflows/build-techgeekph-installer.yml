@@ -71,3 +71,5 @@ jobs:
             git commit -m "Publish TechGeekPH v1.2.0 APK [skip ci]"
             git push origin HEAD:main
           fi
+
+# Rebuild trigger: 2026-08-22 v1.2.0
