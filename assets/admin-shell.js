@@ -102,7 +102,7 @@
     .then(function () { return loadScript("assets/admin-nav.js?v=20260813-6", "admin-nav"); })
     .then(function () {
       if (currentFile === "application_form.html") {
-        return loadScript("assets/application-independent-service.js?v=20260822-1", "application-independent-service")
+        return loadScript("assets/application-independent-service.js?v=20260822-2", "application-independent-service")
           .then(function () { return loadScript("assets/application-supabase-loader.js?v=20260812-2", "application-supabase-loader"); });
       }
       if (currentFile === "statement_of_account.html" || currentFile === "statement_of_account_v3.html") return loadScript("assets/soa-supabase.js?v=20260812-2", "soa-supabase");
