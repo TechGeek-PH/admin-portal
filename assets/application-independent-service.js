@@ -77,6 +77,107 @@
     }
   }
 
+  function useEmbeddedSelectPicker() {
+    try {
+      const params = new URLSearchParams(window.location.search || "");
+      return params.get("embed") === "1" || params.get("source") === "app-embed" || /TechGeekPHApp\//i.test(navigator.userAgent || "");
+    } catch (_) {
+      return /TechGeekPHApp\//i.test(navigator.userAgent || "");
+    }
+  }
+
+  function installEmbeddedSelectPicker() {
+    if (!useEmbeddedSelectPicker()) return;
+    if (document.getElementById("tgSelectPickerOverlay")) return;
+
+    const style = document.createElement("style");
+    style.id = "tg-select-picker-style";
+    style.textContent = [
+      ".tg-select-picker{position:fixed;inset:0;z-index:2147483647;display:none;align-items:flex-end;background:rgba(3,24,43,.48);padding:12px;box-sizing:border-box}",
+      ".tg-select-picker.open{display:flex}",
+      ".tg-select-sheet{width:100%;max-height:78vh;overflow:hidden;border-radius:18px;background:#fff;box-shadow:0 22px 70px rgba(0,0,0,.28)}",
+      ".tg-select-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px;border-bottom:1px solid #dbe4ee;color:#172438;font-weight:900}",
+      ".tg-select-close{min-width:42px;height:38px;border:0;border-radius:10px;background:#eef4f8;color:#064f83;font-size:18px;font-weight:900}",
+      ".tg-select-options{max-height:calc(78vh - 69px);overflow:auto;padding:8px}",
+      ".tg-select-option{display:block;width:100%;min-height:48px;margin:0 0 6px;border:1px solid #dbe4ee;border-radius:11px;background:#fff;color:#172438;padding:10px 12px;text-align:left;font-size:16px}",
+      ".tg-select-option.selected{border-color:#79add1;background:#edf6fd;color:#064f83;font-weight:900}",
+      ".tg-select-option:disabled{opacity:.45}",
+      "body.tg-select-lock{overflow:hidden!important}"
+    ].join("");
+    document.head.appendChild(style);
+
+    const overlay = document.createElement("div");
+    overlay.id = "tgSelectPickerOverlay";
+    overlay.className = "tg-select-picker";
+    overlay.innerHTML = '<div class="tg-select-sheet"><div class="tg-select-head"><span id="tgSelectPickerTitle">Select option</span><button type="button" class="tg-select-close" id="tgSelectPickerClose">×</button></div><div class="tg-select-options" id="tgSelectPickerOptions"></div></div>';
+    document.body.appendChild(overlay);
+
+    const title = document.getElementById("tgSelectPickerTitle");
+    const optionsBox = document.getElementById("tgSelectPickerOptions");
+    const closeBtn = document.getElementById("tgSelectPickerClose");
+    let activeSelect = null;
+
+    function labelFor(select) {
+      if (select.id) {
+        const label = document.querySelector('label[for="' + select.id.replace(/"/g, '\\"') + '"]');
+        if (label) return String(label.textContent || "").trim();
+      }
+      return String(select.getAttribute("aria-label") || select.name || "Select option").trim() || "Select option";
+    }
+
+    function closePicker() {
+      activeSelect = null;
+      overlay.classList.remove("open");
+      document.body.classList.remove("tg-select-lock");
+      optionsBox.innerHTML = "";
+    }
+
+    function openPicker(select) {
+      if (!select || select.disabled || select.multiple) return;
+      activeSelect = select;
+      title.textContent = labelFor(select);
+      optionsBox.innerHTML = "";
+
+      Array.prototype.forEach.call(select.options || [], function (option, index) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "tg-select-option" + (index === select.selectedIndex ? " selected" : "");
+        button.textContent = String(option.textContent || option.label || option.value || "");
+        button.disabled = !!option.disabled;
+        button.dataset.optionIndex = String(index);
+        button.addEventListener("click", function () {
+          if (!activeSelect || button.disabled) return;
+          const idx = Number(button.dataset.optionIndex);
+          activeSelect.selectedIndex = idx;
+          try { activeSelect.dispatchEvent(new Event("input", { bubbles: true })); } catch (_) {}
+          try { activeSelect.dispatchEvent(new Event("change", { bubbles: true })); } catch (_) {}
+          try { activeSelect.focus(); } catch (_) {}
+          closePicker();
+        });
+        optionsBox.appendChild(button);
+      });
+
+      document.body.classList.add("tg-select-lock");
+      overlay.classList.add("open");
+      const selected = optionsBox.querySelector(".selected");
+      if (selected) window.setTimeout(function () { try { selected.scrollIntoView({ block: "nearest" }); } catch (_) {} }, 0);
+    }
+
+    closeBtn.addEventListener("click", closePicker);
+    overlay.addEventListener("click", function (event) {
+      if (event.target === overlay) closePicker();
+    });
+
+    document.addEventListener("click", function (event) {
+      const target = event.target;
+      if (!target || String(target.tagName || "").toUpperCase() !== "SELECT") return;
+      if (target.disabled || target.multiple) return;
+      event.preventDefault();
+      event.stopPropagation();
+      openPicker(target);
+    }, true);
+  }
+
   function setup() {
     const form = document.getElementById("applicationForm");
     const plan = document.getElementById("plan");
@@ -86,6 +187,7 @@
     const monthlyFee = document.getElementById("monthlyFee");
     if (!form || !plan || !speed || !type) return;
 
+    installEmbeddedSelectPicker();
     populateIndependentSpeeds(speed.value);
     const custom = ensureCustomSpeedInput(speed);
 
@@ -100,7 +202,6 @@
       monthlyFee.addEventListener("change", triggerPaymentRefresh);
     }
 
-    // Capture first so the legacy Plan -> Speed/Type preset listeners never run.
     plan.addEventListener("change", function (event) {
       event.stopImmediatePropagation();
       if (note) note.textContent = "Plan, speed, and type are independent. Select each field manually.";
@@ -108,7 +209,8 @@
 
     speed.addEventListener("change", function (event) {
       event.stopImmediatePropagation();
-      const isCustom = speed.value === "__CUSTOM__" || !!speed.selectedOptions[0]?.dataset.customSpeed && !SPEEDS.includes(speed.value);
+      const selected = speed.selectedOptions && speed.selectedOptions.length ? speed.selectedOptions[0] : null;
+      const isCustom = speed.value === "__CUSTOM__" || (!!selected && !!selected.dataset.customSpeed && SPEEDS.indexOf(speed.value) === -1);
       custom.style.display = isCustom ? "block" : "none";
       if (isCustom) {
         custom.value = "";
@@ -131,14 +233,15 @@
           custom.focus();
           return;
         }
-        const option = speed.selectedOptions[0];
-        option.value = value;
-        option.textContent = value;
+        const option = speed.selectedOptions && speed.selectedOptions.length ? speed.selectedOptions[0] : null;
+        if (option) {
+          option.value = value;
+          option.textContent = value;
+        }
         speed.value = value;
       }
     }, true);
 
-    // Legacy reset/edit code can rebuild the select. Restore the independent list automatically.
     const observer = new MutationObserver(function () {
       if (rebuilding) return;
       const hasLegacyLabels = Array.from(speed.options).some(function (option) {
