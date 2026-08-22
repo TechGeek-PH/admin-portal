@@ -7,11 +7,11 @@ android {
     compileSdk 35
 
     defaultConfig {
-        applicationId 'ph.techgeek.installer'
+        applicationId 'ph.techgeek.app'
         minSdk 24
         targetSdk 35
-        versionCode 8
-        versionName '1.2.2'
+        versionCode 9
+        versionName '1.3.0'
     }
 
     buildTypes {
