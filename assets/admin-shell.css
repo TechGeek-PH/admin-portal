@@ -51,3 +51,45 @@
 .sidebar[data-admin-sidebar] .logout {
   width: 100%;
 }
+
+/* Unified TechGeekPH app embed mode. The legacy page keeps all of its
+   business logic, but its old navigation chrome is hidden inside app.html. */
+html.tg-embedded,
+body.tg-embedded {
+  background: #f3f6fa !important;
+}
+
+html.tg-embedded .sidebar,
+body.tg-embedded .sidebar,
+html.tg-embedded [data-admin-sidebar],
+body.tg-embedded [data-admin-sidebar],
+html.tg-embedded .topbar,
+body.tg-embedded .topbar {
+  display: none !important;
+}
+
+html.tg-embedded .app,
+body.tg-embedded .app {
+  display: block !important;
+  min-height: 100% !important;
+  grid-template-columns: 1fr !important;
+}
+
+html.tg-embedded .main,
+body.tg-embedded .main {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+html.tg-embedded .content,
+body.tg-embedded .content {
+  width: 100% !important;
+  max-width: none !important;
+  padding: 12px !important;
+  grid-template-columns: 1fr !important;
+}
+
+html.tg-embedded .workspace,
+body.tg-embedded .workspace {
+  width: 100% !important;
+}
