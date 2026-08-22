@@ -291,3 +291,48 @@
     setup();
   }
 })();
+
+// Clean embedded Clients view inside the unified TechGeekPH app.
+// This intentionally applies only to clients.html for staged module-by-module migration.
+(function () {
+  "use strict";
+
+  const isClients = /(^|\/)clients\.html$/i.test(window.location.pathname) || /(^|\/)clients$/i.test(window.location.pathname);
+  const isEmbed = new URLSearchParams(window.location.search).get("embed") === "1";
+  if (!isClients || !isEmbed) return;
+
+  function applyEmbeddedClientsView() {
+    if (!document.body) return;
+    document.documentElement.classList.add("techgeek-app-embed");
+    document.body.classList.add("techgeek-app-embed");
+
+    if (!document.getElementById("techgeek-clients-embed-style")) {
+      const style = document.createElement("style");
+      style.id = "techgeek-clients-embed-style";
+      style.textContent = [
+        "html.techgeek-app-embed,html.techgeek-app-embed body{margin:0!important;min-height:0!important;background:#f3f6fa!important;}",
+        "body.techgeek-app-embed .app{display:block!important;min-height:0!important;width:100%!important;}",
+        "body.techgeek-app-embed .sidebar,body.techgeek-app-embed .topbar{display:none!important;}",
+        "body.techgeek-app-embed .main{display:block!important;width:100%!important;min-width:0!important;}",
+        "body.techgeek-app-embed .content{padding:14px 12px 32px!important;gap:14px!important;width:100%!important;max-width:none!important;}",
+        "body.techgeek-app-embed .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;}",
+        "body.techgeek-app-embed .card{padding:13px!important;min-width:0!important;}",
+        "body.techgeek-app-embed .card strong{font-size:1.35rem!important;margin:7px 0 4px!important;}",
+        "body.techgeek-app-embed .card span,body.techgeek-app-embed .card small{font-size:.68rem!important;}",
+        "body.techgeek-app-embed .panel{border-radius:12px!important;box-shadow:none!important;}",
+        "body.techgeek-app-embed .panel-head{padding:14px!important;}",
+        "body.techgeek-app-embed .toolbar{padding:12px!important;}",
+        "body.techgeek-app-embed .form-body{padding:14px!important;}",
+        "body.techgeek-app-embed .drawer-backdrop{z-index:1000!important;}",
+        "@media(max-width:860px){body.techgeek-app-embed .content{padding:10px 9px 28px!important;}body.techgeek-app-embed .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}body.techgeek-app-embed .toolbar,body.techgeek-app-embed .panel-head,body.techgeek-app-embed .binding-toolbar{align-items:stretch!important;}}"
+      ].join("");
+      document.head.appendChild(style);
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", applyEmbeddedClientsView, { once: true });
+  } else {
+    applyEmbeddedClientsView();
+  }
+})();
