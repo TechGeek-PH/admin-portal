@@ -45,26 +45,29 @@ jobs:
         run: |
           mkdir -p downloads
           cp mobile/android/app/build/outputs/apk/debug/app-debug.apk downloads/TechGeekPH.apk
+          cp mobile/android/app/build/outputs/apk/debug/app-debug.apk downloads/TechGeekPH-v1.2.0.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: TechGeekPH
-          path: downloads/TechGeekPH.apk
+          name: TechGeekPH-v1.2.0
+          path: downloads/TechGeekPH-v1.2.0.apk
 
       - name: Publish APK to GitHub Pages repository
         run: |
           cp downloads/TechGeekPH.apk /tmp/TechGeekPH.apk
+          cp downloads/TechGeekPH-v1.2.0.apk /tmp/TechGeekPH-v1.2.0.apk
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin main
           git reset --hard origin/main
           mkdir -p downloads
           cp /tmp/TechGeekPH.apk downloads/TechGeekPH.apk
-          git add downloads/TechGeekPH.apk
+          cp /tmp/TechGeekPH-v1.2.0.apk downloads/TechGeekPH-v1.2.0.apk
+          git add downloads/TechGeekPH.apk downloads/TechGeekPH-v1.2.0.apk
           if git diff --cached --quiet; then
             echo "APK unchanged"
           else
-            git commit -m "Publish latest TechGeekPH APK [skip ci]"
+            git commit -m "Publish TechGeekPH v1.2.0 APK [skip ci]"
             git push origin HEAD:main
           fi
