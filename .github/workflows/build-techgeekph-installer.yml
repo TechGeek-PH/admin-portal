@@ -33,45 +33,78 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android SDK 35
+      - name: Install Android SDK 35 with diagnostics
+        shell: bash
         run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
-          sdkmanager --list_installed | grep -E "platforms;android-35|build-tools;35.0.0" || true
+          mkdir -p downloads
+          set +e
+          {
+            echo "=== sdkmanager location ==="
+            command -v sdkmanager || true
+            echo "=== Java ==="
+            java -version 2>&1 || true
+            echo "=== Accept licenses ==="
+            yes | sdkmanager --licenses || true
+            echo "=== Install packages ==="
+            sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+            SDK_CODE=$?
+            echo "SDK_EXIT=$SDK_CODE"
+            echo "=== Installed packages ==="
+            sdkmanager --list_installed || true
+            exit $SDK_CODE
+          } 2>&1 | tee downloads/TechGeekPH-sdk.log
+          SDK_EXIT=${PIPESTATUS[0]}
+          echo "SDK_EXIT=$SDK_EXIT" >> "$GITHUB_ENV"
+          exit 0
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
 
-      - name: Build APK
-        run: gradle -p mobile/android clean assembleDebug --stacktrace --no-daemon
-
-      - name: Verify built APK
-        run: |
-          test -f mobile/android/app/build/outputs/apk/debug/app-debug.apk
-          ls -lh mobile/android/app/build/outputs/apk/debug/app-debug.apk
-
-      - name: Prepare public APK
+      - name: Build APK with diagnostics
+        shell: bash
         run: |
           mkdir -p downloads
+          set +e
+          gradle -p mobile/android clean assembleDebug --stacktrace --no-daemon 2>&1 | tee downloads/TechGeekPH-build.log
+          BUILD_EXIT=${PIPESTATUS[0]}
+          echo "BUILD_EXIT=$BUILD_EXIT" >> "$GITHUB_ENV"
+          echo "Build exit code: $BUILD_EXIT" | tee downloads/TechGeekPH-build-status.txt
+          if [ -f mobile/android/app/build/outputs/apk/debug/app-debug.apk ]; then
+            echo "APK_FOUND=1" >> "$GITHUB_ENV"
+            ls -lh mobile/android/app/build/outputs/apk/debug/app-debug.apk | tee -a downloads/TechGeekPH-build-status.txt
+          else
+            echo "APK_FOUND=0" >> "$GITHUB_ENV"
+            echo "APK file was not produced." | tee -a downloads/TechGeekPH-build-status.txt
+          fi
+          exit 0
+
+      - name: Prepare public APK
+        if: env.APK_FOUND == '1'
+        run: |
           cp mobile/android/app/build/outputs/apk/debug/app-debug.apk downloads/TechGeekPH.apk
           cp mobile/android/app/build/outputs/apk/debug/app-debug.apk downloads/TechGeekPH-v1.2.0.apk
           ls -lh downloads/TechGeekPH.apk downloads/TechGeekPH-v1.2.0.apk
 
       - name: Upload APK artifact
+        if: env.APK_FOUND == '1'
         uses: actions/upload-artifact@v4
         with:
           name: TechGeekPH-v1.2.0
           path: downloads/TechGeekPH-v1.2.0.apk
           if-no-files-found: error
 
-      - name: Publish APK to GitHub Pages repository
+      - name: Publish APK and diagnostic logs
+        if: always()
         shell: bash
         run: |
           set -euo pipefail
-          cp downloads/TechGeekPH.apk /tmp/TechGeekPH.apk
-          cp downloads/TechGeekPH-v1.2.0.apk /tmp/TechGeekPH-v1.2.0.apk
+          mkdir -p /tmp/tg-publish
+          for f in downloads/TechGeekPH-sdk.log downloads/TechGeekPH-build.log downloads/TechGeekPH-build-status.txt downloads/TechGeekPH.apk downloads/TechGeekPH-v1.2.0.apk; do
+            if [ -f "$f" ]; then cp "$f" /tmp/tg-publish/; fi
+          done
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
@@ -80,24 +113,32 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             mkdir -p downloads
-            cp /tmp/TechGeekPH.apk downloads/TechGeekPH.apk
-            cp /tmp/TechGeekPH-v1.2.0.apk downloads/TechGeekPH-v1.2.0.apk
-            git add downloads/TechGeekPH.apk downloads/TechGeekPH-v1.2.0.apk
+            cp /tmp/tg-publish/* downloads/ 2>/dev/null || true
+            git add downloads/TechGeekPH-sdk.log downloads/TechGeekPH-build.log downloads/TechGeekPH-build-status.txt 2>/dev/null || true
+            if [ -f downloads/TechGeekPH.apk ]; then git add downloads/TechGeekPH.apk; fi
+            if [ -f downloads/TechGeekPH-v1.2.0.apk ]; then git add downloads/TechGeekPH-v1.2.0.apk; fi
 
             if git diff --cached --quiet; then
-              echo "APK files already published"
+              echo "Nothing new to publish"
               exit 0
             fi
 
-            git commit -m "Publish TechGeekPH v1.2.0 APK [skip ci]"
+            git commit -m "Publish TechGeekPH Android build diagnostics [skip ci]"
             if git push origin HEAD:main; then
-              echo "APK published successfully"
+              echo "Diagnostics/APK published successfully"
               exit 0
             fi
-
-            echo "Push conflict; retrying..."
             sleep 3
           done
-
-          echo "Unable to publish APK after 3 attempts"
           exit 1
+
+      - name: Fail workflow when APK build failed
+        if: always()
+        shell: bash
+        run: |
+          echo "SDK_EXIT=${SDK_EXIT:-unknown}"
+          echo "BUILD_EXIT=${BUILD_EXIT:-unknown}"
+          echo "APK_FOUND=${APK_FOUND:-0}"
+          if [ "${APK_FOUND:-0}" != "1" ] || [ "${BUILD_EXIT:-1}" != "0" ]; then
+            exit 1
+          fi
