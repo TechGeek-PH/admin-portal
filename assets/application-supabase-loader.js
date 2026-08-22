@@ -18,8 +18,25 @@
     window.MutationObserver.prototype = NativeMutationObserver.prototype;
   }
 
+  function clearLegacySessionNotice() {
+    const notice = document.getElementById("notice");
+    if (!notice) return;
+    const text = String(notice.textContent || "").trim();
+    if (/session expired|please login again|login again/i.test(text)) {
+      notice.textContent = "";
+      notice.classList.add("is-hidden");
+      notice.classList.remove("error", "ok");
+    }
+  }
+
+  function rerenderSupabaseRows() {
+    const search = document.querySelector("#searchInput");
+    if (search) search.dispatchEvent(new Event("input", { bubbles: true }));
+    clearLegacySessionNotice();
+  }
+
   const script = document.createElement("script");
-  script.src = "assets/application-supabase.js?v=20260812-2";
+  script.src = "assets/application-supabase.js?v=20260822-session2";
   script.async = false;
   script.onload = function () {
     if (NativeMutationObserver) window.MutationObserver = NativeMutationObserver;
@@ -30,12 +47,17 @@
       }
     });
 
-    [1500, 4000, 8000].forEach(function (delay) {
-      window.setTimeout(function () {
-        const search = document.querySelector("#searchInput");
-        if (search) search.dispatchEvent(new Event("input", { bubbles: true }));
-      }, delay);
+    [300, 900, 1800, 4000, 8000, 12000].forEach(function (delay) {
+      window.setTimeout(rerenderSupabaseRows, delay);
     });
+
+    const notice = document.getElementById("notice");
+    if (notice && NativeMutationObserver) {
+      const observer = new NativeMutationObserver(function () {
+        clearLegacySessionNotice();
+      });
+      observer.observe(notice, { childList: true, characterData: true, subtree: true });
+    }
   };
   script.onerror = function () {
     if (NativeMutationObserver) window.MutationObserver = NativeMutationObserver;
