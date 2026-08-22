@@ -21,7 +21,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-    private static final String APP_URL = "https://techgeek-ph.github.io/admin-portal/app.html?source=android-app&v=1.3.0";
+    private static final String APP_URL = "https://techgeek-ph.github.io/admin-portal/app.html?source=android-app&v=1.3.1";
     private static final int FILE_CHOOSER_REQUEST = 101;
 
     private WebView webView;
@@ -42,8 +42,14 @@ public class MainActivity extends Activity {
         FrameLayout root = new FrameLayout(this);
         root.setBackgroundColor(Color.WHITE);
 
-        webView = new WebView(getApplicationContext());
+        // IMPORTANT: Use the Activity context, not getApplicationContext().
+        // Android WebView native controls such as <select> dropdowns, date pickers,
+        // file pickers and other popup UI need a window-backed Activity context.
+        webView = new WebView(this);
         webView.setBackgroundColor(Color.WHITE);
+        webView.setFocusable(true);
+        webView.setFocusableInTouchMode(true);
+        webView.requestFocus(View.FOCUS_DOWN);
         root.addView(webView, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
@@ -68,7 +74,7 @@ public class MainActivity extends Activity {
         settings.setLoadWithOverviewMode(true);
         settings.setMediaPlaybackRequiresUserGesture(false);
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-        settings.setUserAgentString(settings.getUserAgentString() + " TechGeekPHApp/1.3.0");
+        settings.setUserAgentString(settings.getUserAgentString() + " TechGeekPHApp/1.3.1");
 
         webView.setWebViewClient(new WebViewClient() {
             @Override
@@ -84,6 +90,7 @@ public class MainActivity extends Activity {
 
             @Override
             public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
                 try {
                     showLoading();
                 } catch (Throwable ignored) {
@@ -91,9 +98,20 @@ public class MainActivity extends Activity {
             }
 
             @Override
-            public void onPageFinished(WebView view, String url) {
+            public void onPageCommitVisible(WebView view, String url) {
+                super.onPageCommitVisible(view, url);
                 try {
                     hideLoading();
+                } catch (Throwable ignored) {
+                }
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                try {
+                    hideLoading();
+                    view.requestFocus(View.FOCUS_DOWN);
                 } catch (Throwable ignored) {
                 }
             }
@@ -101,6 +119,7 @@ public class MainActivity extends Activity {
             @SuppressWarnings("deprecation")
             @Override
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                super.onReceivedError(view, errorCode, description, failingUrl);
                 if (failingUrl != null && failingUrl.startsWith("https://techgeek-ph.github.io/admin-portal/")) {
                     hideLoading();
                     showWebError(description);
