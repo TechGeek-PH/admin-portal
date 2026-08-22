@@ -1,31 +1,40 @@
-// TechGeekPH Supabase bootstrap + app enhancements.
-// The previous complete enhancement bundle is pinned below so existing portal features remain intact.
+// TechGeekPH Supabase bootstrap for the unified browser + Android/iOS app.
+// Keep this file synchronous and lightweight because app.html depends on
+// window.TechGeekSupabase immediately during startup.
 (function () {
   "use strict";
 
   const SUPABASE_URL = "https://tcexzfztdgximrzuosqs.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_8H8_S7NTWvzPCLvYUe2C4g_k3Ltjfiz";
-  const LEGACY_BUILD = "aa669f71fc242f8dcf04ca76fb38f0fc41e1e1ed";
 
-  // app.html expects the shared client immediately after this file loads.
-  if (window.supabase && typeof window.supabase.createClient === "function") {
+  if (!window.supabase || typeof window.supabase.createClient !== "function") {
+    console.error("TechGeekPH: Supabase JS library is not loaded.");
+    return;
+  }
+
+  // Do not replace an already-running client. Replacing the client while app.html
+  // is booting can leave the splash screen waiting on a different auth instance.
+  if (!window.TechGeekSupabase) {
     window.TechGeekSupabase = window.supabase.createClient(
       SUPABASE_URL,
       SUPABASE_PUBLISHABLE_KEY,
-      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }
+      {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true
+        }
+      }
     );
-    window.TechGeekSupabaseConfig = { url: SUPABASE_URL, keyType: "publishable" };
   }
 
-  // Preserve all enhancements that existed before this employee-form update.
-  const legacy = document.createElement("script");
-  legacy.src = "https://cdn.jsdelivr.net/gh/TechGeek-PH/admin-portal@" + LEGACY_BUILD + "/assets/supabase-config.js";
-  legacy.async = false;
-  legacy.dataset.techgeekLegacySupabaseConfig = "1";
-  document.head.appendChild(legacy);
+  window.TechGeekSupabaseConfig = {
+    url: SUPABASE_URL,
+    keyType: "publishable"
+  };
 })();
 
-// Employee workspace: expose the three field forms directly in the unified app.
+// Employee workspace field-service forms.
 (function () {
   "use strict";
 
@@ -40,6 +49,8 @@
     ["my_expense_request.html", "₱", "My Expenses", "Expense requests"],
     ["app-payslips.html", "▥", "Payslips", "Payroll records"]
   ];
+
+  let rendering = false;
 
   function esc(value) {
     return String(value == null ? "" : value)
@@ -59,43 +70,51 @@
   }
 
   function isEmployee() {
-    const role = document.getElementById("welcomeRole") || document.getElementById("topRole");
+    const role = document.getElementById("topRole") || document.getElementById("welcomeRole");
     return !!role && String(role.textContent || "").trim().toUpperCase() === "EMPLOYEE";
   }
 
+  function gridIsCurrent(grid) {
+    if (!grid) return false;
+    return !!grid.querySelector('a[href*="form=install"]') &&
+      !!grid.querySelector('a[href*="form=repair"]') &&
+      !!grid.querySelector('a[href*="form=relocation"]');
+  }
+
   function renderGrid(grid) {
-    if (!grid) return;
-    const signature = "employee-field-forms-v1";
-    if (grid.dataset.employeeWorkspaceVersion === signature) return;
-    grid.dataset.employeeWorkspaceVersion = signature;
+    if (!grid || gridIsCurrent(grid)) return;
     grid.innerHTML = EMPLOYEE_MODULES.map(tile).join("");
   }
 
   function syncEmployeeWorkspace() {
-    if (!isEmployee()) return false;
-    renderGrid(document.getElementById("menuGrid"));
-    renderGrid(document.getElementById("allModulesGrid"));
-
-    const title = document.getElementById("menuTitle");
-    if (title) title.textContent = "Employee Workspace";
-    const activity = document.getElementById("activityLabel");
-    if (activity) activity.textContent = "Attendance, forms and assigned work";
+    if (rendering || !isEmployee()) return false;
+    rendering = true;
+    try {
+      renderGrid(document.getElementById("menuGrid"));
+      renderGrid(document.getElementById("allModulesGrid"));
+      const title = document.getElementById("menuTitle");
+      if (title) title.textContent = "Employee Workspace";
+      const activity = document.getElementById("activityLabel");
+      if (activity) activity.textContent = "Attendance, installation, repair, relocation and assigned work";
+    } finally {
+      rendering = false;
+    }
     return true;
   }
 
   function setup() {
     const shell = document.getElementById("appShell");
     if (!shell) {
-      window.setTimeout(setup, 150);
+      window.setTimeout(setup, 120);
       return;
     }
 
     const observer = new MutationObserver(function () {
-      if (isEmployee()) syncEmployeeWorkspace();
+      if (!rendering && isEmployee()) syncEmployeeWorkspace();
     });
     observer.observe(shell, { childList: true, subtree: true, characterData: true });
 
-    [100, 250, 500, 900, 1500, 2500, 4000].forEach(function (delay) {
+    [0, 100, 250, 500, 900, 1500, 2500, 4000, 7000].forEach(function (delay) {
       window.setTimeout(syncEmployeeWorkspace, delay);
     });
   }
