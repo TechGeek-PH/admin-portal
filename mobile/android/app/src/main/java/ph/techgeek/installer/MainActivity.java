@@ -24,7 +24,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-    private static final String APP_URL = "https://techgeek-ph.github.io/admin-portal/app.html?source=android-app&v=1.2.0";
+    private static final String APP_URL = "https://techgeek-ph.github.io/admin-portal/app.html?source=android-app&v=1.2.1";
     private static final int FILE_CHOOSER_REQUEST = 101;
     private WebView webView;
     private ValueCallback<Uri[]> filePathCallback;
@@ -42,6 +42,7 @@ public class MainActivity extends Activity {
 
         webView = new WebView(this);
         webView.setBackgroundColor(Color.WHITE);
+        webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         root.addView(webView,new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT));
 
         loadingView = buildLoadingView();
@@ -61,7 +62,7 @@ public class MainActivity extends Activity {
         s.setLoadWithOverviewMode(true);
         s.setMediaPlaybackRequiresUserGesture(false);
         s.setCacheMode(WebSettings.LOAD_NO_CACHE);
-        s.setUserAgentString(s.getUserAgentString()+" TechGeekPHApp/1.2.0");
+        s.setUserAgentString(s.getUserAgentString()+" TechGeekPHApp/1.2.1");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) s.setOffscreenPreRaster(true);
 
         CookieManager cm=CookieManager.getInstance();
@@ -76,7 +77,8 @@ public class MainActivity extends Activity {
                     host.equals("techgeek-ph.github.io") ||
                     host.endsWith(".techgeek-ph.github.io") ||
                     host.endsWith(".supabase.co") ||
-                    host.equals("cdn.jsdelivr.net")
+                    host.equals("cdn.jsdelivr.net") ||
+                    host.equals("unpkg.com")
                 )) return false;
                 try{startActivity(new Intent(Intent.ACTION_VIEW,uri));}catch(ActivityNotFoundException ignored){}
                 return true;
@@ -84,6 +86,10 @@ public class MainActivity extends Activity {
             @Override public void onPageStarted(WebView view,String url,android.graphics.Bitmap favicon){
                 super.onPageStarted(view,url,favicon);
                 showLoading();
+            }
+            @Override public void onPageCommitVisible(WebView view,String url){
+                super.onPageCommitVisible(view,url);
+                hideLoading();
             }
             @Override public void onPageFinished(WebView view,String url){
                 super.onPageFinished(view,url);
@@ -99,6 +105,10 @@ public class MainActivity extends Activity {
         });
 
         webView.setWebChromeClient(new WebChromeClient(){
+            @Override public void onProgressChanged(WebView view,int newProgress){
+                super.onProgressChanged(view,newProgress);
+                if(newProgress>=55) hideLoading();
+            }
             @Override public boolean onShowFileChooser(WebView w,ValueCallback<Uri[]> cb,FileChooserParams p){
                 if(filePathCallback!=null)filePathCallback.onReceiveValue(null);
                 filePathCallback=cb;
@@ -107,8 +117,17 @@ public class MainActivity extends Activity {
             }
         });
 
-        if(savedInstanceState!=null && webView.restoreState(savedInstanceState)!=null) return;
+        if(savedInstanceState!=null && webView.restoreState(savedInstanceState)!=null){
+            webView.postDelayed(new Runnable(){@Override public void run(){hideLoading();}},3500);
+            return;
+        }
+        webView.clearCache(true);
         webView.loadUrl(APP_URL + "&t=" + System.currentTimeMillis());
+
+        // Never allow the native splash overlay to cover the web app forever.
+        webView.postDelayed(new Runnable(){
+            @Override public void run(){ hideLoading(); }
+        },3500);
     }
 
     private View buildLoadingView(){
