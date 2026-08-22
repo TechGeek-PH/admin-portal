@@ -3,7 +3,7 @@ import WebKit
 
 struct ContentView: View {
     var body: some View {
-        TechGeekPHWebView(url: URL(string: "https://techgeek-ph.github.io/admin-portal/app.html?source=ios-app&v=20260822")!)
+        TechGeekPHWebView(url: URL(string: "https://techgeek-ph.github.io/admin-portal/app.html?source=ios-app&v=1.2.0")!)
             .ignoresSafeArea()
             .statusBarHidden(true)
     }
@@ -20,7 +20,13 @@ struct TechGeekPHWebView: UIViewRepresentable {
         webView.navigationDelegate = context.coordinator
         webView.scrollView.contentInsetAdjustmentBehavior = .never
         webView.allowsBackForwardNavigationGestures = true
-        let request = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 20)
+
+        var components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
+        var items = components.queryItems ?? []
+        items.append(URLQueryItem(name: "t", value: String(Int(Date().timeIntervalSince1970))))
+        components.queryItems = items
+        let freshURL = components.url ?? url
+        let request = URLRequest(url: freshURL, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 20)
         webView.load(request)
         return webView
     }
