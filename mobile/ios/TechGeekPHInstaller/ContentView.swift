@@ -3,7 +3,7 @@ import WebKit
 
 struct ContentView: View {
     var body: some View {
-        TechGeekPHWebView(url: URL(string: "https://techgeek-ph.github.io/admin-portal/app.html?source=ios-app&v=1.2.0")!)
+        TechGeekPHWebView(url: URL(string: "https://techgeek-ph.github.io/admin-portal/mobile-entry.html?source=ios-app&v=1.2.2")!)
             .ignoresSafeArea()
             .statusBarHidden(true)
     }
@@ -42,7 +42,7 @@ struct TechGeekPHWebView: UIViewRepresentable {
                 return
             }
             let host = url.host ?? ""
-            if host == "techgeek-ph.github.io" || host.hasSuffix(".supabase.co") || host == "cdn.jsdelivr.net" {
+            if host == "techgeek-ph.github.io" || host.hasSuffix(".supabase.co") || host == "cdn.jsdelivr.net" || host == "unpkg.com" {
                 decisionHandler(.allow)
             } else {
                 UIApplication.shared.open(url)
