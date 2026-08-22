@@ -5,6 +5,20 @@
   const embedded = params.get("embed") === "1" || params.get("source") === "app-embed";
   const currentFile = (window.location.pathname.split("/").pop() || "index.html").toLowerCase();
 
+  function routeEmployeePayslips() {
+    if (!embedded || currentFile !== "payslip_generator.html" || window.parent === window) return false;
+    try {
+      const parentRole = String(window.parent.document.getElementById("topRole")?.textContent || "").trim().toUpperCase();
+      if (parentRole === "EMPLOYEE") {
+        window.location.replace("app-payslips.html?embed=1&source=app-embed");
+        return true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  if (routeEmployeePayslips()) return;
+
   function applyEmbeddedShell() {
     if (!embedded) return;
     document.documentElement.classList.add("tg-embedded");
