@@ -93,20 +93,76 @@
     return mode;
   }
 
+  function cleanSiteTag(value) {
+    return String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+  }
+
+  function refreshAccountPreview() {
+    const site = $('tgSiteTag');
+    const num = $('tgClientNumber');
+    const preview = $('tgAccountPreview');
+    if (!site || !num || !preview) return;
+    site.value = cleanSiteTag(site.value) || 'SATR';
+    const number = String(num.value || '').replace(/\D/g, '').padStart(4, '0').slice(-4);
+    num.value = number;
+    const account = site.value + number;
+    preview.value = account;
+    const actual = $('accountNo');
+    if (actual) actual.value = account;
+  }
+
+  async function loadNextClientNumber() {
+    const num = $('tgClientNumber');
+    if (!num) return;
+    try {
+      const data = await rpc('staff_next_client_number', {});
+      num.value = (data && data.next_client_number) || '0001';
+      const last = $('tgLastInstalled');
+      if (last) last.textContent = data && data.last_account_no ? 'Last installed/account sequence: ' + data.last_account_no + ' → next ' + num.value : 'No previous installed client found. Starting at ' + num.value;
+      refreshAccountPreview();
+    } catch (e) {
+      num.value = '0001';
+      const last = $('tgLastInstalled');
+      if (last) last.textContent = 'Unable to read last client number: ' + e.message;
+      refreshAccountPreview();
+    }
+  }
+
+  function installNewClientNumberSection(form, firstSection) {
+    const section = document.createElement('div');
+    section.className = 'section';
+    section.innerHTML = '<div class="section-title"><h3>Client Account Number</h3><span>Automatic Sequence</span></div>' +
+      '<div class="form-grid">' +
+        '<div class="field"><label for="tgSiteTag">Site Tag</label><input id="tgSiteTag" name="Site Tag" value="SATR" maxlength="8" autocomplete="off" placeholder="SATR"></div>' +
+        '<div class="field"><label for="tgClientNumber">Client Number</label><input id="tgClientNumber" name="Client Number" value="0001" readonly inputmode="numeric"></div>' +
+        '<div class="field wide"><label for="tgAccountPreview">Account Number</label><input id="tgAccountPreview" readonly value="SATR0001"><small id="tgLastInstalled">Checking last installed client…</small></div>' +
+        '<div class="field full"><div class="form-type-help">Site Tag is editable (example: SATR, WBRD, KRPP). Client Number is automatic and follows the latest client number in the database. The final Account Number will be saved to the client record.</div></div>' +
+      '</div>';
+    form.insertBefore(section, firstSection || form.firstChild);
+
+    const originalAccount = $('accountNo');
+    if (originalAccount) {
+      originalAccount.readOnly = true;
+      const field = originalAccount.closest('.field');
+      if (field) field.style.display = 'none';
+    }
+
+    $('tgSiteTag').addEventListener('input', refreshAccountPreview);
+    $('tgSiteTag').addEventListener('blur', refreshAccountPreview);
+    loadNextClientNumber();
+  }
+
   function installPicker(mode) {
     const form = $('applicationForm');
     if (!form) return;
     const firstSection = form.querySelector('.section:not(.form-type-section)');
     if (mode === 'application') {
-      const note = document.createElement('div');
-      note.className = 'section';
-      note.innerHTML = '<div class="section-title"><h3>Client Database</h3><span>Auto Sync</span></div><div class="form-grid"><div class="field full"><div class="form-type-help">After saving, this New Installation will automatically create/update the client in the Supabase Clients database and assign an SATR account number if blank.</div></div></div>';
-      form.insertBefore(note, firstSection || form.firstChild);
+      installNewClientNumberSection(form, firstSection);
       return;
     }
     const section = document.createElement('div');
     section.className = 'section';
-    section.innerHTML = '<div class="section-title"><h3>Select Existing Client</h3><span>Live Clients Database</span></div><div class="form-grid"><div class="field full"><label for="tgClientSearch">Client / Account Number</label><input id="tgClientSearch" list="tgClientList" autocomplete="off" placeholder="Type client name or SATR account number"><datalist id="tgClientList"></datalist><small>Live list from Clients database. Selecting a client auto-fills account, contact, current address, plan and router details.</small></div><div class="field full"><div id="tgClientSummary" class="form-type-help">Select a client to load details.</div></div></div>';
+    section.innerHTML = '<div class="section-title"><h3>Select Existing Client</h3><span>Live Clients Database</span></div><div class="form-grid"><div class="field full"><label for="tgClientSearch">Client / Account Number</label><input id="tgClientSearch" list="tgClientList" autocomplete="off" placeholder="Type client name or account number"><datalist id="tgClientList"></datalist><small>Live list from Clients database. Selecting a client auto-fills account, contact, current address, plan and router details.</small></div><div class="field full"><div id="tgClientSummary" class="form-type-help">Select a client to load details.</div></div></div>';
     form.insertBefore(section, firstSection || form.firstChild);
     $('tgClientSearch').addEventListener('change', function () {
       const val = this.value.trim();
@@ -136,6 +192,12 @@
     const mode = modeFromUrl();
     out['Form Type'] = mode === 'repair' ? 'Repair' : mode === 'relocation' ? 'Relocation' : 'New Application';
     out['Record Type'] = out['Form Type'];
+    if (mode === 'application') {
+      refreshAccountPreview();
+      out['Site Tag'] = $('tgSiteTag') ? $('tgSiteTag').value : 'SATR';
+      out['Client Number'] = $('tgClientNumber') ? $('tgClientNumber').value : '';
+      out['Account No.'] = $('tgAccountPreview') ? $('tgAccountPreview').value : ($('accountNo') ? $('accountNo').value : '');
+    }
     return out;
   }
 
@@ -157,14 +219,31 @@
       if (syncBusy || !form.checkValidity()) return;
       syncBusy = true;
       try {
+        if (modeFromUrl() === 'application') refreshAccountPreview();
         showDbStatus('Syncing to Clients database…', true);
         const result = await rpc('staff_save_client_form', { p_data: payloadFromForm() });
-        if (result && result.account_no) setValue('accountNo', result.account_no);
+        if (result && result.account_no) {
+          setValue('accountNo', result.account_no);
+          const preview = $('tgAccountPreview'); if (preview) preview.value = result.account_no;
+        }
         showDbStatus('Clients database updated' + (result && result.account_no ? ' · ' + result.account_no : '') + '.', true);
-        await loadClients();
+        if (modeFromUrl() === 'application') setTimeout(loadNextClientNumber, 700);
+        else await loadClients();
       } catch (e) {
         showDbStatus('Client database sync failed: ' + e.message, false);
       } finally { syncBusy = false; }
+    });
+  }
+
+  function bindClearRefresh() {
+    const clear = $('clearBtn');
+    if (!clear) return;
+    clear.addEventListener('click', function () {
+      if (modeFromUrl() !== 'application') return;
+      setTimeout(function () {
+        if ($('tgSiteTag')) $('tgSiteTag').value = 'SATR';
+        loadNextClientNumber();
+      }, 100);
     });
   }
 
@@ -175,6 +254,7 @@
     installPicker(mode);
     if (mode !== 'application') await loadClients();
     bindDatabaseSave();
+    bindClearRefresh();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(init, 80));
