@@ -102,11 +102,12 @@
     const num = $('tgClientNumber');
     const preview = $('tgAccountPreview');
     if (!site || !num || !preview) return;
-    site.value = cleanSiteTag(site.value) || 'SATR';
+    site.value = cleanSiteTag(site.value);
     const number = String(num.value || '').replace(/\D/g, '').padStart(4, '0').slice(-4);
     num.value = number;
-    const account = site.value + number;
+    const account = site.value ? site.value + number : '';
     preview.value = account;
+    preview.placeholder = site.value ? '' : 'Enter Site Tag first';
     const actual = $('accountNo');
     if (actual) actual.value = account;
   }
@@ -133,10 +134,10 @@
     section.className = 'section';
     section.innerHTML = '<div class="section-title"><h3>Client Account Number</h3><span>Automatic Sequence</span></div>' +
       '<div class="form-grid">' +
-        '<div class="field"><label for="tgSiteTag">Site Tag</label><input id="tgSiteTag" name="Site Tag" value="SATR" maxlength="8" autocomplete="off" placeholder="SATR"></div>' +
+        '<div class="field"><label for="tgSiteTag">Site Tag</label><input id="tgSiteTag" name="Site Tag" value="" required maxlength="8" autocomplete="off" placeholder="Enter Site Tag"></div>' +
         '<div class="field"><label for="tgClientNumber">Client Number</label><input id="tgClientNumber" name="Client Number" value="0001" readonly inputmode="numeric"></div>' +
-        '<div class="field wide"><label for="tgAccountPreview">Account Number</label><input id="tgAccountPreview" readonly value="SATR0001"><small id="tgLastInstalled">Checking last installed client…</small></div>' +
-        '<div class="field full"><div class="form-type-help">Site Tag is editable (example: SATR, WBRD, KRPP). Client Number is automatic and follows the latest client number in the database. The final Account Number will be saved to the client record.</div></div>' +
+        '<div class="field wide"><label for="tgAccountPreview">Account Number</label><input id="tgAccountPreview" readonly value="" placeholder="Enter Site Tag first"><small id="tgLastInstalled">Checking last installed client…</small></div>' +
+        '<div class="field full"><div class="form-type-help">Site Tag is blank by default and must be entered manually (example: SATR, WBRD, KRPP). Client Number is automatic and follows the latest client number in the database. The final Account Number will be Site Tag + Client Number.</div></div>' +
       '</div>';
     form.insertBefore(section, firstSection || form.firstChild);
 
@@ -194,7 +195,7 @@
     out['Record Type'] = out['Form Type'];
     if (mode === 'application') {
       refreshAccountPreview();
-      out['Site Tag'] = $('tgSiteTag') ? $('tgSiteTag').value : 'SATR';
+      out['Site Tag'] = $('tgSiteTag') ? $('tgSiteTag').value : '';
       out['Client Number'] = $('tgClientNumber') ? $('tgClientNumber').value : '';
       out['Account No.'] = $('tgAccountPreview') ? $('tgAccountPreview').value : ($('accountNo') ? $('accountNo').value : '');
     }
@@ -241,7 +242,7 @@
     clear.addEventListener('click', function () {
       if (modeFromUrl() !== 'application') return;
       setTimeout(function () {
-        if ($('tgSiteTag')) $('tgSiteTag').value = 'SATR';
+        if ($('tgSiteTag')) $('tgSiteTag').value = '';
         loadNextClientNumber();
       }, 100);
     });
