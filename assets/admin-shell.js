@@ -104,7 +104,7 @@
       if (currentFile === "application_form.html") {
         return loadScript("assets/application-independent-service.js?v=20260822-2", "application-independent-service")
           .then(function () { return loadScript("assets/application-existing-client-lookup.js?v=20260823-4", "application-existing-client-lookup"); })
-          .then(function () { return loadScript("assets/application-supabase-loader.js?v=20260822-4", "application-supabase-loader"); });
+          .then(function () { return loadScript("assets/application-supabase-loader.js?v=20260823-field-save1", "application-supabase-loader"); });
       }
       if (currentFile === "statement_of_account.html" || currentFile === "statement_of_account_v3.html") return loadScript("assets/soa-supabase.js?v=20260812-2", "soa-supabase");
       if (currentFile === "billing.html") return loadBillingEditors();
