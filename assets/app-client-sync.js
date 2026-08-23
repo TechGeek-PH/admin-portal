@@ -8,7 +8,6 @@
   const $ = id => document.getElementById(id);
   let clientRows = [];
   let selectedClient = null;
-  let syncBusy = false;
 
   function token() {
     try {
@@ -65,7 +64,7 @@
   }
 
   function escapeHtml(v) {
-    return String(v == null ? '' : v).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[m]));
+    return String(v == null ? '' : v).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   }
 
   function modeFromUrl() {
@@ -110,6 +109,7 @@
     suppressLegacyLookup(mode);
     const select = $('formType');
     if (select) {
+      select.disabled = false;
       select.value = mode === 'repair' ? 'Repair' : mode === 'relocation' ? 'Relocation' : 'New Application';
       select.dispatchEvent(new Event('change', { bubbles: true }));
     }
@@ -248,57 +248,6 @@
     }
   }
 
-  function payloadFromForm() {
-    const form = $('applicationForm');
-    const out = {};
-    if (!form) return out;
-    new FormData(form).forEach((v, k) => { if (!(v instanceof File)) out[k] = v; });
-    const mode = modeFromUrl();
-    out['Form Type'] = mode === 'repair' ? 'Repair' : mode === 'relocation' ? 'Relocation' : 'New Application';
-    out['Record Type'] = out['Form Type'];
-    if (mode === 'application') {
-      refreshAccountPreview();
-      out['Site Tag'] = $('tgSiteTag') ? $('tgSiteTag').value : '';
-      out['Client Number'] = $('tgClientNumber') ? $('tgClientNumber').value : '';
-      out['Account No.'] = $('tgAccountPreview') ? $('tgAccountPreview').value : ($('accountNo') ? $('accountNo').value : '');
-    }
-    return out;
-  }
-
-  function showDbStatus(message, ok) {
-    let n = $('tgDbSyncNotice');
-    if (!n) {
-      n = document.createElement('div'); n.id = 'tgDbSyncNotice'; n.style.cssText = 'margin:10px 16px;padding:11px 12px;border-radius:9px;font-size:.8rem;font-weight:700;';
-      const form = $('applicationForm'); if (form) form.prepend(n);
-    }
-    n.style.background = ok ? '#eefaf5' : '#fff1f3';
-    n.style.color = ok ? '#126247' : '#a3153d';
-    n.textContent = message;
-  }
-
-  function bindDatabaseSave() {
-    const form = $('applicationForm');
-    if (!form) return;
-    form.addEventListener('submit', async function () {
-      if (syncBusy || !form.checkValidity()) return;
-      syncBusy = true;
-      try {
-        if (modeFromUrl() === 'application') refreshAccountPreview();
-        showDbStatus('Syncing to Clients database…', true);
-        const result = await rpc('staff_save_client_form', { p_data: payloadFromForm() });
-        if (result && result.account_no) {
-          setValue('accountNo', result.account_no);
-          const preview = $('tgAccountPreview'); if (preview) preview.value = result.account_no;
-        }
-        showDbStatus('Clients database updated' + (result && result.account_no ? ' · ' + result.account_no : '') + '.', true);
-        if (modeFromUrl() === 'application') setTimeout(loadNextClientNumber, 700);
-        else await loadClients();
-      } catch (e) {
-        showDbStatus('Client database sync failed: ' + e.message, false);
-      } finally { syncBusy = false; }
-    });
-  }
-
   function bindClearRefresh() {
     const clear = $('clearBtn');
     if (!clear) return;
@@ -319,7 +268,6 @@
     installPicker(mode);
     suppressLegacyLookup(mode);
     if (mode !== 'application') await loadClients();
-    bindDatabaseSave();
     bindClearRefresh();
   }
 
