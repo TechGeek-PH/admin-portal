@@ -65,7 +65,7 @@
   }
 
   function escapeHtml(v) {
-    return String(v == null ? '' : v).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    return String(v == null ? '' : v).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[m]));
   }
 
   function modeFromUrl() {
@@ -76,13 +76,44 @@
     return 'application';
   }
 
+  function suppressLegacyLookup(mode) {
+    if (mode === 'application') return;
+    if (!document.getElementById('tgNoLegacyLookupStyle')) {
+      const style = document.createElement('style');
+      style.id = 'tgNoLegacyLookupStyle';
+      style.textContent = '#tgExistingClientLookup{display:none!important}';
+      document.head.appendChild(style);
+    }
+    const form = $('applicationForm');
+    const removeLegacy = function () {
+      const legacy = $('tgExistingClientLookup');
+      if (!legacy) return;
+      const account = $('accountNo');
+      if (account && legacy.contains(account) && form) {
+        const field = account.closest('.field') || account.parentElement;
+        if (field) {
+          field.style.display = 'none';
+          form.appendChild(field);
+        }
+      }
+      legacy.remove();
+    };
+    removeLegacy();
+    if (!window.__tgNoLegacyLookupObserver && document.body) {
+      window.__tgNoLegacyLookupObserver = new MutationObserver(removeLegacy);
+      window.__tgNoLegacyLookupObserver.observe(document.body, { childList: true, subtree: true });
+    }
+  }
+
   function lockMode() {
     const mode = modeFromUrl();
+    suppressLegacyLookup(mode);
     const select = $('formType');
     if (select) {
       select.value = mode === 'repair' ? 'Repair' : mode === 'relocation' ? 'Relocation' : 'New Application';
       select.dispatchEvent(new Event('change', { bubbles: true }));
     }
+    suppressLegacyLookup(mode);
     const typeSection = document.querySelector('.form-type-section');
     if (typeSection) typeSection.style.display = 'none';
     if (new URLSearchParams(location.search).get('embed') === '1') {
@@ -192,6 +223,7 @@
       installNewClientNumberSection(form, firstSection);
       return;
     }
+    suppressLegacyLookup(mode);
     const section = document.createElement('div');
     section.className = 'section';
     section.innerHTML = '<div class="section-title"><h3>Select Existing Client</h3><span>Live Clients Database</span></div><div class="form-grid"><div class="field full"><label for="tgClientSearch">Client / Account Number</label><input id="tgClientSearch" list="tgClientList" autocomplete="off" placeholder="Type client name or account number"><datalist id="tgClientList"></datalist><small>Live list from Clients database. Selecting a client auto-fills account, contact, current address, plan and router details.</small></div><div class="field full"><div id="tgClientSummary" class="form-type-help">Select a client to load details.</div></div></div>';
@@ -283,7 +315,9 @@
     const form = $('applicationForm');
     if (!form) return;
     const mode = lockMode();
+    suppressLegacyLookup(mode);
     installPicker(mode);
+    suppressLegacyLookup(mode);
     if (mode !== 'application') await loadClients();
     bindDatabaseSave();
     bindClearRefresh();
