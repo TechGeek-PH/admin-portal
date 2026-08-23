@@ -109,6 +109,7 @@
       if (currentFile === "statement_of_account.html" || currentFile === "statement_of_account_v3.html") return loadScript("assets/soa-supabase.js?v=20260812-2", "soa-supabase");
       if (currentFile === "billing.html") return loadBillingEditors();
       if (currentFile === "billing_control.html") return loadScript("assets/billing-expired-tag.js?v=20260813-1", "billing-expired-tag");
+      if (currentFile === "expense_approval.html") return loadScript("assets/expense-approval-supabase.js?v=20260823-1", "expense-approval-supabase");
       return null;
     })
     .catch(function (error) {
