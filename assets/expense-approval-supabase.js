@@ -83,6 +83,9 @@
   function initials(value) {
     return String(value || "TG").split(/\s+/).filter(Boolean).slice(0, 2).map(function (p) { return p.charAt(0).toUpperCase(); }).join("") || "TG";
   }
+  function isCompanyExpense(row) {
+    return norm(row && row.category) === "company expense" || /\bcompany expense\b/i.test(String((row && row.remarks) || ""));
+  }
 
   function replaceNode(id) {
     const oldNode = document.getElementById(id);
@@ -121,6 +124,11 @@
     const description = document.querySelector(".panel .panel-head p");
     if (description && /Expenses sheet/i.test(description.textContent || "")) {
       description.textContent = "Live expense requests from the Supabase employee expense database.";
+    }
+
+    const flowInfo = document.querySelector("#adminGuardPanel .info-box span");
+    if (flowInfo) {
+      flowInfo.innerHTML = "<b>Flow:</b> Employee deduction/request: Pending → Approved → Released. <b>Company Expense:</b> Pending → Released directly, so it is never included in payroll deductions.";
     }
 
     if (els.statusFilter) els.statusFilter.value = "Pending";
@@ -186,7 +194,10 @@
     const status = norm(row.status || "Pending");
     const id = esc(row.expense_id);
     if (status === "pending" || !status) {
-      return '<div class="actions"><button class="ok-btn small" type="button" data-expense-action="Approved" data-expense-id="' + id + '">Approve</button><button class="danger-btn small" type="button" data-expense-action="Rejected" data-expense-id="' + id + '">Reject</button></div>';
+      if (isCompanyExpense(row)) {
+        return '<div class="actions"><button class="warn-btn small" type="button" data-expense-action="CompanyReleased" data-expense-id="' + id + '">Release Company Expense</button><button class="danger-btn small" type="button" data-expense-action="Rejected" data-expense-id="' + id + '">Reject</button></div>';
+      }
+      return '<div class="actions"><button class="ok-btn small" type="button" data-expense-action="Approved" data-expense-id="' + id + '">Approve</button><button class="warn-btn small" type="button" data-expense-action="CompanyReleased" data-expense-id="' + id + '">Release as Company Expense</button><button class="danger-btn small" type="button" data-expense-action="Rejected" data-expense-id="' + id + '">Reject</button></div>';
     }
     if (status === "approved") {
       return '<div class="actions"><button class="warn-btn small" type="button" data-expense-action="Released" data-expense-id="' + id + '">Mark Released</button><button class="danger-btn small" type="button" data-expense-action="Rejected" data-expense-id="' + id + '">Reject</button></div>';
@@ -223,11 +234,12 @@
 
     els.expenseRows.innerHTML = view.map(function (row) {
       const status = row.status || "Pending";
+      const companyBadge = isCompanyExpense(row) ? '<div style="margin-top:5px;color:#7a4e10;font-size:.7rem;font-weight:900">COMPANY EXPENSE · NO PAYROLL DEDUCTION</div>' : '';
       return '<tr>' +
         '<td data-label="Expense ID"><b>' + esc(row.expense_id) + '</b></td>' +
         '<td data-label="Date">' + esc(dateText(row.expense_date)) + '</td>' +
         '<td data-label="Employee"><b>' + esc(row.employee_name) + '</b><div style="margin-top:3px;color:#7d8b9d;font-size:.7rem">' + esc(row.employee_id) + '</div></td>' +
-        '<td data-label="Category">' + esc(row.category) + '</td>' +
+        '<td data-label="Category">' + esc(row.category) + companyBadge + '</td>' +
         '<td data-label="Amount" class="amount">' + esc(money(row.amount)) + '</td>' +
         '<td data-label="Purpose">' + esc(row.purpose) + cutoffText(row) + (row.remarks ? '<div style="margin-top:6px;color:#526274;font-size:.72rem"><b>Remarks:</b> ' + esc(row.remarks) + '</div>' : '') + '</td>' +
         '<td data-label="Receipt">' + receiptHtml(row) + '</td>' +
@@ -249,21 +261,29 @@
     if (!silent) showNotice("Live expense records updated. Pending requests: " + rows.filter(function (r) { return norm(r.status) === "pending"; }).length + ".", "ok");
   }
 
-  async function updateStatus(expenseId, nextStatus) {
+  async function updateStatus(expenseId, requestedStatus) {
     if (busy) return;
     const row = rows.find(function (r) { return String(r.expense_id) === String(expenseId); });
     if (!row) return;
-    const verb = nextStatus === "Approved" ? "approve" : nextStatus === "Released" ? "mark as released" : "reject";
+
+    const companyRelease = requestedStatus === "CompanyReleased";
+    const nextStatus = companyRelease ? "Released" : requestedStatus;
+    const verb = companyRelease ? "release as COMPANY EXPENSE (no payroll deduction)" : nextStatus === "Approved" ? "approve" : nextStatus === "Released" ? "mark as released" : "reject";
     if (!window.confirm("Confirm: " + verb + " " + expenseId + " for " + row.employee_name + " (" + money(row.amount) + ")?")) return;
 
-    const defaultRemark = nextStatus === "Approved" ? "Approved by admin." : nextStatus === "Released" ? "Released / paid by admin." : "Rejected by admin.";
-    const remark = window.prompt("Remarks", row.remarks || defaultRemark);
+    const defaultRemark = companyRelease ? "Company Expense — Released directly; not payroll deductible." : nextStatus === "Approved" ? "Approved by admin." : nextStatus === "Released" ? "Released / paid by admin." : "Rejected by admin.";
+    const currentRemarks = String(row.remarks || "").trim();
+    const initialRemark = companyRelease && currentRemarks && !/\bcompany expense\b/i.test(currentRemarks) ? "Company Expense — " + currentRemarks : (currentRemarks || defaultRemark);
+    const remark = window.prompt("Remarks", initialRemark);
     if (remark === null) return;
 
     busy = true;
     showNotice("Updating " + expenseId + "...");
     try {
-      const payload = { status: nextStatus, remarks: String(remark || "").trim() || null };
+      let finalRemark = String(remark || "").trim() || null;
+      if (companyRelease && finalRemark && !/\bcompany expense\b/i.test(finalRemark)) finalRemark = "Company Expense — " + finalRemark;
+      if (companyRelease && !finalRemark) finalRemark = defaultRemark;
+      const payload = { status: nextStatus, remarks: finalRemark };
       const now = new Date().toISOString();
       if (nextStatus === "Approved") {
         payload.approved_by = profile.full_name;
@@ -273,6 +293,10 @@
       } else if (nextStatus === "Released") {
         payload.released_by = profile.full_name;
         payload.released_at = now;
+        if (companyRelease) {
+          payload.approved_by = null;
+          payload.approved_at = null;
+        }
       } else if (nextStatus === "Rejected") {
         payload.released_by = null;
         payload.released_at = null;
@@ -285,7 +309,11 @@
       });
       if (!Array.isArray(result) || !result.length) throw new Error("Expense record was not updated.");
       await loadExpenses({ silent: true });
-      showNotice(expenseId + " updated to " + nextStatus + "." + (nextStatus === "Approved" && ["cash advance", "food"].indexOf(norm(row.category)) !== -1 ? " Draft payroll deductions are refreshed automatically for this cutoff." : ""), "ok");
+      if (companyRelease) {
+        showNotice(expenseId + " released as Company Expense. It will NOT be deducted from the employee salary.", "ok");
+      } else {
+        showNotice(expenseId + " updated to " + nextStatus + "." + (nextStatus === "Approved" && ["cash advance", "food"].indexOf(norm(row.category)) !== -1 ? " Draft payroll deductions are refreshed automatically for this cutoff." : ""), "ok");
+      }
     } catch (error) {
       showNotice("Unable to update expense. " + (error && error.message ? error.message : error), "error");
     } finally {
