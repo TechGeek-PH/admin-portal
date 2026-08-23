@@ -13,7 +13,7 @@
 <body>
 <header class="page-head"><img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH"><div class="title"><b id="userName">TechGeekPH Admin</b><span id="userRole">Finance approval</span></div><div id="avatar" class="mode-chip">TG</div></header>
 <main class="wrap">
-<section class="hero"><h1>Expense Approval</h1><p>Review employee requests and choose whether an item is payroll-related or a direct company expense.</p></section>
+<section class="hero"><h1>Expense Approval</h1><p>Only RELEASED employee Cash Advance / Food requests are deducted from payroll. Company Expenses are never deducted.</p></section>
 <p class="notice is-hidden" id="notice"></p>
 <section class="summary">
 <article class="card"><span>TOTAL REQUESTS</span><strong id="metricTotal">0</strong><small>All expense records</small></article>
@@ -22,11 +22,11 @@
 <article class="card"><span>VIEW AMOUNT</span><strong id="metricAmount">₱ 0.00</strong><small>Selected records total</small></article>
 </section>
 <section class="panel">
-<div class="panel-head"><div><h2>Expense Requests</h2><p>Live Supabase expenses. Use <b>Release as Company Expense</b> when the company should shoulder the cost and it must not be deducted from salary.</p></div><button class="ghost-btn" id="refreshBtn" type="button">Refresh</button></div>
+<div class="panel-head"><div><h2>Expense Requests</h2><p><b>Approve</b> means reviewed only. <b>Mark Released</b> activates payroll deduction for Cash Advance / Food. Use <b>Release as Company Expense</b> when the company should shoulder the cost and it must not be deducted from salary.</p></div><button class="ghost-btn" id="refreshBtn" type="button">Refresh</button></div>
 <div class="toolbar"><input class="search" id="searchInput" placeholder="Search employee, category, purpose"><select class="filter" id="employeeFilter"><option value="">All employees</option></select><select class="filter" id="statusFilter"><option value="">All status</option><option>Pending</option><option>Approved</option><option>Released</option><option>Rejected</option></select><input class="filter" id="dateFilter" type="date"><button class="ghost-btn" id="exportBtn" type="button">Export CSV</button><span class="mode-chip" id="rowCount">0 records</span></div>
 <div class="table-wrap"><table><thead><tr><th>Expense ID</th><th>Date</th><th>Employee</th><th>Category</th><th>Amount</th><th>Purpose</th><th>Receipt</th><th>Status</th><th>Approved By</th><th>Released By</th><th>Action</th></tr></thead><tbody id="expenseRows"><tr><td colspan="11">Loading live expense records…</td></tr></tbody></table></div>
 </section>
 </main>
-<script data-techgeek-module="expense-approval-supabase" src="assets/expense-approval-supabase.js?v=20260823-company-release4"></script>
+<script data-techgeek-module="expense-approval-supabase" src="assets/expense-approval-supabase.js?v=20260823-payroll-release1"></script>
 </body>
 </html>
