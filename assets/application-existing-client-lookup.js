@@ -11,6 +11,38 @@
     return String(params.get("form") || params.get("mode") || "").trim().toLowerCase();
   }
 
+  function isRepairOrRelocation() {
+    return ["repair", "service", "service-repair", "relocation", "relocate", "transfer"].indexOf(requestedMode()) !== -1;
+  }
+
+  function removeLegacyLookupCard() {
+    if (!isRepairOrRelocation()) return;
+
+    const search = document.getElementById("tgExistingClientSearch") ||
+      document.querySelector('input[placeholder*="client name" i][placeholder*="account" i]');
+
+    if (search) {
+      const card = search.closest("section, .section, .card, .panel, fieldset, .form-section") || search.parentElement;
+      if (card) {
+        card.style.display = "none";
+        card.setAttribute("aria-hidden", "true");
+        return;
+      }
+    }
+
+    // Fallback: find the old card by heading text.
+    const candidates = Array.from(document.querySelectorAll("section, .section, .card, .panel, fieldset, .form-section"));
+    const legacyCard = candidates.find(function (el) {
+      const text = String(el.textContent || "").toLowerCase();
+      return text.includes("existing client lookup") &&
+             (text.includes("existing client repair request") || text.includes("existing client transfer request"));
+    });
+    if (legacyCard) {
+      legacyCard.style.display = "none";
+      legacyCard.setAttribute("aria-hidden", "true");
+    }
+  }
+
   function applyRequestedMode() {
     const formType = document.getElementById("formType");
     if (!formType) return false;
@@ -29,40 +61,8 @@
     if (!value) return false;
     if (formType.value !== value) formType.value = value;
     try { formType.dispatchEvent(new Event("change", { bubbles: true })); } catch (_) {}
-    hideDuplicateLookupAccount();
+    removeLegacyLookupCard();
     return true;
-  }
-
-  // Repair/Relocation already have a searchable Client / Account No. field.
-  // Hide the duplicate Account No. field in the Existing Client Lookup card,
-  // while leaving the underlying input available for auto-fill/submission.
-  function hideDuplicateLookupAccount() {
-    const mode = requestedMode();
-    if (["repair", "service", "service-repair", "relocation", "relocate", "transfer"].indexOf(mode) === -1) return;
-
-    const search = document.getElementById("tgExistingClientSearch") ||
-      document.querySelector('input[placeholder*="client name" i][placeholder*="account" i]');
-    if (!search) return;
-
-    let card = search.closest("section, .card, .panel, fieldset, .form-section") || search.parentElement;
-    if (!card) return;
-
-    const inputs = Array.from(card.querySelectorAll("input"));
-    inputs.forEach(function (input) {
-      if (input === search) return;
-      const id = String(input.id || "").toLowerCase();
-      const name = String(input.name || "").toLowerCase();
-      const value = String(input.value || "");
-      const label = input.id ? document.querySelector('label[for="' + CSS.escape(input.id) + '"]') : null;
-      const labelText = String(label && label.textContent || "").trim().toLowerCase();
-      const looksLikeAccount = /account/.test(id) || /account/.test(name) || labelText === "account no." || labelText === "account no" || /^([A-Z]{1,8})?\d{3,}$/i.test(value);
-      if (!looksLikeAccount) return;
-
-      let wrapper = input.closest(".field, .form-group, .input-group, .form-field, .row");
-      if (!wrapper || wrapper === card) wrapper = input.parentElement;
-      if (wrapper) wrapper.style.display = "none";
-      else input.style.display = "none";
-    });
   }
 
   const legacy = document.createElement("script");
@@ -71,10 +71,10 @@
   legacy.dataset.techgeekExistingClientLookupCore = "1";
   legacy.onload = function () {
     applyRequestedMode();
-    [100, 300, 700, 1400, 2500].forEach(function (delay) {
+    [100, 300, 700, 1400, 2500, 4000].forEach(function (delay) {
       window.setTimeout(function () {
         applyRequestedMode();
-        hideDuplicateLookupAccount();
+        removeLegacyLookupCard();
       }, delay);
     });
   };
@@ -87,10 +87,10 @@
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () {
       applyRequestedMode();
-      hideDuplicateLookupAccount();
+      removeLegacyLookupCard();
     }, { once: true });
   } else {
     applyRequestedMode();
-    hideDuplicateLookupAccount();
+    removeLegacyLookupCard();
   }
 })();
