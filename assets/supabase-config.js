@@ -125,3 +125,52 @@
     setup();
   }
 })();
+
+// Payroll Admin: Loan Management is the source of truth for loan deductions.
+// Cash Advance / Food are controlled by Expense Approval and must not be typed
+// manually into a payslip adjustment.
+(function () {
+  "use strict";
+  if (!/(^|\/)app-payroll-admin\.html$/i.test(window.location.pathname)) return;
+
+  function setupPayrollControls() {
+    const toolbar = document.querySelector(".toolbar");
+    if (toolbar && !document.getElementById("tgLoanManagementBtn")) {
+      const link = document.createElement("a");
+      link.id = "tgLoanManagementBtn";
+      link.href = "loan_management.html" + (new URLSearchParams(location.search).get("embed") === "1" ? "?embed=1&source=app-embed" : "");
+      link.className = "primary";
+      link.textContent = "Loan Management";
+      link.style.cssText = "display:inline-flex;align-items:center;justify-content:center;min-height:42px;border-radius:10px;padding:0 12px;text-decoration:none;font-size:.75rem";
+      toolbar.appendChild(link);
+    }
+
+    const automatic = [
+      ["cash", "Cash Advance Deduction (Auto from Released Expenses)", "Managed in Expense Approval. Only released payroll-deductible Cash Advance/Food is deducted."],
+      ["loan", "Loan Deduction (Auto from Loan Management)", "Managed in Loan Management. Active approved loans are deducted based on their terms and schedule."]
+    ];
+
+    automatic.forEach(function (item) {
+      const input = document.getElementById(item[0]);
+      if (!input) return;
+      input.disabled = true;
+      input.readOnly = true;
+      input.style.background = "#eef3f7";
+      input.title = item[2];
+      const field = input.closest(".field");
+      if (!field) return;
+      const label = field.querySelector("label");
+      if (label) label.textContent = item[1];
+      if (!field.querySelector(".tg-auto-deduction-note")) {
+        const note = document.createElement("div");
+        note.className = "tg-auto-deduction-note";
+        note.textContent = item[2];
+        note.style.cssText = "margin-top:5px;color:#6b7a8e;font-size:.58rem;line-height:1.35";
+        field.appendChild(note);
+      }
+    });
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setupPayrollControls, { once: true });
+  else setupPayrollControls();
+})();
