@@ -97,17 +97,31 @@
     return String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
   }
 
+  function clearAccountPreview() {
+    const site = $('tgSiteTag');
+    const preview = $('tgAccountPreview');
+    const actual = $('accountNo');
+    if (site) site.value = '';
+    if (preview) { preview.value = ''; preview.placeholder = 'Enter Site Tag first'; }
+    if (actual) actual.value = '';
+  }
+
   function refreshAccountPreview() {
     const site = $('tgSiteTag');
     const num = $('tgClientNumber');
     const preview = $('tgAccountPreview');
     if (!site || !num || !preview) return;
-    site.value = cleanSiteTag(site.value);
+    const cleaned = cleanSiteTag(site.value);
+    site.value = cleaned;
     const number = String(num.value || '').replace(/\D/g, '').padStart(4, '0').slice(-4);
     num.value = number;
-    const account = site.value ? site.value + number : '';
+    if (!cleaned) {
+      clearAccountPreview();
+      return;
+    }
+    const account = cleaned + number;
     preview.value = account;
-    preview.placeholder = site.value ? '' : 'Enter Site Tag first';
+    preview.placeholder = '';
     const actual = $('accountNo');
     if (actual) actual.value = account;
   }
@@ -134,7 +148,7 @@
     section.className = 'section';
     section.innerHTML = '<div class="section-title"><h3>Client Account Number</h3><span>Automatic Sequence</span></div>' +
       '<div class="form-grid">' +
-        '<div class="field"><label for="tgSiteTag">Site Tag</label><input id="tgSiteTag" name="Site Tag" value="" required maxlength="8" autocomplete="off" placeholder="Enter Site Tag"></div>' +
+        '<div class="field"><label for="tgSiteTag">Site Tag</label><input id="tgSiteTag" name="Site Tag" value="" required maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Enter Site Tag"></div>' +
         '<div class="field"><label for="tgClientNumber">Client Number</label><input id="tgClientNumber" name="Client Number" value="0001" readonly inputmode="numeric"></div>' +
         '<div class="field wide"><label for="tgAccountPreview">Account Number</label><input id="tgAccountPreview" readonly value="" placeholder="Enter Site Tag first"><small id="tgLastInstalled">Checking last installed client…</small></div>' +
         '<div class="field full"><div class="form-type-help">Site Tag is blank by default and must be entered manually (example: SATR, WBRD, KRPP). Client Number is automatic and follows the latest client number in the database. The final Account Number will be Site Tag + Client Number.</div></div>' +
@@ -148,8 +162,25 @@
       if (field) field.style.display = 'none';
     }
 
-    $('tgSiteTag').addEventListener('input', refreshAccountPreview);
-    $('tgSiteTag').addEventListener('blur', refreshAccountPreview);
+    const site = $('tgSiteTag');
+    site.addEventListener('input', function () {
+      const raw = String(site.value || '');
+      if (!raw.trim()) {
+        clearAccountPreview();
+        setTimeout(clearAccountPreview, 0);
+        return;
+      }
+      refreshAccountPreview();
+    });
+    site.addEventListener('change', function () {
+      if (!String(site.value || '').trim()) clearAccountPreview();
+      else refreshAccountPreview();
+    });
+    site.addEventListener('blur', function () {
+      if (!String(site.value || '').trim()) clearAccountPreview();
+      else refreshAccountPreview();
+    });
+    clearAccountPreview();
     loadNextClientNumber();
   }
 
@@ -242,7 +273,7 @@
     clear.addEventListener('click', function () {
       if (modeFromUrl() !== 'application') return;
       setTimeout(function () {
-        if ($('tgSiteTag')) $('tgSiteTag').value = '';
+        clearAccountPreview();
         loadNextClientNumber();
       }, 100);
     });
