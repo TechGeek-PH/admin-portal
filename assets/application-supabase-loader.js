@@ -62,7 +62,7 @@
   }
 
   const script = document.createElement("script");
-  script.src = "assets/application-supabase.js?v=20260822-session3";
+  script.src = "assets/application-supabase.js?v=20260823-field-save1";
   script.async = false;
   script.onload = function () {
     if (NativeMutationObserver) window.MutationObserver = NativeMutationObserver;
