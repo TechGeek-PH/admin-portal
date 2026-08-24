@@ -65,7 +65,7 @@
       label: "Investor",
       items: [
         { label: "Morwin Gapud", href: "investor_morwin_gapud.html" },
-        { label: "Marivie Viana Gapud", href: "investor_marivie_viana_gapud.html" }
+        { label: "Marivie Viana Gapud", href: "investor_marivie_gapud.html" }
       ]
     }
   ];
@@ -146,20 +146,6 @@
     document.head.appendChild(script);
   }
 
-  function ensureTicketAdminEnhancements() {
-    if (currentFile() !== "tickets.html") return;
-    if (document.querySelector('script[data-techgeek-module="tickets-admin-cards-delete"]')) return;
-
-    const script = document.createElement("script");
-    script.src = "assets/tickets-admin-cards-delete.js?v=20260824-1";
-    script.async = false;
-    script.dataset.techgeekModule = "tickets-admin-cards-delete";
-    script.onerror = function () {
-      console.error("Unable to load TechGeekPH ticket card/delete enhancements.");
-    };
-    document.head.appendChild(script);
-  }
-
   window.TechGeekAdminNav = {
     items: NAV_ITEMS,
     render: renderNav
@@ -169,11 +155,9 @@
     document.addEventListener("DOMContentLoaded", function () {
       renderNav();
       ensureBillingPaymentEditor();
-      ensureTicketAdminEnhancements();
     }, { once: true });
   } else {
     renderNav();
     ensureBillingPaymentEditor();
-    ensureTicketAdminEnhancements();
   }
 })();
