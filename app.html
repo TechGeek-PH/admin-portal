@@ -9,7 +9,40 @@
 <style>html,body{margin:0;width:100%;height:100%;background:#fff;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}body{display:grid;place-items:center;text-align:center;color:#064f83;padding:24px;box-sizing:border-box}.logo{width:min(310px,76vw);height:auto}.spin{width:38px;height:38px;margin:24px auto 0;border:4px solid #dbe7f2;border-top-color:#064f83;border-radius:50%;animation:s .75s linear infinite}.msg{margin-top:12px;color:#64748b;font-size:14px}.open{display:inline-block;margin-top:16px;padding:12px 18px;border-radius:10px;background:#064f83;color:#fff;text-decoration:none;font-weight:800}@keyframes s{to{transform:rotate(360deg)}}</style>
 </head>
 <body>
-<main><img class="logo" src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH"><div class="spin"></div><div class="msg">Opening TechGeekPH…</div><a id="open" class="open" href="app-v3.html">Open TechGeekPH</a></main>
-<script>(function(){var params=new URLSearchParams(window.location.search);params.set('build','20260822-3');params.set('t',String(Date.now()));var target='app-v3.html?'+params.toString();document.getElementById('open').href=target;setTimeout(function(){window.location.replace(target)},30)})();</script>
+<main><img class="logo" src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH"><div class="spin"></div><div id="msg" class="msg">Opening TechGeekPH…</div><a id="open" class="open" href="app-v3.html">Open TechGeekPH</a></main>
+<script>
+(async function(){
+  'use strict';
+  var params=new URLSearchParams(window.location.search);
+  params.set('build','20260824-ticketfix1');
+  params.set('t',String(Date.now()));
+  var target='app-v3.html?'+params.toString();
+  var open=document.getElementById('open');
+  var msg=document.getElementById('msg');
+  open.href=target;
+
+  var oldRequest="function request(path,opt,auth){opt=opt||{};var h=Object.assign({'apikey':KEY,'Content-Type':'application/json'},opt.headers||{});if(auth!==false&&session&&session.access_token)h.Authorization='Bearer '+session.access_token;return fetch(BASE+path,Object.assign({},opt,{headers:h})).then(async r=>{var text=await r.text(),data=null;try{data=text?JSON.parse(text):null}catch(e){data=text}if(!r.ok)throw new Error(data&&data.message||'Request failed '+r.status);return{data:data,response:r}})}";
+  var newRequest="async function refreshAuth(){if(!session||!session.refresh_token)return false;try{var rr=await fetch(BASE+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{'apikey':KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:session.refresh_token})});if(!rr.ok)return false;var sd=await rr.json();if(!sd||!sd.access_token)return false;saveSession(sd);return true}catch(e){return false}}async function request(path,opt,auth,retry){opt=opt||{};var h=Object.assign({'apikey':KEY,'Content-Type':'application/json'},opt.headers||{});if(auth!==false&&session&&session.access_token)h.Authorization='Bearer '+session.access_token;var r=await fetch(BASE+path,Object.assign({},opt,{headers:h}));if(r.status===401&&auth!==false&&retry!==false&&await refreshAuth())return request(path,opt,auth,false);var text=await r.text(),data=null;try{data=text?JSON.parse(text):null}catch(e){data=text}if(!r.ok)throw new Error(data&&data.message||'Request failed '+r.status);return{data:data,response:r}}";
+
+  var oldTickets="async function loadTickets(){try{var o=await request('/rest/v1/tech_ticket_public_queue?select=*&order=created_date.desc&limit=200',{method:'GET'});tickets=Array.isArray(o.data)?o.data:[]}catch(e){tickets=[]}renderTickets()}";
+  var newTickets="async function loadTickets(){try{var path=profile&&String(profile.role||'').toUpperCase()!=='EMPLOYEE'?'/rest/v1/support_tickets?select=*&order=created_date.desc&order=ticket_no.desc&limit=500':'/rest/v1/tech_ticket_public_queue?select=*&order=created_date.desc&limit=500';var o=await request(path,{method:'GET'});if(Array.isArray(o.data))tickets=o.data}catch(e){console.warn('Ticket refresh failed; keeping current tickets',e)}renderTickets()}";
+
+  try{
+    var r=await fetch(target,{cache:'no-store'});
+    if(!r.ok)throw new Error('App HTTP '+r.status);
+    var html=await r.text();
+    if(!html.includes(oldRequest))throw new Error('Session patch target not found');
+    if(!html.includes(oldTickets))throw new Error('Ticket patch target not found');
+    html=html.replace(oldRequest,newRequest).replace(oldTickets,newTickets);
+    document.open();
+    document.write(html);
+    document.close();
+  }catch(err){
+    console.error(err);
+    msg.textContent='Unable to apply the latest app update. Tap Open TechGeekPH.';
+    open.style.display='inline-block';
+  }
+})();
+</script>
 </body>
 </html>
