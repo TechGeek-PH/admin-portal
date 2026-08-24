@@ -174,3 +174,52 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setupPayrollControls, { once: true });
   else setupPayrollControls();
 })();
+
+// Clients master: keep the list current when a New Installation is saved from
+// another app module/device, and refresh again when returning to this screen.
+(function () {
+  "use strict";
+  if (!/(^|\/)clients\.html$/i.test(window.location.pathname)) return;
+
+  function setupClientLiveRefresh() {
+    const db = window.TechGeekSupabase;
+    const refreshBtn = document.getElementById("refreshBtn");
+    if (!db || !refreshBtn) {
+      window.setTimeout(setupClientLiveRefresh, 180);
+      return;
+    }
+    if (window.__tgClientsLiveRefreshBound) return;
+    window.__tgClientsLiveRefreshBound = true;
+
+    let lastRefresh = 0;
+    function refresh() {
+      const now = Date.now();
+      if (now - lastRefresh < 700 || refreshBtn.disabled) return;
+      lastRefresh = now;
+      refreshBtn.click();
+    }
+
+    try {
+      db.channel("techgeekph-clients-live-" + Math.random().toString(36).slice(2))
+        .on("postgres_changes", { event: "*", schema: "public", table: "clients" }, refresh)
+        .subscribe();
+    } catch (_) {}
+
+    window.addEventListener("storage", function (event) {
+      if (event.key === "tg_clients_changed_at") refresh();
+    });
+    document.addEventListener("visibilitychange", function () {
+      if (!document.hidden) refresh();
+    });
+    window.addEventListener("focus", refresh);
+    window.setInterval(function () {
+      if (!document.hidden) refresh();
+    }, 30000);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupClientLiveRefresh, { once: true });
+  } else {
+    setupClientLiveRefresh();
+  }
+})();
