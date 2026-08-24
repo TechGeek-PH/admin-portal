@@ -104,6 +104,7 @@
       if (currentFile === "application_form.html") {
         return loadScript("assets/application-independent-service.js?v=20260822-2", "application-independent-service")
           .then(function () { return loadScript("assets/application-existing-client-lookup.js?v=20260823-4", "application-existing-client-lookup"); })
+          .then(function () { return loadScript("assets/app-client-sync.js?v=20260824-sequence2", "app-client-sync"); })
           .then(function () { return loadScript("assets/application-supabase-loader.js?v=20260823-field-save1", "application-supabase-loader"); })
           .then(function () { return loadScript("assets/application-client-db-sync.js?v=20260824-1", "application-client-db-sync"); });
       }
