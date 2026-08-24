@@ -21,9 +21,7 @@
     if (!notice || !NativeMutationObserver) return;
     if (notice.dataset.tgSessionGuard === "1") return;
     notice.dataset.tgSessionGuard = "1";
-    const observer = new NativeMutationObserver(function () {
-      clearLegacySessionNotice();
-    });
+    const observer = new NativeMutationObserver(clearLegacySessionNotice);
     observer.observe(notice, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ["class"] });
   }
 
@@ -31,22 +29,17 @@
     window.MutationObserver = function (callback) {
       const observer = new NativeMutationObserver(callback);
       const nativeObserve = observer.observe.bind(observer);
-
       observer.observe = function (target, options) {
         if (target && target.id === "applicationRows") return;
         return nativeObserve(target, options);
       };
-
       return observer;
     };
     window.MutationObserver.prototype = NativeMutationObserver.prototype;
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", installNoticeGuard, { once: true });
-  } else {
-    installNoticeGuard();
-  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", installNoticeGuard, { once: true });
+  else installNoticeGuard();
 
   if (embedded) {
     const style = document.createElement("style");
@@ -62,21 +55,15 @@
   }
 
   const script = document.createElement("script");
-  script.src = "assets/application-supabase.js?v=20260823-field-save1";
+  script.src = "assets/application-supabase.js?v=20260824-unified2";
   script.async = false;
   script.onload = function () {
     if (NativeMutationObserver) window.MutationObserver = NativeMutationObserver;
-
     document.querySelectorAll(".file-note").forEach(function (note) {
-      if (/drive/i.test(note.textContent || "")) {
-        note.textContent = (note.textContent || "").replace(/Drive/gi, "private Supabase Storage");
-      }
+      if (/drive/i.test(note.textContent || "")) note.textContent = (note.textContent || "").replace(/Drive/gi, "private Supabase Storage");
     });
-
     installNoticeGuard();
-    [0, 150, 300, 900, 1800, 4000, 8000, 12000].forEach(function (delay) {
-      window.setTimeout(rerenderSupabaseRows, delay);
-    });
+    [0,150,300,900,1800,4000].forEach(function (delay) { window.setTimeout(rerenderSupabaseRows, delay); });
   };
   script.onerror = function () {
     if (NativeMutationObserver) window.MutationObserver = NativeMutationObserver;
