@@ -4,6 +4,8 @@
   const SUPABASE_URL = "https://tcexzfztdgximrzuosqs.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_8H8_S7NTWvzPCLvYUe2C4g_k3Ltjfiz";
   const ADMIN_SESSION_KEY = "techgeekph_admin_session";
+  const APP_SESSION_KEY = "tg_session_v3";
+  const SB_SESSION_KEY = "sb-tcexzfztdgximrzuosqs-auth-token";
   const params = new URLSearchParams(window.location.search);
   const embedded = params.get("embed") === "1" || params.get("source") === "app-embed" || window.parent !== window;
 
@@ -43,6 +45,14 @@
     portal.role = parent.role || portal.role || "";
     portal.sessionRefreshedAt = new Date().toISOString();
     try { localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(portal)); } catch (_) {}
+    try { localStorage.setItem(APP_SESSION_KEY, JSON.stringify(authSession)); } catch (_) {}
+    try { localStorage.setItem(SB_SESSION_KEY, JSON.stringify(authSession)); } catch (_) {}
+    try {
+      if (embedded && window.parent && window.parent !== window) {
+        window.parent.localStorage.setItem(APP_SESSION_KEY, JSON.stringify(authSession));
+        window.parent.localStorage.setItem(SB_SESSION_KEY, JSON.stringify(authSession));
+      }
+    } catch (_) {}
   }
 
   function clearPortalSession() {
