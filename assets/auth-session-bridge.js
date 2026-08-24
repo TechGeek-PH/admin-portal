@@ -18,6 +18,7 @@
     portal.token = authSession.access_token;
     portal.sessionToken = authSession.access_token;
     portal.accessToken = authSession.access_token;
+    portal.refreshToken = authSession.refresh_token || portal.refreshToken || "";
     portal.user = Object.assign({}, portal.user || {}, {
       id: authUser.id || (portal.user && portal.user.id) || "",
       email: authUser.email || (portal.user && portal.user.email) || ""
@@ -35,7 +36,6 @@
   function loadSupabase() {
     return new Promise(function (resolve, reject) {
       if (window.TechGeekSupabase) return resolve(window.TechGeekSupabase);
-
       function createClient() {
         if (!window.supabase || typeof window.supabase.createClient !== "function") {
           reject(new Error("Supabase library unavailable."));
@@ -48,19 +48,13 @@
         );
         resolve(window.TechGeekSupabase);
       }
-
-      if (window.supabase && typeof window.supabase.createClient === "function") {
-        createClient();
-        return;
-      }
-
+      if (window.supabase && typeof window.supabase.createClient === "function") { createClient(); return; }
       const existing = document.querySelector('script[data-techgeek-auth-lib="1"]');
       if (existing) {
         existing.addEventListener("load", createClient, { once: true });
         existing.addEventListener("error", function () { reject(new Error("Unable to load Supabase library.")); }, { once: true });
         return;
       }
-
       const script = document.createElement("script");
       script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
       script.async = false;
@@ -75,30 +69,23 @@
     const db = await loadSupabase();
     let result = await db.auth.getSession();
     let session = result && result.data ? result.data.session : null;
-
     if (!session) {
       const refreshed = await db.auth.refreshSession();
       session = refreshed && refreshed.data ? refreshed.data.session : null;
     }
-
     if (!session) {
       const portal = readPortalSession();
       if (portal && portal.provider === "supabase") {
         clearPortalSession();
-        if (!/index\.html$/i.test(window.location.pathname)) {
-          window.location.replace("index.html?reason=session_expired");
-        }
+        if (!/index\.html$/i.test(window.location.pathname)) window.location.replace("index.html?reason=session_expired");
       }
       return null;
     }
-
     savePortalSession(session);
-
     db.auth.onAuthStateChange(function (event, nextSession) {
       if (nextSession) savePortalSession(nextSession);
       if (event === "SIGNED_OUT") clearPortalSession();
     });
-
     return session;
   }
 
@@ -109,34 +96,37 @@
   });
 })();
 
-// Embedded Tickets view for the unified TechGeekPH app shell.
 (function () {
   "use strict";
-
   const isTickets = /(^|\/)tickets\.html$/i.test(window.location.pathname) || /(^|\/)tickets$/i.test(window.location.pathname);
   const isEmbed = new URLSearchParams(window.location.search).get("embed") === "1";
-  if (!isTickets || !isEmbed) return;
+  if (!isTickets) return;
 
-  const style = document.createElement("style");
-  style.id = "techgeek-tickets-embed-style";
-  style.textContent = [
-    "html,body{margin:0!important;min-height:0!important;background:#f3f6fa!important;}",
-    ".app{display:block!important;min-height:0!important;width:100%!important;}",
-    ".sidebar,.topbar{display:none!important;}",
-    ".main{display:block!important;width:100%!important;min-width:0!important;}",
-    ".content{width:100%!important;max-width:none!important;margin:0!important;padding:12px 10px 28px!important;gap:12px!important;}",
-    ".metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;}",
-    ".metric{padding:12px!important;box-shadow:none!important;min-width:0!important;}",
-    ".metric strong{font-size:1.3rem!important;}",
-    ".metric span{font-size:.6rem!important;}",
-    ".panel{border-radius:12px!important;box-shadow:none!important;overflow:hidden!important;}",
-    ".tabs{padding:9px!important;gap:6px!important;}",
-    ".tab{min-height:36px!important;padding:0 10px!important;font-size:.68rem!important;}",
-    ".panel-head{padding:12px!important;}",
-    ".toolbar{padding:10px!important;gap:7px!important;}",
-    ".form{padding:12px!important;gap:10px!important;}",
-    "dialog{z-index:1200!important;}",
-    "@media(max-width:520px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important;}.content{padding:9px 8px 24px!important;}.tabs{display:grid!important;grid-template-columns:1fr!important;}.tab{width:100%!important;}.form{grid-template-columns:1fr!important;}.client-preview{grid-template-columns:1fr 1fr!important;}}"
-  ].join("");
-  document.head.appendChild(style);
+  if (isEmbed) {
+    const style = document.createElement("style");
+    style.id = "techgeek-tickets-embed-style";
+    style.textContent = [
+      "html,body{margin:0!important;min-height:0!important;background:#f3f6fa!important;}",
+      ".app{display:block!important;min-height:0!important;width:100%!important;}",
+      ".sidebar,.topbar{display:none!important;}",
+      ".main{display:block!important;width:100%!important;min-width:0!important;}",
+      ".content{width:100%!important;max-width:none!important;margin:0!important;padding:12px 10px 28px!important;gap:12px!important;}",
+      ".metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;}",
+      ".metric{padding:12px!important;box-shadow:none!important;min-width:0!important;}",
+      ".metric strong{font-size:1.3rem!important;}.metric span{font-size:.6rem!important;}",
+      ".panel{border-radius:12px!important;box-shadow:none!important;overflow:hidden!important;}",
+      ".tabs{padding:9px!important;gap:6px!important;}.tab{min-height:36px!important;padding:0 10px!important;font-size:.68rem!important;}",
+      ".panel-head{padding:12px!important;}.toolbar{padding:10px!important;gap:7px!important;}.form{padding:12px!important;gap:10px!important;}dialog{z-index:1200!important;}",
+      "@media(max-width:520px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important;}.content{padding:9px 8px 24px!important;}.tabs{display:grid!important;grid-template-columns:1fr!important;}.tab{width:100%!important;}.form{grid-template-columns:1fr!important;}.client-preview{grid-template-columns:1fr 1fr!important;}}"
+    ].join("");
+    document.head.appendChild(style);
+  }
+
+  if (!document.querySelector('script[data-techgeek-ticket-workflow="1"]')) {
+    const workflow = document.createElement("script");
+    workflow.src = "assets/tickets-workflow-v2.js?v=20260824-2";
+    workflow.async = false;
+    workflow.dataset.techgeekTicketWorkflow = "1";
+    document.head.appendChild(workflow);
+  }
 })();
