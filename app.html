@@ -14,7 +14,7 @@
 (async function(){
   'use strict';
   var params=new URLSearchParams(window.location.search);
-  params.set('build','20260824-ticketfix1');
+  params.set('build','20260824-sequence1');
   params.set('t',String(Date.now()));
   var target='app-v3.html?'+params.toString();
   var open=document.getElementById('open');
@@ -34,6 +34,7 @@
     if(!html.includes(oldRequest))throw new Error('Session patch target not found');
     if(!html.includes(oldTickets))throw new Error('Ticket patch target not found');
     html=html.replace(oldRequest,newRequest).replace(oldTickets,newTickets);
+    html=html.replace(/assets\/app-client-sync\.js\?v=20260823-field-save1/g,'assets/app-client-sync.js?v=20260824-sequence2');
     document.open();
     document.write(html);
     document.close();
