@@ -5,30 +5,77 @@
 
   const BASE = 'https://tcexzfztdgximrzuosqs.supabase.co';
   const KEY = 'sb_publishable_8H8_S7NTWvzPCLvYUe2C4g_k3Ltjfiz';
+  const STORE = 'tg_session_v3';
+  const SBSTORE = 'sb-tcexzfztdgximrzuosqs-auth-token';
   const $ = id => document.getElementById(id);
+
   let clientRows = [];
   let selectedClient = null;
+  let sequenceReady = false;
+  let sequenceData = null;
+  let validatingSubmit = false;
+  let bypassSubmitGuard = false;
+  let originalAccountField = null;
+  let explicitMode = null;
 
-  function token() {
+  function readSession() {
     try {
-      const s = JSON.parse(localStorage.getItem('tg_session_v3') || localStorage.getItem('sb-tcexzfztdgximrzuosqs-auth-token') || 'null');
-      return s && s.access_token ? s.access_token : '';
-    } catch (_) { return ''; }
+      return JSON.parse(localStorage.getItem(STORE) || localStorage.getItem(SBSTORE) || 'null');
+    } catch (_) { return null; }
   }
 
-  async function rpc(name, body) {
-    const t = token();
-    if (!t) throw new Error('Session expired. Please sign in again.');
-    const r = await fetch(BASE + '/rest/v1/rpc/' + name, {
+  function saveSession(s) {
+    if (!s || !s.access_token) return;
+    try {
+      localStorage.setItem(STORE, JSON.stringify(s));
+      localStorage.setItem(SBSTORE, JSON.stringify(s));
+    } catch (_) {}
+  }
+
+  async function refreshSession() {
+    const s = readSession();
+    if (!s || !s.refresh_token) return null;
+    try {
+      const r = await fetch(BASE + '/auth/v1/token?grant_type=refresh_token', {
+        method: 'POST',
+        headers: { apikey: KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: s.refresh_token })
+      });
+      if (!r.ok) return null;
+      const next = await r.json();
+      if (!next || !next.access_token) return null;
+      saveSession(next);
+      return next;
+    } catch (_) { return null; }
+  }
+
+  async function rpc(name, body, retry) {
+    let s = readSession();
+    if (!s || !s.access_token) {
+      s = await refreshSession();
+      if (!s) throw new Error('Session expired. Please sign in again.');
+    }
+
+    let r = await fetch(BASE + '/rest/v1/rpc/' + name, {
       method: 'POST',
-      headers: { apikey: KEY, Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' },
+      headers: { apikey: KEY, Authorization: 'Bearer ' + s.access_token, 'Content-Type': 'application/json' },
       body: JSON.stringify(body || {})
     });
+
+    if (r.status === 401 && retry !== false) {
+      const refreshed = await refreshSession();
+      if (refreshed) return rpc(name, body, false);
+    }
+
     const text = await r.text();
     let data = null;
     try { data = text ? JSON.parse(text) : null; } catch (_) { data = text; }
-    if (!r.ok) throw new Error((data && (data.message || data.hint)) || 'Database request failed.');
+    if (!r.ok) throw new Error((data && (data.message || data.hint || data.details)) || 'Database request failed.');
     return data;
+  }
+
+  function escapeHtml(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   }
 
   function setValue(id, value) {
@@ -63,20 +110,34 @@
     if (box) box.innerHTML = '<b>' + escapeHtml(c.account_no || '') + '</b> · ' + escapeHtml(c.client_name || '') + '<br>' + escapeHtml(c.service_address || 'No service address') + '<br><span>' + escapeHtml(c.plan || '') + (c.speed ? ' · ' + escapeHtml(c.speed) : '') + '</span>';
   }
 
-  function escapeHtml(v) {
-    return String(v == null ? '' : v).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  function requestedMode() {
+    const q = new URLSearchParams(location.search);
+    const f = String(q.get('form') || q.get('mode') || '').trim().toLowerCase();
+    if (!f) return null;
+    if (f.includes('repair') || f === 'service') return 'repair';
+    if (f.includes('relocation') || f.includes('relocate') || f.includes('transfer')) return 'relocation';
+    if (f.includes('install') || f.includes('application') || f === 'new') return 'application';
+    return null;
   }
 
-  function modeFromUrl() {
-    const q = new URLSearchParams(location.search);
-    const f = String(q.get('form') || '').toLowerCase();
-    if (f.includes('repair')) return 'repair';
-    if (f.includes('relocation')) return 'relocation';
+  function modeFromForm() {
+    const select = $('formType');
+    const value = String(select && select.value || '').toLowerCase();
+    if (value.includes('repair')) return 'repair';
+    if (value.includes('relocation')) return 'relocation';
     return 'application';
   }
 
+  function currentMode() {
+    return explicitMode || modeFromForm();
+  }
+
+  function isDedicated() {
+    return !!explicitMode;
+  }
+
   function suppressLegacyLookup(mode) {
-    if (mode === 'application') return;
+    if (!isDedicated() || mode === 'application') return;
     if (!document.getElementById('tgNoLegacyLookupStyle')) {
       const style = document.createElement('style');
       style.id = 'tgNoLegacyLookupStyle';
@@ -104,8 +165,9 @@
     }
   }
 
-  function lockMode() {
-    const mode = modeFromUrl();
+  function applyDedicatedMode() {
+    if (!isDedicated()) return;
+    const mode = currentMode();
     suppressLegacyLookup(mode);
     const select = $('formType');
     if (select) {
@@ -113,28 +175,50 @@
       select.value = mode === 'repair' ? 'Repair' : mode === 'relocation' ? 'Relocation' : 'New Application';
       select.dispatchEvent(new Event('change', { bubbles: true }));
     }
-    suppressLegacyLookup(mode);
     const typeSection = document.querySelector('.form-type-section');
     if (typeSection) typeSection.style.display = 'none';
-    if (new URLSearchParams(location.search).get('embed') === '1') {
-      const side = document.querySelector('.sidebar'); if (side) side.style.display = 'none';
-      const top = document.querySelector('.topbar'); if (top) top.style.display = 'none';
-      const app = document.querySelector('.app'); if (app) { app.style.display = 'block'; app.style.gridTemplateColumns = '1fr'; }
-    }
-    return mode;
+  }
+
+  function applyEmbedShell() {
+    const q = new URLSearchParams(location.search);
+    if (q.get('embed') !== '1' && q.get('source') !== 'app-embed' && window.parent === window) return;
+    const side = document.querySelector('.sidebar'); if (side) side.style.display = 'none';
+    const top = document.querySelector('.topbar'); if (top) top.style.display = 'none';
+    const app = document.querySelector('.app'); if (app) { app.style.display = 'block'; app.style.gridTemplateColumns = '1fr'; }
   }
 
   function cleanSiteTag(value) {
     return String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
   }
 
-  function clearAccountPreview() {
+  function formatClientNumber(value) {
+    const digits = String(value == null ? '' : value).replace(/\D/g, '');
+    if (!digits) return '';
+    const normalized = String(Number(digits));
+    if (!normalized || normalized === 'NaN' || normalized === '0') return '';
+    return normalized.length < 4 ? normalized.padStart(4, '0') : normalized;
+  }
+
+  function setSequenceUnavailable(message) {
+    sequenceReady = false;
+    sequenceData = null;
+    const num = $('tgClientNumber');
+    const preview = $('tgAccountPreview');
+    const actual = $('accountNo');
+    if (num) num.value = '';
+    if (preview) { preview.value = ''; preview.placeholder = 'Waiting for live client sequence'; }
+    if (actual && currentMode() === 'application') actual.value = '';
+    const last = $('tgLastInstalled');
+    if (last) last.textContent = message || 'Unable to load the live client sequence. Do not submit yet.';
+  }
+
+  function clearNewAccountFields(clearSite) {
     const site = $('tgSiteTag');
     const preview = $('tgAccountPreview');
     const actual = $('accountNo');
-    if (site) site.value = '';
-    if (preview) { preview.value = ''; preview.placeholder = 'Enter Site Tag first'; }
-    if (actual) actual.value = '';
+    if (clearSite && site) site.value = '';
+    if (preview) { preview.value = ''; preview.placeholder = sequenceReady ? 'Enter Site Tag first' : 'Waiting for live client sequence'; }
+    if (actual && currentMode() === 'application') actual.value = '';
   }
 
   function refreshAccountPreview() {
@@ -144,12 +228,23 @@
     if (!site || !num || !preview) return;
     const cleaned = cleanSiteTag(site.value);
     site.value = cleaned;
-    const number = String(num.value || '').replace(/\D/g, '').padStart(4, '0').slice(-4);
+    const number = formatClientNumber(num.value);
     num.value = number;
-    if (!cleaned) {
-      clearAccountPreview();
+
+    if (!sequenceReady || !number) {
+      preview.value = '';
+      preview.placeholder = 'Waiting for live client sequence';
+      const actual = $('accountNo');
+      if (actual && currentMode() === 'application') actual.value = '';
       return;
     }
+
+    if (!cleaned) {
+      clearNewAccountFields(false);
+      preview.placeholder = 'Enter Site Tag first';
+      return;
+    }
+
     const account = cleaned + number;
     preview.value = account;
     preview.placeholder = '';
@@ -157,74 +252,83 @@
     if (actual) actual.value = account;
   }
 
+  function sequenceSummary(data) {
+    if (!data) return 'Live sequence unavailable.';
+    const next = data.next_client_number || '';
+    const lastAccount = data.last_account_no || 'none';
+    const count = Number(data.client_count || 0);
+    const gaps = Number(data.missing_sequence_count || 0);
+    return 'Global sequence: ' + lastAccount + ' → next ' + next + ' · ' + count + ' client records' + (gaps ? ' · ' + gaps + ' historical sequence gap' + (gaps === 1 ? '' : 's') : '');
+  }
+
   async function loadNextClientNumber() {
     const num = $('tgClientNumber');
-    if (!num) return;
+    if (!num || currentMode() !== 'application') return null;
+    sequenceReady = false;
+    const last = $('tgLastInstalled');
+    if (last) last.textContent = 'Checking live global client sequence…';
     try {
       const data = await rpc('staff_next_client_number', {});
-      num.value = (data && data.next_client_number) || '0001';
-      const last = $('tgLastInstalled');
-      if (last) last.textContent = data && data.last_account_no ? 'Last installed/account sequence: ' + data.last_account_no + ' → next ' + num.value : 'No previous installed client found. Starting at ' + num.value;
+      const next = formatClientNumber(data && data.next_client_number);
+      if (!next) throw new Error('Server returned an invalid client number.');
+      sequenceData = data;
+      sequenceReady = true;
+      num.value = next;
+      if (last) last.textContent = sequenceSummary(data);
       refreshAccountPreview();
+      return data;
     } catch (e) {
-      num.value = '0001';
-      const last = $('tgLastInstalled');
-      if (last) last.textContent = 'Unable to read last client number: ' + e.message;
-      refreshAccountPreview();
+      setSequenceUnavailable('Unable to read live client sequence: ' + e.message);
+      return null;
     }
   }
 
-  function installNewClientNumberSection(form, firstSection) {
-    const section = document.createElement('div');
+  function ensureNewClientSection(form) {
+    let section = $('tgClientAccountSection');
+    if (section) return section;
+    const firstSection = form.querySelector('.section:not(.form-type-section)');
+    section = document.createElement('div');
+    section.id = 'tgClientAccountSection';
     section.className = 'section';
-    section.innerHTML = '<div class="section-title"><h3>Client Account Number</h3><span>Automatic Sequence</span></div>' +
+    section.innerHTML = '<div class="section-title"><h3>Client Account Number</h3><span>Live Global Sequence</span></div>' +
       '<div class="form-grid">' +
-        '<div class="field"><label for="tgSiteTag">Site Tag</label><input id="tgSiteTag" name="Site Tag" value="" required maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Enter Site Tag"></div>' +
-        '<div class="field"><label for="tgClientNumber">Client Number</label><input id="tgClientNumber" name="Client Number" value="0001" readonly inputmode="numeric"></div>' +
-        '<div class="field wide"><label for="tgAccountPreview">Account Number</label><input id="tgAccountPreview" readonly value="" placeholder="Enter Site Tag first"><small id="tgLastInstalled">Checking last installed client…</small></div>' +
-        '<div class="field full"><div class="form-type-help">Site Tag is blank by default and must be entered manually (example: SATR, WBRD, KRPP). Client Number is automatic and follows the latest client number in the database. The final Account Number will be Site Tag + Client Number.</div></div>' +
+        '<div class="field"><label for="tgSiteTag">Site Tag</label><input id="tgSiteTag" name="Site Tag" value="" required maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="SATR / WBRD / KRPP"></div>' +
+        '<div class="field"><label for="tgClientNumber">Client Number</label><input id="tgClientNumber" name="Client Number" value="" readonly inputmode="numeric" placeholder="Loading…"></div>' +
+        '<div class="field wide"><label for="tgAccountPreview">Account Number</label><input id="tgAccountPreview" readonly value="" placeholder="Waiting for live client sequence"><small id="tgLastInstalled">Checking live global client sequence…</small></div>' +
+        '<div class="field full"><div class="form-type-help">Admin and Employee use the same global Client Number from the Clients database. The sequence follows the highest numeric account suffix, not the visible client count. Historical deleted/missing account numbers are not reused.</div></div>' +
       '</div>';
     form.insertBefore(section, firstSection || form.firstChild);
 
     const originalAccount = $('accountNo');
-    if (originalAccount) {
-      originalAccount.readOnly = true;
-      const field = originalAccount.closest('.field');
-      if (field) field.style.display = 'none';
-    }
+    if (originalAccount && !originalAccountField) originalAccountField = originalAccount.closest('.field') || originalAccount.parentElement;
 
     const site = $('tgSiteTag');
-    site.addEventListener('input', function () {
-      const raw = String(site.value || '');
-      if (!raw.trim()) {
-        clearAccountPreview();
-        setTimeout(clearAccountPreview, 0);
-        return;
-      }
-      refreshAccountPreview();
-    });
-    site.addEventListener('change', function () {
-      if (!String(site.value || '').trim()) clearAccountPreview();
-      else refreshAccountPreview();
-    });
-    site.addEventListener('blur', function () {
-      if (!String(site.value || '').trim()) clearAccountPreview();
-      else refreshAccountPreview();
-    });
-    clearAccountPreview();
-    loadNextClientNumber();
+    if (site) {
+      site.addEventListener('input', refreshAccountPreview);
+      site.addEventListener('change', refreshAccountPreview);
+      site.addEventListener('blur', refreshAccountPreview);
+    }
+    return section;
   }
 
-  function installPicker(mode) {
-    const form = $('applicationForm');
-    if (!form) return;
-    const firstSection = form.querySelector('.section:not(.form-type-section)');
-    if (mode === 'application') {
-      installNewClientNumberSection(form, firstSection);
-      return;
+  function showNewClientSection(show) {
+    const section = $('tgClientAccountSection');
+    const account = $('accountNo');
+    if (section) section.style.display = show ? '' : 'none';
+    if (account) account.readOnly = !!show;
+    if (originalAccountField) {
+      if (show) originalAccountField.style.display = 'none';
+      else if (!isDedicated()) originalAccountField.style.display = '';
     }
-    suppressLegacyLookup(mode);
+    if (!show && account && !isDedicated()) account.value = '';
+  }
+
+  function installDedicatedExistingPicker(form) {
+    if ($('tgDedicatedClientPicker')) return;
+    suppressLegacyLookup(currentMode());
+    const firstSection = form.querySelector('.section:not(.form-type-section)');
     const section = document.createElement('div');
+    section.id = 'tgDedicatedClientPicker';
     section.className = 'section';
     section.innerHTML = '<div class="section-title"><h3>Select Existing Client</h3><span>Live Clients Database</span></div><div class="form-grid"><div class="field full"><label for="tgClientSearch">Client / Account Number</label><input id="tgClientSearch" list="tgClientList" autocomplete="off" placeholder="Type client name or account number"><datalist id="tgClientList"></datalist><small>Live list from Clients database. Selecting a client auto-fills account, contact, current address, plan and router details.</small></div><div class="field full"><div id="tgClientSummary" class="form-type-help">Select a client to load details.</div></div></div>';
     form.insertBefore(section, firstSection || form.firstChild);
@@ -248,27 +352,132 @@
     }
   }
 
+  async function syncModeUi() {
+    const mode = currentMode();
+    const form = $('applicationForm');
+    if (!form) return;
+    ensureNewClientSection(form);
+    showNewClientSection(mode === 'application');
+
+    if (mode === 'application') {
+      selectedClient = null;
+      await loadNextClientNumber();
+    } else if (isDedicated()) {
+      suppressLegacyLookup(mode);
+      installDedicatedExistingPicker(form);
+      await loadClients();
+    }
+  }
+
+  function showFormNotice(message, error) {
+    const notice = $('notice');
+    if (!notice) {
+      if (error) alert(message);
+      return;
+    }
+    notice.textContent = message;
+    notice.classList.remove('is-hidden', 'ok', 'error', 'err');
+    notice.classList.add(error ? 'error' : 'ok');
+  }
+
+  async function validateNewClientSequenceBeforeSubmit(event) {
+    if (bypassSubmitGuard) {
+      bypassSubmitGuard = false;
+      return;
+    }
+    if (currentMode() !== 'application') return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if (validatingSubmit) return;
+
+    const form = $('applicationForm');
+    const site = $('tgSiteTag');
+    const num = $('tgClientNumber');
+    if (!form || !site || !num) return;
+
+    const cleanedSite = cleanSiteTag(site.value);
+    if (!cleanedSite) {
+      showFormNotice('Site Tag is required before saving a New Installation.', true);
+      site.focus();
+      return;
+    }
+
+    validatingSubmit = true;
+    try {
+      const data = await rpc('staff_next_client_number', {});
+      const latest = formatClientNumber(data && data.next_client_number);
+      if (!latest) throw new Error('Unable to verify the live client sequence.');
+
+      const changed = formatClientNumber(num.value) !== latest;
+      sequenceData = data;
+      sequenceReady = true;
+      num.value = latest;
+      site.value = cleanedSite;
+      refreshAccountPreview();
+      const last = $('tgLastInstalled');
+      if (last) last.textContent = sequenceSummary(data);
+
+      if (changed) {
+        showFormNotice('Client Number refreshed to ' + latest + ' from the live database before saving.', false);
+      }
+
+      bypassSubmitGuard = true;
+      form.requestSubmit();
+    } catch (e) {
+      setSequenceUnavailable('Unable to verify live client sequence: ' + e.message);
+      showFormNotice('New Installation was not submitted because the live Client Number could not be verified. ' + e.message, true);
+    } finally {
+      validatingSubmit = false;
+    }
+  }
+
+  function bindFormMode() {
+    const select = $('formType');
+    if (!select || isDedicated()) return;
+    select.addEventListener('change', function () {
+      setTimeout(syncModeUi, 0);
+    });
+  }
+
   function bindClearRefresh() {
     const clear = $('clearBtn');
     if (!clear) return;
     clear.addEventListener('click', function () {
-      if (modeFromUrl() !== 'application') return;
-      setTimeout(function () {
-        clearAccountPreview();
-        loadNextClientNumber();
-      }, 100);
+      setTimeout(async function () {
+        if (isDedicated()) applyDedicatedMode();
+        clearNewAccountFields(true);
+        await syncModeUi();
+      }, 120);
+    });
+  }
+
+  function bindLiveSequenceRefresh() {
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden && currentMode() === 'application') loadNextClientNumber();
+    });
+    window.addEventListener('focus', function () {
+      if (currentMode() === 'application') loadNextClientNumber();
+    });
+    window.addEventListener('pageshow', function () {
+      if (currentMode() === 'application') loadNextClientNumber();
+    });
+    window.addEventListener('tg-client-db-saved', function () {
+      if (currentMode() === 'application') setTimeout(loadNextClientNumber, 150);
     });
   }
 
   async function init() {
     const form = $('applicationForm');
     if (!form) return;
-    const mode = lockMode();
-    suppressLegacyLookup(mode);
-    installPicker(mode);
-    suppressLegacyLookup(mode);
-    if (mode !== 'application') await loadClients();
+    explicitMode = requestedMode();
+    applyDedicatedMode();
+    applyEmbedShell();
+    bindFormMode();
     bindClearRefresh();
+    bindLiveSequenceRefresh();
+    form.addEventListener('submit', validateNewClientSequenceBeforeSubmit, true);
+    await syncModeUi();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(init, 80));
