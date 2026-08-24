@@ -65,7 +65,7 @@
       label: "Investor",
       items: [
         { label: "Morwin Gapud", href: "investor_morwin_gapud.html" },
-        { label: "Marivie Viana Gapud", href: "investor_marivie_gapud.html" }
+        { label: "Marivie Viana Gapud", href: "investor_marivie_viana_gapud.html" }
       ]
     }
   ];
