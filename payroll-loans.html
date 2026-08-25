@@ -22,16 +22,18 @@
 <section class="workspace"><div id="loading" class="loading">Opening payroll workspace…</div><iframe id="frame" title="Payroll workspace module"></iframe></section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="assets/supabase-config.js?v=20260825-payrollhub1"></script>
+<script src="assets/supabase-config.js?v=20260825-payrollhub2"></script>
 <script>
 (()=>{'use strict';
 const $=id=>document.getElementById(id),db=window.TechGeekSupabase,frame=$('frame'),loading=$('loading');
 const TABS={payroll:{title:'Payroll Admin',url:'app-payroll-admin.html'},payslips:{title:'Employee Payslips',url:'admin-employee-payslips.html'},loans:{title:'Loan Management',url:'loan_management.html'}};
 if(new URLSearchParams(location.search).get('embed')==='1'||window.parent!==window)document.body.classList.add('embed');
 function activeName(){const q=new URLSearchParams(location.search).get('tab');return TABS[q]?q:'payroll'}
-function show(tab,push=true){if(!TABS[tab])tab='payroll';document.querySelectorAll('[data-tab]').forEach(b=>{const on=b.dataset.tab===tab;b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false')});loading.textContent='Loading '+TABS[tab].title+'…';loading.className='loading';frame.src=TABS[tab].url+'?embed=1&source=payroll-hub&t='+Date.now();if(push){const u=new URL(location.href);u.searchParams.set('tab',tab);history.replaceState(null,'',u.pathname+'?'+u.searchParams.toString())}}
+function mark(tab,writeUrl){document.querySelectorAll('[data-tab]').forEach(b=>{const on=b.dataset.tab===tab;b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false')});if(writeUrl){const u=new URL(location.href);u.searchParams.set('tab',tab);history.replaceState(null,'',u.pathname+'?'+u.searchParams.toString())}}
+function show(tab,push=true){if(!TABS[tab])tab='payroll';mark(tab,push);loading.textContent='Loading '+TABS[tab].title+'…';loading.className='loading';frame.src=TABS[tab].url+'?embed=1&source=payroll-hub&t='+Date.now()}
+function syncFromFrame(){try{const path=frame.contentWindow.location.pathname.split('/').pop();const found=Object.entries(TABS).find(([,v])=>v.url===path);if(found)mark(found[0],true)}catch(_){}}
 async function boot(){try{if(!db)throw new Error('Supabase connection is unavailable.');const s=(await db.auth.getSession()).data.session;if(!s){location.replace('app.html');return}const p=await db.from('staff_profiles').select('role,active').eq('user_id',s.user.id).maybeSingle();if(p.error)throw p.error;if(!p.data||!p.data.active||!['OWNER','ADMIN'].includes(String(p.data.role||'').toUpperCase())){location.replace('app.html');return}show(activeName(),false)}catch(e){loading.textContent=e.message||'Unable to open Payroll & Loans.';loading.className='loading error'}}
-document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.tab,true)));frame.addEventListener('load',()=>loading.className='loading hidden');window.addEventListener('pageshow',e=>{if(e.persisted)show(activeName(),false)});boot();
+document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.tab,true)));frame.addEventListener('load',()=>{syncFromFrame();loading.className='loading hidden'});window.addEventListener('pageshow',e=>{if(e.persisted)show(activeName(),false)});boot();
 })();
 </script>
 </body>
