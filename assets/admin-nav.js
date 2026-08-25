@@ -42,7 +42,7 @@
         { label: "Admin Time Records", href: "daily_time_record_admin.html" },
         { label: "My Expense Request", href: "my_expense_request.html" },
         { label: "Expense Approval", href: "expense_approval.html" },
-        { label: "Payslip Generator", href: "payslip_generator.html" }
+        { label: "Payroll & Loans", href: "payroll-loans.html", aliases: ["app-payroll-admin.html", "admin-employee-payslips.html", "loan_management.html", "payslip_generator.html"] }
       ]
     },
     {
