@@ -63,17 +63,18 @@
             <button class="action" type="button" data-page="statement_of_account_v3.html"><span class="action-icon">S</span><span><b>Statement of Account</b><span>Generate client SOA</span></span></button>
             <button class="action" type="button" data-page="daily_time_record.html"><span class="action-icon">D</span><span><b>My Time Record</b><span>Employee daily time record</span></span></button>
             <button class="action" type="button" data-page="expense_approval.html"><span class="action-icon">₱</span><span><b>Expense Approval</b><span>Review and approve requests</span></span></button>
+            <button class="action billing-highlight" type="button" data-page="payroll-loans.html"><span class="action-icon">₱</span><span><b>Payroll & Loans</b><span>Payroll, payslips and employee loans in one workspace</span></span></button>
             <button class="action" type="button" data-page="consumable_stock.html"><span class="action-icon">I</span><span><b>Inventory</b><span>Stock and company assets</span></span></button>
           </div>
         </section>
 
-        <section class="panel"><div class="panel-head"><div><h2>Activity</h2><p>Latest system state</p></div></div><div class="activity"><div class="feed"><b>Shared navigation enabled</b><span>Sidebar links now come from assets/admin-nav.js.</span></div><div class="feed"><b>Billing Control</b><span>New Supabase billing page includes Paid, Unpaid and Expired views.</span></div></div></section>
+        <section class="panel"><div class="panel-head"><div><h2>Activity</h2><p>Latest system state</p></div></div><div class="activity"><div class="feed"><b>Shared navigation enabled</b><span>Sidebar links now come from assets/admin-nav.js.</span></div><div class="feed"><b>Payroll & Loans</b><span>Payroll processing, employee payslips and loan management now share one workspace.</span></div></div></section>
       </aside>
     </div>
   </section>
 </main>
 
-<script src="assets/admin-nav.js?v=20260813-2"></script>
+<script src="assets/admin-nav.js?v=20260825-payrollhub2"></script>
 <script>
   document.querySelectorAll('[data-page]').forEach(function(button){button.addEventListener('click',function(){window.location.href=button.dataset.page;});});
 </script>
