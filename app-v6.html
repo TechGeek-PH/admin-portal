@@ -7,47 +7,40 @@
 <meta name="robots" content="noindex,nofollow">
 <title>TechGeekPH</title>
 <style>
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f3f6fa}#app{display:block;width:100%;height:100dvh;border:0;background:#f3f6fa}
+:root{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#f3f6fa;color:#172438}.loader{min-height:100dvh;display:grid;place-items:center;padding:24px}.card{width:min(420px,100%);padding:22px;border:1px solid #dbe4ee;border-radius:16px;background:#fff;box-shadow:0 18px 50px #14395a14;text-align:center}.dot{width:34px;height:34px;margin:0 auto 14px;border:4px solid #dbe4ee;border-top-color:#064f83;border-radius:50%;animation:spin .8s linear infinite}.card b,.card span{display:block}.card span{margin-top:7px;color:#6b7a8e;font-size:.78rem}@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-<iframe id="app" title="TechGeekPH App"></iframe>
+<div class="loader" id="loader"><div class="card"><div class="dot"></div><b>Loading TechGeekPH…</b><span>Applying the latest admin modules.</span></div></div>
 <script>
 (function(){
   'use strict';
-  var frame=document.getElementById('app');
   var p=new URLSearchParams(location.search);
-  p.set('build','20260828-telegram-module-v6');
+  p.set('build','20260828-telegram-module-v6b');
   p.set('from','v6');
   p.set('t',String(Date.now()));
-  frame.src='app-v5.html?'+p.toString();
+  var target='app-v5.html?'+p.toString();
 
-  function addTelegramTile(doc){
-    if(!doc)return;
-    var roleEl=doc.getElementById('topRole');
-    var role=String(roleEl&&roleEl.textContent||'').trim().toUpperCase();
-    if(role!=='OWNER'&&role!=='ADMIN')return;
-    var targets=[doc.getElementById('menu'),doc.getElementById('allModules')];
-    targets.forEach(function(box){
-      if(!box||box.querySelector('[data-telegram-settings-tile]'))return;
-      var a=doc.createElement('a');
-      a.className='tile';
-      a.href='telegram-settings.html';
-      a.dataset.title='Telegram Settings';
-      a.dataset.telegramSettingsTile='1';
-      a.innerHTML='<span class="ico">✈</span><b>Telegram Settings</b><small>Bot token and admin receiver</small>';
-      box.appendChild(a);
+  function fallback(){
+    location.replace(target);
+  }
+
+  var timeout=setTimeout(fallback,6000);
+  fetch('app-v5.html?t='+Date.now(),{cache:'no-store'})
+    .then(function(r){if(!r.ok)throw new Error('Unable to load app');return r.text();})
+    .then(function(html){
+      clearTimeout(timeout);
+      var plugin='<scr'+'ipt src="assets/app-telegram-module.js?v=20260828-2"></scr'+'ipt>';
+      if(html.indexOf('</body>')!==-1)html=html.replace('</body>',plugin+'</body>');
+      else html+=plugin;
+      document.open();
+      document.write(html);
+      document.close();
+    })
+    .catch(function(){
+      clearTimeout(timeout);
+      fallback();
     });
-    var all=doc.getElementById('allModules');
-    var hint=doc.getElementById('moduleHint');
-    if(all&&hint)hint.textContent=all.querySelectorAll('a.tile').length+' modules';
-  }
-
-  function sync(){
-    try{addTelegramTile(frame.contentDocument)}catch(_){}
-  }
-  frame.addEventListener('load',function(){sync();setTimeout(sync,300);setTimeout(sync,1200)});
-  setInterval(sync,700);
 })();
 </script>
 </body>
