@@ -57,7 +57,8 @@
       type: "group",
       label: "Administration",
       items: [
-        { label: "User Accounts", href: "admin_accounts.html" }
+        { label: "User Accounts", href: "admin_accounts.html" },
+        { label: "Telegram Settings", href: "telegram-settings.html" }
       ]
     },
     {
