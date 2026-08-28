@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#064f83">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Telegram Settings - TechGeekPH</title>
+  <link rel="stylesheet" href="assets/admin-shell.css?v=20260813-2">
+  <style>
+    :root{--blue:#064f83;--blue2:#023d6b;--ink:#172033;--muted:#64748b;--line:#dce4ed;--soft:#f4f7fb;--ok:#17825f;--danger:#b42345;--violet:#5a0b77;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    *{box-sizing:border-box}body{margin:0;background:var(--soft);color:var(--ink)}button,input{font:inherit}.app{min-height:100vh;display:grid;grid-template-columns:240px minmax(0,1fr)}
+    .sidebar{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:18px;padding:18px;color:#fff;background:linear-gradient(180deg,#023d6b,#064f83 58%,#083453);overflow:auto}.brand{display:grid;gap:10px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.16)}.brand-logo{width:124px;padding:8px 10px;border-radius:7px;background:#fff}.brand-logo img{width:100%;display:block}.brand strong{display:block}.brand span{display:block;margin-top:4px;color:rgba(255,255,255,.7);font-size:.72rem;line-height:1.4}.nav{display:grid;gap:7px}.sidebar-footer{margin-top:auto}.logout{width:100%;min-height:42px;border:1px solid rgba(255,255,255,.25);border-radius:8px;background:transparent;color:#fff;font-weight:800;cursor:pointer}
+    .main{min-width:0}.topbar{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:14px;min-height:72px;padding:14px 24px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.94);backdrop-filter:blur(10px)}.topbar h1{margin:0;font-size:1.45rem}.topbar p{margin:4px 0 0;color:var(--muted);font-size:.78rem}.user{display:flex;align-items:center;gap:9px;font-size:.78rem}.avatar{width:36px;height:36px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--violet));color:#fff;font-weight:900}
+    .content{width:min(100%,980px);margin:auto;padding:24px}.hero{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:16px;padding:22px;border-radius:14px;color:#fff;background:linear-gradient(120deg,#023d6b,#064f83 60%,#5a0b77)}.hero h2{margin:0;font-size:clamp(1.35rem,3vw,2.1rem)}.hero p{max-width:700px;margin:8px 0 0;color:rgba(255,255,255,.82);font-size:.82rem;line-height:1.5}.badge{padding:7px 11px;border:1px solid rgba(255,255,255,.22);border-radius:999px;background:rgba(255,255,255,.1);font-size:.7rem;font-weight:850;white-space:nowrap}
+    .panel{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}.panel-head{padding:16px 18px;border-bottom:1px solid var(--line)}.panel-head h3{margin:0;font-size:1rem}.panel-head p{margin:5px 0 0;color:var(--muted);font-size:.73rem;line-height:1.45}.panel-body{padding:18px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:grid;gap:7px}.field.full{grid-column:1/-1}.field label{font-size:.72rem;font-weight:900}.field small{color:var(--muted);font-size:.65rem;line-height:1.4}.control{width:100%;min-height:46px;border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:#fff;color:var(--ink);outline:none}.control:focus{border-color:#7cb3d8;box-shadow:0 0 0 3px rgba(6,79,131,.1)}
+    .token-wrap{position:relative}.token-wrap input{padding-right:72px}.show{position:absolute;right:5px;top:5px;height:36px;border:0;border-radius:7px;background:#eef4f8;color:var(--blue);font-size:.7rem;font-weight:900;cursor:pointer}.switch-row{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:#f9fbfd}.switch-copy b,.switch-copy span{display:block}.switch-copy b{font-size:.78rem}.switch-copy span{margin-top:3px;color:var(--muted);font-size:.65rem}.switch{position:relative;width:50px;height:28px;flex:0 0 auto}.switch input{position:absolute;opacity:0}.slider{position:absolute;inset:0;border-radius:999px;background:#cfd9e5;cursor:pointer;transition:.2s}.slider:after{content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;border-radius:50%;background:#fff;box-shadow:0 2px 8px #1f36532b;transition:.2s}.switch input:checked+.slider{background:var(--ok)}.switch input:checked+.slider:after{transform:translateX(22px)}
+    .status-card{display:flex;align-items:flex-start;gap:10px;margin-bottom:15px;padding:12px 14px;border:1px solid #cfe0ec;border-radius:9px;background:#f4faff}.dot{width:10px;height:10px;margin-top:4px;border-radius:50%;background:#94a3b8;box-shadow:0 0 0 4px #94a3b822}.dot.on{background:var(--ok);box-shadow:0 0 0 4px #17825f20}.status-card b,.status-card span{display:block}.status-card b{font-size:.75rem}.status-card span{margin-top:3px;color:var(--muted);font-size:.66rem}
+    .actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}.btn{min-height:42px;padding:9px 14px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font-weight:850;cursor:pointer}.btn.primary{border-color:var(--blue);background:var(--blue);color:#fff}.btn.test{border-color:#9ac7b6;background:#effaf5;color:#126247}.btn:disabled{opacity:.55;cursor:not-allowed}.notice{display:none;margin-top:14px;padding:11px 13px;border-radius:8px;font-size:.72rem;line-height:1.45}.notice.show{display:block}.notice.ok{border:1px solid #bfe5d7;background:#edf9f5;color:#116447}.notice.error{border:1px solid #f0c7d2;background:#fff0f3;color:#8f1838}.security{margin-top:14px;padding:12px 14px;border-left:4px solid var(--blue);background:#f8fbfe;color:#526275;font-size:.67rem;line-height:1.55}
+    @media(max-width:860px){.app{grid-template-columns:1fr}.sidebar{position:relative;height:auto}.content{padding:14px}}@media(max-width:640px){.grid{grid-template-columns:1fr}.field.full,.switch-row{grid-column:auto}.topbar{padding:12px 14px}.user{display:none}.hero{align-items:flex-start;flex-direction:column}}
+  </style>
+</head>
+<body>
+<main class="app">
+  <aside class="sidebar" data-admin-sidebar>
+    <div class="brand"><div class="brand-logo"><img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH"></div><div><strong>TechGeekPH Admin</strong><span>Admin-only system settings and operations.</span></div></div>
+    <nav class="nav" aria-label="Admin navigation"></nav>
+    <div class="sidebar-footer"><button class="logout" id="logoutBtn" type="button">Log out</button></div>
+  </aside>
+
+  <section class="main">
+    <header class="topbar">
+      <div><h1>Telegram Settings</h1><p>Admin notification binding</p></div>
+      <div class="user"><div class="avatar">TG</div><div><strong id="userName">Admin</strong><div id="userRole" style="color:var(--muted);font-size:.68rem">OWNER / ADMIN only</div></div></div>
+    </header>
+
+    <div class="content">
+      <section class="hero"><div><h2>Telegram Admin Notifications</h2><p>Store the Telegram Bot Token and the receiving Admin Chat ID here. Only OWNER and ADMIN accounts can access or change these settings.</p></div><span class="badge">ADMIN ONLY</span></section>
+
+      <section class="panel">
+        <div class="panel-head"><h3>Notification Binding</h3><p>The saved token is never returned to the browser. The UI only shows whether a token is configured.</p></div>
+        <div class="panel-body">
+          <div class="status-card"><span class="dot" id="statusDot"></span><div><b id="statusTitle">Loading Telegram settings…</b><span id="statusText">Checking secure admin configuration.</span></div></div>
+
+          <div class="grid">
+            <div class="field full">
+              <label for="botToken">Telegram Bot Token</label>
+              <div class="token-wrap"><input class="control" id="botToken" type="password" autocomplete="new-password" placeholder="Leave blank to keep the current saved token"><button class="show" id="showToken" type="button">Show</button></div>
+              <small id="tokenHint">Token status will appear after settings load.</small>
+            </div>
+
+            <div class="field full">
+              <label for="chatId">Admin Chat ID / Receiver ID</label>
+              <input class="control" id="chatId" inputmode="numeric" autocomplete="off" placeholder="Example: 123456789 or -1001234567890">
+              <small>This Telegram user, group, or channel chat ID will receive admin notifications.</small>
+            </div>
+
+            <div class="switch-row">
+              <div class="switch-copy"><b>Enable Telegram Notifications</b><span>Turn this on after the token and receiver ID are saved and tested.</span></div>
+              <label class="switch"><input id="enabled" type="checkbox"><span class="slider"></span></label>
+            </div>
+          </div>
+
+          <div class="actions"><button class="btn primary" id="saveBtn" type="button">Save Settings</button><button class="btn test" id="testBtn" type="button">Send Test Message</button><button class="btn" id="refreshBtn" type="button">Refresh</button></div>
+          <div class="notice" id="notice"></div>
+          <div class="security"><b>Security:</b> direct browser access to the Telegram settings table is blocked. The Bot Token is handled only by the protected backend API and is never returned in full after saving.</div>
+        </div>
+      </section>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/auth-session-bridge-v2.js?v=20260824-sequence1"></script>
+<script src="assets/admin-nav.js?v=20260828-telegram1"></script>
+<script>
+(function(){
+  'use strict';
+  const BASE='https://tcexzfztdgximrzuosqs.supabase.co';
+  const KEY='sb_publishable_8H8_S7NTWvzPCLvYUe2C4g_k3Ltjfiz';
+  const $=id=>document.getElementById(id);
+  let session=null;
+
+  function showNotice(message,type){const n=$('notice');n.textContent=message;n.className='notice show '+(type||'ok')}
+  function clearNotice(){$('notice').className='notice';$('notice').textContent=''}
+  function setBusy(v){$('saveBtn').disabled=v;$('testBtn').disabled=v;$('refreshBtn').disabled=v}
+
+  async function api(action,payload){
+    if(!session||!session.access_token)throw new Error('Admin session is unavailable. Please sign in again.');
+    const r=await fetch(BASE+'/functions/v1/telegram-settings',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify(Object.assign({action},payload||{}))});
+    const text=await r.text();let data={};try{data=text?JSON.parse(text):{}}catch(_){data={message:text}}
+    if(!r.ok||data.success===false)throw new Error(data.message||data.status_code||('Request failed '+r.status));
+    return data;
+  }
+
+  function render(d){
+    $('chatId').value=d.admin_chat_id||'';
+    $('enabled').checked=Boolean(d.enabled);
+    $('botToken').value='';
+    $('tokenHint').textContent=d.token_configured?'A Bot Token is securely saved. Leave this field blank to keep it.':'No Bot Token is saved yet.';
+    $('statusDot').className='dot '+(d.enabled?'on':'');
+    $('statusTitle').textContent=d.enabled?'Telegram notifications enabled':'Telegram notifications disabled';
+    $('statusText').textContent=(d.token_configured?'Token configured':'Token missing')+' · '+(d.admin_chat_id?'Receiver ID configured':'Receiver ID missing');
+  }
+
+  async function load(){clearNotice();setBusy(true);try{const d=await api('GET_SETTINGS');render(d)}catch(e){showNotice(e.message||'Unable to load Telegram settings.','error')}finally{setBusy(false)}}
+
+  async function save(){clearNotice();setBusy(true);try{
+    const payload={admin_chat_id:$('chatId').value.trim(),enabled:$('enabled').checked};
+    const token=$('botToken').value.trim();if(token)payload.bot_token=token;
+    const d=await api('SAVE_SETTINGS',payload);render(d);showNotice('Telegram settings saved successfully.','ok');
+  }catch(e){showNotice(e.message||'Unable to save settings.','error')}finally{setBusy(false)}}
+
+  async function test(){clearNotice();setBusy(true);try{await api('TEST_SEND');showNotice('Test message sent to the configured Telegram receiver.','ok')}catch(e){showNotice(e.message||'Telegram test failed.','error')}finally{setBusy(false)}}
+
+  $('showToken').onclick=()=>{$('botToken').type=$('botToken').type==='password'?'text':'password';$('showToken').textContent=$('botToken').type==='password'?'Show':'Hide'};
+  $('saveBtn').onclick=save;$('testBtn').onclick=test;$('refreshBtn').onclick=load;
+
+  (async()=>{
+    try{
+      session=await (window.TechGeekAuthReady||Promise.resolve(null));
+      if(!session&&window.TechGeekEnsureSupabaseSession)session=await window.TechGeekEnsureSupabaseSession();
+      if(!session)throw new Error('Admin login required.');
+      try{const parentName=window.parent&&window.parent!==window?window.parent.document.getElementById('topName')?.textContent:'';const parentRole=window.parent&&window.parent!==window?window.parent.document.getElementById('topRole')?.textContent:'';if(parentName)$('userName').textContent=parentName;if(parentRole)$('userRole').textContent=parentRole+' access'}catch(_){}
+      await load();
+    }catch(e){showNotice(e.message||'Unable to verify admin session.','error');setBusy(true)}
+  })();
+})();
+</script>
+<script src="assets/admin-shell.js?v=20260828-telegram1"></script>
+</body>
+</html>
