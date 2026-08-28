@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#064f83">
+<meta name="robots" content="noindex,nofollow">
+<title>TechGeekPH</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f3f6fa}#app{display:block;width:100%;height:100dvh;border:0;background:#f3f6fa}
+</style>
+</head>
+<body>
+<iframe id="app" title="TechGeekPH App"></iframe>
+<script>
+(function(){
+  'use strict';
+  var frame=document.getElementById('app');
+  var p=new URLSearchParams(location.search);
+  p.set('build','20260828-telegram-module-v6');
+  p.set('from','v6');
+  p.set('t',String(Date.now()));
+  frame.src='app-v5.html?'+p.toString();
+
+  function addTelegramTile(doc){
+    if(!doc)return;
+    var roleEl=doc.getElementById('topRole');
+    var role=String(roleEl&&roleEl.textContent||'').trim().toUpperCase();
+    if(role!=='OWNER'&&role!=='ADMIN')return;
+    var targets=[doc.getElementById('menu'),doc.getElementById('allModules')];
+    targets.forEach(function(box){
+      if(!box||box.querySelector('[data-telegram-settings-tile]'))return;
+      var a=doc.createElement('a');
+      a.className='tile';
+      a.href='telegram-settings.html';
+      a.dataset.title='Telegram Settings';
+      a.dataset.telegramSettingsTile='1';
+      a.innerHTML='<span class="ico">✈</span><b>Telegram Settings</b><small>Bot token and admin receiver</small>';
+      box.appendChild(a);
+    });
+    var all=doc.getElementById('allModules');
+    var hint=doc.getElementById('moduleHint');
+    if(all&&hint)hint.textContent=all.querySelectorAll('a.tile').length+' modules';
+  }
+
+  function sync(){
+    try{addTelegramTile(frame.contentDocument)}catch(_){}
+  }
+  frame.addEventListener('load',function(){sync();setTimeout(sync,300);setTimeout(sync,1200)});
+  setInterval(sync,700);
+})();
+</script>
+</body>
+</html>
