@@ -1,4 +1,4 @@
-const CACHE_NAME='techgeekph-installer-v5';
+const CACHE_NAME='techgeekph-installer-v6';
 const APP_SHELL=[
   '/admin-portal/technician-checklist.html',
   '/admin-portal/installer-manifest.webmanifest',
@@ -31,6 +31,7 @@ self.addEventListener('fetch',event=>{
     url.pathname.endsWith('/app.html') ||
     url.pathname.endsWith('/app-tickets.html') ||
     url.pathname.endsWith('/tickets.html') ||
+    url.pathname.endsWith('/application_form.html') ||
     url.pathname.endsWith('/assets/admin-nav.js') ||
     /\/app-v[2-6]\.html$/.test(url.pathname);
 
