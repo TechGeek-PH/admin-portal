@@ -1,4 +1,4 @@
-const CACHE_NAME='techgeekph-installer-v12';
+const CACHE_NAME='techgeekph-installer-v13';
 const APP_SHELL=[
   '/admin-portal/app.html',
   '/admin-portal/network-monitor.html',
@@ -10,21 +10,22 @@ const APP_SHELL=[
 async function fetchFresh(req,url){
   const fresh=await fetch(req,{cache:'no-store'});
   const type=fresh.headers.get('content-type')||'';
-  if(type.includes('text/html')){
-    let text=await fresh.text();
-    let changed=false;
-    if((url.pathname.endsWith('/app.html')||url.pathname.endsWith('/app-tickets.html'))&&!text.includes('client-proof-entry.js')){
-      text=text.replace('</body>','<script src="assets/client-proof-entry.js?v=20260830-5"></script></body>');changed=true;
-    }
-    if(url.pathname.endsWith('/app.html')&&!text.includes('network-monitor-entry.js')){
-      text=text.replace('</body>','<script src="assets/network-monitor-entry.js?v=20260830-4"></script></body>');changed=true;
-    }
-    if(changed){
-      const headers=new Headers(fresh.headers);headers.set('cache-control','no-store, no-cache, must-revalidate');headers.delete('content-length');
-      return new Response(text,{status:fresh.status,statusText:fresh.statusText,headers});
-    }
+  if(!type.includes('text/html')) return fresh;
+
+  // IMPORTANT: once .text() is called, the original Response body is consumed.
+  // Always rebuild the HTML Response, even when no injection/change is needed.
+  let text=await fresh.text();
+  let changed=false;
+  if((url.pathname.endsWith('/app.html')||url.pathname.endsWith('/app-tickets.html'))&&!text.includes('client-proof-entry.js')){
+    text=text.replace('</body>','<script src="assets/client-proof-entry.js?v=20260830-5"></script></body>');changed=true;
   }
-  return fresh;
+  if(url.pathname.endsWith('/app.html')&&!text.includes('network-monitor-entry.js')){
+    text=text.replace('</body>','<script src="assets/network-monitor-entry.js?v=20260830-4"></script></body>');changed=true;
+  }
+  const headers=new Headers(fresh.headers);
+  headers.delete('content-length');
+  if(changed||url.pathname.includes('network-monitor')) headers.set('cache-control','no-store, no-cache, must-revalidate');
+  return new Response(text,{status:fresh.status,statusText:fresh.statusText,headers});
 }
 
 function offlinePage(title,message){
@@ -69,11 +70,20 @@ self.addEventListener('fetch',event=>{
         const fresh=await fetchFresh(req,url);
         const cache=await caches.open(CACHE_NAME);
         cache.put(req,fresh.clone()).catch(()=>{});
+        // Also cache the queryless Network Monitor page so old cache-busted links
+        // have a reliable fallback without ever falling into Ticketing.
+        if(url.pathname.endsWith('/network-monitor.html')){
+          cache.put('/admin-portal/network-monitor.html',fresh.clone()).catch(()=>{});
+        }
         return fresh;
       }catch(e){
         const exact=await caches.match(req);
         if(exact) return exact;
-        if(url.pathname.includes('network-monitor')) return offlinePage('Network Monitor unavailable','Unable to load the Network Monitor right now. Check the connection and retry.');
+        if(url.pathname.endsWith('/network-monitor.html')){
+          const monitorCached=await caches.match('/admin-portal/network-monitor.html');
+          if(monitorCached) return monitorCached;
+          return offlinePage('Network Monitor unavailable','Unable to load the Network Monitor right now. Check the connection and retry.');
+        }
         if(url.pathname.includes('client-proof')) return offlinePage('Client Proof Photos unavailable','Unable to load this module right now. Check the connection and retry.');
         if(url.pathname.endsWith('/app-tickets.html')||url.pathname.includes('technician-checklist')){
           return (await caches.match('/admin-portal/technician-checklist.html')) || offlinePage('Technician Tickets unavailable','Unable to load technician tickets right now.');
