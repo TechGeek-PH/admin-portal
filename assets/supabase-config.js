@@ -13,6 +13,18 @@
   window.TechGeekSupabaseConfig={url:SUPABASE_URL,keyType:'publishable'};
 })();
 
+// NAP Checker: live ping status replaces the Remote IP display.
+(function(){
+  'use strict';
+  if(!/(^|\/)nap-checker\.html$/i.test(window.location.pathname))return;
+  if(document.querySelector('script[data-nap-ping-status]'))return;
+  const script=document.createElement('script');
+  script.src='assets/nap-ping-status.js?v=20260830-1';
+  script.async=false;
+  script.dataset.napPingStatus='1';
+  document.head.appendChild(script);
+})();
+
 // New Installation proof-photo workflow inside Technician Tickets.
 (function(){
   'use strict';
