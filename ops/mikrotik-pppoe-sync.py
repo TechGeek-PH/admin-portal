@@ -78,15 +78,23 @@ def valid_ip(v):
     try:return str(ipaddress.ip_address(str(v or '').strip()))
     except:return None
 
-def unique_by(rows,field):
+def unique_by(rows,field,normalizer):
     temp={};dupes=set()
     for r in rows:
-        k=valid_ip(r.get(field))
+        k=normalizer(r.get(field))
         if not k:continue
         if k in temp:dupes.add(k)
         else:temp[k]=r
     for k in dupes:temp.pop(k,None)
     return temp
+
+def norm_text(v):
+    return re.sub(r'[^a-z0-9]','',str(v or '').lower())
+
+def suffix_key(v):
+    m=re.search(r'(\d{3,6})$',str(v or '').strip())
+    if not m:return None
+    return str(int(m.group(1)))
 
 def account_candidates(account):
     a=str(account or '').strip().upper()
@@ -106,7 +114,7 @@ def fetch_router():
     with socket.create_connection((HOST,PORT),timeout=TIMEOUT) as s:
         s.settimeout(TIMEOUT)
         command(s,'/login',{'name':USER,'password':PASSWORD})
-        secrets=command(s,'/ppp/secret/print',{'.proplist':'name,disabled,profile,service,remote-address'})
+        secrets=command(s,'/ppp/secret/print',{'.proplist':'name,disabled,profile,service,remote-address,comment'})
         active=command(s,'/ppp/active/print',{'.proplist':'name,address,uptime,service,caller-id'})
     return secrets,active
 
@@ -115,10 +123,12 @@ def cycle():
     secrets,active=fetch_router()
     sec_name={str(r.get('name') or '').strip().lower():r for r in secrets if r.get('name')}
     act_name={str(r.get('name') or '').strip().lower():r for r in active if r.get('name')}
-    sec_ip=unique_by(secrets,'remote-address');act_ip=unique_by(active,'address')
-    results=[];discovered_ip=0;discovered_name=0
+    sec_ip=unique_by(secrets,'remote-address',valid_ip);act_ip=unique_by(active,'address',valid_ip)
+    sec_suffix=unique_by(secrets,'name',suffix_key)
+    sec_comment=unique_by(secrets,'comment',norm_text)
+    results=[];discovered_ip=0;discovered_name=0;discovered_suffix=0;discovered_comment=0
     for c in targets:
-        account=str(c.get('account_no') or '').strip();ip=valid_ip(c.get('remote_address'));username=str(c.get('pppoe_username') or '').strip()
+        account=str(c.get('account_no') or '').strip();client_name=str(c.get('client_name') or '').strip();ip=valid_ip(c.get('remote_address'));username=str(c.get('pppoe_username') or '').strip()
         if not account:continue
         secret=session=None
         if username:
@@ -136,10 +146,22 @@ def cycle():
                     username=str((secret or session or {}).get('name') or '').strip()
                     if username:discovered_name+=1
                     break
+        if not username:
+            sk=suffix_key(account)
+            candidate=sec_suffix.get(sk) if sk else None
+            if candidate:
+                username=str(candidate.get('name') or '').strip();secret=candidate;session=act_name.get(username.lower()) if username else None
+                if username:discovered_suffix+=1
+        if not username and client_name:
+            nk=norm_text(client_name)
+            candidate=sec_comment.get(nk) if nk else None
+            if candidate:
+                username=str(candidate.get('name') or '').strip();secret=candidate;session=act_name.get(username.lower()) if username else None
+                if username:discovered_comment+=1
         if not username:continue
         results.append({'account_no':account,'pppoe_username':username,'secret_found':secret is not None,'secret_disabled':rb((secret or {}).get('disabled')),'session_active':session is not None,'active_address':(session or {}).get('address') or None,'profile':(secret or {}).get('profile') or None,'service':(session or secret or {}).get('service') or None,'caller_id':(session or {}).get('caller-id') or None,'uptime':(session or {}).get('uptime') or None,'source':'mikrotik-api:'+HOST,'error':None})
     for i in range(0,len(results),250):edge({'action':'pppoe','results':results[i:i+250]})
-    print(time.strftime('%Y-%m-%d %H:%M:%S'),f'targets={len(targets)} router_secrets={len(secrets)} router_active={len(active)} matched={len(results)} discovered_by_ip={discovered_ip} discovered_by_name={discovered_name} pppoe_active={sum(1 for r in results if r["session_active"])}',flush=True)
+    print(time.strftime('%Y-%m-%d %H:%M:%S'),f'targets={len(targets)} router_secrets={len(secrets)} router_active={len(active)} matched={len(results)} unmatched={len(targets)-len(results)} discovered_by_ip={discovered_ip} discovered_by_name={discovered_name} discovered_by_suffix={discovered_suffix} discovered_by_comment={discovered_comment} pppoe_active={sum(1 for r in results if r["session_active"])}',flush=True)
 
 def main():
     if not MONITOR_KEY:raise SystemExit('MONITOR_INGEST_KEY missing')
