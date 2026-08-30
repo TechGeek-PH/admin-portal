@@ -27,6 +27,7 @@
       label: "Operations",
       items: [
         { label: "Tickets", href: "tickets.html" },
+        { label: "Client Proof Photos", href: "client-proof-photos.html" },
         { label: "Clients", href: "clients.html" },
         { label: "Billing Control", href: "billing.html", aliases: ["billing_control.html"] },
         { label: "NAP Checker", href: "nap-checker.html" },
