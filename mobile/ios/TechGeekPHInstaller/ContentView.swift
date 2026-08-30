@@ -3,7 +3,7 @@ import WebKit
 
 struct ContentView: View {
     var body: some View {
-        TechGeekPHWebView(url: URL(string: "https://techgeek-ph.github.io/admin-portal/mobile-entry.html?source=ios-app&build=20260830-network-pppoe-mobile15&v=1.5.0")!)
+        TechGeekPHWebView(url: URL(string: "https://techgeek-ph.github.io/admin-portal/app.html?source=ios-app&build=20260830-network-pppoe-mobile151&v=1.5.1")!)
             .ignoresSafeArea()
             .statusBarHidden(true)
     }
@@ -47,6 +47,25 @@ struct TechGeekPHWebView: UIViewRepresentable {
                 UIApplication.shared.open(url)
                 decisionHandler(.cancel)
             }
+        }
+
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            guard let url = webView.url, url.path.hasSuffix("/admin-portal/app.html") else { return }
+            let js = """
+            (function(){
+              function add(src,id){
+                if(document.querySelector('script[data-native-module="'+id+'"]')) return;
+                var s=document.createElement('script');
+                s.src=src;
+                s.async=false;
+                s.setAttribute('data-native-module',id);
+                document.head.appendChild(s);
+              }
+              add('https://techgeek-ph.github.io/admin-portal/assets/client-proof-entry.js?v=20260830-mobile151','proof');
+              add('https://techgeek-ph.github.io/admin-portal/assets/network-monitor-entry.js?v=20260830-mobile151','network');
+            })();
+            """
+            webView.evaluateJavaScript(js, completionHandler: nil)
         }
     }
 }
