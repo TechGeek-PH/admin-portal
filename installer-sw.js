@@ -1,4 +1,4 @@
-const CACHE_NAME='techgeekph-installer-v9';
+const CACHE_NAME='techgeekph-installer-v10';
 const APP_SHELL=[
   '/admin-portal/technician-checklist.html',
   '/admin-portal/installer-manifest.webmanifest',
@@ -12,13 +12,10 @@ async function fetchFresh(req,url){
     let text=await fresh.text();
     let changed=false;
     if((url.pathname.endsWith('/app.html')||url.pathname.endsWith('/app-tickets.html'))&&!text.includes('client-proof-entry.js')){
-      text=text.replace('</body>','<script src="assets/client-proof-entry.js?v=20260830-3"></script></body>');changed=true;
+      text=text.replace('</body>','<script src="assets/client-proof-entry.js?v=20260830-4"></script></body>');changed=true;
     }
     if(url.pathname.endsWith('/app.html')&&!text.includes('network-monitor-entry.js')){
-      text=text.replace('</body>','<script src="assets/network-monitor-entry.js?v=20260830-2"></script></body>');changed=true;
-    }
-    if(url.pathname.endsWith('/network-monitor.html')&&!text.includes('network-monitor-pppoe.js')){
-      text=text.replace('</body>','<script src="assets/network-monitor-pppoe.js?v=20260830-1"></script></body>');changed=true;
+      text=text.replace('</body>','<script src="assets/network-monitor-entry.js?v=20260830-3"></script></body>');changed=true;
     }
     if(changed){
       const headers=new Headers(fresh.headers);headers.set('cache-control','no-store, no-cache, must-revalidate');headers.delete('content-length');
