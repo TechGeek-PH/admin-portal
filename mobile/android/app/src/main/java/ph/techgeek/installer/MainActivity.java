@@ -25,7 +25,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-    private static final String APP_URL = "https://techgeek-ph.github.io/admin-portal/mobile-entry.html?source=android-app&build=20260830-network-pppoe-mobile15&v=1.5.0";
+    private static final String APP_URL = "https://techgeek-ph.github.io/admin-portal/app.html?source=android-app&build=20260830-network-pppoe-mobile151&v=1.5.1";
     private static final int FILE_CHOOSER_REQUEST = 101;
     private static final int LOCATION_PERMISSION_REQUEST = 102;
 
@@ -77,7 +77,7 @@ public class MainActivity extends Activity {
         settings.setLoadWithOverviewMode(true);
         settings.setMediaPlaybackRequiresUserGesture(false);
         settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
-        settings.setUserAgentString(settings.getUserAgentString() + " TechGeekPHApp/1.5.0");
+        settings.setUserAgentString(settings.getUserAgentString() + " TechGeekPHApp/1.5.1");
 
         webView.setWebViewClient(new WebViewClient() {
             @Override
@@ -106,6 +106,7 @@ public class MainActivity extends Activity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
+                injectLatestModules(view, url);
                 hideLoading();
                 view.requestFocus(View.FOCUS_DOWN);
             }
@@ -167,6 +168,17 @@ public class MainActivity extends Activity {
                 hideLoading();
             }
         }, 8000);
+    }
+
+    private void injectLatestModules(WebView view, String url) {
+        if (view == null || url == null || !url.contains("/admin-portal/app.html")) return;
+        String js = "(function(){" +
+                "function add(src,id){if(document.querySelector('script[data-native-module=\\\"'+id+'\\\"]'))return;" +
+                "var s=document.createElement('script');s.src=src;s.async=false;s.setAttribute('data-native-module',id);document.head.appendChild(s);}" +
+                "add('https://techgeek-ph.github.io/admin-portal/assets/client-proof-entry.js?v=20260830-mobile151','proof');" +
+                "add('https://techgeek-ph.github.io/admin-portal/assets/network-monitor-entry.js?v=20260830-mobile151','network');" +
+                "})();";
+        view.evaluateJavascript(js, null);
     }
 
     private boolean handleUrl(Uri uri) {
