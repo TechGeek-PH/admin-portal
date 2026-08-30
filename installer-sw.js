@@ -1,5 +1,7 @@
-const CACHE_NAME='techgeekph-installer-v10';
+const CACHE_NAME='techgeekph-installer-v11';
 const APP_SHELL=[
+  '/admin-portal/app.html',
+  '/admin-portal/network-monitor.html',
   '/admin-portal/technician-checklist.html',
   '/admin-portal/installer-manifest.webmanifest',
   '/admin-portal/assets/TechGeekPH%20-%20logo.png'
@@ -23,6 +25,10 @@ async function fetchFresh(req,url){
     }
   }
   return fresh;
+}
+
+function offlinePage(title,message){
+  return new Response(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>body{font-family:system-ui;margin:0;background:#f3f6fa;color:#17355d}.box{max-width:520px;margin:70px auto;padding:24px;text-align:center}.btn{display:inline-block;margin-top:16px;padding:12px 18px;border:0;border-radius:10px;background:#064f83;color:#fff;font-weight:800}</style></head><body><div class="box"><h2>${title}</h2><p>${message}</p><button class="btn" onclick="location.reload()">Retry</button></div></body></html>`,{status:503,headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store'}});
 }
 
 self.addEventListener('install',event=>{
@@ -65,7 +71,14 @@ self.addEventListener('fetch',event=>{
         cache.put(req,fresh.clone()).catch(()=>{});
         return fresh;
       }catch(e){
-        return (await caches.match(req)) || (await caches.match('/admin-portal/technician-checklist.html'));
+        const exact=await caches.match(req);
+        if(exact) return exact;
+        if(url.pathname.includes('network-monitor')) return offlinePage('Network Monitor unavailable','Unable to load the Network Monitor right now. Check the connection and retry.');
+        if(url.pathname.includes('client-proof')) return offlinePage('Client Proof Photos unavailable','Unable to load this module right now. Check the connection and retry.');
+        if(url.pathname.endsWith('/app-tickets.html')||url.pathname.includes('technician-checklist')){
+          return (await caches.match('/admin-portal/technician-checklist.html')) || offlinePage('Technician Tickets unavailable','Unable to load technician tickets right now.');
+        }
+        return offlinePage('TechGeekPH module unavailable','Unable to load this module right now. Check the connection and retry.');
       }
     })());
     return;
@@ -80,7 +93,7 @@ self.addEventListener('fetch',event=>{
       cache.put(req,fresh.clone()).catch(()=>{});
       return fresh;
     }catch(e){
-      return caches.match('/admin-portal/technician-checklist.html');
+      return offlinePage('TechGeekPH offline','This resource is not available while offline.');
     }
   })());
 });
