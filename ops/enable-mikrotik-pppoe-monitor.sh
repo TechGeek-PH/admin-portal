@@ -1,54 +1,49 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ENV_FILE=/etc/techgeekph-network-monitor.env
-AGENT=/opt/techgeekph-network-monitor/network-monitor-agent.py
-SERVICE=techgeekph-network-monitor.service
+BASE_ENV=/etc/techgeekph-network-monitor.env
+PPPOE_ENV=/etc/techgeekph-pppoe-monitor.env
+DIR=/opt/techgeekph-network-monitor
+SERVICE=techgeekph-pppoe-monitor.service
 
 if [[ ${EUID:-$(id -u)} -ne 0 ]]; then
   echo "Run as root: sudo bash enable-mikrotik-pppoe-monitor.sh"
   exit 1
 fi
-if [[ ! -f "$ENV_FILE" ]]; then
-  echo "Network Monitor is not installed yet: $ENV_FILE not found"
+if [[ ! -f "$BASE_ENV" ]]; then
+  echo "Base Network Monitor is not installed yet: $BASE_ENV not found"
   exit 1
 fi
 
-CURRENT_HOST=$(grep -E '^MIKROTIK_HOST=' "$ENV_FILE" 2>/dev/null | tail -1 | cut -d= -f2- || true)
-CURRENT_USER=$(grep -E '^MIKROTIK_USER=' "$ENV_FILE" 2>/dev/null | tail -1 | cut -d= -f2- || true)
-DEFAULT_HOST=${CURRENT_HOST:-10.200.0.2}
-DEFAULT_USER=${CURRENT_USER:-tg-monitor}
-
+DEFAULT_HOST=10.200.0.2
+DEFAULT_USER=tg-monitor
 read -rp "MikroTik WireGuard/LAN IP [$DEFAULT_HOST]: " MT_HOST
 MT_HOST=${MT_HOST:-$DEFAULT_HOST}
 read -rp "MikroTik monitor username [$DEFAULT_USER]: " MT_USER
 MT_USER=${MT_USER:-$DEFAULT_USER}
-printf 'MikroTik monitor password (input hidden; use letters/numbers only): '
+printf 'MikroTik monitor password (input hidden; letters/numbers/dot/_/- only): '
 read -rs MT_PASS
 echo
-if [[ -z "$MT_PASS" ]]; then
-  echo "Password is required."
-  exit 1
-fi
+if [[ -z "$MT_PASS" ]]; then echo "Password is required."; exit 1; fi
 if [[ ! "$MT_PASS" =~ ^[A-Za-z0-9._-]{8,64}$ ]]; then
-  echo "For safe EnvironmentFile storage, use 8-64 characters: letters, numbers, dot, underscore or dash only."
+  echo "Use 8-64 characters: letters, numbers, dot, underscore or dash only."
   exit 1
 fi
 
-curl -fsSL https://raw.githubusercontent.com/TechGeek-PH/admin-portal/main/ops/network-monitor-agent.py -o "$AGENT"
-chmod 0755 "$AGENT"
+install -d -m 0755 "$DIR"
+curl -fsSL https://raw.githubusercontent.com/TechGeek-PH/admin-portal/main/ops/mikrotik-pppoe-sync.py -o "$DIR/mikrotik-pppoe-sync.py"
+chmod 0755 "$DIR/mikrotik-pppoe-sync.py"
+curl -fsSL https://raw.githubusercontent.com/TechGeek-PH/admin-portal/main/ops/techgeekph-pppoe-monitor.service -o /etc/systemd/system/$SERVICE
 
-TMP=$(mktemp)
-grep -vE '^MIKROTIK_(HOST|API_PORT|USER|PASSWORD|TIMEOUT_SECONDS)=' "$ENV_FILE" > "$TMP" || true
-cat >>"$TMP" <<EOF
+cat >"$PPPOE_ENV" <<EOF
 MIKROTIK_HOST=$MT_HOST
 MIKROTIK_API_PORT=8728
 MIKROTIK_USER=$MT_USER
 MIKROTIK_PASSWORD=$MT_PASS
 MIKROTIK_TIMEOUT_SECONDS=8
+PPPOE_SYNC_INTERVAL_SECONDS=60
 EOF
-install -m 0600 "$TMP" "$ENV_FILE"
-rm -f "$TMP"
+chmod 0600 "$PPPOE_ENV"
 unset MT_PASS
 
 python3 - "$MT_HOST" <<'PY'
@@ -59,15 +54,15 @@ try:
         print('MikroTik API TCP 8728: REACHABLE')
 except Exception as e:
     print('MikroTik API TCP 8728: NOT REACHABLE -',e)
-    print('Enable /ip service api on the MikroTik and allow only the VPS WireGuard IP.')
+    print('Enable the MikroTik API service and restrict it to the VPS WireGuard IP before continuing.')
 PY
 
 systemctl daemon-reload
-systemctl restart "$SERVICE"
+systemctl enable --now "$SERVICE"
 sleep 3
 systemctl --no-pager --full status "$SERVICE" || true
 echo
-echo "Latest monitor logs:"
-journalctl -u "$SERVICE" -n 8 --no-pager || true
+echo "Latest PPPoE sync logs:"
+journalctl -u "$SERVICE" -n 10 --no-pager || true
 echo
-echo "Expected successful line includes: pppoe_checked=... pppoe_active=... router_active=..."
+echo "Success looks like: router_secrets=... router_active=... matched=... discovered_by_ip=... pppoe_active=..."
