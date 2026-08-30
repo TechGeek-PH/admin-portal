@@ -8,7 +8,7 @@ USER=os.environ.get('MIKROTIK_USER','').strip()
 PASSWORD=os.environ.get('MIKROTIK_PASSWORD','')
 INTERVAL=max(30,int(os.environ.get('PPPOE_SYNC_INTERVAL_SECONDS','60')))
 TIMEOUT=max(2,int(os.environ.get('MIKROTIK_TIMEOUT_SECONDS','8')))
-MATCHER_VERSION='20260830-3'
+MATCHER_VERSION='20260830-4'
 
 def edge(body):
     data=json.dumps(body,separators=(',',':')).encode()
@@ -165,7 +165,7 @@ def cycle():
                 username=str(candidate.get('name') or '').strip();secret=candidate;session=act_name.get(username.lower()) if username else None
                 if username:discovered_comment+=1
         if not username:continue
-        results.append({'account_no':account,'pppoe_username':username,'secret_found':secret is not None,'secret_disabled':rb((secret or {}).get('disabled')),'session_active':session is not None,'active_address':(session or {}).get('address') or None,'profile':(secret or {}).get('profile') or None,'service':(session or secret or {}).get('service') or None,'caller_id':(session or {}).get('caller-id') or None,'uptime':(session or {}).get('uptime') or None,'source':'mikrotik-api:'+HOST,'error':None})
+        results.append({'account_no':account,'pppoe_username':username,'secret_found':secret is not None,'secret_disabled':rb((secret or {}).get('disabled')),'session_active':session is not None,'secret_remote_address':valid_ip((secret or {}).get('remote-address')),'active_address':valid_ip((session or {}).get('address')),'profile':(secret or {}).get('profile') or None,'service':(session or secret or {}).get('service') or None,'caller_id':(session or {}).get('caller-id') or None,'uptime':(session or {}).get('uptime') or None,'source':'mikrotik-api:'+HOST,'error':None})
     for i in range(0,len(results),250):edge({'action':'pppoe','results':results[i:i+250]})
     print(time.strftime('%Y-%m-%d %H:%M:%S'),f'matcher={MATCHER_VERSION} targets={len(targets)} router_secrets={len(secrets)} router_active={len(active)} matched={len(results)} unmatched={len(targets)-len(results)} discovered_by_ip={discovered_ip} discovered_by_name={discovered_name} discovered_by_suffix={discovered_suffix} discovered_by_comment={discovered_comment} pppoe_active={sum(1 for r in results if r["session_active"])}',flush=True)
 
