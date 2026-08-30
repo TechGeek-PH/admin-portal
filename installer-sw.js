@@ -1,4 +1,4 @@
-const CACHE_NAME='techgeekph-installer-v13';
+const CACHE_NAME='techgeekph-installer-v14';
 const APP_SHELL=[
   '/admin-portal/app.html',
   '/admin-portal/network-monitor.html',
@@ -21,6 +21,15 @@ async function fetchFresh(req,url){
   }
   if(url.pathname.endsWith('/app.html')&&!text.includes('network-monitor-entry.js')){
     text=text.replace('</body>','<script src="assets/network-monitor-entry.js?v=20260830-4"></script></body>');changed=true;
+  }
+  if(url.pathname.endsWith('/network-monitor.html')){
+    text=text
+      .replace(/10 clients per page/g,'20 clients per page')
+      .replace(/Loading 10 clients/g,'Loading 20 clients')
+      .replace(/10 per page/g,'20 per page')
+      .replace(/PAGE_SIZE=10/g,'PAGE_SIZE=20')
+      .replace(/20260830-network-fast-v5/g,'20260830-network-fast-v6-page20');
+    changed=true;
   }
   const headers=new Headers(fresh.headers);
   headers.delete('content-length');
@@ -70,8 +79,6 @@ self.addEventListener('fetch',event=>{
         const fresh=await fetchFresh(req,url);
         const cache=await caches.open(CACHE_NAME);
         cache.put(req,fresh.clone()).catch(()=>{});
-        // Also cache the queryless Network Monitor page so old cache-busted links
-        // have a reliable fallback without ever falling into Ticketing.
         if(url.pathname.endsWith('/network-monitor.html')){
           cache.put('/admin-portal/network-monitor.html',fresh.clone()).catch(()=>{});
         }
