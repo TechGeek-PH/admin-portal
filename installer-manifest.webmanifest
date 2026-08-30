@@ -1,9 +1,9 @@
 {
-  "name": "TechGeekPH Installer",
-  "short_name": "TG Installer",
-  "description": "TechGeekPH technician installation and service checklist.",
+  "name": "TechGeekPH",
+  "short_name": "TechGeekPH",
+  "description": "TechGeekPH employee and admin operations app with tickets, client proof photos, billing, NAP tools and live network monitoring.",
   "id": "/admin-portal/technician-checklist.html",
-  "start_url": "/admin-portal/technician-checklist.html?source=pwa",
+  "start_url": "/admin-portal/mobile-entry.html?source=pwa&v=1.5.0",
   "scope": "/admin-portal/",
   "display": "fullscreen",
   "display_override": ["fullscreen", "standalone"],
