@@ -8,7 +8,7 @@ if(path==='app-tickets.html'){
 }
 if(path!=='app.html'&&path!=='app')return;
 function proofTile(){const a=document.createElement('a');a.className='tile';a.href='client-proof-photos.html';a.dataset.title='Client Proof Photos';a.dataset.clientProofModule='1';a.innerHTML='<span class="ico">📷</span><b>Client Proof Photos</b><small>Search clients and update installation proof pictures</small>';return a}
-function monitorTile(){const a=document.createElement('a');a.className='tile';a.href='network-monitor.html';a.dataset.title='Network Monitor';a.dataset.networkMonitorModule='1';a.innerHTML='<span class="ico">📡</span><b>Network Monitor</b><small>Live ping, offline clients and possible fiber cut alerts</small>';return a}
+function monitorTile(){const a=document.createElement('a');a.className='tile';a.href='network-monitor.html?v=20260830-fast5';a.dataset.title='Network Monitor';a.dataset.networkMonitorModule='1';a.innerHTML='<span class="ico">📡</span><b>Network Monitor</b><small>Live ping, PPPoE, offline clients and possible fiber cut alerts</small>';return a}
 function sync(){['menu','allModules'].forEach(id=>{const g=document.getElementById(id);if(!g)return;if(!g.querySelector('[data-client-proof-module]'))g.appendChild(proofTile());if(!g.querySelector('[data-network-monitor-module]'))g.appendChild(monitorTile())})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{sync();new MutationObserver(sync).observe(document.body,{childList:true,subtree:true})},{once:true});else{sync();new MutationObserver(sync).observe(document.body,{childList:true,subtree:true})}
 })();
