@@ -1,9 +1,21 @@
-const CACHE_NAME='techgeekph-installer-v6';
+const CACHE_NAME='techgeekph-installer-v7';
 const APP_SHELL=[
   '/admin-portal/technician-checklist.html',
   '/admin-portal/installer-manifest.webmanifest',
   '/admin-portal/assets/TechGeekPH%20-%20logo.png'
 ];
+
+async function fetchFresh(req,url){
+  const fresh=await fetch(req,{cache:'no-store'});
+  const type=fresh.headers.get('content-type')||'';
+  if(type.includes('text/html')&&(url.pathname.endsWith('/app.html')||url.pathname.endsWith('/app-tickets.html'))){
+    let text=await fresh.text();
+    if(!text.includes('client-proof-entry.js'))text=text.replace('</body>','<script src="assets/client-proof-entry.js?v=20260830-2"></script></body>');
+    const headers=new Headers(fresh.headers);headers.set('cache-control','no-store, no-cache, must-revalidate');headers.delete('content-length');
+    return new Response(text,{status:fresh.status,statusText:fresh.statusText,headers});
+  }
+  return fresh;
+}
 
 self.addEventListener('install',event=>{
   self.skipWaiting();
@@ -28,6 +40,7 @@ self.addEventListener('fetch',event=>{
     url.pathname.includes('technician-checklist') ||
     url.pathname.includes('technician-live-sync') ||
     url.pathname.includes('service-catalog') ||
+    url.pathname.includes('client-proof') ||
     url.pathname.endsWith('/app.html') ||
     url.pathname.endsWith('/app-tickets.html') ||
     url.pathname.endsWith('/tickets.html') ||
@@ -38,7 +51,7 @@ self.addEventListener('fetch',event=>{
   if(freshUi){
     event.respondWith((async()=>{
       try{
-        const fresh=await fetch(req,{cache:'no-store'});
+        const fresh=await fetchFresh(req,url);
         const cache=await caches.open(CACHE_NAME);
         cache.put(req,fresh.clone()).catch(()=>{});
         return fresh;
