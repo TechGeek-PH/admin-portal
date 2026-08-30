@@ -25,7 +25,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-    private static final String APP_URL = "https://techgeek-ph.github.io/admin-portal/app.html?source=android-app&build=20260830-network-pppoe-mobile&v=1.5.0";
+    private static final String APP_URL = "https://techgeek-ph.github.io/admin-portal/mobile-entry.html?source=android-app&build=20260830-network-pppoe-mobile15&v=1.5.0";
     private static final int FILE_CHOOSER_REQUEST = 101;
     private static final int LOCATION_PERMISSION_REQUEST = 102;
 
