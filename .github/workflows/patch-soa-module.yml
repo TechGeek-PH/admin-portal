@@ -1,0 +1,43 @@
+name: Patch SOA module
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-soa-module.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add SOA & Acknowledgement Receipt to app modules
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('app.html')
+          s = p.read_text(encoding='utf-8')
+          old_build = "const BUILD='20260830-unified-ticket-v9';"
+          new_build = "const BUILD='20260831-soa-module-v10';"
+          old_admin = "const ADMIN=[['tickets.html','🎫','Tickets Admin','Create and manage all installation, repair, relocation and IT service tickets'],['clients.html','👥','Clients','Client master records'],['client-data-quality.html','⚠','Data Quality','Incomplete client records to review'],['billing.html','₱','Billing Control','Billing and payments'],['nap-checker.html','◉','NAP Checker','NAP ports and clients'],['expense_approval.html','₱','Expense Approval','Review staff expenses'],['payroll-loans.html','₱','Payroll & Loans','Payroll, employee payslips and loan management']];"
+          new_admin = "const ADMIN=[['tickets.html','🎫','Tickets Admin','Create and manage all installation, repair, relocation and IT service tickets'],['clients.html','👥','Clients','Client master records'],['client-data-quality.html','⚠','Data Quality','Incomplete client records to review'],['billing.html','₱','Billing Control','Billing and payments'],['statement_of_account.html','🧾','SOA & Acknowledgement Receipt','Generate client statement of account and acknowledgement receipt'],['nap-checker.html','◉','NAP Checker','NAP ports and clients'],['expense_approval.html','₱','Expense Approval','Review staff expenses'],['payroll-loans.html','₱','Payroll & Loans','Payroll, employee payslips and loan management']];"
+          if old_admin not in s:
+              raise SystemExit('ADMIN module array signature not found; refusing unsafe patch')
+          s = s.replace(old_admin, new_admin, 1)
+          if old_build in s:
+              s = s.replace(old_build, new_build, 1)
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name 'TechGeekPH Bot'
+          git config user.email '137922253+TechGeek-PH@users.noreply.github.com'
+          git add app.html
+          if git diff --cached --quiet; then
+            echo 'No changes required.'
+          else
+            git commit -m 'Add SOA and acknowledgement receipt app module'
+            git push
+          fi
