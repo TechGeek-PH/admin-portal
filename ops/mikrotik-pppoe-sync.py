@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import json,os,socket,struct,sys,time,urllib.request,ipaddress
+import json,os,socket,struct,sys,time,urllib.request,ipaddress,re
 FUNCTION_URL=os.environ.get('MONITOR_FUNCTION_URL','https://tcexzfztdgximrzuosqs.supabase.co/functions/v1/network-monitor-ingest').strip()
 MONITOR_KEY=os.environ.get('MONITOR_INGEST_KEY','').strip()
 HOST=os.environ.get('MIKROTIK_HOST','10.200.0.2').strip()
@@ -88,6 +88,20 @@ def unique_by(rows,field):
     for k in dupes:temp.pop(k,None)
     return temp
 
+def account_candidates(account):
+    a=str(account or '').strip().upper()
+    if not a:return []
+    out=[a,'MKTECH_'+a]
+    m=re.search(r'(\d+)$',a)
+    if m:
+        digits=m.group(1)
+        out += ['SATR'+digits,'MKTECH_SATR'+digits]
+    seen=[]
+    for x in out:
+        k=x.lower()
+        if k not in seen:seen.append(k)
+    return seen
+
 def fetch_router():
     with socket.create_connection((HOST,PORT),timeout=TIMEOUT) as s:
         s.settimeout(TIMEOUT)
@@ -102,7 +116,7 @@ def cycle():
     sec_name={str(r.get('name') or '').strip().lower():r for r in secrets if r.get('name')}
     act_name={str(r.get('name') or '').strip().lower():r for r in active if r.get('name')}
     sec_ip=unique_by(secrets,'remote-address');act_ip=unique_by(active,'address')
-    results=[];discovered=0
+    results=[];discovered_ip=0;discovered_name=0
     for c in targets:
         account=str(c.get('account_no') or '').strip();ip=valid_ip(c.get('remote_address'));username=str(c.get('pppoe_username') or '').strip()
         if not account:continue
@@ -113,12 +127,19 @@ def cycle():
             session=act_ip.get(ip);secret=sec_ip.get(ip)
             candidate=(session or secret or {}).get('name')
             if candidate:
-                username=str(candidate).strip();discovered+=1
+                username=str(candidate).strip();discovered_ip+=1
                 key=username.lower();secret=sec_name.get(key,secret);session=act_name.get(key,session)
+        if not username:
+            for key in account_candidates(account):
+                if key in sec_name or key in act_name:
+                    secret=sec_name.get(key);session=act_name.get(key)
+                    username=str((secret or session or {}).get('name') or '').strip()
+                    if username:discovered_name+=1
+                    break
         if not username:continue
         results.append({'account_no':account,'pppoe_username':username,'secret_found':secret is not None,'secret_disabled':rb((secret or {}).get('disabled')),'session_active':session is not None,'active_address':(session or {}).get('address') or None,'profile':(secret or {}).get('profile') or None,'service':(session or secret or {}).get('service') or None,'caller_id':(session or {}).get('caller-id') or None,'uptime':(session or {}).get('uptime') or None,'source':'mikrotik-api:'+HOST,'error':None})
     for i in range(0,len(results),250):edge({'action':'pppoe','results':results[i:i+250]})
-    print(time.strftime('%Y-%m-%d %H:%M:%S'),f'targets={len(targets)} router_secrets={len(secrets)} router_active={len(active)} matched={len(results)} discovered_by_ip={discovered} pppoe_active={sum(1 for r in results if r["session_active"])}',flush=True)
+    print(time.strftime('%Y-%m-%d %H:%M:%S'),f'targets={len(targets)} router_secrets={len(secrets)} router_active={len(active)} matched={len(results)} discovered_by_ip={discovered_ip} discovered_by_name={discovered_name} pppoe_active={sum(1 for r in results if r["session_active"])}',flush=True)
 
 def main():
     if not MONITOR_KEY:raise SystemExit('MONITOR_INGEST_KEY missing')
