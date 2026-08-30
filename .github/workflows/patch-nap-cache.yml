@@ -1,0 +1,43 @@
+name: Patch NAP Checker cache-busting loader
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-nap-cache.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch NAP Checker runtime loader
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('nap-checker.html')
+          s = p.read_text(encoding='utf-8')
+
+          # Force fresh runtime in the embedded/native app even when old assets are cached.
+          s = s.replace(
+              '<script src="assets/supabase-config.js"></script>',
+              '<script src="assets/supabase-config.js?v=20260831-4"></script>\n<script src="assets/nap-ping-status.js?v=20260831-4"></script>'
+          )
+          s = s.replace('<th>IP / Remote Address</th>', '<th>Ping Status</th>')
+
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit patch
+        run: |
+          if git diff --quiet; then
+            echo "No changes needed"
+            exit 0
+          fi
+          git config user.name "TechGeekPH Bot"
+          git config user.email "137922253+TechGeek-PH@users.noreply.github.com"
+          git add nap-checker.html
+          git commit -m "Force fresh NAP Checker mobile runtime"
+          git push
