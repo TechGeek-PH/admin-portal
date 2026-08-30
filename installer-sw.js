@@ -1,4 +1,4 @@
-const CACHE_NAME='techgeekph-installer-v2';
+const CACHE_NAME='techgeekph-installer-v3';
 const APP_SHELL=[
   '/admin-portal/technician-checklist.html',
   '/admin-portal/installer-manifest.webmanifest',
@@ -24,11 +24,17 @@ self.addEventListener('fetch',event=>{
   const url=new URL(req.url);
   if(url.origin!==self.location.origin) return;
 
-  // Keep the technician workflow and ticket UI fresh. Fall back to cache if offline.
-  if(url.pathname.includes('technician-checklist') || url.pathname.includes('technician-live-sync') || url.pathname.includes('service-catalog') || url.pathname.endsWith('/app.html') || url.pathname.endsWith('/app-tickets.html')){
+  const freshUi = url.pathname.includes('technician-checklist') ||
+    url.pathname.includes('technician-live-sync') ||
+    url.pathname.includes('service-catalog') ||
+    url.pathname.endsWith('/app.html') ||
+    url.pathname.endsWith('/app-tickets.html') ||
+    /\/app-v[2-6]\.html$/.test(url.pathname);
+
+  if(freshUi){
     event.respondWith((async()=>{
       try{
-        const fresh=await fetch(req);
+        const fresh=await fetch(req,{cache:'no-store'});
         const cache=await caches.open(CACHE_NAME);
         cache.put(req,fresh.clone()).catch(()=>{});
         return fresh;
