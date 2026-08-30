@@ -84,15 +84,15 @@ jobs:
         if: env.APK_FOUND == '1'
         run: |
           cp mobile/android/app/build/outputs/apk/debug/app-debug.apk downloads/TechGeekPH.apk
-          cp mobile/android/app/build/outputs/apk/debug/app-debug.apk downloads/TechGeekPH-v1.5.0.apk
-          ls -lh downloads/TechGeekPH.apk downloads/TechGeekPH-v1.5.0.apk
+          cp mobile/android/app/build/outputs/apk/debug/app-debug.apk downloads/TechGeekPH-v1.5.1.apk
+          ls -lh downloads/TechGeekPH.apk downloads/TechGeekPH-v1.5.1.apk
 
       - name: Upload APK artifact
         if: env.APK_FOUND == '1'
         uses: actions/upload-artifact@v4
         with:
-          name: TechGeekPH-v1.5.0
-          path: downloads/TechGeekPH-v1.5.0.apk
+          name: TechGeekPH-v1.5.1
+          path: downloads/TechGeekPH-v1.5.1.apk
           if-no-files-found: error
 
       - name: Publish APK and diagnostic logs
@@ -101,7 +101,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/tg-publish
-          for f in downloads/TechGeekPH-sdk.log downloads/TechGeekPH-build.log downloads/TechGeekPH-build-status.txt downloads/TechGeekPH.apk downloads/TechGeekPH-v1.5.0.apk; do
+          for f in downloads/TechGeekPH-sdk.log downloads/TechGeekPH-build.log downloads/TechGeekPH-build-status.txt downloads/TechGeekPH.apk downloads/TechGeekPH-v1.5.1.apk; do
             if [ -f "$f" ]; then cp "$f" /tmp/tg-publish/; fi
           done
 
@@ -116,14 +116,14 @@ jobs:
             cp /tmp/tg-publish/* downloads/ 2>/dev/null || true
             git add downloads/TechGeekPH-sdk.log downloads/TechGeekPH-build.log downloads/TechGeekPH-build-status.txt 2>/dev/null || true
             if [ -f downloads/TechGeekPH.apk ]; then git add downloads/TechGeekPH.apk; fi
-            if [ -f downloads/TechGeekPH-v1.5.0.apk ]; then git add downloads/TechGeekPH-v1.5.0.apk; fi
+            if [ -f downloads/TechGeekPH-v1.5.1.apk ]; then git add downloads/TechGeekPH-v1.5.1.apk; fi
 
             if git diff --cached --quiet; then
               echo "Nothing new to publish"
               exit 0
             fi
 
-            git commit -m "Publish TechGeekPH Android v1.5.0 [skip ci]"
+            git commit -m "Publish TechGeekPH Android v1.5.1 [skip ci]"
             if git push origin HEAD:main; then
               echo "APK published successfully"
               exit 0
