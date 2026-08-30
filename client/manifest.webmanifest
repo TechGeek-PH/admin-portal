@@ -2,12 +2,13 @@
   "name": "TechGeekPH Client Portal",
   "short_name": "TechGeekPH",
   "description": "TechGeekPH client billing, account status and support portal.",
-  "start_url": "./",
+  "start_url": "./?app=1",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f3f6fa",
+  "background_color": "#ffffff",
   "theme_color": "#064f83",
   "icons": [
-    {"src":"../assets/TechGeekPH%20-%20logo.png","sizes":"any","type":"image/png","purpose":"any"}
+    {"src":"icon-techgeekph.jpg?v=20260831-2","sizes":"1536x1536","type":"image/jpeg","purpose":"any"},
+    {"src":"icon-techgeekph.jpg?v=20260831-2","sizes":"1536x1536","type":"image/jpeg","purpose":"maskable"}
   ]
 }
