@@ -1,9 +1,14 @@
-const CACHE_NAME='techgeekph-installer-v14';
+const CACHE_NAME='techgeekph-installer-v15';
 const APP_SHELL=[
+  '/admin-portal/mobile-entry.html',
   '/admin-portal/app.html',
+  '/admin-portal/app-tickets.html',
   '/admin-portal/network-monitor.html',
+  '/admin-portal/client-proof-photos.html',
   '/admin-portal/technician-checklist.html',
   '/admin-portal/installer-manifest.webmanifest',
+  '/admin-portal/assets/network-monitor-entry.js',
+  '/admin-portal/assets/client-proof-entry.js',
   '/admin-portal/assets/TechGeekPH%20-%20logo.png'
 ];
 
@@ -12,15 +17,13 @@ async function fetchFresh(req,url){
   const type=fresh.headers.get('content-type')||'';
   if(!type.includes('text/html')) return fresh;
 
-  // IMPORTANT: once .text() is called, the original Response body is consumed.
-  // Always rebuild the HTML Response, even when no injection/change is needed.
   let text=await fresh.text();
   let changed=false;
   if((url.pathname.endsWith('/app.html')||url.pathname.endsWith('/app-tickets.html'))&&!text.includes('client-proof-entry.js')){
-    text=text.replace('</body>','<script src="assets/client-proof-entry.js?v=20260830-5"></script></body>');changed=true;
+    text=text.replace('</body>','<script src="assets/client-proof-entry.js?v=20260830-mobile15"></script></body>');changed=true;
   }
   if(url.pathname.endsWith('/app.html')&&!text.includes('network-monitor-entry.js')){
-    text=text.replace('</body>','<script src="assets/network-monitor-entry.js?v=20260830-4"></script></body>');changed=true;
+    text=text.replace('</body>','<script src="assets/network-monitor-entry.js?v=20260830-mobile15"></script></body>');changed=true;
   }
   if(url.pathname.endsWith('/network-monitor.html')){
     text=text
@@ -28,12 +31,12 @@ async function fetchFresh(req,url){
       .replace(/Loading 10 clients/g,'Loading 20 clients')
       .replace(/10 per page/g,'20 per page')
       .replace(/PAGE_SIZE=10/g,'PAGE_SIZE=20')
-      .replace(/20260830-network-fast-v5/g,'20260830-network-fast-v6-page20');
+      .replace(/20260830-network-fast-v5/g,'20260830-network-fast-v7-page20-mobile15');
     changed=true;
   }
   const headers=new Headers(fresh.headers);
   headers.delete('content-length');
-  if(changed||url.pathname.includes('network-monitor')) headers.set('cache-control','no-store, no-cache, must-revalidate');
+  if(changed||url.pathname.includes('network-monitor')||url.pathname.includes('mobile-entry')) headers.set('cache-control','no-store, no-cache, must-revalidate');
   return new Response(text,{status:fresh.status,statusText:fresh.statusText,headers});
 }
 
@@ -66,6 +69,7 @@ self.addEventListener('fetch',event=>{
     url.pathname.includes('service-catalog') ||
     url.pathname.includes('client-proof') ||
     url.pathname.includes('network-monitor') ||
+    url.pathname.includes('mobile-entry') ||
     url.pathname.endsWith('/app.html') ||
     url.pathname.endsWith('/app-tickets.html') ||
     url.pathname.endsWith('/tickets.html') ||
@@ -82,6 +86,9 @@ self.addEventListener('fetch',event=>{
         if(url.pathname.endsWith('/network-monitor.html')){
           cache.put('/admin-portal/network-monitor.html',fresh.clone()).catch(()=>{});
         }
+        if(url.pathname.endsWith('/app.html')){
+          cache.put('/admin-portal/app.html',fresh.clone()).catch(()=>{});
+        }
         return fresh;
       }catch(e){
         const exact=await caches.match(req);
@@ -93,7 +100,10 @@ self.addEventListener('fetch',event=>{
         }
         if(url.pathname.includes('client-proof')) return offlinePage('Client Proof Photos unavailable','Unable to load this module right now. Check the connection and retry.');
         if(url.pathname.endsWith('/app-tickets.html')||url.pathname.includes('technician-checklist')){
-          return (await caches.match('/admin-portal/technician-checklist.html')) || offlinePage('Technician Tickets unavailable','Unable to load technician tickets right now.');
+          return (await caches.match('/admin-portal/app-tickets.html')) || offlinePage('Technician Tickets unavailable','Unable to load technician tickets right now.');
+        }
+        if(url.pathname.endsWith('/app.html')||url.pathname.includes('mobile-entry')){
+          return (await caches.match('/admin-portal/app.html')) || offlinePage('TechGeekPH unavailable','Unable to load the app right now. Check the connection and retry.');
         }
         return offlinePage('TechGeekPH module unavailable','Unable to load this module right now. Check the connection and retry.');
       }
