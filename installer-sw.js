@@ -1,4 +1,4 @@
-const CACHE_NAME='techgeekph-installer-v15';
+const CACHE_NAME='techgeekph-installer-v16';
 const APP_SHELL=[
   '/admin-portal/mobile-entry.html',
   '/admin-portal/app.html',
@@ -9,6 +9,7 @@ const APP_SHELL=[
   '/admin-portal/installer-manifest.webmanifest',
   '/admin-portal/assets/network-monitor-entry.js',
   '/admin-portal/assets/client-proof-entry.js',
+  '/admin-portal/assets/employee-count-privacy.js',
   '/admin-portal/assets/TechGeekPH%20-%20logo.png'
 ];
 
@@ -20,10 +21,13 @@ async function fetchFresh(req,url){
   let text=await fresh.text();
   let changed=false;
   if((url.pathname.endsWith('/app.html')||url.pathname.endsWith('/app-tickets.html'))&&!text.includes('client-proof-entry.js')){
-    text=text.replace('</body>','<script src="assets/client-proof-entry.js?v=20260830-mobile15"></script></body>');changed=true;
+    text=text.replace('</body>','<script src="assets/client-proof-entry.js?v=20260830-mobile16"></script></body>');changed=true;
   }
   if(url.pathname.endsWith('/app.html')&&!text.includes('network-monitor-entry.js')){
-    text=text.replace('</body>','<script src="assets/network-monitor-entry.js?v=20260830-mobile15"></script></body>');changed=true;
+    text=text.replace('</body>','<script src="assets/network-monitor-entry.js?v=20260830-mobile16"></script></body>');changed=true;
+  }
+  if((url.pathname.endsWith('/app.html')||url.pathname.endsWith('/network-monitor.html')||url.pathname.endsWith('/client-proof-photos.html'))&&!text.includes('employee-count-privacy.js')){
+    text=text.replace('</body>','<script src="assets/employee-count-privacy.js?v=20260830-countprivacy1"></script></body>');changed=true;
   }
   if(url.pathname.endsWith('/network-monitor.html')){
     text=text
@@ -31,7 +35,7 @@ async function fetchFresh(req,url){
       .replace(/Loading 10 clients/g,'Loading 20 clients')
       .replace(/10 per page/g,'20 per page')
       .replace(/PAGE_SIZE=10/g,'PAGE_SIZE=20')
-      .replace(/20260830-network-fast-v5/g,'20260830-network-fast-v7-page20-mobile15');
+      .replace(/20260830-network-fast-v5/g,'20260830-network-fast-v7-page20-mobile16');
     changed=true;
   }
   const headers=new Headers(fresh.headers);
@@ -69,6 +73,7 @@ self.addEventListener('fetch',event=>{
     url.pathname.includes('service-catalog') ||
     url.pathname.includes('client-proof') ||
     url.pathname.includes('network-monitor') ||
+    url.pathname.includes('employee-count-privacy') ||
     url.pathname.includes('mobile-entry') ||
     url.pathname.endsWith('/app.html') ||
     url.pathname.endsWith('/app-tickets.html') ||
