@@ -16,53 +16,50 @@ jobs:
           from pathlib import Path
           import re
 
-          files=[Path('nap-checker.html'),Path('nap-checker-employee.html')]
-          render_new="""function renderMarkers(fit){layer.clearLayers();markers.clear();const rows=filtered().filter(hasCoords),picker=window.TechGeekNapPicker,groups=picker?picker.cluster(rows):rows.map(n=>({items:[n],lat:Number(n.latitude),lng:Number(n.longitude)}));groups.forEach(g=>{if(g.items.length>1&&picker){const m=L.marker([g.lat,g.lng],{icon:picker.icon(L,g)}).bindPopup(picker.popup(g,cap),{maxWidth:330}).addTo(layer);m._tgNapGroup=true;g.items.forEach(n=>markers.set(String(n.id),m))}else{const n=g.items[0],m=L.marker([Number(n.latitude),Number(n.longitude)],{icon:icon(n)}).bindPopup(popup(n)).on('click',()=>selectNap(n.id,true)).addTo(layer);markers.set(String(n.id),m)}});ui.visible.textContent=groups.length<rows.length?rows.length+' boxes • '+groups.length+' map points':rows.length+' pin'+(rows.length===1?'':'s');if(fit&&groups.length){const unique=[...new Set(markers.values())],b=L.featureGroup(unique).getBounds();if(b.isValid())map.fitBounds(b.pad(.13),{maxZoom:18})}}"""
+          # -------- Admin/Web NAP Checker --------
+          path=Path('nap-checker.html')
+          text=path.read_text(encoding='utf-8')
+          if 'assets/nap-marker-picker.js' not in text:
+              marker='<script>\n(function(){'
+              if marker not in text: raise SystemExit('admin: inline marker not found')
+              text=text.replace(marker,'<script src="assets/nap-marker-picker.js?v=20260831-1"></script>\n'+marker,1)
 
-          for path in files:
-              text=path.read_text(encoding='utf-8')
-              original=text
+          admin_render="""function renderMarkers(fit){layer.clearLayers();markers.clear();const rows=filtered().filter(hasCoords),picker=window.TechGeekNapPicker,groups=picker?picker.cluster(rows):rows.map(n=>({items:[n],lat:Number(n.latitude),lng:Number(n.longitude)}));groups.forEach(g=>{if(g.items.length>1&&picker){const m=L.marker([g.lat,g.lng],{icon:picker.icon(L,g)}).bindPopup(picker.popup(g,cap),{maxWidth:330}).addTo(layer);m._tgNapGroup=true;g.items.forEach(n=>markers.set(String(n.id),m))}else{const n=g.items[0],m=L.marker([Number(n.latitude),Number(n.longitude)],{icon:icon(n)}).bindPopup(popup(n)).on('click',()=>selectNap(n.id,true)).addTo(layer);markers.set(String(n.id),m)}});ui.visible.textContent=groups.length<rows.length?rows.length+' boxes • '+groups.length+' map points':rows.length+' pin'+(rows.length===1?'':'s');if(fit&&groups.length){const unique=[...new Set(markers.values())],b=L.featureGroup(unique).getBounds();if(b.isValid())map.fitBounds(b.pad(.13),{maxZoom:18})}}"""
+          text,n=re.subn(r'function renderMarkers\(fit\)\{.*?\}\nfunction ensureMarker',admin_render+'\nfunction ensureMarker',text,count=1,flags=re.S)
+          if n!=1: raise SystemExit(f'admin: render patch failed {n}')
+          old='function ensureMarker(open){if(!selected||!hasCoords(selected))return;let m=markers.get(String(selected.id));'
+          new='function ensureMarker(open){if(!selected||!hasCoords(selected))return;let m=markers.get(String(selected.id));if(m&&m._tgNapGroup){renderMarkers(false);m=markers.get(String(selected.id));if(open&&m&&!m._tgNapGroup)m.openPopup();return;}'
+          if old in text:text=text.replace(old,new,1)
+          elif 'if(m&&m._tgNapGroup)' not in text:raise SystemExit('admin: ensure marker guard failed')
+          old_open="setTimeout(()=>markers.get(String(selected.id))?.openPopup(),250)"
+          new_open="setTimeout(()=>{const mm=markers.get(String(selected.id));if(mm&&!mm._tgNapGroup)mm.openPopup()},250)"
+          if old_open in text:text=text.replace(old_open,new_open,1)
+          elif new_open not in text:raise SystemExit('admin: popup guard failed')
+          bind="if(window.TechGeekNapPicker)window.TechGeekNapPicker.bind(id=>{try{map.closePopup()}catch(_){}selectNap(id,true)});"
+          if bind not in text:
+              if 'initMap();load();' in text:text=text.replace('initMap();load();','initMap();'+bind+'load();',1)
+              else:raise SystemExit('admin: initMap/load marker failed')
+          path.write_text(text,encoding='utf-8')
+          print('patched admin')
 
-              if 'assets/nap-marker-picker.js' not in text:
-                  marker='<script>\n(function(){'
-                  if marker not in text:
-                      raise SystemExit(f'{path}: inline script marker not found')
-                  text=text.replace(marker,'<script src="assets/nap-marker-picker.js?v=20260831-1"></script>\n'+marker,1)
+          # -------- Employee / Installer NAP Checker --------
+          path=Path('nap-checker-employee.html')
+          text=path.read_text(encoding='utf-8')
+          if 'assets/nap-marker-picker.js' not in text:
+              marker="<script>\n(()=>{'use strict';"
+              if marker not in text: raise SystemExit('employee: inline marker not found')
+              text=text.replace(marker,'<script src="assets/nap-marker-picker.js?v=20260831-1"></script>\n'+marker,1)
 
-              pattern=r'function renderMarkers\(fit\)\{.*?\}\nfunction ensureMarker'
-              text,n=re.subn(pattern,render_new+'\nfunction ensureMarker',text,count=1,flags=re.S)
-              if n!=1:
-                  raise SystemExit(f'{path}: renderMarkers patch failed ({n})')
-
-              old='function ensureMarker(open){if(!selected||!hasCoords(selected))return;let m=markers.get(String(selected.id));'
-              new='function ensureMarker(open){if(!selected||!hasCoords(selected))return;let m=markers.get(String(selected.id));if(m&&m._tgNapGroup){renderMarkers(false);m=markers.get(String(selected.id));if(open&&m&&!m._tgNapGroup)m.openPopup();return;}'
-              if old in text:
-                  text=text.replace(old,new,1)
-              elif 'if(m&&m._tgNapGroup)' not in text:
-                  raise SystemExit(f'{path}: ensureMarker patch marker not found')
-
-              old_open="setTimeout(()=>markers.get(String(selected.id))?.openPopup(),250)"
-              new_open="setTimeout(()=>{const mm=markers.get(String(selected.id));if(mm&&!mm._tgNapGroup)mm.openPopup()},250)"
-              if old_open in text:
-                  text=text.replace(old_open,new_open,1)
-              elif new_open not in text:
-                  raise SystemExit(f'{path}: selectNap popup guard not found')
-
-              bind="if(window.TechGeekNapPicker)window.TechGeekNapPicker.bind(id=>{try{map.closePopup()}catch(_){}selectNap(id,true)});"
-              if bind not in text:
-                  if 'initMap();load();' in text:
-                      text=text.replace('initMap();load();','initMap();'+bind+'load();',1)
-                  else:
-                      # Fallback: insert after the last initMap() call before IIFE close.
-                      idx=text.rfind('initMap();')
-                      if idx<0: raise SystemExit(f'{path}: initMap call not found')
-                      idx+=len('initMap();')
-                      text=text[:idx]+bind+text[idx:]
-
-              if text==original:
-                  raise SystemExit(f'{path}: no changes made')
-              path.write_text(text,encoding='utf-8')
-              print('patched',path)
+          emp_render="""function renderMarkers(fit){layer.clearLayers();markers.clear();const list=filtered().filter(hasCoords),picker=window.TechGeekNapPicker,groups=picker?picker.cluster(list):list.map(n=>({items:[n],lat:Number(n.latitude),lng:Number(n.longitude)}));groups.forEach(g=>{if(g.items.length>1&&picker){const m=L.marker([g.lat,g.lng],{icon:picker.icon(L,g)}).bindPopup(picker.popup(g,capacity),{maxWidth:330}).addTo(layer);m._tgNapGroup=true;g.items.forEach(n=>markers.set(String(n.id),m))}else{const n=g.items[0],m=L.marker([Number(n.latitude),Number(n.longitude)],{icon:icon(n)}).on('click',()=>selectNap(n.id,true)).addTo(layer);m.bindTooltip(`${esc(n.display_name||n.nap_id)} · ${capacity(n).used}/${capacity(n).total||'?'}`,{direction:'top'});markers.set(String(n.id),m)}});$('pinCount').textContent=groups.length<list.length?list.length+' boxes • '+groups.length+' map points':list.length+' pin'+(list.length===1?'':'s');if(fit&&groups.length){const unique=[...new Set(markers.values())],b=L.featureGroup(unique).getBounds();if(b.isValid())map.fitBounds(b.pad(.1),{maxZoom:18})}}"""
+          text,n=re.subn(r'function renderMarkers\(fit\)\{.*?\}\nfunction summary',emp_render+'\nfunction summary',text,count=1,flags=re.S)
+          if n!=1: raise SystemExit(f'employee: render patch failed {n}')
+          emp_bind="if(window.TechGeekNapPicker)window.TechGeekNapPicker.bind(id=>{try{map.closePopup()}catch(_){}selectNap(id,true)});"
+          layer_marker="layer=L.layerGroup().addTo(map);"
+          if emp_bind not in text:
+              if layer_marker in text:text=text.replace(layer_marker,layer_marker+emp_bind,1)
+              else:raise SystemExit('employee: layer marker failed')
+          path.write_text(text,encoding='utf-8')
+          print('patched employee')
           PY
       - name: Remove one-time workflow and commit
         run: |
