@@ -7,11 +7,10 @@ import re
 import subprocess
 import sys
 import time
-import urllib.parse
 import urllib.request
 
-SUPABASE_URL=os.environ.get('SUPABASE_URL','https://tcexzfztdgximrzuosqs.supabase.co').rstrip('/')
-SERVICE_KEY=os.environ.get('SUPABASE_SERVICE_ROLE_KEY','').strip()
+FUNCTION_URL=os.environ.get('MONITOR_FUNCTION_URL','https://tcexzfztdgximrzuosqs.supabase.co/functions/v1/network-monitor-ingest').strip()
+MONITOR_KEY=os.environ.get('MONITOR_INGEST_KEY','').strip()
 PING_INTERFACE=os.environ.get('PING_INTERFACE','wg0').strip()
 INTERVAL=max(20,int(os.environ.get('MONITOR_INTERVAL_SECONDS','60')))
 TIMEOUT=max(1,int(os.environ.get('PING_TIMEOUT_SECONDS','1')))
@@ -20,23 +19,21 @@ SOURCE=os.environ.get('MONITOR_SOURCE','digitalocean-wireguard').strip() or 'dig
 TIME_RE=re.compile(r'time[=<]([0-9.]+)\s*ms',re.I)
 
 
-def api(path,method='GET',body=None):
-    if not SERVICE_KEY:
-        raise RuntimeError('SUPABASE_SERVICE_ROLE_KEY is missing')
-    data=None if body is None else json.dumps(body,separators=(',',':')).encode()
+def edge(body):
+    if not MONITOR_KEY:
+        raise RuntimeError('MONITOR_INGEST_KEY is missing')
+    data=json.dumps(body,separators=(',',':')).encode()
     req=urllib.request.Request(
-        SUPABASE_URL+path,
+        FUNCTION_URL,
         data=data,
-        method=method,
+        method='POST',
         headers={
-            'apikey':SERVICE_KEY,
-            'Authorization':'Bearer '+SERVICE_KEY,
+            'x-monitor-key':MONITOR_KEY,
             'Content-Type':'application/json',
-            'Accept':'application/json',
-            'Prefer':'return=minimal'
+            'Accept':'application/json'
         }
     )
-    with urllib.request.urlopen(req,timeout=20) as resp:
+    with urllib.request.urlopen(req,timeout=25) as resp:
         raw=resp.read()
         return json.loads(raw.decode()) if raw else None
 
@@ -84,15 +81,15 @@ def ping_one(row):
 
 
 def fetch_clients():
-    select=urllib.parse.quote('account_no,remote_address,account_status,service_status',safe=',')
-    return api('/rest/v1/clients?select='+select+'&remote_address=not.is.null&order=account_no.asc') or []
+    rows=edge({'action':'targets'})
+    return rows if isinstance(rows,list) else []
 
 
 def submit(results):
     for i in range(0,len(results),100):
         batch=results[i:i+100]
         if batch:
-            api('/rest/v1/rpc/ingest_network_ping_batch','POST',{'p_results':batch})
+            edge({'action':'ingest','results':batch})
 
 
 def cycle():
@@ -107,7 +104,7 @@ def cycle():
                 results.append(r)
     submit(results)
     online=sum(1 for r in results if r['reachable'])
-    print(time.strftime('%Y-%m-%d %H:%M:%S'),f'checked={len(results)} online={online} down={len(results)-online}',flush=True)
+    print(time.strftime('%Y-%m-%d %H:%M:%S'),f'targets={len(clients)} checked={len(results)} online={online} down={len(results)-online}',flush=True)
 
 
 def main():
