@@ -33,7 +33,9 @@
       .sq.health-fair{background:#fff7e8;border-color:#d97706}
       .sq.health-down{background:#c91448;border-color:#a50f39}
       .sq.health-nodata{background:#eef2f7;border-color:#94a3b8}
-      .tg-down-count{display:inline-flex;align-items:center;min-height:24px;padding:0 8px;border-radius:999px;background:#fff0f4;color:#a50f39;border:1px solid #fecdd3;font-size:.56rem;font-weight:950;margin-left:6px}
+      .tg-down-count,.tg-untagged-count{display:inline-flex;align-items:center;min-height:24px;padding:0 8px;border-radius:999px;font-size:.56rem;font-weight:950;margin-left:6px}
+      .tg-down-count{background:#fff0f4;color:#a50f39;border:1px solid #fecdd3}
+      .tg-untagged-count{background:#fff7e8;color:#8b5800;border:1px solid #fed7aa}
       .tg-health-line{margin-top:5px;font-size:.58rem;color:#64748b}
       .tg-health-line .down{color:#b11242;font-weight:950}
       .badge.health-good{background:#e8f7f1;color:#126247}
@@ -68,8 +70,9 @@
     const cr=await db.from('clients').select('id,account_no,client_name,account_status,service_status,line_port,network_port,client_port,pending_client_port,port_release_status,remote_address').limit(2000);
     if(cr.error) throw cr.error;
     const rows=(cr.data||[]).filter(r=>p2(r.line_port)===key.lp&&p2(r.network_port)===key.np);
-    const active=rows.filter(r=>activeRow(r)&&Number(p2(r.client_port))>0);
-    const accounts=[...new Set(active.map(r=>norm(r.account_no)).filter(Boolean))];
+    const allActive=rows.filter(activeRow);
+    const active=allActive.filter(r=>Number(p2(r.client_port))>0);
+    const accounts=[...new Set(allActive.map(r=>norm(r.account_no)).filter(Boolean))];
     const ping=new Map();
     if(accounts.length){
       const pr=await db.from('client_network_status').select('account_no,is_reachable,latency_ms,last_checked_at').in('account_no',accounts);
@@ -80,7 +83,7 @@
     for(const r of active){
       const cp=p2(r.client_port); if(cp) byPort.set(cp,r);
     }
-    return {key,rows,active,byPort,ping};
+    return {key,rows,allActive,active,byPort,ping};
   }
 
   function paintLegend(){
@@ -100,12 +103,19 @@
       else if(c.klass==='health-good') good++;
       else noData++;
     }
+    const untaggedDown=state.allActive.filter(r=>Number(p2(r.client_port))===0&&classify(state.ping.get(norm(r.account_no))).klass==='health-down');
     let chip=summary.querySelector('.tg-down-count');
     if(!chip){chip=document.createElement('span');chip.className='tg-down-count';summary.appendChild(chip)}
     chip.textContent=`DOWN ${down}`;
+    let untag=summary.querySelector('.tg-untagged-count');
+    if(untaggedDown.length){
+      if(!untag){untag=document.createElement('span');untag.className='tg-untagged-count';summary.appendChild(untag)}
+      untag.textContent=`UNTAGGED DOWN ${untaggedDown.length}`;
+      untag.title=untaggedDown.map(r=>`${r.account_no} - ${r.client_name}`).join('\n');
+    }else if(untag){untag.remove()}
     let line=summary.querySelector('.tg-health-line');
     if(!line){line=document.createElement('div');line.className='tg-health-line';const first=summary.firstElementChild;if(first)first.appendChild(line)}
-    line.innerHTML=`Good ${good} · Fair ${fair} · <span class="down">Down ${down}</span>${noData?` · No Data ${noData}`:''}`;
+    line.innerHTML=`Good ${good} · Fair ${fair} · <span class="down">Down ${down}</span>${noData?` · No Data ${noData}`:''}${untaggedDown.length?` · Untagged Down ${untaggedDown.length}`:''}`;
   }
 
   function paintPorts(state){
