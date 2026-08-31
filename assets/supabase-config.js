@@ -25,6 +25,18 @@
   document.head.appendChild(script);
 })();
 
+// NAP Checker V2: live port block health colors.
+(function(){
+  'use strict';
+  if(!/(^|\/)nap-checker-v2\.html$/i.test(window.location.pathname))return;
+  if(document.querySelector('script[data-nap-port-health]'))return;
+  const script=document.createElement('script');
+  script.src='assets/nap-port-health.js?v=20260831-1';
+  script.async=false;
+  script.dataset.napPortHealth='1';
+  document.head.appendChild(script);
+})();
+
 // New Installation proof-photo workflow inside Technician Tickets.
 (function(){
   'use strict';
