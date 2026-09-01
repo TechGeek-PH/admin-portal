@@ -36,7 +36,7 @@ jobs:
           if changed_app:
               p.write_text(s, encoding='utf-8')
 
-          # Collections: one Status filter only. Billing remains display-only.
+          # Collections: one Status filter only; hide Billing Status from the UI.
           c = Path('collections.html')
           t = c.read_text(encoding='utf-8')
           old = t
@@ -56,9 +56,17 @@ jobs:
           new_apply = "function apply(){const q=$('search').value.trim().toLowerCase(),sf=$('status').value;state.filtered=state.rows.filter(r=>(!sf||r.collection_status===sf)&&(!q||[r.account,r.client_name,r.phone,r.account_no,r.address,r.tech_name,r.collection_status,r.billing_status,r.note].join(' ').toLowerCase().includes(q)));"
           t = t.replace(old_apply, new_apply)
           t = t.replace("$('billing').onchange=apply;", '')
+
+          # Remove Billing column and Billing display from desktop/mobile/modal view.
+          t = t.replace('<th>Collection</th><th>Billing</th><th>Tech / Update</th>', '<th>Collection</th><th>Tech / Update</th>')
+          t = t.replace('colspan="8"', 'colspan="7"')
+          t = t.replace("+'</td><td>'+badge(r.billing_status)+'</td><td>'+esc(r.tech_name", "+'</td><td>'+esc(r.tech_name")
+          t = t.replace("<b>Billing</b><span>'+badge(r.billing_status)+'</span><b>Tech</b>", "<b>Tech</b>")
+          t = t.replace("+' · Billing: '+esc(r.billing_status||'—')+'</span>'", "+'</span>'")
+
           if t != old:
               c.write_text(t, encoding='utf-8')
-              print('Patched collections.html to use Collection Status only')
+              print('Patched collections.html: Billing Status hidden from view')
           else:
               print('Collections UI already in desired state')
           PY
@@ -71,5 +79,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add app.html collections.html
-          git commit -m "Use collection status only in Collections"
+          git commit -m "Hide billing status from Collections view"
           git push
