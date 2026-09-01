@@ -3,7 +3,10 @@ const path=(location.pathname.split('/').pop()||'').toLowerCase();
 function ensurePrivacy(){if(document.querySelector('script[data-employee-count-privacy]'))return;const s=document.createElement('script');s.src='assets/employee-count-privacy.js?v=20260830-countprivacy1';s.async=false;s.dataset.employeeCountPrivacy='1';document.head.appendChild(s)}
 if(path==='app-tickets.html'){
   if(!document.querySelector('script[data-client-proof-ticket]')){
-    const s=document.createElement('script');s.src='assets/client-proof-ticket.js?v=20260830-2';s.async=false;s.dataset.clientProofTicket='1';document.head.appendChild(s);
+    const s=document.createElement('script');s.src='assets/client-proof-ticket.js?v=20260902-3';s.async=false;s.dataset.clientProofTicket='1';document.head.appendChild(s);
+  }
+  if(!document.querySelector('script[data-client-proof-install-generate]')){
+    const g=document.createElement('script');g.src='assets/client-proof-install-generate.js?v=20260902-1';g.async=false;g.dataset.clientProofInstallGenerate='1';document.head.appendChild(g);
   }
   return;
 }
