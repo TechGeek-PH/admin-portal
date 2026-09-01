@@ -1,0 +1,38 @@
+name: Fix Ticket Map Render
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Repair tickets render syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('tickets.html')
+          s = p.read_text()
+          old = '''<button class="small" data-edit="'+esc(r.id)+'">Update</button>+(maps?'<a class="small maplink" target="_blank" rel="noopener" href="'+esc(maps)+'">Map</a>':'')+<button class="small" data-copy="'+esc(r.id)+'">Copy</button>'''
+          new = '''<button class="small" data-edit="'+esc(r.id)+'">Update</button>'+(maps?'<a class="small maplink" target="_blank" rel="noopener" href="'+esc(maps)+'">Map</a>':'')+'<button class="small" data-copy="'+esc(r.id)+'">Copy</button>'''
+          if old in s:
+              s = s.replace(old, new, 1)
+              p.write_text(s)
+              print('Fixed malformed ticket row map markup.')
+          else:
+              print('Malformed markup not present; no change needed.')
+          PY
+      - name: Commit fix
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tickets.html
+          git commit -m "Fix ticket list map render"
+          git push
