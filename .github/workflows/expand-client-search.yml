@@ -1,0 +1,48 @@
+name: Expand Client Search
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/expand-client-search.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Expand Clients search coverage
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('clients.html')
+          s = p.read_text()
+
+          old_placeholder = 'placeholder="Search account, client, phone, address or Messenger"'
+          new_placeholder = 'placeholder="Search account, client, phone, address, Remote Address, Modem Serial or Messenger"'
+          if old_placeholder not in s:
+              raise SystemExit('Search placeholder not found')
+          s = s.replace(old_placeholder, new_placeholder, 1)
+
+          old = "function primaryLink(r){return(r._messengerLinks||[]).find(x=>x.is_primary)||(r._messengerLinks||[])[0]||null}function searchable(r){const links=(r._messengerLinks||[]).flatMap(x=>[x.messenger_name,x.messenger_psid,x.imported_phone,x.imported_email]);return[r.account_no,r.client_name,r.rd_blk,r.phone,r.email,r.service_address,r.permanent_address,r.plan,r.speed,r.client_port,r.remote_address,r.modem_brand_model,r.onu_mac,...links].map(v=>String(v||'')).join(' ').toLowerCase()}function filtered()"
+          new = "function primaryLink(r){return(r._messengerLinks||[]).find(x=>x.is_primary)||(r._messengerLinks||[])[0]||null}function searchable(r){const links=(r._messengerLinks||[]).flatMap(x=>[x.messenger_name,x.messenger_psid,x.imported_phone,x.imported_email,x.map_id,x.page_id,x.channel,x.botcake_customer_id,x.botcake_id,x.account_no,x.link_status,x.verification_method,x.remarks]);return[r.account_no,r.client_name,r.rd_blk,r.phone,r.email,r.service_address,r.permanent_address,r.plan,r.speed,r.client_port,r.remote_address,r.modem_brand_model,r.modem_serial_no,r.onu_mac,r.messenger_name,r.messenger_psid,...links].map(v=>String(v||'')).join(' ').toLowerCase()}function filtered()"
+          if old not in s:
+              raise SystemExit('searchable() target not found')
+          s = s.replace(old, new, 1)
+
+          p.write_text(s)
+          PY
+      - name: Commit change
+        run: |
+          if git diff --quiet -- clients.html; then
+            echo 'No changes needed.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add clients.html
+          git commit -m 'Expand Clients search fields'
+          git push
