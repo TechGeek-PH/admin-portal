@@ -13,36 +13,63 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Patch app module lists
+      - name: Patch app and Collections UI
         run: |
           python - <<'PY'
           from pathlib import Path
+
+          # Keep Collections available in the installer/admin module list.
           p = Path('app.html')
           s = p.read_text(encoding='utf-8')
-          if "'Collections','Collection list, field status updates and notes'" in s:
-              print('Collections already present')
-              raise SystemExit(0)
-          old_emp = "['app-tickets.html','✓','Technician Tickets','Installation, repair, relocation and assigned service updates'],['nap-checker-employee.html'"
-          new_emp = "['app-tickets.html','✓','Technician Tickets','Installation, repair, relocation and assigned service updates'],['collections.html','₱','Collections','Collection list, field status updates and notes'],['nap-checker-employee.html'"
-          old_admin = "['billing.html','₱','Billing Control','Billing and payments'],['statement_of_account.html'"
-          new_admin = "['billing.html','₱','Billing Control','Billing and payments'],['collections.html','₱','Collections','Collection list, field status updates and notes'],['statement_of_account.html'"
-          if old_emp not in s:
-              raise SystemExit('EMP module marker not found')
-          if old_admin not in s:
-              raise SystemExit('ADMIN module marker not found')
-          s = s.replace(old_emp, new_emp, 1).replace(old_admin, new_admin, 1)
-          s = s.replace("const BUILD='20260831-team-picker-v13';", "const BUILD='20260901-collections-v14';", 1)
-          p.write_text(s, encoding='utf-8')
-          print('Patched app.html')
+          changed_app = False
+          if "'Collections','Collection list, field status updates and notes'" not in s:
+              old_emp = "['app-tickets.html','✓','Technician Tickets','Installation, repair, relocation and assigned service updates'],['nap-checker-employee.html'"
+              new_emp = "['app-tickets.html','✓','Technician Tickets','Installation, repair, relocation and assigned service updates'],['collections.html','₱','Collections','Collection list, field status updates and notes'],['nap-checker-employee.html'"
+              old_admin = "['billing.html','₱','Billing Control','Billing and payments'],['statement_of_account.html'"
+              new_admin = "['billing.html','₱','Billing Control','Billing and payments'],['collections.html','₱','Collections','Collection list, field status updates and notes'],['statement_of_account.html'"
+              if old_emp in s and old_admin in s:
+                  s = s.replace(old_emp, new_emp, 1).replace(old_admin, new_admin, 1)
+                  changed_app = True
+          if "const BUILD='20260831-team-picker-v13';" in s:
+              s = s.replace("const BUILD='20260831-team-picker-v13';", "const BUILD='20260901-collections-v14';", 1)
+              changed_app = True
+          if changed_app:
+              p.write_text(s, encoding='utf-8')
+
+          # Collections: one Status filter only. Billing remains display-only.
+          c = Path('collections.html')
+          t = c.read_text(encoding='utf-8')
+          old = t
+          t = t.replace(
+              'grid-template-columns:minmax(260px,1fr) 180px 180px 180px auto',
+              'grid-template-columns:1fr 190px 190px auto'
+          )
+          t = t.replace('@media(max-width:1050px){.toolbar{grid-template-columns:1fr 1fr 1fr}}', '')
+          t = t.replace(
+              '<div class="field"><label>Collection Status</label><select id="status"><option value="">All statuses</option></select></div>\n    <div class="field"><label>Billing Status</label><select id="billing"><option value="">All billing</option><option value="UNPAID">Unpaid</option><option value="PAID">Paid</option></select></div>',
+              '<div class="field"><label>Status</label><select id="status"><option value="">All statuses</option></select></div>'
+          )
+          old_render = "function renderStatuses(){const v=$('status').value;$('status').innerHTML='<option value=\"\">All statuses</option>';state.statuses.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;if(s===v)o.selected=true;$('status').appendChild(o)})}"
+          new_render = "function renderStatuses(){const v=$('status').value;const actual=state.rows.map(r=>String(r.collection_status||'').trim()).filter(Boolean);state.statuses=[...new Set([...(state.statuses||[]),...actual])];$('status').innerHTML='<option value=\"\">All statuses</option>';state.statuses.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;if(s===v)o.selected=true;$('status').appendChild(o)})}"
+          t = t.replace(old_render, new_render)
+          old_apply = "function apply(){const q=$('search').value.trim().toLowerCase(),sf=$('status').value,bf=$('billing').value.trim().toLowerCase();state.filtered=state.rows.filter(r=>(!sf||r.collection_status===sf)&&(!bf||String(r.billing_status||'').trim().toLowerCase()===bf)&&(!q||[r.account,r.client_name,r.phone,r.account_no,r.address,r.tech_name,r.collection_status,r.billing_status,r.note].join(' ').toLowerCase().includes(q)));"
+          new_apply = "function apply(){const q=$('search').value.trim().toLowerCase(),sf=$('status').value;state.filtered=state.rows.filter(r=>(!sf||r.collection_status===sf)&&(!q||[r.account,r.client_name,r.phone,r.account_no,r.address,r.tech_name,r.collection_status,r.billing_status,r.note].join(' ').toLowerCase().includes(q)));"
+          t = t.replace(old_apply, new_apply)
+          t = t.replace("$('billing').onchange=apply;", '')
+          if t != old:
+              c.write_text(t, encoding='utf-8')
+              print('Patched collections.html to use Collection Status only')
+          else:
+              print('Collections UI already in desired state')
           PY
       - name: Commit patch
         run: |
-          if git diff --quiet -- app.html; then
+          if git diff --quiet -- app.html collections.html; then
             echo "No changes needed"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app.html
-          git commit -m "Add Collections to installer app"
+          git add app.html collections.html
+          git commit -m "Use collection status only in Collections"
           git push
