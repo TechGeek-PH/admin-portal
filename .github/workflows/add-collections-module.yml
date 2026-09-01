@@ -36,7 +36,7 @@ jobs:
           if changed_app:
               p.write_text(s, encoding='utf-8')
 
-          # Collections: one Status filter only; hide Billing Status from the UI.
+          # Collections UI: one collection Status filter only; Billing stays hidden.
           c = Path('collections.html')
           t = c.read_text(encoding='utf-8')
           old = t
@@ -49,6 +49,11 @@ jobs:
               '<div class="field"><label>Collection Status</label><select id="status"><option value="">All statuses</option></select></div>\n    <div class="field"><label>Billing Status</label><select id="billing"><option value="">All billing</option><option value="UNPAID">Unpaid</option><option value="PAID">Paid</option></select></div>',
               '<div class="field"><label>Status</label><select id="status"><option value="">All statuses</option></select></div>'
           )
+          t = t.replace('<th>Collection</th><th>Billing</th><th>Tech / Update</th>', '<th>Collection</th><th>Tech / Update</th>')
+          t = t.replace('colspan="8"', 'colspan="7"')
+          t = t.replace("+'<td>'+badge(r.billing_status)+'</td><td>'+esc(r.tech_name", "+'<td>'+esc(r.tech_name")
+          t = t.replace("+'<b>Billing</b><span>'+badge(r.billing_status)+'</span><b>Tech</b><span>'+esc(r.tech_name", "+'<b>Tech</b><span>'+esc(r.tech_name")
+          t = t.replace("+' · Billing: '+esc(r.billing_status||'—')", "")
           old_render = "function renderStatuses(){const v=$('status').value;$('status').innerHTML='<option value=\"\">All statuses</option>';state.statuses.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;if(s===v)o.selected=true;$('status').appendChild(o)})}"
           new_render = "function renderStatuses(){const v=$('status').value;const actual=state.rows.map(r=>String(r.collection_status||'').trim()).filter(Boolean);state.statuses=[...new Set([...(state.statuses||[]),...actual])];$('status').innerHTML='<option value=\"\">All statuses</option>';state.statuses.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;if(s===v)o.selected=true;$('status').appendChild(o)})}"
           t = t.replace(old_render, new_render)
@@ -57,16 +62,14 @@ jobs:
           t = t.replace(old_apply, new_apply)
           t = t.replace("$('billing').onchange=apply;", '')
 
-          # Remove Billing column and Billing display from desktop/mobile/modal view.
-          t = t.replace('<th>Collection</th><th>Billing</th><th>Tech / Update</th>', '<th>Collection</th><th>Tech / Update</th>')
-          t = t.replace('colspan="8"', 'colspan="7"')
-          t = t.replace("+'</td><td>'+badge(r.billing_status)+'</td><td>'+esc(r.tech_name", "+'</td><td>'+esc(r.tech_name")
-          t = t.replace("<b>Billing</b><span>'+badge(r.billing_status)+'</span><b>Tech</b>", "<b>Tech</b>")
-          t = t.replace("+' · Billing: '+esc(r.billing_status||'—')+'</span>'", "+'</span>'")
+          # Deterministic month loading for both OWNER and EMPLOYEE sessions.
+          old_load = "async function load(keep){clearNotice();$('refresh').disabled=true;try{if(!state.token)state.token=loadToken();const md=await api({action:'months'});state.months=Array.isArray(md.months)?md.months:[];renderMonths(keep?$('month').value:'');const requested=keep?$('month').value:'';const d=await api({action:'list',sheet:requested});state.rows=Array.isArray(d.rows)?d.rows:[];state.statuses=Array.isArray(d.statuses)?d.statuses:[];state.sheet=d.sheet||requested;if(Array.isArray(d.available_sheets)){state.months=d.available_sheets;renderMonths(state.sheet)}renderStatuses();apply();$('title').textContent='Collection List — '+((state.months.find(x=>x.sheet===state.sheet)||{}).label||state.sheet||'Current');$('meta').textContent=' · '+state.rows.length+' records · '+new Date().toLocaleTimeString();$('staff').textContent='Authenticated staff session'}catch(e){state.rows=[];apply();notice(String(e.message||e),'err')}finally{$('refresh').disabled=false}}"
+          new_load = "async function load(keep){clearNotice();$('refresh').disabled=true;try{if(!state.token)state.token=loadToken();const previous=keep?$('month').value:'';const md=await api({action:'months'});state.months=Array.isArray(md.months)?md.months:[];if(!state.months.length)throw new Error('No collection month is available.');const currentKey=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Manila',year:'numeric',month:'2-digit'}).slice(0,7);let chosen=previous&&state.months.some(m=>m.sheet===previous)?previous:'';if(!chosen){const eligible=state.months.filter(m=>String(m.period_key||'')<=currentKey);chosen=(eligible.length?eligible[eligible.length-1]:state.months[state.months.length-1]).sheet}renderMonths(chosen);let d=await api({action:'list',sheet:chosen});if((!Array.isArray(d.rows)||!d.sheet)&&chosen){d=await api({action:'list',sheet:chosen})}state.rows=Array.isArray(d.rows)?d.rows:[];state.statuses=Array.isArray(d.statuses)?d.statuses:[];state.sheet=d.sheet||chosen;if(Array.isArray(d.available_sheets)&&d.available_sheets.length){state.months=d.available_sheets}renderMonths(state.sheet);renderStatuses();apply();$('title').textContent='Collection List — '+((state.months.find(x=>x.sheet===state.sheet)||{}).label||state.sheet||'Current');$('meta').textContent=' · '+state.rows.length+' records · '+new Date().toLocaleTimeString();$('staff').textContent='Authenticated staff session'}catch(e){state.rows=[];state.sheet='';apply();notice(String(e.message||e),'err')}finally{$('refresh').disabled=false}}"
+          t = t.replace(old_load, new_load)
 
           if t != old:
               c.write_text(t, encoding='utf-8')
-              print('Patched collections.html: Billing Status hidden from view')
+              print('Patched collections.html')
           else:
               print('Collections UI already in desired state')
           PY
@@ -79,5 +82,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add app.html collections.html
-          git commit -m "Hide billing status from Collections view"
+          git commit -m "Fix employee Collections month loading"
           git push
