@@ -1,0 +1,41 @@
+name: Run New Install Router Confirmation Patch
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/run-router-confirmation-patch.yml'
+      - 'scripts/patch_router_confirmation.py'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch ticket UI
+        run: python scripts/patch_router_confirmation.py
+      - name: Validate ticket JavaScript
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('app-tickets.html').read_text(encoding='utf-8')
+          js=s.rsplit('<script>',1)[1].split('</script>',1)[0]
+          Path('/tmp/app-tickets-inline.js').write_text(js,encoding='utf-8')
+          assert "20260902-router-confirm-v13" in s
+          assert "confirm_new_install_router_setup" in s
+          assert "get_new_install_router_setup" in s
+          assert 'id="pppoeReady"' in s
+          PY
+          node --check /tmp/app-tickets-inline.js
+      - name: Commit ticket UI
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add app-tickets.html
+          if ! git diff --cached --quiet; then
+            git commit -m 'Add PPPoE router confirmation before closing new installs'
+            git push
+          fi
