@@ -1,0 +1,78 @@
+name: Patch New Install Router Confirmation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/patch-ticket-router-confirmation.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch technician new installation confirmation flow
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('app-tickets.html')
+          s=p.read_text()
+
+          s=s.replace("const BUILD='20260901-pppoe-auto-v12'","const BUILD='20260902-router-confirm-v13'",1)
+
+          css=""".pppoe-ready{display:none;margin:12px 0 14px;padding:14px;border:1px solid #8fc9ac;border-radius:14px;background:#f2fbf7}.pppoe-ready.show{display:block}.pppoe-ready h3{margin:0;color:#126247;font-size:.95rem}.pppoe-ready .sub{margin:5px 0 10px;color:#587064;font-size:.67rem;line-height:1.45}.pppoe-status{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:.62rem;font-weight:950;background:#fff4dc;color:#8b5b00}.pppoe-status.active{background:#e5f8ef;color:#08714b}.pppoe-status.failed{background:#fff0f2;color:#a3153d}.cred-grid,.install-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.cred,.sum{background:#fff;border:1px solid #d8e9df;border-radius:10px;padding:9px}.cred span,.sum span{display:block;color:#6c7d73;font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.03em}.cred b,.sum b{display:block;margin-top:4px;font-size:.76rem;word-break:break-word}.cred.secret b{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86rem}.copy-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.copy-row button{border:1px solid #9bcdb1;background:#fff;color:#126247;border-radius:9px;padding:8px 10px;font-size:.68rem;font-weight:900}.confirm-install{width:100%;min-height:46px;margin-top:11px;border:0;border-radius:10px;background:#16865e;color:#fff;font-weight:950}.confirm-install:disabled{background:#aebbb5}.router-wait{margin-top:9px;padding:9px 10px;border-radius:9px;background:#fff;color:#536579;font-size:.66rem;line-height:1.45}.summary-title{margin-top:13px;color:#42566a;font-size:.65rem;font-weight:950;text-transform:uppercase;letter-spacing:.04em}@media(max-width:560px){.cred-grid,.install-summary{grid-template-columns:1fr}}"""
+          marker='.embed header{display:none}'
+          if marker not in s: raise SystemExit('css marker missing')
+          s=s.replace(marker,css+marker,1)
+
+          panel="""<section id="pppoeReady" class="pppoe-ready"><h3>PPPoE Ready · Configure Client Router</h3><p class="sub">Copy the PPPoE credentials below and enter them into the client router. The ticket will stay open until the MikroTik PPP Secret is ACTIVE and you confirm the router was updated.</p><span id="pppoeState" class="pppoe-status">WAITING</span><div id="pppoeCreds" class="cred-grid"></div><div class="copy-row"><button type="button" id="copyUser">Copy Username</button><button type="button" id="copyPass">Copy Password</button><button type="button" id="copyPppoe">Copy PPPoE Details</button></div><div class="summary-title">Final Installation Details</div><div id="installSummary" class="install-summary"></div><div id="routerWait" class="router-wait"></div><button type="button" id="confirmInstall" class="confirm-install" disabled>Confirm Router Updated & Close Ticket</button></section>"""
+          marker='<div id="tasks" class="tasks"></div>'
+          if marker not in s: raise SystemExit('tasks marker missing')
+          s=s.replace(marker,panel+marker,1)
+
+          old="let profile=null,tickets=[],updates=new Map(),selected=null,requestedOpened=false,clientDetails=null;"
+          new="let profile=null,tickets=[],updates=new Map(),selected=null,requestedOpened=false,clientDetails=null,routerSetup=null,routerPoll=null;"
+          if old not in s: raise SystemExit('state marker missing')
+          s=s.replace(old,new,1)
+
+          note_marker="function note(t,k='ok'){const n=$('notice');n.textContent=t;n.className='notice show '+k;setTimeout(()=>n.className='notice',5200)}"
+          helpers=r'''function note(t,k='ok'){const n=$('notice');n.textContent=t;n.className='notice show '+k;setTimeout(()=>n.className='notice',5200)}
+function hideRouterSetup(){routerSetup=null;if(routerPoll){clearTimeout(routerPoll);routerPoll=null}const b=$('pppoeReady');if(b)b.classList.remove('show')}
+function fieldHtml(label,value,secret=false){return `<div class="${secret?'cred secret':'sum'}"><span>${esc(label)}</span><b>${esc(value||'—')}</b></div>`}
+function renderRouterSetup(d){if(!d||!(d.ready||d.requires_router_confirmation))return;routerSetup=d;const b=$('pppoeReady');b.classList.add('show');const st=String(d.pppoe_status||'WAITING').toUpperCase(),state=$('pppoeState');state.textContent=st;state.className='pppoe-status '+(st==='ACTIVE'?'active':st==='FAILED'?'failed':'');$('pppoeCreds').innerHTML=fieldHtml('Account No.',d.account_no)+fieldHtml('PPPoE Username',d.pppoe_username,true)+fieldHtml('PPPoE Password',d.pppoe_password,true)+fieldHtml('Local Address',d.local_address)+fieldHtml('Remote Address',d.remote_address)+fieldHtml('Profile',d.pppoe_profile)+fieldHtml('Service',d.pppoe_service||'pppoe')+fieldHtml('Comment',d.pppoe_comment);const maps=d.google_maps_link?`<a href="${esc(d.google_maps_link)}" target="_blank" rel="noopener">Open Map</a>`:'—';$('installSummary').innerHTML=fieldHtml('Client',d.client_name)+fieldHtml('Plan / Speed',[d.plan,d.speed].filter(Boolean).join(' · '))+fieldHtml('Monthly Bill',d.monthly_bill!=null?'₱'+d.monthly_bill:'—')+fieldHtml('Contact',d.phone)+fieldHtml('Service Address',d.service_address)+fieldHtml('Google Maps',maps)+fieldHtml('Line Port',d.line_port)+fieldHtml('Network Port',d.network_port)+fieldHtml('Client Port',d.client_port)+fieldHtml('Modem / ONU',d.modem_brand_model)+fieldHtml('Modem Serial',d.modem_serial_no)+fieldHtml('ONU MAC',d.onu_mac)+fieldHtml('VLAN',d.vlan_id)+fieldHtml('Band Steering',d.band_steering);const can=!!d.can_confirm_done||st==='ACTIVE';$('confirmInstall').disabled=!can;$('routerWait').textContent=st==='ACTIVE'?'MikroTik PPP Secret is ACTIVE. Configure the client router using the credentials above, then tap Confirm Router Updated & Close Ticket.':st==='FAILED'?'PPPoE provisioning failed. Tap Save Update again to retry provisioning.':`Creating/verifying PPP Secret on MikroTik… Current status: ${st}. This screen refreshes automatically.`;if(!can&&st!=='FAILED')scheduleRouterPoll()}
+async function loadRouterSetup(no){const r=await db.rpc('get_new_install_router_setup',{p_ticket_no:no});if(r.error)throw r.error;if(r.data&&r.data.ready)renderRouterSetup(r.data)}
+function scheduleRouterPoll(){if(routerPoll)clearTimeout(routerPoll);routerPoll=setTimeout(async()=>{routerPoll=null;if(!selected||!$('dlg').open)return;try{await loadRouterSetup(selected.ticket_no)}catch(_){ }},3500)}
+async function copyText(text,label){if(!text)return;try{await navigator.clipboard.writeText(String(text));note(label+' copied.','ok')}catch(_){note('Unable to copy automatically. Press and hold the value to copy.','err')}}
+async function confirmInstallDone(){if(!selected||!routerSetup)return;const btn=$('confirmInstall');btn.disabled=true;btn.textContent='Confirming…';try{const r=await db.rpc('confirm_new_install_router_setup',{p_ticket_no:selected.ticket_no});if(r.error)throw r.error;hideRouterSetup();$('dlg').close();try{localStorage.setItem('tg_clients_changed_at',String(Date.now()))}catch(_){}try{window.parent.postMessage({type:'tg-clients-changed'},location.origin)}catch(_){}await load();note('Router updated · PPPoE ACTIVE · installation ticket closed.','ok')}catch(e){note(e.message||'Unable to close installation ticket.','err');try{await loadRouterSetup(selected.ticket_no)}catch(_){}}finally{btn.textContent='Confirm Router Updated & Close Ticket';if(routerSetup)btn.disabled=String(routerSetup.pppoe_status||'').toUpperCase()!=='ACTIVE'}}'''
+          if note_marker not in s: raise SystemExit('note marker missing')
+          s=s.replace(note_marker,helpers,1)
+
+          old=";$('clientUpdate').classList.remove('show');clientDetails=null;if(allowsClientUpdate(selected)){try{fillClientPanel(await getClientDetails(id),selected,ro)}catch(e){note('Client details could not be loaded: '+(e.message||e),'err')}}$('tasks').innerHTML="
+          new=";$('clientUpdate').classList.remove('show');clientDetails=null;hideRouterSetup();if(allowsClientUpdate(selected)){try{fillClientPanel(await getClientDetails(id),selected,ro)}catch(e){note('Client details could not be loaded: '+(e.message||e),'err')}}if(isInstallation(selected)){try{await loadRouterSetup(id)}catch(e){note('PPPoE setup could not be loaded: '+(e.message||e),'err')}}$('tasks').innerHTML="
+          if old not in s: raise SystemExit('openTicket marker missing')
+          s=s.replace(old,new,1)
+
+          old_save=r'''async function save(){if(!selected)return;const btn=$('save');btn.disabled=true;btn.textContent='Saving…';try{const items=[...document.querySelectorAll('.task span')].map(x=>x.textContent.replace(/^\d+\.\s*/,'')),checks=[...document.querySelectorAll('[data-check]')].map(x=>x.checked),details=collectClientDetails();const r=await db.rpc('save_technician_ticket_update_v3',{p_ticket_no:selected.ticket_no,p_checklist_items:items,p_checks:checks,p_work_status:$('work').value,p_remarks:$('remarks').value.trim()||null,p_client_details:details});if(r.error)throw r.error;const result=r.data||{};$('dlg').close();try{localStorage.setItem('tg_clients_changed_at',String(Date.now()))}catch(_){}try{window.parent.postMessage({type:'tg-clients-changed'},location.origin)}catch(_){}await load();const pppoe=result.pppoe_status?' · PPPoE '+result.pppoe_status:'';const acct=result.account_no?' · '+result.account_no:'';note((result.client_updated?'Client master + ':'')+'ticket update saved successfully'+acct+pppoe+'.','ok')}catch(e){note(e.message||'Unable to save ticket update.','err')}finally{btn.disabled=false;btn.textContent='Save Update'}}'''
+          new_save=r'''async function save(){if(!selected)return;const btn=$('save');btn.disabled=true;btn.textContent='Saving…';try{const items=[...document.querySelectorAll('.task span')].map(x=>x.textContent.replace(/^\d+\.\s*/,'')),checks=[...document.querySelectorAll('[data-check]')].map(x=>x.checked),details=collectClientDetails();const r=await db.rpc('save_technician_ticket_update_v3',{p_ticket_no:selected.ticket_no,p_checklist_items:items,p_checks:checks,p_work_status:$('work').value,p_remarks:$('remarks').value.trim()||null,p_client_details:details});if(r.error)throw r.error;const result=r.data||{};try{localStorage.setItem('tg_clients_changed_at',String(Date.now()))}catch(_){}try{window.parent.postMessage({type:'tg-clients-changed'},location.origin)}catch(_){}if(result.requires_router_confirmation){$('work').value='For Checking';renderRouterSetup(result);await load();note('Installation details saved. PPPoE credentials are ready to copy. Configure the client router, then confirm Done.','ok');return}$('dlg').close();await load();const pppoe=result.pppoe_status?' · PPPoE '+result.pppoe_status:'';const acct=result.account_no?' · '+result.account_no:'';note((result.client_updated?'Client master + ':'')+'ticket update saved successfully'+acct+pppoe+'.','ok')}catch(e){note(e.message||'Unable to save ticket update.','err')}finally{btn.disabled=false;btn.textContent='Save Update'}}'''
+          if old_save not in s: raise SystemExit('save function marker missing')
+          s=s.replace(old_save,new_save,1)
+
+          old_end="$('q').oninput=render;$('month').onchange=render;$('status').onchange=render;$('close').onclick=$('cancel').onclick=()=>$('dlg').close();$('save').onclick=save;boot();})();"
+          new_end="$('q').oninput=render;$('month').onchange=render;$('status').onchange=render;$('copyUser').onclick=()=>copyText(routerSetup&&routerSetup.pppoe_username,'PPPoE username');$('copyPass').onclick=()=>copyText(routerSetup&&routerSetup.pppoe_password,'PPPoE password');$('copyPppoe').onclick=()=>copyText(routerSetup?`Username: ${routerSetup.pppoe_username||''}\\nPassword: ${routerSetup.pppoe_password||''}\\nLocal Address: ${routerSetup.local_address||''}\\nRemote Address: ${routerSetup.remote_address||''}\\nProfile: ${routerSetup.pppoe_profile||''}\\nComment: ${routerSetup.pppoe_comment||''}`:'','PPPoE details');$('confirmInstall').onclick=confirmInstallDone;$('close').onclick=$('cancel').onclick=()=>{hideRouterSetup();$('dlg').close()};$('save').onclick=save;boot();})();"
+          if old_end not in s: raise SystemExit('end marker missing')
+          s=s.replace(old_end,new_end,1)
+
+          p.write_text(s)
+          PY
+      - name: Commit patched ticket page
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add app-tickets.html
+          if ! git diff --cached --quiet; then
+            git commit -m 'Add PPPoE router confirmation before closing new installs'
+            git push
+          fi
