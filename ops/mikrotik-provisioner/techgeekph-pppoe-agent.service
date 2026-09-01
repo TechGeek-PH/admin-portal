@@ -1,0 +1,20 @@
+[Unit]
+Description=TechGeekPH MikroTik PPPoE Provisioning Agent
+After=network-online.target wg-quick@wg0.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/techgeekph-pppoe-agent
+EnvironmentFile=/etc/techgeekph/pppoe-agent.env
+ExecStart=/opt/techgeekph-pppoe-agent/venv/bin/python /opt/techgeekph-pppoe-agent/agent.py
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
