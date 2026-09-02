@@ -22,7 +22,7 @@ if(path==='app-tickets.html'){
 if(path!=='app.html'&&path!=='app')return;
 ensurePrivacy();
 if(!document.querySelector('script[data-app-ticket-visuals]')){
-  const v=document.createElement('script');v.src='assets/app-ticket-visuals.js?v=20260902-1';v.async=false;v.dataset.appTicketVisuals='1';document.head.appendChild(v);
+  const v=document.createElement('script');v.src='assets/app-ticket-visuals.js?v=20260902-2';v.async=false;v.dataset.appTicketVisuals='1';document.head.appendChild(v);
 }
 function refreshWorker(){try{if('serviceWorker' in navigator)navigator.serviceWorker.getRegistration().then(r=>r&&r.update()).catch(()=>{})}catch(_){}}
 function proofTile(){const a=document.createElement('a');a.className='tile';a.href='client-proof-photos.html?v=20260830-mobile16';a.dataset.title='Client Proof Photos';a.dataset.clientProofModule='1';a.innerHTML='<span class="ico">📷</span><b>Client Proof Photos</b><small>Search clients and update installation proof pictures</small>';return a}
