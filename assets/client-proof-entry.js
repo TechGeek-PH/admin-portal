@@ -9,10 +9,10 @@ if(path==='app-tickets.html'){
     const g=document.createElement('script');g.src='assets/client-proof-install-generate.js?v=20260902-1';g.async=false;g.dataset.clientProofInstallGenerate='1';document.head.appendChild(g);
   }
   if(!document.querySelector('script[data-client-proof-install-save]')){
-    const x=document.createElement('script');x.src='assets/client-proof-install-save.js?v=20260902-1';x.async=false;x.dataset.clientProofInstallSave='1';document.head.appendChild(x);
+    const x=document.createElement('script');x.src='assets/client-proof-install-save.js?v=20260902-2';x.async=false;x.dataset.clientProofInstallSave='1';document.head.appendChild(x);
   }
   if(!document.querySelector('script[data-client-proof-install-active-close]')){
-    const c=document.createElement('script');c.src='assets/client-proof-install-active-close.js?v=20260902-1';c.async=false;c.dataset.clientProofInstallActiveClose='1';document.head.appendChild(c);
+    const c=document.createElement('script');c.src='assets/client-proof-install-active-close.js?v=20260902-2';c.async=false;c.dataset.clientProofInstallActiveClose='1';document.head.appendChild(c);
   }
   return;
 }
