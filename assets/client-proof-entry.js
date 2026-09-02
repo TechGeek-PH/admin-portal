@@ -11,6 +11,9 @@ if(path==='app-tickets.html'){
   if(!document.querySelector('script[data-client-proof-install-save]')){
     const x=document.createElement('script');x.src='assets/client-proof-install-save.js?v=20260902-1';x.async=false;x.dataset.clientProofInstallSave='1';document.head.appendChild(x);
   }
+  if(!document.querySelector('script[data-client-proof-install-active-close]')){
+    const c=document.createElement('script');c.src='assets/client-proof-install-active-close.js?v=20260902-1';c.async=false;c.dataset.clientProofInstallActiveClose='1';document.head.appendChild(c);
+  }
   return;
 }
 if(path!=='app.html'&&path!=='app')return;
