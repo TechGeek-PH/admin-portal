@@ -1,4 +1,4 @@
-const CACHE_NAME='techgeekph-installer-v17';
+const CACHE_NAME='techgeekph-installer-v18';
 const APP_SHELL=[
   '/admin-portal/mobile-entry.html',
   '/admin-portal/app.html',
@@ -10,6 +10,7 @@ const APP_SHELL=[
   '/admin-portal/assets/network-monitor-entry.js',
   '/admin-portal/assets/client-proof-entry.js',
   '/admin-portal/assets/app-ticket-visuals.js',
+  '/admin-portal/assets/ticket-aging-priority.js',
   '/admin-portal/assets/employee-count-privacy.js',
   '/admin-portal/assets/TechGeekPH%20-%20logo.png'
 ];
@@ -22,7 +23,7 @@ async function fetchFresh(req,url){
   let text=await fresh.text();
   let changed=false;
   if((url.pathname.endsWith('/app.html')||url.pathname.endsWith('/app-tickets.html'))&&!text.includes('client-proof-entry.js')){
-    text=text.replace('</body>','<script src="assets/client-proof-entry.js?v=20260902-global3"></script></body>');changed=true;
+    text=text.replace('</body>','<script src="assets/client-proof-entry.js?v=20260902-aging1"></script></body>');changed=true;
   }
   if(url.pathname.endsWith('/app.html')&&!text.includes('network-monitor-entry.js')){
     text=text.replace('</body>','<script src="assets/network-monitor-entry.js?v=20260830-mobile16"></script></body>');changed=true;
@@ -41,7 +42,7 @@ async function fetchFresh(req,url){
   }
   const headers=new Headers(fresh.headers);
   headers.delete('content-length');
-  if(changed||url.pathname.includes('network-monitor')||url.pathname.includes('mobile-entry')||url.pathname.includes('app-ticket-visuals')||url.pathname.includes('client-proof-entry')) headers.set('cache-control','no-store, no-cache, must-revalidate');
+  if(changed||url.pathname.includes('network-monitor')||url.pathname.includes('mobile-entry')||url.pathname.includes('app-ticket-visuals')||url.pathname.includes('ticket-aging-priority')||url.pathname.includes('client-proof-entry')) headers.set('cache-control','no-store, no-cache, must-revalidate');
   return new Response(text,{status:fresh.status,statusText:fresh.statusText,headers});
 }
 
@@ -74,6 +75,7 @@ self.addEventListener('fetch',event=>{
     url.pathname.includes('service-catalog') ||
     url.pathname.includes('client-proof') ||
     url.pathname.includes('app-ticket-visuals') ||
+    url.pathname.includes('ticket-aging-priority') ||
     url.pathname.includes('network-monitor') ||
     url.pathname.includes('employee-count-privacy') ||
     url.pathname.includes('mobile-entry') ||
