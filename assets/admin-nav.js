@@ -148,6 +148,16 @@
     document.head.appendChild(script);
   }
 
+  function ensureTicketAgingPriority() {
+    if (currentFile() !== "tickets.html") return;
+    if (document.querySelector('script[data-ticket-aging-priority]')) return;
+    const script = document.createElement("script");
+    script.src = "assets/ticket-aging-priority.js?v=20260902-aging1";
+    script.async = false;
+    script.dataset.ticketAgingPriority = "1";
+    document.head.appendChild(script);
+  }
+
   window.TechGeekAdminNav = {
     items: NAV_ITEMS,
     render: renderNav
@@ -157,9 +167,11 @@
     document.addEventListener("DOMContentLoaded", function () {
       renderNav();
       ensureBillingPaymentEditor();
+      ensureTicketAgingPriority();
     }, { once: true });
   } else {
     renderNav();
     ensureBillingPaymentEditor();
+    ensureTicketAgingPriority();
   }
 })();
