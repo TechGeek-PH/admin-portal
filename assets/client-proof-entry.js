@@ -24,6 +24,9 @@ ensurePrivacy();
 if(!document.querySelector('script[data-app-ticket-visuals]')){
   const v=document.createElement('script');v.src='assets/app-ticket-visuals.js?v=20260902-global3';v.async=false;v.dataset.appTicketVisuals='1';document.head.appendChild(v);
 }
+if(!document.querySelector('script[data-ticket-aging-priority]')){
+  const a=document.createElement('script');a.src='assets/ticket-aging-priority.js?v=20260902-aging1';a.async=false;a.dataset.ticketAgingPriority='1';document.head.appendChild(a);
+}
 function refreshWorker(){try{if('serviceWorker' in navigator)navigator.serviceWorker.getRegistration().then(r=>r&&r.update()).catch(()=>{})}catch(_){}}
 function proofTile(){const a=document.createElement('a');a.className='tile';a.href='client-proof-photos.html?v=20260830-mobile16';a.dataset.title='Client Proof Photos';a.dataset.clientProofModule='1';a.innerHTML='<span class="ico">📷</span><b>Client Proof Photos</b><small>Search clients and update installation proof pictures</small>';return a}
 function monitorTile(){const a=document.createElement('a');a.className='tile';a.href='network-monitor.html?v=20260830-fast9-page20-mobile16';a.dataset.title='Network Monitor';a.dataset.networkMonitorModule='1';a.innerHTML='<span class="ico">📡</span><b>Network Monitor</b><small>Live ping, MikroTik PPPoE, 20-per-page clients and fiber cut alerts</small>';return a}
