@@ -2,17 +2,20 @@
 const path=(location.pathname.split('/').pop()||'').toLowerCase();
 function ensurePrivacy(){if(document.querySelector('script[data-employee-count-privacy]'))return;const s=document.createElement('script');s.src='assets/employee-count-privacy.js?v=20260830-countprivacy1';s.async=false;s.dataset.employeeCountPrivacy='1';document.head.appendChild(s)}
 if(path==='app-tickets.html'){
+  if(!document.querySelector('script[data-ticket-concern-colors]')){
+    const z=document.createElement('script');z.src='assets/ticket-concern-colors.js?v=20260902-1';z.async=false;z.dataset.ticketConcernColors='1';document.head.appendChild(z);
+  }
   if(!document.querySelector('script[data-client-proof-ticket]')){
     const s=document.createElement('script');s.src='assets/client-proof-ticket.js?v=20260902-3';s.async=false;s.dataset.clientProofTicket='1';document.head.appendChild(s);
   }
   if(!document.querySelector('script[data-client-proof-install-generate]')){
-    const g=document.createElement('script');g.src='assets/client-proof-install-generate.js?v=20260902-1';g.async=false;g.dataset.clientProofInstallGenerate='1';document.head.appendChild(g);
+    const g=document.createElement('script');g.src='assets/client-proof-install-generate.js?v=20260902-4';g.async=false;g.dataset.clientProofInstallGenerate='1';document.head.appendChild(g);
   }
   if(!document.querySelector('script[data-client-proof-install-save]')){
-    const x=document.createElement('script');x.src='assets/client-proof-install-save.js?v=20260902-2';x.async=false;x.dataset.clientProofInstallSave='1';document.head.appendChild(x);
+    const x=document.createElement('script');x.src='assets/client-proof-install-save.js?v=20260902-4';x.async=false;x.dataset.clientProofInstallSave='1';document.head.appendChild(x);
   }
   if(!document.querySelector('script[data-client-proof-install-active-close]')){
-    const c=document.createElement('script');c.src='assets/client-proof-install-active-close.js?v=20260902-2';c.async=false;c.dataset.clientProofInstallActiveClose='1';document.head.appendChild(c);
+    const c=document.createElement('script');c.src='assets/client-proof-install-active-close.js?v=20260902-4';c.async=false;c.dataset.clientProofInstallActiveClose='1';document.head.appendChild(c);
   }
   return;
 }
