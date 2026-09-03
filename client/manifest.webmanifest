@@ -1,8 +1,8 @@
 {
   "name": "TechGeekPH Client Portal",
   "short_name": "TechGeekPH",
-  "description": "TechGeekPH client billing, account status and support portal.",
-  "start_url": "./?app=1",
+  "description": "TechGeekPH client billing, account status, chat and ticket viewing portal.",
+  "start_url": "./?app=1&v=20260903-6",
   "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",
