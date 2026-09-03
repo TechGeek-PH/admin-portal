@@ -93,3 +93,15 @@
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setupClientLiveRefresh,{once:true});else setupClientLiveRefresh();
 })();
+
+// Client Portal: secure two-way Chat Center bridged to Telegram support.
+(function(){
+  'use strict';
+  if(!/(^|\/)client(?:\/index\.html|\/)?$/i.test(window.location.pathname))return;
+  if(document.querySelector('script[data-client-chat-center]'))return;
+  const script=document.createElement('script');
+  script.src='chat-center.js?v=20260903-1';
+  script.async=false;
+  script.dataset.clientChatCenter='1';
+  document.head.appendChild(script);
+})();
