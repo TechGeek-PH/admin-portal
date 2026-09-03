@@ -53,3 +53,46 @@ function init(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
+
+// Client Portal cleanup: ticket creation is handled by staff in Telegram.
+(()=>{
+'use strict';
+function statusLabel(raw){
+  const s=String(raw||'').trim().toUpperCase();
+  if(/DONE|RESOLVED|COMPLETED/.test(s))return 'RESOLVED';
+  if(/CLOSE|CANCEL/.test(s))return 'CLOSED';
+  if(/ONGOING|ON GOING|IN PROGRESS|ASSIGNED|FOR CHECK|CHECKING/.test(s))return 'IN PROGRESS';
+  return 'OPEN';
+}
+function cleanup(){
+  const supportPane=document.getElementById('supportPane');
+  const supportBtn=document.querySelector('.nav button[data-pane="supportPane"]');
+  if(supportBtn)supportBtn.textContent='Tickets';
+  if(supportPane){
+    const sections=[...supportPane.querySelectorAll(':scope > .section')];
+    sections.forEach(sec=>{
+      const h=sec.querySelector('h2')?.textContent.trim();
+      if(h==='Support & Self Report')sec.style.display='none';
+      if(h==='My Tickets')sec.querySelector('h2').textContent='My Tickets';
+    });
+  }
+  const modal=document.getElementById('ticketModal');if(modal)modal.style.display='none';
+  const rows=document.getElementById('ticketRows');
+  if(rows){
+    rows.querySelectorAll('.row').forEach(row=>{
+      const st=row.querySelector('.status');if(!st)return;
+      const small=st.querySelector('small');
+      const raw=[...st.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join(' ').trim();
+      const label=statusLabel(raw);
+      [...st.childNodes].filter(n=>n.nodeType===3).forEach(n=>n.remove());
+      const badge=document.createElement('b');badge.className='tg-ticket-state';badge.textContent=label;
+      badge.style.cssText='display:inline-block;padding:5px 8px;border-radius:999px;font-size:.58rem;letter-spacing:.03em;background:'+(label==='RESOLVED'?'#eefaf5':label==='CLOSED'?'#f1f3f5':label==='IN PROGRESS'?'#fff7e8':'#eef7ff')+';color:'+(label==='RESOLVED'?'#126247':label==='CLOSED'?'#5d6670':label==='IN PROGRESS'?'#8a5700':'#064f83');
+      st.insertBefore(badge,small||null);
+      if(small&&small.textContent.trim())small.style.marginTop='5px';
+    });
+  }
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',cleanup,{once:true});else cleanup();
+const target=document.getElementById('supportPane');if(target)new MutationObserver(cleanup).observe(target,{childList:true,subtree:true});
+setTimeout(cleanup,500);setTimeout(cleanup,1800);
+})();
