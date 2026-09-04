@@ -1,0 +1,50 @@
+name: Fix paid SOA button visibility
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-paid-soa-button-visible.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Move paid SOA button beside Paid status
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('billing.html')
+          s=p.read_text()
+
+          # Keep the action visible with the payment state instead of hiding it
+          # in the far-right edge of the wide billing table.
+          if '.billing-status-action{' not in s:
+              s=s.replace('</style>', '    .billing-status-action{display:grid;gap:7px;justify-items:start}.billing-status-action .soa-pdf-btn{min-width:118px;min-height:32px;padding:6px 9px;font-size:.66rem}\n  </style>', 1)
+
+          s=s.replace('<th>Account Tag — Editable</th><th>Reminder Queue</th><th>SOA / PDF</th></tr></thead><tbody id="rows"><tr><td colspan="11" class="empty">Loading billing records…</td></tr></tbody>', '<th>Account Tag — Editable</th><th>Reminder Queue</th></tr></thead><tbody id="rows"><tr><td colspan="10" class="empty">Loading billing records…</td></tr></tbody>', 1)
+          s=s.replace('<tr><td colspan="11" class="empty">No billing records match this view.</td></tr>', '<tr><td colspan="10" class="empty">No billing records match this view.</td></tr>', 1)
+
+          old='''<td><span class="chip '+billingTone(b)+'">'+billingStatus(b)+'</span></td><td>'+tagEditor(b,c)+'</td><td><span class="'+qclass+'">'+esc(qtext)+'</span></td><td>'+soaPdfButton(b)+'</td></tr>'''
+          new='''<td><div class="billing-status-action"><span class="chip '+billingTone(b)+'">'+billingStatus(b)+'</span>'+soaPdfButton(b)+'</div></td><td>'+tagEditor(b,c)+'</td><td><span class="'+qclass+'">'+esc(qtext)+'</span></td></tr>'''
+          if old in s:
+              s=s.replace(old,new,1)
+          elif 'billing-status-action' not in s.split('function renderRows',1)[1]:
+              raise SystemExit('Paid status row target not found')
+
+          # Shorter wording is easier to see on mobile/table iframe.
+          s=s.replace('>Download SOA PDF</button>', '>SOA PDF</button>')
+
+          p.write_text(s)
+          PY
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add billing.html
+          git commit -m 'Show SOA PDF action directly under Paid status' || exit 0
+          git push
