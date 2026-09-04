@@ -3,46 +3,296 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#064f83">
+<meta name="theme-color" content="#073f6b">
 <link rel="manifest" href="manifest.webmanifest?v=20260903-6">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <title>TechGeekPH Client Portal</title>
 <style>
-:root{--b:#064f83;--b2:#023d6b;--p:#55167a;--ok:#16865e;--w:#b86c00;--bad:#b42345;--ink:#172438;--m:#6b7a8e;--line:#dbe4ee;--bg:#f3f6fa;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink)}button,input,select,textarea{font:inherit}.hidden{display:none!important}.wrap{width:min(920px,100%);margin:auto;padding:14px 14px 28px}.top{display:flex;align-items:center;gap:10px;padding:9px 12px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:40}.top img{width:110px;height:40px;object-fit:contain}.top .acct{margin-left:auto;text-align:right}.top .acct b{display:block;font-size:.76rem;color:var(--b)}.top .acct small{font-size:.58rem;color:var(--m)}.hero{padding:20px;border-radius:20px;background:linear-gradient(120deg,var(--b2),var(--b) 60%,var(--p));color:#fff;box-shadow:0 12px 30px #064f8325}.hero h1{margin:0;font-size:1.45rem}.hero p{margin:6px 0 0;color:#dbeafa;font-size:.74rem}.statusline{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}.pill{padding:6px 9px;border-radius:999px;background:#ffffff20;font-size:.62rem;font-weight:900}.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}.card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px;box-shadow:0 6px 18px #13324c0b}.card span{font-size:.63rem;color:var(--m);font-weight:900}.card b{display:block;margin-top:5px;font-size:1.05rem;color:var(--b)}.bill{margin-top:12px;padding:17px;background:#fff;border:1px solid var(--line);border-radius:18px}.billhead{display:flex;justify-content:space-between;gap:12px}.bill h2,.section h2{margin:0;font-size:1rem}.amount{font-size:1.75rem;font-weight:950;color:var(--b);margin:10px 0 4px}.muted{color:var(--m);font-size:.68rem;line-height:1.45}.fees{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}.fee{background:#f7fafc;border-radius:10px;padding:9px}.fee span{display:block;color:var(--m);font-size:.58rem}.fee b{font-size:.78rem}.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}.btn{border:0;border-radius:12px;min-height:46px;padding:0 12px;font-weight:900;text-decoration:none;display:flex;align-items:center;justify-content:center}.primary{background:var(--b);color:#fff}.secondary{background:#eef7ff;color:var(--b);border:1px solid #b8d8ef}.danger{background:#fff0f2;color:var(--bad)}.section{margin-top:12px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px}.rows{display:grid;gap:8px;margin-top:10px}.row{padding:10px 0;border-top:1px solid #edf1f5;display:flex;justify-content:space-between;gap:12px}.row:first-child{border-top:0}.row b{font-size:.75rem}.row small{display:block;color:var(--m);font-size:.62rem;margin-top:3px}.status{font-size:.62rem;font-weight:900;color:var(--b);text-align:right}.pane{display:none}.pane.active{display:block}.login{min-height:100vh;display:grid;place-items:center;padding:18px;background:linear-gradient(160deg,#eef7ff,#f8f6fb)}.loginbox{width:min(430px,100%);background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 20px 60px #073d6c1c}.loginbox img{display:block;width:150px;height:60px;object-fit:contain;margin:auto}.loginbox h1{text-align:center;font-size:1.25rem;margin:10px 0 4px}.field{margin-top:11px}.field label{display:block;margin-bottom:5px;font-size:.68rem;font-weight:900}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:11px 12px;font-size:16px;background:#fff}.field textarea{min-height:92px}.notice{display:none;margin-top:11px;padding:10px 12px;border-radius:10px;font-size:.7rem}.notice.show{display:block}.notice.err{background:#fff0f2;color:#a3153d}.notice.ok{background:#eefaf5;color:#126247}.network-good{color:var(--ok)!important}.network-bad{color:var(--bad)!important}
+:root{
+  --b:#075786;--b2:#073f6b;--b3:#0a6fa8;--accent:#1596c8;
+  --ok:#147a57;--w:#a76408;--bad:#b42345;
+  --ink:#142335;--m:#66788b;--line:#dce5ed;--line2:#edf2f6;
+  --bg:#f4f7fa;--surface:#fff;--soft:#f7fafc;
+  --shadow:0 10px 28px rgba(18,48,73,.08);--shadow-lg:0 22px 55px rgba(13,46,72,.16);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+body{font-size:16px}
+button,input,select,textarea{font:inherit}
+button,a{-webkit-tap-highlight-color:transparent}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid rgba(21,150,200,.22);outline-offset:2px}
+.hidden{display:none!important}
+.wrap{width:min(1040px,100%);margin:auto;padding:20px 18px 42px}
+
+/* Header */
+.top{display:flex;align-items:center;gap:13px;min-height:68px;padding:10px max(16px,calc((100vw - 1040px)/2 + 18px));background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:40;backdrop-filter:blur(12px)}
+.top img{width:118px;height:42px;object-fit:contain;flex:0 0 auto}
+.top-brand{min-width:0;border-left:1px solid var(--line);padding-left:13px}
+.top-brand strong{display:block;color:var(--ink);font-size:.82rem;line-height:1.2}
+.top-brand span{display:block;margin-top:3px;color:var(--m);font-size:.6rem;font-weight:700;letter-spacing:.02em}
+.top-page{margin-left:auto;text-align:right;min-width:0}
+.top-page .page-label{display:block;color:var(--m);font-size:.56rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.top .acct{margin-top:2px;text-align:right}
+.top .acct b{display:block;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.77rem;color:var(--b2)}
+.top .acct small{display:block;margin-top:2px;font-size:.58rem;color:var(--m);font-weight:700}
+
+/* Shared typography and panels */
+.pane{display:none;animation:paneIn .18s ease}
+.pane.active{display:block}
+@keyframes paneIn{from{opacity:.45;transform:translateY(3px)}to{opacity:1;transform:none}}
+.pane-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:3px 2px 15px}
+.pane-heading h1{margin:0;font-size:1.18rem;letter-spacing:-.02em;color:var(--ink)}
+.pane-heading p{margin:4px 0 0;color:var(--m);font-size:.69rem;line-height:1.5}
+.section,.bill{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
+.section{padding:18px}
+.section h2,.bill h2{margin:0;color:var(--ink);font-size:.95rem;letter-spacing:-.01em}
+.section-sub{margin:5px 0 0;color:var(--m);font-size:.66rem;line-height:1.5}
+.muted{color:var(--m);font-size:.68rem;line-height:1.5}
+.rows{display:grid;gap:0;margin-top:12px}
+.row{min-height:58px;padding:12px 2px;border-top:1px solid var(--line2);display:flex;align-items:center;justify-content:space-between;gap:16px}
+.row:first-child{border-top:0}
+.row b{font-size:.76rem;line-height:1.35;color:var(--ink)}
+.row small{display:block;color:var(--m);font-size:.62rem;line-height:1.4;margin-top:4px}
+.status{font-size:.66rem;font-weight:850;color:var(--b);text-align:right;line-height:1.35}
+.network-good{color:var(--ok)!important}.network-bad{color:var(--bad)!important}
+
+/* Home */
+.hero{position:relative;overflow:hidden;padding:24px 24px 22px;border-radius:22px;background:linear-gradient(125deg,#073f6b 0%,#075786 68%,#086e9f 100%);color:#fff;box-shadow:0 15px 36px rgba(7,63,107,.20)}
+.hero:after{content:'';position:absolute;width:220px;height:220px;border-radius:50%;right:-95px;top:-120px;background:rgba(255,255,255,.07)}
+.hero-kicker{position:relative;z-index:1;font-size:.58rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#cce9f6}
+.hero h1{position:relative;z-index:1;margin:7px 0 0;font-size:1.48rem;letter-spacing:-.025em}
+.hero p{position:relative;z-index:1;margin:6px 0 0;color:#dcecf5;font-size:.72rem;line-height:1.5}
+.statusline{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
+.pill{padding:7px 10px;border:1px solid rgba(255,255,255,.16);border-radius:999px;background:rgba(255,255,255,.10);font-size:.59rem;font-weight:850;letter-spacing:.015em}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin-top:13px}
+.card{position:relative;min-height:102px;background:var(--surface);border:1px solid var(--line);border-radius:17px;padding:15px;box-shadow:var(--shadow);overflow:hidden}
+.card:after{content:attr(data-icon);position:absolute;right:12px;top:10px;color:#d9e6ef;font-size:1.25rem;font-weight:900}
+.card span{display:block;padding-right:26px;font-size:.58rem;color:var(--m);font-weight:850;letter-spacing:.055em}
+.card b{display:block;margin-top:14px;font-size:1.04rem;line-height:1.25;color:var(--b2);letter-spacing:-.01em}
+
+/* Billing card */
+.bill{padding:19px}
+.billhead{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding-bottom:12px;border-bottom:1px solid var(--line2)}
+.billhead .status{padding:5px 9px;border-radius:999px;background:#eef6fb;white-space:nowrap}
+.amount{font-size:1.9rem;font-weight:900;letter-spacing:-.035em;color:var(--b2);margin:16px 0 2px}
+.fees{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:14px}
+.fee{background:var(--soft);border:1px solid #edf2f6;border-radius:12px;padding:10px 11px}
+.fee span{display:block;color:var(--m);font-size:.57rem;font-weight:750;line-height:1.35}
+.fee b{display:block;margin-top:5px;font-size:.77rem;color:var(--ink)}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+.btn{border:0;border-radius:12px;min-height:46px;padding:0 14px;font-size:.72rem;font-weight:850;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,background .15s ease}
+.btn:active{transform:translateY(1px)}
+.primary{background:linear-gradient(135deg,var(--b2),var(--b));color:#fff;box-shadow:0 8px 18px rgba(7,63,107,.15)}
+.secondary{background:#f3f8fc;color:var(--b2);border:1px solid #cfe0eb}
+.danger{background:#fff2f4;color:var(--bad);border:1px solid #f2d5dc}
+
+/* Login */
+.login{min-height:100vh;display:grid;place-items:center;padding:22px;background:radial-gradient(circle at 20% 0%,#e7f3fa 0,#f5f8fb 35%,#eef3f7 100%)}
+.loginbox{width:min(440px,100%);background:rgba(255,255,255,.98);border:1px solid var(--line);border-radius:22px;padding:25px;box-shadow:var(--shadow-lg)}
+.login-brand{display:flex;align-items:center;justify-content:center;padding-bottom:18px;border-bottom:1px solid var(--line2)}
+.loginbox img{display:block;width:158px;height:58px;object-fit:contain}
+.login-eyebrow{text-align:center;margin-top:18px;color:var(--b);font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em}
+.loginbox h1{text-align:center;font-size:1.28rem;letter-spacing:-.02em;margin:6px 0 4px}
+.loginbox .login-help{text-align:center;max-width:320px;margin:0 auto 17px}
+.field{margin-top:12px}
+.field label{display:block;margin-bottom:6px;font-size:.66rem;font-weight:850;color:#31475c}
+.field input,.field select,.field textarea{width:100%;border:1px solid #cfdbe5;border-radius:11px;padding:12px 13px;font-size:16px;background:#fff;color:var(--ink)}
+.field input:focus,.field textarea:focus{border-color:#86b8d3;box-shadow:0 0 0 3px rgba(21,150,200,.09);outline:0}
+.field textarea{min-height:92px}
+.notice{display:none;margin-top:12px;padding:11px 12px;border-radius:10px;font-size:.69rem;line-height:1.45}
+.notice.show{display:block}.notice.err{background:#fff0f2;color:#a3153d}.notice.ok{background:#eefaf5;color:#126247}
+.login-foot{margin-top:16px;text-align:center;color:#8291a0;font-size:.57rem;line-height:1.5}
 
 /* OPTION A: auto-hide floating left drawer */
-.menu-fab{position:fixed;left:0;top:86px;z-index:82;width:44px;height:48px;border:0;border-radius:0 15px 15px 0;background:linear-gradient(145deg,var(--b),var(--b2));color:#fff;box-shadow:0 7px 22px #05385f42;display:grid;place-items:center;cursor:pointer;transition:transform .2s ease,opacity .2s ease}.menu-fab span{display:block;font-size:22px;line-height:1}.menu-fab:active{transform:scale(.96)}.drawer-backdrop{position:fixed;inset:0;z-index:90;background:rgba(4,20,35,.48);opacity:0;pointer-events:none;transition:opacity .22s ease}.drawer-backdrop.show{opacity:1;pointer-events:auto}.client-drawer{position:fixed;left:0;top:0;bottom:0;z-index:100;width:min(292px,84vw);background:#fff;box-shadow:18px 0 55px #062f4f38;transform:translateX(-104%);transition:transform .24s ease;display:flex;flex-direction:column;overflow:hidden}.client-drawer.open{transform:translateX(0)}.drawer-head{padding:20px 16px 14px;background:linear-gradient(145deg,var(--b2),var(--b));color:#fff;position:relative}.drawer-head img{width:142px;height:52px;object-fit:contain;background:#fff;border-radius:11px;padding:6px}.drawer-head b{display:block;margin-top:11px;font-size:.92rem}.drawer-head small{display:block;margin-top:3px;color:#dceafa;font-size:.62rem}.drawer-close{position:absolute;right:12px;top:13px;width:38px;height:38px;border:1px solid #ffffff42;border-radius:11px;background:#ffffff18;color:#fff;font-size:22px;display:grid;place-items:center;cursor:pointer}.nav{position:static!important;display:flex!important;flex:1;flex-direction:column!important;grid-template-columns:none!important;gap:6px;padding:12px 10px 18px;background:#fff;border:0!important;overflow:auto;z-index:auto!important}.client-drawer .nav button{position:relative;width:100%;min-height:52px;border:0;border-radius:12px;background:transparent;color:#52677d;font-size:.78rem!important;font-weight:900;text-align:left;padding:0 14px 0 49px;cursor:pointer;transition:background .16s ease,color .16s ease,transform .16s ease}.client-drawer .nav button:before{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:26px;text-align:center;font-size:1.15rem;font-weight:700;content:'•'}.client-drawer .nav button[data-pane="homePane"]:before{content:'⌂'}.client-drawer .nav button[data-pane="billingPane"]:before{content:'₱'}.client-drawer .nav button[data-pane="chatPane"]:before{content:'✉'}.client-drawer .nav button[data-pane="supportPane"]:before{content:'✓'}.client-drawer .nav button[data-pane="notifPane"]:before{content:'!'}.client-drawer .nav button[data-pane="accountPane"]:before{content:'●'}.client-drawer .nav button:hover{background:#f2f7fb}.client-drawer .nav button.active{background:#eaf4ff;color:var(--b);box-shadow:inset 4px 0 0 var(--b)}.client-drawer .nav button.active:before{color:var(--b)}.client-drawer .tg-chat-badge{top:9px!important;left:auto!important;right:12px!important}.drawer-foot{padding:12px 16px 18px;border-top:1px solid var(--line);color:var(--m);font-size:.58rem;line-height:1.45;background:#fbfcfd}
+.menu-fab{position:fixed;left:0;top:82px;z-index:82;width:46px;height:48px;border:1px solid rgba(255,255,255,.22);border-left:0;border-radius:0 14px 14px 0;background:linear-gradient(145deg,var(--b2),var(--b));color:#fff;box-shadow:0 8px 22px rgba(7,63,107,.28);display:grid;place-items:center;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease}
+.menu-fab span{display:block;font-size:20px;line-height:1}.menu-fab:active{transform:scale(.97)}
+.drawer-backdrop{position:fixed;inset:0;z-index:90;background:rgba(4,20,35,.45);opacity:0;pointer-events:none;transition:opacity .2s ease;backdrop-filter:blur(2px)}
+.drawer-backdrop.show{opacity:1;pointer-events:auto}
+.client-drawer{position:fixed;left:0;top:0;bottom:0;z-index:100;width:min(306px,86vw);background:#fff;box-shadow:18px 0 55px rgba(6,47,79,.25);transform:translateX(-104%);transition:transform .23s ease;display:flex;flex-direction:column;overflow:hidden}
+.client-drawer.open{transform:translateX(0)}
+.drawer-head{padding:20px 17px 16px;background:linear-gradient(145deg,#073f6b,#075786);color:#fff;position:relative}
+.drawer-head img{width:136px;height:50px;object-fit:contain;background:#fff;border-radius:10px;padding:6px}
+.drawer-title{display:block;margin-top:12px;font-size:.9rem;font-weight:850}.drawer-sub{display:block;margin-top:3px;color:#d9ebf5;font-size:.61rem}
+.drawer-close{position:absolute;right:12px;top:13px;width:38px;height:38px;border:1px solid rgba(255,255,255,.26);border-radius:10px;background:rgba(255,255,255,.09);color:#fff;font-size:21px;display:grid;place-items:center;cursor:pointer}
+.drawer-client{margin:0 11px;padding:12px 13px;border-bottom:1px solid var(--line);background:#fff}
+.drawer-client small{display:block;color:var(--m);font-size:.55rem;font-weight:850;text-transform:uppercase;letter-spacing:.08em}
+.drawer-client b{display:block;margin-top:4px;color:var(--ink);font-size:.73rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drawer-client span{display:block;margin-top:2px;color:var(--b);font-size:.61rem;font-weight:800}
+.nav{position:static!important;display:flex!important;flex:1;flex-direction:column!important;grid-template-columns:none!important;gap:4px;padding:10px 10px 16px;background:#fff;border:0!important;overflow:auto;z-index:auto!important}
+.client-drawer .nav:before{content:'NAVIGATION';display:block;padding:4px 12px 7px;color:#8b99a7;font-size:.52rem;font-weight:900;letter-spacing:.12em}
+.client-drawer .nav button{position:relative;width:100%;min-height:50px;border:0;border-radius:11px;background:transparent;color:#516476;font-size:.75rem!important;font-weight:800;text-align:left;padding:0 14px 0 48px;cursor:pointer;transition:background .15s ease,color .15s ease}
+.client-drawer .nav button:before{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:25px;text-align:center;font-size:.96rem;font-weight:900;content:'•';color:#7f93a5}
+.client-drawer .nav button[data-pane="homePane"]:before{content:'H'}
+.client-drawer .nav button[data-pane="billingPane"]:before{content:'₱'}
+.client-drawer .nav button[data-pane="chatPane"]:before{content:'✉'}
+.client-drawer .nav button[data-pane="supportPane"]:before{content:'T'}
+.client-drawer .nav button[data-pane="notifPane"]:before{content:'!'}
+.client-drawer .nav button[data-pane="accountPane"]:before{content:'A'}
+.client-drawer .nav button:hover{background:#f3f7fa}
+.client-drawer .nav button.active{background:#eaf4fa;color:var(--b2);box-shadow:inset 3px 0 0 var(--b)}
+.client-drawer .nav button.active:before{color:var(--b)}
+.client-drawer .tg-chat-badge{top:8px!important;left:auto!important;right:11px!important}
+.drawer-foot{padding:13px 17px 17px;border-top:1px solid var(--line);color:var(--m);font-size:.57rem;line-height:1.5;background:#fbfcfd}
 body.drawer-open{overflow:hidden}
-@media(min-width:700px){.cards{grid-template-columns:repeat(4,1fr)}.fees{grid-template-columns:repeat(4,1fr)}.menu-fab{top:92px}}
+
+/* Formal polish for dynamically injected Chat Center */
+#appView .tg-chat-shell{border-radius:18px!important;border:1px solid var(--line)!important;box-shadow:var(--shadow)!important}
+#appView .tg-chat-head{padding:17px 18px!important;background:#f7fafc!important;border-bottom:1px solid var(--line)!important}
+#appView .tg-chat-messages{background:#f4f7fa!important}
+#appView .tg-chat-compose{padding:13px!important}
+#appView .tg-chat-send{background:linear-gradient(135deg,var(--b2),var(--b))!important}
+
+@media(min-width:700px){
+  .cards{grid-template-columns:repeat(4,1fr)}
+  .fees{grid-template-columns:repeat(4,1fr)}
+  .menu-fab{top:86px}
+}
+@media(max-width:620px){
+  .wrap{padding:16px 13px 34px}
+  .top{min-height:62px;padding:8px 13px}
+  .top img{width:102px;height:38px}
+  .top-brand{display:none}
+  .top .acct b{max-width:150px;font-size:.7rem}
+  .top-page .page-label{font-size:.52rem}
+  .hero{padding:21px 18px 19px;border-radius:18px}
+  .hero h1{font-size:1.3rem}
+  .cards{gap:8px}
+  .card{min-height:94px;padding:13px;border-radius:14px}
+  .card b{font-size:.94rem}
+  .section,.bill{border-radius:15px}
+  .section{padding:15px}
+  .bill{padding:16px}
+  .row{gap:11px;align-items:flex-start}
+  .row>.status{max-width:50%;overflow-wrap:anywhere}
+  .actions{grid-template-columns:1fr}
+  .menu-fab{top:74px;width:43px;height:46px}
+  .pane-heading{margin-bottom:12px}
+  .pane-heading h1{font-size:1.06rem}
+}
 </style>
 </head>
 <body>
-<section id="loginView" class="login"><div class="loginbox"><img src="../assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH"><h1>Client Portal</h1><p class="muted" style="text-align:center">View your bill, account status, service status and tickets.</p><div id="loginNotice" class="notice"></div><div class="field"><label>Account Number</label><input id="accountNo" autocomplete="username" placeholder="SATR0001"></div><div class="field"><label>Registered Mobile Number</label><input id="phone" inputmode="tel" autocomplete="tel" placeholder="09XXXXXXXXX"></div><button id="loginBtn" class="btn primary" style="width:100%;margin-top:14px">Sign In</button></div></section>
+<section id="loginView" class="login">
+  <div class="loginbox">
+    <div class="login-brand"><img src="../assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH"></div>
+    <div class="login-eyebrow">Secure Client Access</div>
+    <h1>Client Portal</h1>
+    <p class="muted login-help">Access your billing, payment history, service status, support tickets and account information.</p>
+    <div id="loginNotice" class="notice"></div>
+    <div class="field"><label>Account Number</label><input id="accountNo" autocomplete="username" placeholder="SATR0001"></div>
+    <div class="field"><label>Registered Mobile Number</label><input id="phone" inputmode="tel" autocomplete="tel" placeholder="09XXXXXXXXX"></div>
+    <button id="loginBtn" class="btn primary" style="width:100%;margin-top:15px">Sign In</button>
+    <div class="login-foot">TechGeekPH Solutions &amp; Services Inc. · Sta. Ana Branch, Taytay, Rizal</div>
+  </div>
+</section>
+
 <div id="appView" class="hidden">
-<button id="menuFab" class="menu-fab" type="button" aria-label="Open menu" aria-expanded="false"><span>☰</span></button>
-<div id="drawerBackdrop" class="drawer-backdrop" aria-hidden="true"></div>
-<aside id="clientDrawer" class="client-drawer" aria-hidden="true">
-  <div class="drawer-head"><img src="../assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH"><b>Client Portal</b><small>Account navigation</small><button id="drawerClose" class="drawer-close" type="button" aria-label="Close menu">×</button></div>
-  <nav class="nav"><button data-pane="homePane" class="active">Home</button><button data-pane="billingPane">Billing</button><button data-pane="supportPane">My Ticket</button><button data-pane="notifPane">Alerts</button><button data-pane="accountPane">Account</button></nav>
-  <div class="drawer-foot">TechGeekPH Solutions &amp; Services Inc.<br>Sta. Ana Branch · Taytay, Rizal</div>
-</aside>
-<header class="top"><img src="../assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH"><div class="acct"><b id="topName">Client</b><small id="topAccount"></small></div></header><main class="wrap">
-<section id="homePane" class="pane active"><div class="hero"><h1 id="hello">Hello!</h1><p>Here is your TechGeekPH account today.</p><div class="statusline"><span id="accountStatus" class="pill">ACCOUNT</span><span id="serviceStatus" class="pill">SERVICE</span><span id="liveStatus" class="pill">NETWORK</span></div></div><div class="cards"><div class="card"><span>CURRENT PLAN</span><b id="plan">—</b></div><div class="card"><span>SPEED</span><b id="speed">—</b></div><div class="card"><span>DUE DATE</span><b id="dueDate">—</b></div><div class="card"><span>BALANCE</span><b id="balance">₱0.00</b></div></div><section class="bill"><div class="billhead"><div><h2>Current Bill</h2><div class="muted" id="billingPeriod">No billing record</div></div><div class="status" id="billingStatus"></div></div><div class="amount" id="amountDue">₱0.00</div><div class="muted">Total amount due</div><div class="fees"><div class="fee"><span>Penalty / Overdue Fee</span><b id="penalty">₱0.00</b></div><div class="fee"><span>Reconnection Fee</span><b id="reconnect">₱0.00</b></div><div class="fee"><span>Processing Fee</span><b id="processing">₱0.00</b></div><div class="fee"><span>Extension Fee</span><b id="extension">₱0.00</b></div></div><div class="actions"><a class="btn primary" href="https://techgeek-ph.github.io/Payment-Center-V1.0/" target="_blank" rel="noopener">Pay via PayMongo</a><a class="btn secondary" href="https://www.speedtest.net/" target="_blank" rel="noopener">Speedtest.net</a></div></section><section class="section"><h2>Connection Status</h2><div class="rows"></div></section></section>
-<section id="billingPane" class="pane"><section class="section"><h2>Billing History</h2><div id="billRows" class="rows"></div></section><section class="section"><h2>Payment History</h2><div id="paymentRows" class="rows"></div></section></section>
-<section id="supportPane" class="pane"><section class="section"><h2>My Ticket</h2><div id="ticketRows" class="rows"></div></section></section>
-<section id="notifPane" class="pane"><section class="section"><h2>Notifications</h2><div id="notifRows" class="rows"></div><button id="notifyBtn" class="btn secondary" style="width:100%;margin-top:10px">Enable Device Notifications</button></section></section><section id="accountPane" class="pane"><section class="section"><h2>Account</h2><div id="accountRows" class="rows"></div><button id="refreshBtn" class="btn secondary" style="width:100%;margin-top:10px">Refresh Data</button><button id="logoutBtn" class="btn danger" style="width:100%;margin-top:9px">Sign Out</button></section></section></main>
+  <button id="menuFab" class="menu-fab" type="button" aria-label="Open navigation menu" aria-expanded="false"><span>☰</span></button>
+  <div id="drawerBackdrop" class="drawer-backdrop" aria-hidden="true"></div>
+  <aside id="clientDrawer" class="client-drawer" aria-hidden="true">
+    <div class="drawer-head">
+      <img src="../assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH">
+      <span class="drawer-title">Client Portal</span>
+      <span class="drawer-sub">Account &amp; service navigation</span>
+      <button id="drawerClose" class="drawer-close" type="button" aria-label="Close menu">×</button>
+    </div>
+    <div class="drawer-client">
+      <small>Signed in as</small>
+      <b id="drawerClientName">Client</b>
+      <span id="drawerAccountNo">Account</span>
+    </div>
+    <nav class="nav" aria-label="Client portal navigation">
+      <button data-pane="homePane" class="active">Home</button>
+      <button data-pane="billingPane">Billing</button>
+      <button data-pane="supportPane">My Ticket</button>
+      <button data-pane="notifPane">Alerts</button>
+      <button data-pane="accountPane">Account</button>
+    </nav>
+    <div class="drawer-foot">TechGeekPH Solutions &amp; Services Inc.<br>Sta. Ana Branch · Taytay, Rizal</div>
+  </aside>
+
+  <header class="top">
+    <img src="../assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH">
+    <div class="top-brand"><strong>Client Portal</strong><span>Sta. Ana Branch · Taytay, Rizal</span></div>
+    <div class="top-page">
+      <span id="pageLabel" class="page-label">Home</span>
+      <div class="acct"><b id="topName">Client</b><small id="topAccount"></small></div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="homePane" class="pane active">
+      <div class="hero">
+        <div class="hero-kicker">Account Overview</div>
+        <h1 id="hello">Hello!</h1>
+        <p>Review your current service, billing and connection information.</p>
+        <div class="statusline"><span id="accountStatus" class="pill">ACCOUNT</span><span id="serviceStatus" class="pill">SERVICE</span><span id="liveStatus" class="pill">NETWORK</span></div>
+      </div>
+      <div class="cards">
+        <div class="card" data-icon="P"><span>CURRENT PLAN</span><b id="plan">—</b></div>
+        <div class="card" data-icon="↕"><span>SPEED</span><b id="speed">—</b></div>
+        <div class="card" data-icon="D"><span>DUE DATE</span><b id="dueDate">—</b></div>
+        <div class="card" data-icon="₱"><span>BALANCE</span><b id="balance">₱0.00</b></div>
+      </div>
+      <section class="bill">
+        <div class="billhead"><div><h2>Current Bill</h2><div class="muted" id="billingPeriod">No billing record</div></div><div class="status" id="billingStatus"></div></div>
+        <div class="amount" id="amountDue">₱0.00</div><div class="muted">Total amount due</div>
+        <div class="fees">
+          <div class="fee"><span>Penalty / Overdue Fee</span><b id="penalty">₱0.00</b></div>
+          <div class="fee"><span>Reconnection Fee</span><b id="reconnect">₱0.00</b></div>
+          <div class="fee"><span>Processing Fee</span><b id="processing">₱0.00</b></div>
+          <div class="fee"><span>Extension Fee</span><b id="extension">₱0.00</b></div>
+        </div>
+        <div class="actions"><a class="btn primary" href="https://techgeek-ph.github.io/Payment-Center-V1.0/" target="_blank" rel="noopener">Pay via PayMongo</a><a class="btn secondary" href="https://www.speedtest.net/" target="_blank" rel="noopener">Run Speed Test</a></div>
+      </section>
+      <section class="section connection-section"><h2>Connection Status</h2><div class="rows"></div></section>
+    </section>
+
+    <section id="billingPane" class="pane">
+      <div class="pane-heading"><div><h1>Billing &amp; Payments</h1><p>Review billing records, settled accounts and payment history.</p></div></div>
+      <section class="section"><h2>Billing History</h2><p class="section-sub">Your recent monthly billing records and SOA downloads.</p><div id="billRows" class="rows"></div></section>
+      <section class="section"><h2>Payment History</h2><p class="section-sub">Payments recorded against your TechGeekPH account.</p><div id="paymentRows" class="rows"></div></section>
+    </section>
+
+    <section id="supportPane" class="pane">
+      <div class="pane-heading"><div><h1>My Ticket</h1><p>Track your installation, repair and service requests.</p></div></div>
+      <section class="section"><h2>Ticket History</h2><div id="ticketRows" class="rows"></div></section>
+    </section>
+
+    <section id="notifPane" class="pane">
+      <div class="pane-heading"><div><h1>Alerts &amp; Notices</h1><p>Important billing and service notifications for your account.</p></div></div>
+      <section class="section"><h2>Notifications</h2><div id="notifRows" class="rows"></div><button id="notifyBtn" class="btn secondary" style="width:100%;margin-top:12px">Enable Device Notifications</button></section>
+    </section>
+
+    <section id="accountPane" class="pane">
+      <div class="pane-heading"><div><h1>Account Profile</h1><p>View your registered service and subscription information.</p></div></div>
+      <section class="section"><h2>Client Information</h2><div id="accountRows" class="rows"></div><button id="refreshBtn" class="btn secondary" style="width:100%;margin-top:12px">Refresh Account Data</button><button id="logoutBtn" class="btn danger" style="width:100%;margin-top:9px">Sign Out</button></section>
+    </section>
+  </main>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../assets/supabase-config.js?v=20260904-drawer1"></script><script src="app.js?v=20260904-drawer1"></script><script src="chat-center.js?v=20260904-drawer1"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/supabase-config.js?v=20260904-drawer1"></script>
+<script src="app.js?v=20260904-drawer1"></script>
+<script src="chat-center.js?v=20260904-drawer1"></script>
 <script>
 (()=>{
   'use strict';
   const drawer=document.getElementById('clientDrawer'),fab=document.getElementById('menuFab'),backdrop=document.getElementById('drawerBackdrop'),closeBtn=document.getElementById('drawerClose');
+  const pageLabel=document.getElementById('pageLabel'),drawerName=document.getElementById('drawerClientName'),drawerAccount=document.getElementById('drawerAccountNo'),topName=document.getElementById('topName'),topAccount=document.getElementById('topAccount');
   if(!drawer||!fab||!backdrop)return;
+  const pageNames={homePane:'Home',billingPane:'Billing',chatPane:'Chat',supportPane:'My Ticket',notifPane:'Alerts',accountPane:'Account'};
   function openDrawer(){drawer.classList.add('open');backdrop.classList.add('show');drawer.setAttribute('aria-hidden','false');backdrop.setAttribute('aria-hidden','false');fab.setAttribute('aria-expanded','true');document.body.classList.add('drawer-open')}
   function closeDrawer(){drawer.classList.remove('open');backdrop.classList.remove('show');drawer.setAttribute('aria-hidden','true');backdrop.setAttribute('aria-hidden','true');fab.setAttribute('aria-expanded','false');document.body.classList.remove('drawer-open')}
+  function syncIdentity(){if(drawerName&&topName)drawerName.textContent=topName.textContent||'Client';if(drawerAccount&&topAccount)drawerAccount.textContent=topAccount.textContent||'Account'}
   fab.addEventListener('click',openDrawer);backdrop.addEventListener('click',closeDrawer);if(closeBtn)closeBtn.addEventListener('click',closeDrawer);
-  document.addEventListener('click',e=>{const item=e.target.closest&&e.target.closest('.nav button[data-pane]');if(item)setTimeout(closeDrawer,60)});
+  document.addEventListener('click',e=>{const item=e.target.closest&&e.target.closest('.nav button[data-pane]');if(item){if(pageLabel)pageLabel.textContent=pageNames[item.dataset.pane]||'Client Portal';setTimeout(closeDrawer,60)}});
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
+  if(topName)new MutationObserver(syncIdentity).observe(topName,{childList:true,subtree:true});
+  if(topAccount)new MutationObserver(syncIdentity).observe(topAccount,{childList:true,subtree:true});
+  syncIdentity();
 })();
 </script>
-</body></html>
+</body>
+</html>
