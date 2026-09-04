@@ -1,0 +1,44 @@
+name: Remove SOA Watermark
+
+on:
+  push:
+    paths:
+      - '.github/workflows/remove-soa-watermark.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Remove vertical SOA watermark
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('client/soa.html')
+          s = p.read_text(encoding='utf-8')
+          old = """ // Light vertical watermark\n pdf.setTextColor(220);pdf.setFont('courier','bold');pdf.setFontSize(18);pdf.text('STATEMENT OF ACCOUNT',203,180,{angle:90,align:'center'});\n\n"""
+          if old not in s:
+              raise SystemExit('Expected vertical watermark block not found; refusing unsafe edit.')
+          s = s.replace(old, '', 1)
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Verify watermark is gone
+        run: |
+          if grep -n "pdf.text('STATEMENT OF ACCOUNT',203,180" client/soa.html; then
+            echo 'Watermark still present' >&2
+            exit 1
+          fi
+          grep -n "txt(pdf,'STATEMENT OF ACCOUNT',105,50" client/soa.html
+      - name: Commit change
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add client/soa.html
+          git commit -m 'Remove vertical SOA watermark from client PDF'
+          git push
