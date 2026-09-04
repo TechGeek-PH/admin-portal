@@ -71,9 +71,6 @@ async function makePdf(){if(!ctx)throw new Error('Billing record is not ready.')
  y+=10;rect(pdf,14,y,182,25,.35);line(pdf,14,y+8,196,y+8,.3);txt(pdf,'IMPORTANT REMINDERS',18,y+5.5,{bold:true,size:9.5});
  txt(pdf,'Please settle your account on or before the due date to avoid service',18,y+14,{size:7.7,gray:80});txt(pdf,'interruption. For questions, contact TechGeekPH support.',18,y+19,{size:7.7,gray:80});
 
- // Light vertical watermark
- pdf.setTextColor(220);pdf.setFont('courier','bold');pdf.setFontSize(18);pdf.text('STATEMENT OF ACCOUNT',203,180,{angle:90,align:'center'});
-
  // Tear-off billing stub
  y+=34;pdf.setLineDashPattern([1.5,1.2],0);line(pdf,10,y,200,y,.25);pdf.setLineDashPattern([],0);txt(pdf,'✂',8,y+1,{size:10});txt(pdf,'Please attach this billing stub when making payments',105,y+1,{size:7,align:'center',gray:100});
  y+=10;txt(pdf,'Account number:',10,y,{bold:true,size:8});txt(pdf,c.account_no||'--',45,y,{size:8,gray:80});txt(pdf,'Due Date:',110,y,{bold:true,size:8});txt(pdf,fmtDate(b.due_date),145,y,{size:8,gray:80});
