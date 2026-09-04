@@ -1,0 +1,60 @@
+name: Patch client billing auto UI
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-client-billing-auto-ui.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add per-client billing automation controls
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          p=Path('clients.html')
+          s=p.read_text()
+
+          css="""
+    .billing-auto{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:#f8fafc}.billing-auto b{font-size:.65rem}.billing-auto span{font-size:.6rem;color:var(--muted);text-align:right}.billing-auto.on{border-color:#b8e3d2;background:#eefaf5}.billing-auto.on b{color:#16644d}.billing-auto.off{border-color:#e0e6ed;background:#f8fafc}.billing-auto-off{border-color:#d3dce6!important;color:#536579!important}.billing-auto-on{border-color:#b8e3d2!important;background:#eefaf5!important;color:#16644d!important}
+"""
+          if '.billing-auto{' not in s:
+              s=s.replace('  </style>',css+'  </style>',1)
+
+          s=re.sub(r'^    function mapByClient.*$', """    function mapByClient(rows){const m=new Map();(rows||[]).forEach(r=>{const k=String(r.client_id);if(!m.has(k))m.set(k,[]);m.get(k).push(r)});return m}function attachRelated(rows,creds,links,automation){const cm=new Map();(creds||[]).forEach(r=>cm.set(String(r.client_id),r));const lm=mapByClient(links),am=new Map();(automation||[]).forEach(r=>am.set(String(r.client_id),r));return(rows||[]).map(r=>Object.assign({},r,{_credentials:cm.get(String(r.id))||null,_messengerLinks:(lm.get(String(r.id))||[]).sort((a,b)=>Number(b.is_primary)-Number(a.is_primary)||Number(a.id)-Number(b.id)),_billingAutomation:am.get(String(r.id))||{enabled:false,automation_status:'ACTIVE',original_profile:null,due_day:10,cutoff_days_after_due:7}}))}""", s, count=1, flags=re.M)
+
+          s=re.sub(r'^    function renderRows\(\).*$', """    function renderRows(){setStats();const rows=filtered();ui.rowCount.textContent=rows.length+' record'+(rows.length===1?'':'s');if(!rows.length){ui.clientRows.innerHTML='<div class=\"empty\">No matching client records.</div>';return}ui.clientRows.innerHTML=rows.map(r=>{const links=r._messengerLinks||[],p=primaryLink(r),st=r.account_status||r.service_status||'Unknown',a=r._billingAutomation||{},autoOn=!!a.enabled,autoState=a.automation_status||'ACTIVE';return '<article class=\"client-card\"><span class=\"status-badge '+statusClass(st)+'\">'+esc(st)+'</span><h3>'+esc(r.account_no||'No account #')+'</h3><div class=\"name\">'+esc(r.client_name||'Unnamed Client')+'</div><div class=\"sub\">'+esc(r.phone||'No phone')+(r.rd_blk?' · '+esc(r.rd_blk):'')+'</div><div class=\"client-meta\"><div><b>Plan / Speed</b><span>'+esc([r.plan,r.speed].filter(Boolean).join(' / ')||'-')+'</span></div><div><b>Monthly Bill</b><span>'+esc(money(r.monthly_bill))+'</span></div><div><b>Due Day</b><span>'+esc(r.due_day??'-')+'</span></div><div><b>Service</b><span>'+esc(r.service_status||'-')+'</span></div></div><div class=\"client-address\"><b>Address:</b> '+esc(r.service_address||'-')+'</div><div class=\"billing-auto '+(autoOn?'on':'off')+'\"><b>Billing Auto Cutoff '+(autoOn?'ON':'OFF')+'</b><span>Due 10 · Cutoff 17 12:00 AM · '+esc(a.original_profile||'Profile pending')+' · '+esc(autoState)+'</span></div><div class=\"client-bind\"><span><b>'+links.length+' Facebook/Messenger</b><br>'+(p?'Primary: '+esc(p.messenger_name||p.messenger_psid):'No primary binding')+'</span><span class=\"bind-count\">'+links.length+' bound</span></div><div class=\"card-actions\"><button class=\"small-btn\" data-action=\"details\" data-id=\"'+esc(r.id)+'\">Details</button><button class=\"small-btn\" data-action=\"edit\" data-id=\"'+esc(r.id)+'\">Edit All</button><button class=\"small-btn\" data-action=\"repair\" data-id=\"'+esc(r.id)+'\">Copy Repair</button><button class=\"small-btn '+(autoOn?'billing-auto-on':'billing-auto-off')+'\" data-action=\"billing-auto\" data-id=\"'+esc(r.id)+'\">'+(autoOn?'Auto Cutoff ON':'Enable Auto Cutoff')+'</button></div></article>'}).join('')}""", s, count=1, flags=re.M)
+
+          s=re.sub(r'^    async function loadClients\(\).*$', """    async function loadClients(){ui.refreshBtn.disabled=true;showNotice('Loading client records...');try{const p=await requireAccess();if(!p)return;const cp=db.from('clients').select('*').order('account_no',{ascending:true}),lp=db.from('messenger_account_links').select('id,map_id,page_id,channel,botcake_customer_id,botcake_id,messenger_psid,messenger_name,imported_phone,imported_email,client_id,account_no,link_status,verification_method,verified_at,last_seen_at,bot_enabled,needs_staff,remarks,is_primary,updated_at'),cr=currentRole==='OWNER'?db.from('client_network_credentials').select('client_id,admin_user,admin_password,client_user,client_password,pppoe_username,pppoe_password'):Promise.resolve({data:[],error:null}),ap=db.rpc('admin_client_billing_automation_list');const[c,l,k,a]=await Promise.all([cp,lp,cr,ap]);if(c.error)throw c.error;if(l.error)throw l.error;if(a.error)throw a.error;clientRecords=attachRelated(c.data||[],k.error?[]:(k.data||[]),l.data||[],a.data||[]);renderRows();if(k.error)showNotice('Clients loaded, but protected credentials could not be read.','error');else hideNotice()}catch(e){clientRecords=[];renderRows();showNotice('Unable to load clients: '+(e.message||e),'error')}finally{ui.refreshBtn.disabled=false}}""", s, count=1, flags=re.M)
+
+          s=re.sub(r'^    function val\(id\).*$', """    function val(id){return $(id).value}function setVal(id,v){$(id).value=v??''}function findById(id){return clientRecords.find(r=>String(r.id)===String(id))||null}
+    async function toggleBillingAutomation(r,b){const current=!!(r._billingAutomation&&r._billingAutomation.enabled),next=!current;if(b)b.disabled=true;showNotice((next?'Enabling':'Disabling')+' billing auto cutoff for '+r.account_no+'...');try{await requireAccess();const x=await db.rpc('tg_enable_client_billing_automation',{p_account_no:r.account_no,p_enabled:next});if(x.error)throw x.error;await loadClients();showNotice('Billing auto cutoff '+(next?'enabled':'disabled')+' for '+r.account_no+'. Due 10 · Cutoff 17 at 12:00 AM.','ok')}catch(e){showNotice('Unable to update billing automation: '+(e.message||e),'error')}finally{if(b)b.disabled=false}}""", s, count=1, flags=re.M)
+
+          s=s.replace("function clearForm(){ui.clientForm.reset();setVal('accountStatus','Pending');setVal('serviceStatus','For Installation');", "function clearForm(){ui.clientForm.reset();setVal('accountStatus','Pending');setVal('serviceStatus','For Installation');setVal('dueDay','10');setVal('billingStartDay','10');",1)
+
+          s=s.replace("function detailPairs(r){const c=r._credentials||{},links=r._messengerLinks||[]", "function detailPairs(r){const c=r._credentials||{},a=r._billingAutomation||{},links=r._messengerLinks||[]",1)
+          s=s.replace("['Billing Start Day',r.billing_start_day],", "['Billing Start Day',r.billing_start_day],['Billing Auto Cutoff',a.enabled?'ON':'OFF'],['Auto Cutoff Status',a.automation_status||'ACTIVE'],['Original PPPoE Profile',a.original_profile||'-'],['Cutoff Policy','Due 10 · 17th 12:00 AM'],",1)
+
+          s=s.replace("if(b.dataset.action==='details')openDetails(r)});", "if(b.dataset.action==='details')openDetails(r);if(b.dataset.action==='billing-auto')toggleBillingAutomation(r,b)});",1)
+
+          if "data-action=\"billing-auto\"" not in s:
+              raise SystemExit('Billing automation UI patch did not apply')
+          if "admin_client_billing_automation_list" not in s:
+              raise SystemExit('Billing automation load patch did not apply')
+          p.write_text(s)
+          PY
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add clients.html
+          git commit -m 'Add per-client billing auto cutoff controls' || exit 0
+          git push
