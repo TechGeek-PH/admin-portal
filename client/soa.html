@@ -4,40 +4,92 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#064f83">
-<title>TechGeekPH Paid SOA</title>
+<title>TechGeekPH Statement of Account</title>
 <style>
-:root{--b:#064f83;--b2:#023d6b;--ok:#16865e;--bad:#b42345;--ink:#172438;--m:#6b7a8e;--line:#dbe4ee;--bg:#f3f6fa;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink)}.wrap{width:min(560px,100%);margin:auto;padding:18px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 16px 42px #12324b18}.logo{display:block;width:180px;max-width:70%;margin:0 auto 14px}.title{text-align:center;margin:0;color:var(--b2);font-size:1.25rem}.sub{text-align:center;color:var(--m);font-size:.74rem;margin:6px 0 18px}.msg{padding:12px;border-radius:11px;background:#eef7ff;color:var(--b2);font-size:.76rem;line-height:1.45}.msg.err{background:#fff0f2;color:var(--bad)}.msg.ok{background:#eefaf5;color:#126247}.summary{display:grid;gap:8px;margin-top:14px}.row{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-top:1px solid #edf1f5}.row:first-child{border-top:0}.row span{color:var(--m);font-size:.7rem}.row b{font-size:.74rem;text-align:right}.btn{width:100%;min-height:48px;margin-top:14px;border:0;border-radius:12px;background:var(--b);color:#fff;font-weight:900;cursor:pointer}.btn:disabled{opacity:.55}.back{display:block;text-align:center;margin-top:12px;color:var(--b);font-size:.72rem;text-decoration:none}
+:root{--b:#064f83;--ok:#16865e;--bad:#b42345;--ink:#172438;--m:#6b7a8e;--line:#dbe4ee;--bg:#f3f6fa;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink)}.wrap{width:min(560px,100%);margin:auto;padding:18px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 16px 42px #12324b18}.logo{display:block;width:180px;max-width:70%;margin:0 auto 14px}.title{text-align:center;margin:0;color:var(--b);font-size:1.2rem}.sub{text-align:center;color:var(--m);font-size:.72rem;margin:6px 0 18px}.msg{padding:12px;border-radius:11px;background:#eef7ff;color:#023d6b;font-size:.76rem;line-height:1.45}.msg.err{background:#fff0f2;color:var(--bad)}.msg.ok{background:#eefaf5;color:#126247}.summary{display:grid;gap:8px;margin-top:14px}.row{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-top:1px solid #edf1f5}.row:first-child{border-top:0}.row span{color:var(--m);font-size:.68rem}.row b{font-size:.73rem;text-align:right}.btn{width:100%;min-height:48px;margin-top:14px;border:0;border-radius:12px;background:var(--b);color:#fff;font-weight:900;cursor:pointer}.btn:disabled{opacity:.55}.back{display:block;text-align:center;margin-top:12px;color:var(--b);font-size:.72rem;text-decoration:none}
 </style>
 </head>
 <body>
-<main class="wrap"><section class="card"><img class="logo" src="../assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH"><h1 class="title">Paid Statement of Account</h1><p class="sub">Secure client copy generated from your TechGeekPH billing record.</p><div id="msg" class="msg">Loading your paid billing record…</div><div id="summary" class="summary" hidden></div><button id="downloadBtn" class="btn" type="button" hidden>Download SOA PDF</button><a class="back" href="./">← Back to Client Portal</a></section></main>
+<main class="wrap"><section class="card"><img class="logo" src="../assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH"><h1 class="title">Statement of Account</h1><p class="sub">Classic TechGeekPH SOA format • secure client copy</p><div id="msg" class="msg">Loading your paid billing record…</div><div id="summary" class="summary" hidden></div><button id="downloadBtn" class="btn" type="button" hidden>Download SOA PDF</button><a class="back" href="./">← Back to Client Portal</a></section></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-<script src="../assets/supabase-config.js?v=20260904-soa1"></script>
+<script src="../assets/supabase-config.js?v=20260904-soa2"></script>
 <script>
 (()=>{'use strict';
 const TOKEN_KEY='tg_client_portal_token',db=window.TechGeekSupabase,$=id=>document.getElementById(id);let ctx=null;
-const money=v=>'₱'+Number(v||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
-const fmtDate=v=>{if(!v)return'—';try{return new Intl.DateTimeFormat('en-PH',{year:'numeric',month:'short',day:'numeric'}).format(new Date(String(v).slice(0,10)+'T00:00:00'))}catch(_){return String(v)}};
+const num=v=>Number(v||0),moneyText=v=>num(v).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtDate=v=>{if(!v)return'--';try{return new Intl.DateTimeFormat('en-PH',{year:'numeric',month:'short',day:'numeric'}).format(new Date(String(v).slice(0,10)+'T00:00:00'))}catch(_){return String(v)}};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function setMsg(t,k=''){const el=$('msg');el.textContent=t;el.className='msg'+(k?' '+k:'')}
 async function rpc(name,args){if(!db)throw new Error('Portal connection is not ready.');const r=await db.rpc(name,args);if(r.error)throw r.error;return r.data}
-function paid(x){return Number(x?.balance||0)<=0||String(x?.billing_status||'').toUpperCase()==='PAID'}
+function paid(x){return num(x?.balance)<=0||String(x?.billing_status||'').toUpperCase()==='PAID'}
 function paymentFor(r,b){return (r.payments||[]).find(p=>String(p.billing_id||'')===String(b.billing_id||''))||{}}
-function reference(p){return p.gateway_reference||p.client_reference||'—'}
-function summaryHtml(c,b,p){return [['Account Number',c.account_no],['Client Name',c.client_name],['Billing Period',b.billing_period],['Due Date',fmtDate(b.due_date)],['Amount Due',money(b.amount_due)],['Amount Paid',money(b.amount_paid)],['Remaining Balance',money(b.balance)],['Paid Date',fmtDate(b.date_paid||p.payment_date)],['Payment Channel',p.payment_channel||'Payment'],['Payment Reference',reference(p)],['Status','PAID']].map(([a,v])=>`<div class="row"><span>${esc(a)}</span><b>${esc(v||'—')}</b></div>`).join('')}
+function reference(b,p){return b.payment_reference||p.gateway_reference||p.client_reference||'--'}
+function soaNo(c,b){const raw=String(b.billing_period||b.due_date||'').match(/(20\d{2})\D?(0[1-9]|1[0-2])/);const ym=raw?raw[1]+raw[2]:new Date().toISOString().slice(0,7).replace('-','');return 'SOA-'+ym+'-'+String(c.account_no||'CLIENT')}
+function summaryHtml(c,b,p){return [['Account Number',c.account_no],['Client Name',c.client_name],['SOA Number',soaNo(c,b)],['Billing Period',b.billing_period],['Due Date',fmtDate(b.due_date)],['Amount Paid','PHP '+moneyText(b.amount_paid)],['Remaining Balance','PHP '+moneyText(b.balance)],['Payment Reference',reference(b,p)],['Status','PAID']].map(([a,v])=>`<div class="row"><span>${esc(a)}</span><b>${esc(v||'--')}</b></div>`).join('')}
 async function logoData(){try{const r=await fetch('../assets/TechGeekPH%20-%20logo.png',{cache:'no-store'});const blob=await r.blob();return await new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=rej;fr.readAsDataURL(blob)})}catch(_){return null}}
-function addText(pdf,text,x,y,opt={}){pdf.setFont('helvetica',opt.bold?'bold':'normal');pdf.setFontSize(opt.size||9);if(opt.color)pdf.setTextColor(...opt.color);else pdf.setTextColor(25,32,45);pdf.text(String(text??''),x,y,opt.align?{align:opt.align}:undefined)}
-async function makePdf(){if(!ctx)throw new Error('Billing record is not ready.');const {c,b,p}=ctx,{jsPDF}=window.jspdf||{};if(!jsPDF)throw new Error('PDF library is unavailable.');const btn=$('downloadBtn');btn.disabled=true;btn.textContent='Preparing PDF…';try{const pdf=new jsPDF({unit:'mm',format:'a4'});const logo=await logoData();if(logo)try{pdf.addImage(logo,'PNG',14,12,46,16)}catch(_){}
-addText(pdf,'TECHGEEKPH SOLUTIONS & SERVICES INC.',196,16,{align:'right',bold:true,size:10,color:[2,61,107]});addText(pdf,'STA. ANA BRANCH • TAYTAY, RIZAL',196,22,{align:'right',size:8,color:[85,103,122]});
-pdf.setDrawColor(6,79,131);pdf.setLineWidth(.7);pdf.line(14,33,196,33);addText(pdf,'STATEMENT OF ACCOUNT — PAID',105,44,{align:'center',bold:true,size:16,color:[2,61,107]});addText(pdf,'Official client copy of a settled billing record',105,50,{align:'center',size:8,color:[85,103,122]});
-let y=62;const left=[['Account Number',c.account_no],['Client Name',c.client_name],['Service Address',c.service_address],['Plan / Speed',[c.plan,c.speed].filter(Boolean).join(' / ')]];left.forEach(([k,v])=>{addText(pdf,k,14,y,{bold:true,size:8,color:[85,103,122]});addText(pdf,v||'—',52,y,{size:9});y+=7});
-y+=3;pdf.setFillColor(244,248,252);pdf.rect(14,y,182,10,'F');addText(pdf,'BILLING DETAILS',18,y+6.5,{bold:true,size:9,color:[2,61,107]});y+=17;
-const rows=[['Billing ID',b.billing_id],['Billing Period',b.billing_period],['Due Date',fmtDate(b.due_date)],['Amount Due',money(b.amount_due)],['Amount Paid',money(b.amount_paid)],['Remaining Balance',money(b.balance)],['Paid Date',fmtDate(b.date_paid||p.payment_date)],['Payment Channel',p.payment_channel||'Payment'],['Payment Reference',reference(p)],['Billing Status','PAID']];rows.forEach(([k,v],i)=>{if(i%2===0){pdf.setFillColor(250,252,254);pdf.rect(14,y-4.5,182,8,'F')}addText(pdf,k,18,y,{bold:true,size:8,color:[85,103,122]});addText(pdf,v||'—',78,y,{size:9});y+=8});
-y+=5;pdf.setFillColor(232,247,241);pdf.roundedRect(14,y-5,182,20,3,3,'F');addText(pdf,'PAYMENT RECEIVED — THANK YOU',105,y+1,{align:'center',bold:true,size:12,color:[22,134,94]});addText(pdf,'This billing cycle has been fully settled. Remaining balance: '+money(b.balance),105,y+8,{align:'center',size:8,color:[18,98,71]});
-y+=27;addText(pdf,'Generated from the TechGeekPH Client Portal',14,y,{size:7,color:[107,122,142]});addText(pdf,'Generated: '+new Date().toLocaleString('en-PH'),196,y,{align:'right',size:7,color:[107,122,142]});
-const safe=String(b.billing_id||c.account_no||'SOA').replace(/[^A-Za-z0-9_-]+/g,'-');pdf.save('TechGeekPH-SOA-'+safe+'.pdf');setMsg('SOA PDF downloaded successfully.','ok')}finally{btn.disabled=false;btn.textContent='Download SOA PDF'}}
-async function init(){try{const token=localStorage.getItem(TOKEN_KEY);if(!token)throw new Error('Please sign in to the Client Portal first.');const billingId=new URLSearchParams(location.search).get('billing_id');if(!billingId)throw new Error('Billing ID is missing.');const r=await rpc('client_portal_get_data',{p_token:token});if(!r?.ok)throw new Error(r?.message||'Unable to load client data.');const b=(r.recent_bills||[]).find(x=>String(x.billing_id||'')===String(billingId));if(!b)throw new Error('This billing record was not found in your account.');if(!paid(b))throw new Error('SOA PDF is available only after the bill is fully PAID.');const c=r.client||{},p=paymentFor(r,b);ctx={c,b,p};$('summary').innerHTML=summaryHtml(c,b,p);$('summary').hidden=false;$('downloadBtn').hidden=false;setMsg('Paid SOA ready. Your PDF download will start automatically.','ok');setTimeout(()=>makePdf().catch(e=>setMsg('SOA is ready, but automatic download failed: '+(e.message||e)+'. Tap Download SOA PDF.','err')),350)}catch(e){setMsg(e.message||'Unable to prepare SOA.','err')}}
+function txt(pdf,t,x,y,opt={}){pdf.setFont(opt.font||'courier',opt.bold?'bold':'normal');pdf.setFontSize(opt.size||9);pdf.setTextColor(opt.gray??30);pdf.text(String(t??''),x,y,opt.align?{align:opt.align}:undefined)}
+function line(pdf,x1,y1,x2,y2,w=.25){pdf.setDrawColor(30);pdf.setLineWidth(w);pdf.line(x1,y1,x2,y2)}
+function rect(pdf,x,y,w,h,lw=.35){pdf.setDrawColor(30);pdf.setLineWidth(lw);pdf.rect(x,y,w,h)}
+function peso(pdf,v,x,y,opt={}){const s=moneyText(v);pdf.setFont('courier',opt.bold?'bold':'normal');pdf.setFontSize(opt.size||9);pdf.setTextColor(20);const align=opt.align||'left';if(align==='right'){const full='P '+s;pdf.text(full,x,y,{align:'right'});const width=pdf.getTextWidth(full);const px=x-width+0.3;line(pdf,px,y-2.15,px+2.7,y-2.15,.16);line(pdf,px,y-1.2,px+2.7,y-1.2,.16)}else{pdf.text('P',x,y);line(pdf,x+.15,y-2.15,x+2.85,y-2.15,.16);line(pdf,x+.15,y-1.2,x+2.85,y-1.2,.16);pdf.text(s,x+5,y)}}
+function fit(pdf,t,max,size=8){pdf.setFont('courier','normal');pdf.setFontSize(size);const s=String(t||'--');if(pdf.getTextWidth(s)<=max)return s;let out=s;while(out.length>3&&pdf.getTextWidth(out+'…')>max)out=out.slice(0,-1);return out+'…'}
+async function makePdf(){if(!ctx)throw new Error('Billing record is not ready.');const {c,b,p}=ctx,{jsPDF}=window.jspdf||{};if(!jsPDF)throw new Error('PDF library is unavailable.');const btn=$('downloadBtn');btn.disabled=true;btn.textContent='Preparing PDF…';try{
+ const pdf=new jsPDF({unit:'mm',format:'a4'}),logo=await logoData(),W=210;
+ if(logo)try{pdf.addImage(logo,'PNG',11,12,45,18)}catch(_){}
+ txt(pdf,'TECHGEEKPH SOLUTIONS & SERVICES INC.',151,12,{bold:true,size:10,align:'center'});
+ txt(pdf,'Lt. 74, Road 4, Purok 1, ABNAI Street',151,19,{size:8,align:'center',gray:80});
+ txt(pdf,'Barangay Santa Ana, Taytay, Rizal',151,24,{size:8,align:'center',gray:80});
+ txt(pdf,'Contact No.: +63 965 075 3950 / +63 993 741 8007',151,29,{size:7.5,align:'center',gray:80});
+ txt(pdf,'Email: contactus.taytay@gmail.com',151,34,{size:7.5,align:'center',gray:80});
+ txt(pdf,'Website: https://techgeekph.net',151,39,{size:7.5,align:'center',gray:80});
+ txt(pdf,'STATEMENT OF ACCOUNT',105,50,{bold:true,size:20,align:'center'});
+
+ // Main client / SOA information box
+ rect(pdf,10,56,190,30,.45);line(pdf,108,56,108,86,.35);line(pdf,151,56,151,86,.35);line(pdf,108,71,200,71,.35);
+ txt(pdf,String(c.client_name||'').toUpperCase(),14,65,{bold:true,size:11});
+ txt(pdf,fit(pdf,String(c.service_address||'').toUpperCase(),89,9),14,73,{size:9,gray:75});
+ txt(pdf,'CONTACT NO.: '+String(c.phone||c.phone_masked||'--'),14,81,{size:8.5,gray:75});
+ txt(pdf,'Account Number',129.5,62.5,{bold:true,size:7.5,align:'center'});txt(pdf,c.account_no||'--',129.5,68,{size:9,align:'center',gray:80});
+ txt(pdf,'SOA Number',175.5,62.5,{bold:true,size:7.5,align:'center'});txt(pdf,soaNo(c,b),175.5,68,{size:8,align:'center',gray:80});
+ txt(pdf,'Statement Date',129.5,77,{bold:true,size:7.5,align:'center'});txt(pdf,fmtDate(b.date_paid||p.payment_date||new Date().toISOString()),129.5,83,{size:8.5,align:'center',gray:80});
+ txt(pdf,'Billing Period',175.5,77,{bold:true,size:7.5,align:'center'});txt(pdf,b.billing_period||'--',175.5,83,{size:8.5,align:'center',gray:80});
+
+ // Summary strip
+ rect(pdf,10,88,190,17,.45);for(const x of [57.5,105,152.5])line(pdf,x,88,x,105,.35);line(pdf,10,96,200,96,.35);
+ [['Minimum Due',33.75],['Total Amount',81.25],['Due Date',128.75],['Plan',176.25]].forEach(([t,x])=>txt(pdf,t,x,93.7,{bold:true,size:7.5,align:'center'}));
+ peso(pdf,b.balance,33.75,102,{align:'center',size:10});peso(pdf,b.balance,81.25,102,{align:'center',size:10});txt(pdf,fmtDate(b.due_date),128.75,102,{size:8.5,align:'center',gray:80});txt(pdf,fit(pdf,[c.plan,c.speed].filter(Boolean).join(' / ').toUpperCase(),42,8),176.25,102,{size:8,align:'center',gray:80});
+
+ const prev=num(b.previous_balance),adj=num(b.adjustments),paidAmt=num(b.amount_paid),base=num(b.base_charge)||Math.max(0,num(b.amount_due)-prev-num(b.penalty)-num(b.reconnection_fee)-num(b.extension_fee)-num(b.processing_fee)-Math.max(adj,0)+Math.max(-adj,0));
+ const addAdj=Math.max(adj,0),discount=Math.max(-adj,0),rext=num(b.reconnection_fee)+num(b.extension_fee),other=num(b.penalty)+num(b.processing_fee)+addAdj,currentTotal=Math.max(0,base+rext+other-discount),prevRemain=Math.max(0,prev+addAdj-paidAmt);
+ let y=116;txt(pdf,'PREVIOUS CHARGES:',14,y,{bold:true,size:10});y+=7;
+ const charge=(label,val,bold=false)=>{txt(pdf,label,14,y,{size:9,bold,gray:bold?20:80});peso(pdf,val,170,y,{align:'right',size:9,bold});y+=6.5};
+ charge('Previous Bill Balance',prev);charge('Payments received (Thank you)',paidAmt);charge('Add Adjustment',addAdj);line(pdf,130,y-3.2,170,y-3.2,.25);charge('Remaining balance from Previous Bill',prevRemain);
+ y+=3;txt(pdf,'CURRENT CHARGES:',14,y,{bold:true,size:10});y+=7;charge('Monthly Internet Fee --',base);charge('Reconnection / Extension Fee',rext);charge('Other Charges',other);charge('Discount / Rebate',discount);line(pdf,130,y-3.2,170,y-3.2,.25);charge('Total Current Charges',currentTotal);
+ y+=2;line(pdf,130,y-3,170,y-3,.35);txt(pdf,'TOTAL AMOUNT DUE:',14,y+2,{bold:true,size:11});peso(pdf,b.balance,170,y+2,{align:'right',bold:true,size:12});
+
+ // Reminder box
+ y+=10;rect(pdf,14,y,182,25,.35);line(pdf,14,y+8,196,y+8,.3);txt(pdf,'IMPORTANT REMINDERS',18,y+5.5,{bold:true,size:9.5});
+ txt(pdf,'Please settle your account on or before the due date to avoid service',18,y+14,{size:7.7,gray:80});txt(pdf,'interruption. For questions, contact TechGeekPH support.',18,y+19,{size:7.7,gray:80});
+
+ // Light vertical watermark
+ pdf.setTextColor(220);pdf.setFont('courier','bold');pdf.setFontSize(18);pdf.text('STATEMENT OF ACCOUNT',203,180,{angle:90,align:'center'});
+
+ // Tear-off billing stub
+ y+=34;pdf.setLineDashPattern([1.5,1.2],0);line(pdf,10,y,200,y,.25);pdf.setLineDashPattern([],0);txt(pdf,'✂',8,y+1,{size:10});txt(pdf,'Please attach this billing stub when making payments',105,y+1,{size:7,align:'center',gray:100});
+ y+=10;txt(pdf,'Account number:',10,y,{bold:true,size:8});txt(pdf,c.account_no||'--',45,y,{size:8,gray:80});txt(pdf,'Due Date:',110,y,{bold:true,size:8});txt(pdf,fmtDate(b.due_date),145,y,{size:8,gray:80});
+ y+=7;txt(pdf,'Name:',10,y,{bold:true,size:8});txt(pdf,fit(pdf,c.client_name,55,8),45,y,{size:8,gray:80});txt(pdf,'Total Amount',110,y,{bold:true,size:8});peso(pdf,b.balance,145,y,{size:9});
+ y+=6;txt(pdf,'',10,y);txt(pdf,'Due:',110,y,{bold:true,size:8});
+ y+=7;txt(pdf,'',10,y);txt(pdf,'SOA number:',110,y,{bold:true,size:8});txt(pdf,soaNo(c,b),145,y,{size:8,gray:80});
+ y+=7;txt(pdf,'',10,y);txt(pdf,'Contact no.:',110,y,{bold:true,size:8});txt(pdf,c.phone||c.phone_masked||'--',145,y,{size:8,gray:80});
+
+ y+=22;txt(pdf,(c.account_no||'')+'-'+soaNo(c,b),25,y,{size:6.5,gray:120});pdf.setLineDashPattern([1.5,1.2],0);line(pdf,10,y+5,200,y+5,.25);pdf.setLineDashPattern([],0);txt(pdf,'✂',198,y+6,{size:10});
+ y+=14;txt(pdf,'SOA number:',10,y,{bold:true,size:8});txt(pdf,soaNo(c,b),46,y,{size:8,gray:80});txt(pdf,'Due Date:',110,y,{bold:true,size:8});txt(pdf,fmtDate(b.due_date),145,y,{size:8,gray:80});
+ y+=12;txt(pdf,'Received by:',10,y,{bold:true,size:8});line(pdf,92,y+2,153,y+2,.2);txt(pdf,'Signature over Printed Name',122.5,y+7,{size:6.5,align:'center',gray:110});
+ y+=17;line(pdf,92,y,153,y,.2);txt(pdf,'Date and Time',122.5,y+5,{size:6.5,align:'center',gray:110});
+
+ const safe=String(b.billing_id||c.account_no||'SOA').replace(/[^A-Za-z0-9_-]+/g,'-');pdf.save('TechGeekPH-SOA-'+safe+'.pdf');setMsg('Classic SOA PDF downloaded successfully.','ok')
+ }finally{btn.disabled=false;btn.textContent='Download SOA PDF'}}
+async function init(){try{const token=localStorage.getItem(TOKEN_KEY);if(!token)throw new Error('Please sign in to the Client Portal first.');const billingId=new URLSearchParams(location.search).get('billing_id');if(!billingId)throw new Error('Billing ID is missing.');const r=await rpc('client_portal_get_data',{p_token:token});if(!r?.ok)throw new Error(r?.message||'Unable to load client data.');const b=(r.recent_bills||[]).find(x=>String(x.billing_id||'')===String(billingId));if(!b)throw new Error('This billing record was not found in your account.');if(!paid(b))throw new Error('SOA PDF is available only after the bill is fully PAID.');const c=r.client||{},p=paymentFor(r,b);ctx={c,b,p};$('summary').innerHTML=summaryHtml(c,b,p);$('summary').hidden=false;$('downloadBtn').hidden=false;setMsg('Classic SOA ready. Download will start automatically.','ok');setTimeout(()=>makePdf().catch(e=>setMsg('SOA is ready, but automatic download failed: '+(e.message||e)+'. Tap Download SOA PDF.','err')),350)}catch(e){setMsg(e.message||'Unable to prepare SOA.','err')}}
 $('downloadBtn').addEventListener('click',()=>makePdf().catch(e=>setMsg(e.message||'Unable to download PDF.','err')));init();
 })();
 </script>
