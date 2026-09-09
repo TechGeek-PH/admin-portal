@@ -69,6 +69,18 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setupBandSelector,{once:true});else setupBandSelector();
 })();
 
+// Technician Tickets: account prefix selector + automatic next installation number.
+(function(){
+  'use strict';
+  if(!/(^|\/)app-tickets\.html$/i.test(window.location.pathname))return;
+  if(document.querySelector('script[data-ticket-account-prefix]'))return;
+  const script=document.createElement('script');
+  script.src='assets/ticket-account-prefix.js?v=20260910-1';
+  script.async=false;
+  script.dataset.ticketAccountPrefix='1';
+  document.head.appendChild(script);
+})();
+
 // Payroll Admin: Loan Management is the source of truth for loan deductions.
 (function(){
   'use strict';
