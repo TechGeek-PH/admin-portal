@@ -49,6 +49,26 @@
   document.head.appendChild(script);
 })();
 
+// Technician Tickets: Band Steering is a controlled Wi-Fi band selector.
+(function(){
+  'use strict';
+  if(!/(^|\/)app-tickets\.html$/i.test(window.location.pathname))return;
+  function setupBandSelector(){
+    const current=document.getElementById('cuBandSteering');
+    if(!current||current.tagName==='SELECT')return;
+    const select=document.createElement('select');
+    select.id='cuBandSteering';
+    select.innerHTML='<option value="">Select Band</option><option value="Single Band - 2.4GHz">Single Band - 2.4GHz</option><option value="Dual Band - 2.4GHz/5GHz">Dual Band - 2.4GHz/5GHz</option>';
+    const oldValue=String(current.value||'').trim();
+    if(oldValue==='Single Band - 2.4GHz'||oldValue==='Dual Band - 2.4GHz/5GHz')select.value=oldValue;
+    select.disabled=!!current.disabled;
+    select.className=current.className;
+    select.style.cssText=current.style.cssText;
+    current.replaceWith(select);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setupBandSelector,{once:true});else setupBandSelector();
+})();
+
 // Payroll Admin: Loan Management is the source of truth for loan deductions.
 (function(){
   'use strict';
