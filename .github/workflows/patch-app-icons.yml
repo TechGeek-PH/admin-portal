@@ -1,0 +1,26 @@
+name: Patch Employee Portal Icons
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-app-icons.yml'
+      - '.github/scripts/patch_app_icons.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply app icon patch
+        run: python .github/scripts/patch_app_icons.py
+      - name: Commit changes
+        run: |
+          git config user.name "TechGeekPH Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add app.html
+          git diff --cached --quiet || git commit -m "Replace module letter icons with descriptive icons"
+          git push
