@@ -13,6 +13,8 @@
   const isDisconnected=r=>{const a=norm(r?.account_status),s=norm(r?.service_status);return ['DISCONNECTED','CANCELLED'].includes(a)||['DISCONNECTED','CANCELLED'].includes(s)};
   const embedded=window.self!==window.top||new URLSearchParams(location.search).get('embed')==='1';
   const pingCache=new Map();
+  const bindingCache=new Map();
+  const opticalCache=new Map();
   let lastNapId='';
   let activeLoad=0;
   let selectedPort='';
@@ -44,6 +46,11 @@
       .tg-port-btn.conflict{background:#fff3e8;border-color:#d97706;color:#8a4d06}
       .tg-port-no{font-size:1.08rem;font-weight:950;line-height:1}
       .tg-port-state{font-size:.54rem;font-weight:950;letter-spacing:.04em;text-align:center;line-height:1.15}
+      /* TG-LEGACY-NAP-DBM-20260910 */
+      .tg-port-dbm{font-size:.56rem;font-weight:950;line-height:1.15;text-align:center;color:#116247}
+      .tg-port-btn.health-down .tg-port-dbm,.tg-port-btn.down .tg-port-dbm{color:#98113b}
+      .tg-port-btn.pending .tg-port-dbm{color:#98113b}
+      .tg-port-btn.conflict .tg-port-dbm{color:#8a4d06}
       .tg-port-detail{border:1px solid #d9e1ec;border-radius:10px;background:#fbfcfe;padding:13px;display:grid;gap:11px}
       .tg-port-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
       .tg-port-detail-title{font-weight:950;color:#064f83;font-size:1rem}
@@ -122,6 +129,38 @@
     return host;
   }
 
+  const opticalKey=(olt,pon,onu)=>`${String(olt||'')}|${Number(pon)||0}|${Number(onu)||0}`;
+  function opticalFor(row){
+    const b=bindingCache.get(String(row?.id));
+    return b?opticalCache.get(opticalKey(b.olt_id,b.pon_port,b.onu_id))||null:null;
+  }
+  function blockDbm(row){
+    const o=opticalFor(row);
+    if(o?.onu_rx_dbm!==null&&o?.onu_rx_dbm!==undefined&&Number.isFinite(Number(o.onu_rx_dbm)))return `${Number(o.onu_rx_dbm).toFixed(2)} dBm`;
+    const sig=norm(o?.signal_status);
+    if(sig==='OFFLINE'||sig==='DYINGGASP')return 'NO RX';
+    if(!bindingCache.get(String(row?.id)))return 'UNBOUND';
+    return 'N/A dBm';
+  }
+  async function loadOptical(rows){
+    const db=window.TechGeekSupabase;
+    if(!db)return;
+    const ids=[...new Set(rows.map(r=>String(r?.id||'')).filter(Boolean))];
+    if(!ids.length)return;
+    try{
+      const br=await db.from('client_onu_bindings').select('client_id,olt_id,pon_port,onu_id,onu_serial').in('client_id',ids);
+      if(br.error)throw br.error;
+      ids.forEach(id=>bindingCache.delete(id));
+      const bindings=br.data||[];
+      bindings.forEach(b=>bindingCache.set(String(b.client_id),b));
+      const olts=[...new Set(bindings.map(b=>String(b.olt_id||'')).filter(Boolean))];
+      if(!olts.length)return;
+      const or=await db.from('onu_optical_status').select('olt_id,pon_port,onu_id,onu_serial,onu_rx_dbm,olt_rx_dbm,signal_status,onu_status,last_checked_at').in('olt_id',olts).limit(3000);
+      if(or.error)throw or.error;
+      (or.data||[]).forEach(o=>opticalCache.set(opticalKey(o.olt_id,o.pon_port,o.onu_id),o));
+    }catch(e){console.warn('NAP optical load failed:',e?.message||e)}
+  }
+
   function connectionHealth(account,row){
     if(isDisconnected(row))return 'Disconnected';
     const p=pingCache.get(norm(account));
@@ -184,6 +223,7 @@
         <div><span>Client</span><strong>${esc(r.client_name||'-')}</strong></div>
         <div><span>Account No.</span><strong>${esc(r.account_no||'-')}</strong></div>
         <div><span>Connection Health</span><strong>${esc(health)}</strong></div>
+        <div><span>Fiber RX</span><strong>${esc(blockDbm(r))}</strong></div>
         <div><span>Account Status</span><strong>${esc(r.account_status||'-')}</strong></div>
         <div><span>Service Status</span><strong>${esc(r.service_status||'-')}</strong></div>
         <div><span>LP / NP</span><strong>${esc(p2(r.line_port)||'-')} / ${esc(p2(r.network_port)||'-')}</strong></div>
@@ -210,7 +250,8 @@
       const kind=a?.kind||'vacant';
       counts[kind]=(counts[kind]||0)+1;
       const text=kind==='active'?'ACTIVE':kind==='pending'?'PENDING':kind==='conflict'?'CONFLICT':'AVAILABLE';
-      buttons+=`<button type="button" class="tg-port-btn ${kind}" data-port="${no}" aria-label="Port ${no} ${text}"><span class="tg-port-no">${no}</span><span class="tg-port-state">${text}</span></button>`;
+      const dbm=a?.row?blockDbm(a.row):'';
+      buttons+=`<button type="button" class="tg-port-btn ${kind}" data-port="${no}" aria-label="Port ${no} ${text}"><span class="tg-port-no">${no}</span><span class="tg-port-state">${text}</span>${dbm?`<span class="tg-port-dbm">${esc(dbm)}</span>`:''}</button>`;
     }
     host.innerHTML=`
       <div class="tg-port-summary"><div><strong>${esc(nap.display_name||nap.nap_id||'Selected NAP')}</strong><br><small>${state.total} ports • Active ${counts.active} • Pending ${counts.pending} • Available ${counts.vacant}${counts.conflict?' • Conflict '+counts.conflict:''}</small></div><div class="tg-port-legend"><span><i class="tg-port-dot active"></i>Active</span><span><i class="tg-port-dot pending"></i>Pending confirmation</span><span><i class="tg-port-dot vacant"></i>Available</span></div></div>
@@ -267,7 +308,7 @@
       if(seq!==activeLoad)return;
       const lp=p2(nr.data.line_port),np=p2(nr.data.network_port);
       const rows=(cr.data||[]).filter(r=>p2(r.line_port)===lp&&p2(r.network_port)===np);
-      await loadPing(rows.map(r=>r.account_no));
+      await Promise.all([loadPing(rows.map(r=>r.account_no)),loadOptical(rows)]);
       if(seq!==activeLoad)return;
       renderGrid(nr.data,rows);
     }catch(e){
@@ -298,6 +339,8 @@
       const id=String($('boxSelect')?.value||'');
       if(id!==lastNapId){selectedPort='';loadSelectedNap(true)}
     },400);
+    window.setInterval(()=>{if(!document.hidden&&lastNapId)loadSelectedNap(true)},10000);
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden&&lastNapId)loadSelectedNap(true)});
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup,{once:true});

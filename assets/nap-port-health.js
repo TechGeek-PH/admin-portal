@@ -13,6 +13,7 @@
   const digits=v=>String(v??'').replace(/\D/g,'');
   const p2=v=>{const d=digits(v);return d?String(Number(d)).padStart(2,'0'):''};
   const activeRow=r=>![norm(r.account_status),norm(r.service_status)].some(v=>['DISCONNECTED','CANCELLED'].includes(v));
+  const opticalKey=(olt,pon,onu)=>`${String(olt||'')}|${Number(pon)||0}|${Number(onu)||0}`;
 
   let busy=false;
   let rerun=false;
@@ -37,6 +38,11 @@
       .tg-down-count{background:#fff0f4;color:#a50f39;border:1px solid #fecdd3}
       .tg-untagged-count{background:#fff7e8;color:#8b5800;border:1px solid #fed7aa}
       .tg-health-line{margin-top:5px;font-size:.58rem;color:#64748b}
+      /* TG-PORT-HEALTH-DBM-20260910 */
+      .tg-live-dbm{display:block;margin-top:3px;font-size:.56rem;font-weight:950;line-height:1.15}
+      .port.health-good .tg-live-dbm{color:#126247}
+      .port.health-fair .tg-live-dbm{color:#8b5800}
+      .port.health-down .tg-live-dbm{color:#fff}
       .tg-health-line .down{color:#b11242;font-weight:950}
       .badge.health-good{background:#e8f7f1;color:#126247}
       .badge.health-fair{background:#fff7e8;color:#8b5800}
@@ -83,7 +89,21 @@
     for(const r of active){
       const cp=p2(r.client_port); if(cp) byPort.set(cp,r);
     }
-    return {key,rows,allActive,active,byPort,ping};
+    const bindingsByClient=new Map(),opticalByKey=new Map();
+    const ids=[...new Set(allActive.map(r=>String(r.id)).filter(Boolean))];
+    if(ids.length){
+      const br=await db.from('client_onu_bindings').select('client_id,olt_id,pon_port,onu_id,onu_serial').in('client_id',ids);
+      if(!br.error){
+        const bindings=br.data||[];
+        bindings.forEach(b=>bindingsByClient.set(String(b.client_id),b));
+        const olts=[...new Set(bindings.map(b=>String(b.olt_id||'')).filter(Boolean))];
+        if(olts.length){
+          const or=await db.from('onu_optical_status').select('olt_id,pon_port,onu_id,onu_rx_dbm,signal_status,onu_status,last_checked_at').in('olt_id',olts).limit(3000);
+          if(!or.error)(or.data||[]).forEach(o=>opticalByKey.set(opticalKey(o.olt_id,o.pon_port,o.onu_id),o));
+        }
+      }
+    }
+    return {key,rows,allActive,active,byPort,ping,bindingsByClient,opticalByKey};
   }
 
   function paintLegend(){
@@ -118,6 +138,19 @@
     line.innerHTML=`Good ${good} · Fair ${fair} · <span class="down">Down ${down}</span>${noData?` · No Data ${noData}`:''}${untaggedDown.length?` · Untagged Down ${untaggedDown.length}`:''}`;
   }
 
+  function opticalFor(state,row){
+    const b=state.bindingsByClient?.get(String(row?.id));
+    return b?state.opticalByKey?.get(opticalKey(b.olt_id,b.pon_port,b.onu_id))||null:null;
+  }
+  function dbmText(state,row){
+    const o=opticalFor(state,row);
+    if(o?.onu_rx_dbm!==null&&o?.onu_rx_dbm!==undefined&&Number.isFinite(Number(o.onu_rx_dbm)))return `${Number(o.onu_rx_dbm).toFixed(2)} dBm`;
+    const sig=norm(o?.signal_status);
+    if(sig==='OFFLINE'||sig==='DYINGGASP')return 'NO RX';
+    if(!state.bindingsByClient?.get(String(row?.id)))return 'UNBOUND';
+    return 'N/A dBm';
+  }
+
   function paintPorts(state){
     document.querySelectorAll('.port[data-port]').forEach(btn=>{
       const port=p2(btn.dataset.port);
@@ -129,7 +162,10 @@
       btn.classList.add(c.klass);
       const small=btn.querySelector('small');
       if(small) small.textContent=c.label;
-      btn.title=`${row.client_name||row.account_no||'Client'} • ${c.detail}`;
+      let rx=btn.querySelector('.tg-live-dbm');
+      if(!rx){rx=document.createElement('span');rx.className='tg-live-dbm';btn.appendChild(rx)}
+      rx.textContent=dbmText(state,row);
+      btn.title=`${row.client_name||row.account_no||'Client'} • ${c.detail} • ${dbmText(state,row)}`;
     });
   }
 
@@ -144,6 +180,9 @@
     if(!row) return;
     const c=classify(state.ping.get(norm(row.account_no)));
     const info=[...box.querySelectorAll('.info div')];
+    let rxCell=info.find(d=>norm(d.querySelector('span')?.textContent)==='FIBER RX');
+    if(!rxCell){rxCell=document.createElement('div');rxCell.innerHTML='<span>Fiber RX</span><b></b>';const grid=box.querySelector('.info');if(grid)grid.appendChild(rxCell)}
+    if(rxCell){const rb=rxCell.querySelector('b');if(rb)rb.textContent=dbmText(state,row)}
     const cell=info.find(d=>norm(d.querySelector('span')?.textContent)==='CONNECTION HEALTH');
     if(cell){const b=cell.querySelector('b');if(b)b.textContent=c.detail}
     const badge=box.querySelector('.badge');
@@ -160,7 +199,7 @@
     try{
       const state=await queryState();
       if(!state) return;
-      lastState={byPort:state.byPort,ping:state.ping,lp:state.key.lp,np:state.key.np};
+      lastState={byPort:state.byPort,ping:state.ping,bindingsByClient:state.bindingsByClient,opticalByKey:state.opticalByKey,lp:state.key.lp,np:state.key.np};
       paintLegend();paintSummary(state);paintPorts(state);paintOpenDetail(state);
     }catch(e){console.warn('NAP port health refresh failed:',e?.message||e)}
     finally{busy=false;if(rerun){rerun=false;setTimeout(refresh,250)}}
@@ -172,14 +211,16 @@
     const ref=$('refresh'); if(ref) ref.addEventListener('click',()=>setTimeout(refresh,700));
     const host=$('portHost');
     if(host){new MutationObserver(()=>setTimeout(refresh,180)).observe(host,{childList:true})}
-    document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('.port[data-port]'))setTimeout(()=>paintOpenDetail({byPort:lastState.byPort,ping:lastState.ping,active:[...lastState.byPort.values()]}),40)});
+    document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('.port[data-port]'))setTimeout(()=>paintOpenDetail({byPort:lastState.byPort,ping:lastState.ping,bindingsByClient:lastState.bindingsByClient,opticalByKey:lastState.opticalByKey,active:[...lastState.byPort.values()]}),40)});
     try{
       db.channel('tg-nap-health-'+Math.random().toString(36).slice(2))
         .on('postgres_changes',{event:'*',schema:'public',table:'client_network_status'},()=>refresh())
         .on('postgres_changes',{event:'*',schema:'public',table:'clients'},()=>refresh())
+        .on('postgres_changes',{event:'*',schema:'public',table:'client_onu_bindings'},()=>refresh())
+        .on('postgres_changes',{event:'*',schema:'public',table:'onu_optical_status'},()=>refresh())
         .subscribe();
     }catch(_){}
-    setInterval(()=>{if(!document.hidden)refresh()},15000);
+    setInterval(()=>{if(!document.hidden)refresh()},10000);
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
     window.addEventListener('focus',refresh);
     setTimeout(refresh,900);
