@@ -14,7 +14,7 @@ import urllib.request
 FUNCTION_URL=os.environ.get('MONITOR_FUNCTION_URL','https://tcexzfztdgximrzuosqs.supabase.co/functions/v1/network-monitor-ingest').strip()
 MONITOR_KEY=os.environ.get('MONITOR_INGEST_KEY','').strip()
 PING_INTERFACE=os.environ.get('PING_INTERFACE','wg0').strip()
-INTERVAL=max(20,int(os.environ.get('MONITOR_INTERVAL_SECONDS','60')))
+INTERVAL=max(20,int(os.environ.get('MONITOR_INTERVAL_SECONDS','20')))
 TIMEOUT=max(1,int(os.environ.get('PING_TIMEOUT_SECONDS','1')))
 WORKERS=max(1,min(100,int(os.environ.get('PING_WORKERS','40'))))
 SOURCE=os.environ.get('MONITOR_SOURCE','digitalocean-wireguard').strip() or 'digitalocean-wireguard'

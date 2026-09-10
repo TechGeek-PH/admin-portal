@@ -26,7 +26,7 @@ cat >/etc/techgeekph-network-monitor.env <<EOF
 MONITOR_FUNCTION_URL=https://tcexzfztdgximrzuosqs.supabase.co/functions/v1/network-monitor-ingest
 MONITOR_INGEST_KEY=$MONITOR_KEY
 PING_INTERFACE=wg0
-MONITOR_INTERVAL_SECONDS=60
+MONITOR_INTERVAL_SECONDS=20
 PING_TIMEOUT_SECONDS=1
 PING_WORKERS=40
 MONITOR_SOURCE=digitalocean-wireguard
