@@ -1,0 +1,25 @@
+name: Patch New Installation Financials
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-new-install-financials.yml'
+      - '.github/scripts/patch_new_install_financials.py'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply Page 4 cashout and prorated billing patch
+        run: python .github/scripts/patch_new_install_financials.py
+      - name: Commit changes
+        run: |
+          git config user.name "TechGeekPH Automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add app-tickets.html
+          git diff --cached --quiet || git commit -m "Add cashout and prorated billing to installation completion"
+          git push
