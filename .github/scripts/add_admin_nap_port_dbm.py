@@ -1,0 +1,42 @@
+from pathlib import Path
+
+p = Path('nap-checker-v2.html')
+s = p.read_text(encoding='utf-8')
+
+marker = 'TG-ADMIN-PORT-DBM-20260910'
+if marker not in s:
+    css = r'''
+/* TG-ADMIN-PORT-DBM-20260910 */
+.port .port-dbm{font-style:normal;font-size:.56rem;font-weight:950;letter-spacing:0;line-height:1.15;text-align:center}
+.port .port-fiber-state{font-style:normal;font-size:.39rem;font-weight:900;letter-spacing:.025em;line-height:1.1;text-align:center}
+.port.active .port-dbm{color:#116b4b}
+.port.down .port-dbm{color:#98113b}
+.port.pending .port-dbm{color:#98113b}
+.port.conflict .port-dbm{color:#8b5800}
+@media(max-width:420px){.port .port-dbm{font-size:.52rem}.port .port-fiber-state{font-size:.37rem}}
+'''
+    s = s.replace('</style>', css + '\n</style>', 1)
+
+helper_anchor = "function pingCheckedText(r){const p=pingCache.get(norm(r?.account_no));return fmtDate(p?.last_checked_at)}"
+helper = helper_anchor + "\nfunction blockDbmText(r){const o=opticalFor(r),sig=signalFor(r);if(['OFFLINE','DYINGGASP'].includes(sig))return'NO RX';if(o?.onu_rx_dbm!==null&&o?.onu_rx_dbm!==undefined&&Number.isFinite(Number(o.onu_rx_dbm)))return Number(o.onu_rx_dbm).toFixed(2)+' dBm';if(sig==='UNBOUND')return'UNBOUND';return'N/A dBm'}"
+if 'function blockDbmText(r)' not in s:
+    if helper_anchor not in s:
+        raise SystemExit('block dBm helper anchor not found')
+    s = s.replace(helper_anchor, helper, 1)
+
+old = "const fib=x?.row?signalText(x.row):'';b.innerHTML=`<strong>${p}</strong><small>${kind==='active'?liveState(x.row):kind==='pending'?'PENDING':kind==='conflict'?'CONFLICT':'AVAILABLE'}</small>${fib?`<em class=\"signal-${signalClass(signalFor(x.row))}\">${esc(fib)}</em>`:''}`;"
+new = "const sig=x?.row?signalFor(x.row):'',sigCls=x?.row?signalClass(sig):'';b.innerHTML=`<strong>${p}</strong><small>${kind==='active'?liveState(x.row):kind==='pending'?'PENDING':kind==='conflict'?'CONFLICT':'AVAILABLE'}</small>${x?.row?`<em class=\"port-dbm signal-${sigCls}\">${esc(blockDbmText(x.row))}</em><em class=\"port-fiber-state signal-${sigCls}\">${esc(sig)}</em>`:''}`;"
+if old in s:
+    s = s.replace(old, new, 1)
+elif 'port-dbm signal-${sigCls}' not in s:
+    raise SystemExit('renderPorts dBm anchor not found')
+
+s = s.replace('20260910-admin-employee-style-fast-live', '20260910-admin-port-dbm')
+s = s.replace('Build: 20260905-fiber-optical', 'Build: 20260910-admin-port-dbm')
+s = s.replace('assets/supabase-config.js?v=20260905-fiber-optical', 'assets/supabase-config.js?v=20260910-admin-port-dbm')
+p.write_text(s, encoding='utf-8')
+
+loader = Path('nap-checker.html')
+ls = loader.read_text(encoding='utf-8')
+ls = ls.replace('20260910-admin-employee-style-fast-live', '20260910-admin-port-dbm')
+loader.write_text(ls, encoding='utf-8')
