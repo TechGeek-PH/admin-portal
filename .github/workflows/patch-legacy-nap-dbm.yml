@@ -1,0 +1,29 @@
+name: Patch legacy Admin NAP dBm
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-legacy-nap-dbm.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch legacy NAP renderers
+        run: python .github/scripts/patch_legacy_nap_dbm.py
+      - name: Commit patch
+        run: |
+          if git diff --quiet; then
+            echo "No changes needed"
+            exit 0
+          fi
+          git config user.name "TechGeekPH Bot"
+          git config user.email "137922253+TechGeek-PH@users.noreply.github.com"
+          git add assets/nap-ping-status.js assets/nap-port-health.js
+          git commit -m "Show live dBm on legacy Admin NAP port blocks"
+          git push
