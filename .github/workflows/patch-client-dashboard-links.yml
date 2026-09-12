@@ -15,8 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Ensure client self-service profile editor
-        run: python3 .github/scripts/patch_client_self_profile.py
       - name: Add client multi-account switcher
         run: python3 scripts/patch_client_multi_account.py
       - name: Normalize client load flow
