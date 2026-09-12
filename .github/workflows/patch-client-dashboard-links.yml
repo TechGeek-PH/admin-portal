@@ -1,0 +1,50 @@
+name: Patch Client Dashboard Links
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-client-dashboard-links.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update client routes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          # Dashboard HTML: payment should stay on same custom domain.
+          p = Path('client/index.html')
+          s = p.read_text()
+          s = s.replace('href="https://techgeek-ph.github.io/Payment-Center-V1.0/" target="_blank" rel="noopener">Pay via PayMongo</a>', 'href="/payment">Pay via PayMongo</a>')
+          p.write_text(s)
+
+          # Payment page: return users to the dashboard/login, not public landing page.
+          p = Path('client/payment.html')
+          s = p.read_text().replace("function portalHome(){location.href='/'}", "function portalHome(){location.href='/dashboard'}")
+          p.write_text(s)
+
+          # Downloads: iOS install and portal links should open dashboard directly.
+          p = Path('client/downloads.html')
+          s = p.read_text().replace('href="https://client.network-techgeekph.com/">Open Client Portal in Safari</a>', 'href="/dashboard">Open Client Portal in Safari</a>')
+          s = s.replace('href="https://client.network-techgeekph.com/">Open client.network-techgeekph.com →</a>', 'href="/dashboard">Open Client Dashboard →</a>')
+          p.write_text(s)
+          PY
+      - name: Commit routing updates
+        shell: bash
+        run: |
+          if git diff --quiet -- client/index.html client/payment.html client/downloads.html; then
+            echo 'No routing updates needed.'
+            exit 0
+          fi
+          git config user.name 'TechGeekPH'
+          git config user.email '137922253+TechGeek-PH@users.noreply.github.com'
+          git add client/index.html client/payment.html client/downloads.html
+          git commit -m 'Use dashboard route across Client Portal'
+          git push
