@@ -170,6 +170,8 @@ body.drawer-open{overflow:hidden}
   .pane-heading{margin-bottom:12px}
   .pane-heading h1{font-size:1.06rem}
 }
+.profile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;margin-top:13px}.profile-grid .field{margin-top:0}.profile-grid .field small{display:block;margin-top:5px;color:var(--m);font-size:.58rem;line-height:1.4}.profile-full{grid-column:1/-1}.profile-lock{margin-top:12px;padding:11px 12px;border:1px solid #d9e5ee;border-radius:11px;background:#f6f9fc;color:var(--m);font-size:.64rem;line-height:1.5}.profile-lock b{color:var(--ink)}
+@media(max-width:640px){.profile-grid{grid-template-columns:1fr}.profile-full{grid-column:auto}}
 </style>
 </head>
 <body>
@@ -266,15 +268,39 @@ body.drawer-open{overflow:hidden}
     </section>
 
     <section id="accountPane" class="pane">
-      <div class="pane-heading"><div><h1>Account Profile</h1><p>View your registered service and subscription information.</p></div></div>
-      <section class="section"><h2>Client Information</h2><div id="accountRows" class="rows"></div><button id="refreshBtn" class="btn secondary" style="width:100%;margin-top:12px">Refresh Account Data</button><button id="logoutBtn" class="btn danger" style="width:100%;margin-top:9px">Sign Out</button></section>
+      <div class="pane-heading"><div><h1>My Profile</h1><p>Update your personal and contact details securely.</p></div></div>
+
+      <section class="section">
+        <h2>Personal Details</h2>
+        <p class="section-sub">You can update your name, contact information and personal address. Changes are saved to your TechGeekPH client record.</p>
+        <div id="profileNotice" class="notice"></div>
+        <div class="profile-grid">
+          <div class="field"><label>First Name</label><input id="profileFirstName" autocomplete="given-name" placeholder="First name"></div>
+          <div class="field"><label>Middle Name</label><input id="profileMiddleName" autocomplete="additional-name" placeholder="Middle name (optional)"></div>
+          <div class="field"><label>Surname</label><input id="profileSurname" autocomplete="family-name" placeholder="Surname"></div>
+          <div class="field"><label>Registered Mobile Number</label><input id="profilePhone" inputmode="tel" autocomplete="tel" placeholder="09XXXXXXXXX" maxlength="20"><small>This number will be used for your next Client Portal login.</small></div>
+          <div class="field profile-full"><label>Email Address</label><input id="profileEmail" type="email" autocomplete="email" placeholder="name@example.com"></div>
+          <div class="field"><label>House / Blk / Lot</label><input id="profileHouse" autocomplete="address-line1" placeholder="House / Blk / Lot"></div>
+          <div class="field"><label>Street / Purok</label><input id="profileStreet" autocomplete="address-line2" placeholder="Street / Purok"></div>
+          <div class="field"><label>Barangay</label><input id="profileBarangay" placeholder="Barangay"></div>
+          <div class="field"><label>City / Municipality</label><input id="profileCity" autocomplete="address-level2" placeholder="City / Municipality"></div>
+          <div class="field"><label>Postal Code</label><input id="profilePostal" inputmode="numeric" autocomplete="postal-code" placeholder="Postal Code"></div>
+          <div class="field"><label>Country</label><input id="profileCountry" autocomplete="country-name" placeholder="Philippines"></div>
+          <div class="field profile-full"><label>Landmark</label><input id="profileLandmark" placeholder="Nearest landmark"></div>
+          <div class="field profile-full"><label>Permanent Address</label><textarea id="profilePermanentAddress" autocomplete="street-address" placeholder="Complete permanent address"></textarea></div>
+        </div>
+        <button id="profileSaveBtn" class="btn primary" style="width:100%;margin-top:14px">Save Personal Details</button>
+        <div class="profile-lock"><b>Protected account details</b><br>Account No., service address, plan, speed, monthly bill, network/ONU/PPPoE details and account status cannot be changed here. For service-location or plan changes, contact TechGeekPH Support.</div>
+      </section>
+
+      <section class="section"><h2>Account &amp; Service Information</h2><p class="section-sub">Read-only information managed by TechGeekPH.</p><div id="accountRows" class="rows"></div><button id="refreshBtn" class="btn secondary" style="width:100%;margin-top:12px">Refresh Account Data</button><button id="logoutBtn" class="btn danger" style="width:100%;margin-top:9px">Sign Out</button></section>
     </section>
   </main>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../assets/supabase-config.js?v=20260904-drawer1"></script>
-<script src="app.js?v=20260904-drawer1"></script>
+<script src="app.js?v=20260912-profile1"></script>
 <script src="chat-center.js?v=20260904-drawer1"></script>
 <script>
 (()=>{
