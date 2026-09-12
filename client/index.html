@@ -172,6 +172,14 @@ body.drawer-open{overflow:hidden}
 }
 .profile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;margin-top:13px}.profile-grid .field{margin-top:0}.profile-grid .field small{display:block;margin-top:5px;color:var(--m);font-size:.58rem;line-height:1.4}.profile-full{grid-column:1/-1}.profile-lock{margin-top:12px;padding:11px 12px;border:1px solid #d9e5ee;border-radius:11px;background:#f6f9fc;color:var(--m);font-size:.64rem;line-height:1.5}.profile-lock b{color:var(--ink)}
 @media(max-width:640px){.profile-grid{grid-template-columns:1fr}.profile-full{grid-column:auto}}
+
+/* Multi-account switcher */
+.account-strip{margin:0 0 14px;background:#fff;border:1px solid var(--line);border-radius:15px;padding:10px 12px;box-shadow:var(--shadow)}
+.account-strip-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.account-strip-head b{font-size:.68rem;color:var(--ink)}.account-strip-head span{font-size:.56rem;color:var(--m)}
+.account-chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}.account-chip{flex:0 0 auto;border:1px solid #d6e2eb;border-radius:999px;background:#f7fafc;color:var(--b2);min-height:34px;padding:0 11px;font-size:.62rem;font-weight:850;cursor:pointer;white-space:nowrap}.account-chip.active{background:linear-gradient(135deg,var(--b2),var(--b));border-color:transparent;color:#fff}.account-chip small{font-size:.52rem;font-weight:750;opacity:.82;margin-left:4px}
+.linked-account-list{display:grid;gap:8px;margin-top:12px}.linked-account{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line2);border-radius:12px;padding:11px 12px;background:#f9fbfc}.linked-account-main{min-width:0}.linked-account-main b{display:block;font-size:.75rem;color:var(--ink)}.linked-account-main span{display:block;margin-top:3px;font-size:.59rem;color:var(--m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.linked-account-side{text-align:right;flex:0 0 auto}.linked-account-side strong{display:block;font-size:.66rem;color:var(--b)}.linked-account-side small{display:block;margin-top:3px;font-size:.53rem;color:var(--m)}.mini-btn{border:1px solid #d8e2e9;background:#fff;color:var(--bad);border-radius:9px;min-height:30px;padding:0 9px;font-size:.56rem;font-weight:850;cursor:pointer;margin-top:6px}.link-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.link-help{margin-top:9px;color:var(--m);font-size:.6rem;line-height:1.5}
+@media(max-width:640px){.link-grid{grid-template-columns:1fr}.account-strip{margin-left:0;margin-right:0}}
+
 </style>
 </head>
 <body>
@@ -224,6 +232,10 @@ body.drawer-open{overflow:hidden}
   </header>
 
   <main class="wrap">
+    <div id="accountStrip" class="account-strip hidden">
+      <div class="account-strip-head"><b>My Accounts</b><span>Tap an account to switch dashboard &amp; payment</span></div>
+      <div id="accountChips" class="account-chips"></div>
+    </div>
     <section id="homePane" class="pane active">
       <div class="hero">
         <div class="hero-kicker">Account Overview</div>
@@ -271,6 +283,19 @@ body.drawer-open{overflow:hidden}
       <div class="pane-heading"><div><h1>My Profile</h1><p>Update your personal and contact details securely.</p></div></div>
 
       <section class="section">
+        <h2>My Linked Accounts</h2>
+        <p class="section-sub">Use one Client Portal login for multiple verified TechGeekPH accounts. Select an account above to view its dashboard and pay its bill.</p>
+        <div id="linkedAccountNotice" class="notice"></div>
+        <div id="linkedAccountsList" class="linked-account-list"></div>
+        <div class="link-grid">
+          <div class="field"><label>Account Number</label><input id="linkAccountNo" autocomplete="off" placeholder="SATR0001"></div>
+          <div class="field"><label>Registered Mobile Number</label><input id="linkPhone" inputmode="tel" autocomplete="tel" placeholder="09XXXXXXXXX"></div>
+        </div>
+        <button id="linkAccountBtn" class="btn secondary" style="width:100%;margin-top:10px">+ Link Another Account</button>
+        <div class="link-help">For security, the account number and registered mobile number must match the account being linked. Billing records stay separate; switching only changes which verified account is currently open.</div>
+      </section>
+
+      <section class="section">
         <h2>Personal Details</h2>
         <p class="section-sub">You can update your name, contact information and personal address. Changes are saved to your TechGeekPH client record.</p>
         <div id="profileNotice" class="notice"></div>
@@ -300,7 +325,7 @@ body.drawer-open{overflow:hidden}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../assets/supabase-config.js?v=20260904-drawer1"></script>
-<script src="app.js?v=20260912-profile1"></script>
+<script src="app.js?v=20260912-multi1"></script>
 <script src="chat-center.js?v=20260904-drawer1"></script>
 <script>
 (()=>{
