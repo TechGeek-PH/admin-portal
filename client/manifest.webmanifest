@@ -2,13 +2,13 @@
   "name": "TechGeekPH Client Portal",
   "short_name": "TechGeekPH",
   "description": "TechGeekPH client billing, account status, chat and ticket viewing portal.",
-  "start_url": "./?app=1&v=20260903-6",
-  "scope": "./",
+  "start_url": "/dashboard?app=1&v=20260912-1",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#064f83",
   "icons": [
-    {"src":"icon-techgeekph.jpg?v=20260831-2","sizes":"1536x1536","type":"image/jpeg","purpose":"any"},
-    {"src":"icon-techgeekph.jpg?v=20260831-2","sizes":"1536x1536","type":"image/jpeg","purpose":"maskable"}
+    {"src":"/icon-techgeekph.jpg?v=20260831-2","sizes":"1536x1536","type":"image/jpeg","purpose":"any"},
+    {"src":"/icon-techgeekph.jpg?v=20260831-2","sizes":"1536x1536","type":"image/jpeg","purpose":"maskable"}
   ]
 }
