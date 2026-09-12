@@ -1,0 +1,58 @@
+name: Patch client payment route
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-client-payment-route.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Route Client Portal payments to /payment
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          index = Path('client/index.html')
+          text = index.read_text()
+          old = '<a class="btn primary" href="https://techgeek-ph.github.io/Payment-Center-V1.0/" target="_blank" rel="noopener">Pay via PayMongo</a>'
+          new = '<a class="btn primary" href="/payment">Pay via PayMongo</a>'
+          if old in text:
+              text = text.replace(old, new, 1)
+          elif new not in text:
+              raise SystemExit('Payment button anchor not found')
+          index.write_text(text)
+
+          app = Path('client/app.js')
+          text = app.read_text()
+          start = text.find('function updatePaymentLink(){')
+          end = text.find('\nasync function logout(){', start)
+          if start < 0 or end < 0:
+              raise SystemExit('updatePaymentLink function not found')
+          replacement = "function updatePaymentLink(){const btn=[...document.querySelectorAll('a.btn.primary')].find(a=>/Pay via PayMongo/i.test(a.textContent||''));if(btn)btn.href='/payment'}"
+          text = text[:start] + replacement + text[end:]
+          app.write_text(text)
+
+          sw = Path('client/sw.js')
+          text = sw.read_text()
+          text = text.replace("const CACHE='techgeekph-client-v8';", "const CACHE='techgeekph-client-v9-payment';")
+          sw.write_text(text)
+          PY
+      - name: Commit payment route patch
+        shell: bash
+        run: |
+          if git diff --quiet -- client/index.html client/app.js client/sw.js; then
+            echo 'Already patched.'
+            exit 0
+          fi
+          git config user.name 'TechGeekPH'
+          git config user.email '137922253+TechGeek-PH@users.noreply.github.com'
+          git add client/index.html client/app.js client/sw.js
+          git commit -m 'Open Client Payment Center on same-origin /payment route'
+          git push
