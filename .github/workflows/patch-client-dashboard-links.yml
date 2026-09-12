@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '.github/workflows/patch-client-dashboard-links.yml'
+      - 'scripts/patch_client_multi_account.py'
 
 permissions:
   contents: write
@@ -13,9 +14,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Add client self-service profile editor
+      - name: Ensure client self-service profile editor
         run: python3 .github/scripts/patch_client_self_profile.py
-      - name: Commit profile editor
+      - name: Add client multi-account switcher
+        run: python3 scripts/patch_client_multi_account.py
+      - name: Commit client portal updates
         run: |
           if git diff --quiet -- client/index.html client/app.js; then
             echo "Already patched."
@@ -24,5 +27,5 @@ jobs:
           git config user.name "TechGeekPH"
           git config user.email "137922253+TechGeek-PH@users.noreply.github.com"
           git add client/index.html client/app.js
-          git commit -m "Add client self-service personal profile editor"
+          git commit -m "Add linked account switcher to Client Portal"
           git push
