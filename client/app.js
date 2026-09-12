@@ -1,4 +1,5 @@
 (()=>{'use strict';
+window.TechGeekMultiAccountNative=true;
 const $=id=>document.getElementById(id),db=window.TechGeekSupabase,TOKEN_KEY='tg_client_portal_token';let data=null,loadRetryTimer=null,profileOriginal=null,profileDirty=false,profileLoading=false,accountsState=null,accountsLoading=false,switchingAccount=false;
 const peso=v=>'₱'+Number(v||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
 const date=v=>{if(!v)return'—';try{return new Intl.DateTimeFormat('en-PH',{year:'numeric',month:'short',day:'numeric'}).format(new Date(v+'T00:00:00'))}catch(_){return v}};
