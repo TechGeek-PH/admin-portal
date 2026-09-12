@@ -6,6 +6,7 @@ on:
       - '.github/workflows/patch-client-dashboard-links.yml'
       - 'scripts/patch_client_multi_account.py'
       - 'scripts/fix_client_multi_account_load.py'
+      - 'scripts/add_multi_account_inline_fallback.py'
 
 permissions:
   contents: write
@@ -19,6 +20,8 @@ jobs:
         run: python3 scripts/patch_client_multi_account.py
       - name: Normalize client load flow
         run: python3 scripts/fix_client_multi_account_load.py
+      - name: Add live inline fallback controller
+        run: python3 scripts/add_multi_account_inline_fallback.py
       - name: Validate client JavaScript
         run: node --check client/app.js
       - name: Commit client portal updates
@@ -30,5 +33,5 @@ jobs:
           git config user.name "TechGeekPH"
           git config user.email "137922253+TechGeek-PH@users.noreply.github.com"
           git add client/index.html client/app.js
-          git commit -m "Finalize linked account switcher"
+          git commit -m "Make linked accounts live on Client Dashboard"
           git push
