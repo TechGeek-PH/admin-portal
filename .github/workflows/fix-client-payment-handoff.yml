@@ -1,0 +1,52 @@
+name: Fix client payment handoff
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-client-payment-handoff.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch authenticated Payment Center handoff
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('client/app.js')
+          text = path.read_text()
+
+          old_render = "renderBills();renderPayments();renderTickets();renderNotifications();renderAccount()}"
+          new_render = "renderBills();renderPayments();renderTickets();renderNotifications();renderAccount();updatePaymentLink()}"
+          if old_render in text:
+              text = text.replace(old_render, new_render, 1)
+          elif new_render not in text:
+              raise SystemExit('Unable to patch render() payment handoff hook')
+
+          if 'function updatePaymentLink(){' not in text:
+              marker = 'async function logout(){'
+              fn = """function updatePaymentLink(){const btn=[...document.querySelectorAll('a.btn.primary')].find(a=>/Pay via PayMongo/i.test(a.textContent||''));if(!btn)return;const token=localStorage.getItem(TOKEN_KEY),account=String(data?.client?.account_no||'').trim();if(!token||!account){btn.href='https://techgeek-ph.github.io/Payment-Center-V1.0/';return}const handoff=new URLSearchParams({token,account});btn.href='https://techgeek-ph.github.io/Payment-Center-V1.0/#'+handoff.toString()}\n"""
+              if marker not in text:
+                  raise SystemExit('Unable to find logout marker for payment handoff helper')
+              text = text.replace(marker, fn + marker, 1)
+
+          path.write_text(text)
+          PY
+      - name: Commit client portal patch
+        shell: bash
+        run: |
+          if git diff --quiet -- client/app.js; then
+            echo 'Client payment handoff already patched.'
+            exit 0
+          fi
+          git config user.name 'TechGeekPH'
+          git config user.email '137922253+TechGeek-PH@users.noreply.github.com'
+          git add client/app.js
+          git commit -m 'Bind Payment Center to signed-in client account'
+          git push
