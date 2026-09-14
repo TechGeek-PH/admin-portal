@@ -49,6 +49,18 @@
   document.head.appendChild(script);
 })();
 
+// Technician Tickets: allow field technicians to close a ticket as Unable to Fix.
+(function(){
+  'use strict';
+  if(!/(^|\/)app-tickets\.html$/i.test(window.location.pathname))return;
+  if(document.querySelector('script[data-technician-unable-fix]'))return;
+  const script=document.createElement('script');
+  script.src='assets/technician-unable-fix.js?v=20260914-1';
+  script.async=false;
+  script.dataset.technicianUnableFix='1';
+  document.head.appendChild(script);
+})();
+
 // Technician Tickets: Band Steering is a controlled Wi-Fi band selector.
 (function(){
   'use strict';
