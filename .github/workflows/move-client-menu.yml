@@ -1,0 +1,53 @@
+name: Move Client Menu Beside Logo
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/move-client-menu.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Move hamburger into header beside logo
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('client/index.html')
+          s = p.read_text()
+          old_css = ".menu-fab{position:fixed;left:0;top:82px;z-index:82;width:46px;height:48px;border:1px solid rgba(255,255,255,.22);border-left:0;border-radius:0 14px 14px 0;background:linear-gradient(145deg,var(--b2),var(--b));color:#fff;box-shadow:0 8px 22px rgba(7,63,107,.28);display:grid;place-items:center;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease}"
+          new_css = ".menu-fab{position:relative;z-index:41;flex:0 0 auto;width:42px;height:42px;border:1px solid #cfe0eb;border-radius:12px;background:#f3f8fc;color:var(--b2);box-shadow:none;display:grid;place-items:center;cursor:pointer;transition:transform .18s ease,background .18s ease,border-color .18s ease}"
+          if old_css not in s:
+              raise SystemExit('Expected menu CSS not found')
+          s = s.replace(old_css, new_css, 1)
+          s = s.replace(".menu-fab span{display:block;font-size:20px;line-height:1}.menu-fab:active{transform:scale(.97)}", ".menu-fab span{display:block;font-size:21px;line-height:1}.menu-fab:hover{background:#eaf4fa;border-color:#b6d2e3}.menu-fab:active{transform:scale(.97)}", 1)
+          s = s.replace("  .menu-fab{top:86px}\n", "", 1)
+          s = s.replace("  .menu-fab{top:74px;width:43px;height:46px}\n", "  .menu-fab{width:40px;height:40px}\n", 1)
+          old_button = "  <button id=\"menuFab\" class=\"menu-fab\" type=\"button\" aria-label=\"Open navigation menu\" aria-expanded=\"false\"><span>☰</span></button>\n"
+          if old_button not in s:
+              raise SystemExit('Standalone menu button not found')
+          s = s.replace(old_button, "", 1)
+          old_header = "  <header class=\"top\">\n    <img src=\"../assets/TechGeekPH%20-%20logo.png\" alt=\"TechGeekPH\">"
+          new_header = "  <header class=\"top\">\n    <button id=\"menuFab\" class=\"menu-fab\" type=\"button\" aria-label=\"Open navigation menu\" aria-expanded=\"false\"><span>☰</span></button>\n    <img src=\"../assets/TechGeekPH%20-%20logo.png\" alt=\"TechGeekPH\">"
+          if old_header not in s:
+              raise SystemExit('Header target not found')
+          s = s.replace(old_header, new_header, 1)
+          p.write_text(s)
+      - name: Commit update
+        shell: bash
+        run: |
+          set -e
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add client/index.html
+          git diff --cached --quiet && exit 0
+          git commit -m 'Move client menu beside logo'
+          git pull --rebase origin main
+          git push origin HEAD:main
