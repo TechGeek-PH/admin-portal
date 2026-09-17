@@ -1,6 +1,5 @@
 const ORIGIN = 'https://techgeek-ph.github.io/admin-portal';
-const APK_ORIGIN = 'https://techgeek-ph.github.io/admin-portal/downloads/TechGeekPH-Client-v1.0.3.apk';
-const LEGACY_APK_ORIGIN = 'https://techgeek-ph.github.io/Payment-Center-V1.0/client-app-download/TechGeekPH-Client-v3.0.0.apk';
+const APK_ORIGIN = 'https://techgeek-ph.github.io/Payment-Center-V1.0/client-app-download/TechGeekPH-Client-v3.0.0.apk';
 
 function mapPath(pathname) {
   if (pathname === '/' || pathname === '') return '/client/main.html';
@@ -12,25 +11,17 @@ function mapPath(pathname) {
   return '/client' + pathname;
 }
 
-async function serveApk(origin, filename) {
-  const apk = await fetch(origin);
-  const headers = new Headers(apk.headers);
-  headers.set('Content-Type', 'application/vnd.android.package-archive');
-  headers.set('Content-Disposition', `attachment; filename="${filename}"`);
-  headers.set('Cache-Control', 'no-store');
-  return new Response(apk.body, { status: apk.status, statusText: apk.statusText, headers });
-}
-
 export default {
   async fetch(request) {
     const incoming = new URL(request.url);
 
-    if (incoming.pathname === '/downloads/TechGeekPH-Client-v1.0.3.apk') {
-      return serveApk(APK_ORIGIN, 'TechGeekPH-Client-v1.0.3.apk');
-    }
-
     if (incoming.pathname === '/downloads/TechGeekPH-Client-v3.0.0.apk') {
-      return serveApk(LEGACY_APK_ORIGIN, 'TechGeekPH-Client-v3.0.0.apk');
+      const apk = await fetch(APK_ORIGIN);
+      const headers = new Headers(apk.headers);
+      headers.set('Content-Type', 'application/vnd.android.package-archive');
+      headers.set('Content-Disposition', 'attachment; filename="TechGeekPH-Client-v3.0.0.apk"');
+      headers.set('Cache-Control', 'no-store');
+      return new Response(apk.body, { status: apk.status, statusText: apk.statusText, headers });
     }
 
     const target = new URL(ORIGIN + mapPath(incoming.pathname));
