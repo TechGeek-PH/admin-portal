@@ -10,7 +10,6 @@
 @media(max-width:900px){.toolbar{grid-template-columns:1fr 170px auto}.summary{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:repeat(auto-fill,minmax(215px,1fr))}}
 @media(max-width:620px){.wrap{padding:9px}.toolbar{grid-template-columns:1fr}.summary{grid-template-columns:repeat(2,1fr)}.panel-head{align-items:flex-start;flex-direction:column}.grid{grid-template-columns:1fr;padding:9px}.detail-grid{grid-template-columns:1fr}.detail.wide{grid-column:auto}.money-grid{grid-template-columns:1fr 1fr}.modal-bg{padding:7px;align-items:end}.modal{width:100%;max-height:94vh;border-radius:16px 16px 0 0}.modal-actions{display:grid;grid-template-columns:1fr 1fr}.modal-actions>*{width:100%}.modal-actions .collectbtn{grid-column:1/-1}.inline-actions{display:grid;grid-template-columns:1fr 1fr}}
 </style>
-  <link rel="stylesheet" href="assets/admin-cash-remittance.css?v=20260919-1">
 </head>
 <body>
 <div class="wrap">
@@ -114,6 +113,5 @@ async function saveCantPullout(){if(state.busy)return;const r=requireQueueOnDuty
 $('search').addEventListener('input',apply);$('view').addEventListener('change',e=>switchView(e.target.value));$('refresh').addEventListener('click',()=>load(false));$('tabQueue').addEventListener('click',()=>switchView('QUEUE'));$('tabPullout').addEventListener('click',()=>switchView('PULLOUT'));$('tabCant').addEventListener('click',()=>switchView('CANT'));$('tabDone').addEventListener('click',()=>switchView('DONE'));$('tabMine').addEventListener('click',()=>switchView('MINE'));$('close').addEventListener('click',closeModal);$('confirm').addEventListener('click',confirmCollection);$('donePullout').addEventListener('click',markDonePullout);$('cantPullout').addEventListener('click',showCantForm);$('cancelCant').addEventListener('click',()=>{$('cantForm').classList.add('hidden');$('cantReason').value='';$('cantDetails').value=''});$('saveCant').addEventListener('click',saveCantPullout);$('copyBtn').addEventListener('click',()=>{if(state.selected)navigator.clipboard?.writeText(state.selected.row.account_no||'').catch(()=>{})});$('modalBg').addEventListener('click',e=>{if(e.target===$('modalBg'))closeModal()});document.body.addEventListener('click',e=>{const q=e.target.closest('[data-open]');if(q)return openQueue(q.dataset.open);const m=e.target.closest('[data-my]');if(m)return openMine(m.dataset.my)});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});window.addEventListener('techgeekph:auth-refreshed',()=>{state.token=loadToken()});window.setInterval(()=>{if(!document.hidden&&!state.busy&&!$('modalBg').classList.contains('show'))load(true)},45000);load(false);
 })();
 </script>
-<script src="assets/admin-cash-remittance.js?v=20260919-1"></script>
 </body>
 </html>
