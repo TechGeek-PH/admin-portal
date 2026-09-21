@@ -1,4 +1,4 @@
-const CACHE_NAME='techgeekph-installer-v18';
+const CACHE_NAME='techgeekph-installer-v19-accountfix';
 const APP_SHELL=[
   '/admin-portal/mobile-entry.html',
   '/admin-portal/app.html',
