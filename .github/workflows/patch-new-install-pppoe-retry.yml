@@ -1,0 +1,29 @@
+name: Patch New Install PPPoE retry
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-new-install-pppoe-retry.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch New Install PPPoE retry flow only
+        run: python .github/scripts/patch_new_install_pppoe_retry.py
+      - name: Commit patch
+        run: |
+          if git diff --quiet; then
+            echo "No changes needed"
+            exit 0
+          fi
+          git config user.name "TechGeekPH Bot"
+          git config user.email "137922253+TechGeek-PH@users.noreply.github.com"
+          git add app-tickets.html
+          git commit -m "Fix New Install PPPoE retry and proof continuation"
+          git push
