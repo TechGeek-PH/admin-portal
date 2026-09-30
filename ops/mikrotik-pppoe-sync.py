@@ -1,5 +1,16 @@
 #!/usr/bin/env python3
-import json,os,socket,struct,sys,time,urllib.request,ipaddress,re
+import concurrent.futures
+import ipaddress
+import json
+import os
+import re
+import socket
+import statistics
+import struct
+import sys
+import time
+import urllib.request
+
 FUNCTION_URL=os.environ.get('MONITOR_FUNCTION_URL','https://tcexzfztdgximrzuosqs.supabase.co/functions/v1/network-monitor-ingest').strip()
 MONITOR_KEY=os.environ.get('MONITOR_INGEST_KEY','').strip()
 HOST=os.environ.get('MIKROTIK_HOST','10.200.0.2').strip()
@@ -8,7 +19,11 @@ USER=os.environ.get('MIKROTIK_USER','').strip()
 PASSWORD=os.environ.get('MIKROTIK_PASSWORD','')
 INTERVAL=max(30,int(os.environ.get('PPPOE_SYNC_INTERVAL_SECONDS','60')))
 TIMEOUT=max(2,int(os.environ.get('MIKROTIK_TIMEOUT_SECONDS','8')))
-MATCHER_VERSION='20260830-4'
+PING_COUNT=max(3,min(10,int(os.environ.get('PPPOE_PING_COUNT','5'))))
+PING_WORKERS=max(1,min(20,int(os.environ.get('PPPOE_PING_WORKERS','10'))))
+PING_INTERVAL=os.environ.get('PPPOE_PING_INTERVAL','100ms').strip() or '100ms'
+MATCHER_VERSION='20260930-5'
+PING_SOURCE='mikrotik-pppoe-ping:'+HOST
 
 def edge(body):
     data=json.dumps(body,separators=(',',':')).encode()
@@ -75,6 +90,7 @@ def command(s,cmd,attrs=None):
         elif w[0]=='!done':return rows
 
 def rb(v):return str(v or '').lower() in ('true','yes','1','on')
+
 def valid_ip(v):
     try:return str(ipaddress.ip_address(str(v or '').strip()))
     except:return None
@@ -124,6 +140,54 @@ def fetch_router():
         active=command(s,'/ppp/active/print',{'.proplist':'name,address,uptime,service,caller-id'})
     return secrets,active
 
+def parse_ping_ms(value):
+    s=str(value or '').strip().lower()
+    if not s:return None
+    m=re.fullmatch(r'([0-9.]+)\s*(ns|us|µs|ms|s)',s)
+    if m:
+        n=float(m.group(1));unit=m.group(2)
+        if unit=='ns':return round(n/1000000,3)
+        if unit in ('us','µs'):return round(n/1000,3)
+        if unit=='ms':return round(n,3)
+        return round(n*1000,3)
+    m=re.fullmatch(r'(?:(\d+):)?(\d+):(\d+(?:\.\d+)?)',s)
+    if m:
+        h=int(m.group(1) or 0);minute=int(m.group(2));sec=float(m.group(3))
+        return round((h*3600+minute*60+sec)*1000,3)
+    return None
+
+def classify_health(reachable,latency):
+    if not reachable:return 'NO CONNECTION'
+    if latency is None or latency<=50:return 'GOOD'
+    if latency<=100:return 'FAIR'
+    if latency<=200:return 'HIGH LATENCY'
+    return 'POOR'
+
+def router_ping(account,target):
+    with socket.create_connection((HOST,PORT),timeout=TIMEOUT) as s:
+        s.settimeout(max(TIMEOUT,5))
+        command(s,'/login',{'name':USER,'password':PASSWORD})
+        rows=command(s,'/ping',{'address':target,'count':PING_COUNT,'interval':PING_INTERVAL})
+    samples=[]
+    for row in rows:
+        ms=parse_ping_ms(row.get('time'))
+        if ms is not None:
+            samples.append(ms)
+    reachable=bool(samples)
+    latency=round(float(statistics.median(samples)),2) if samples else None
+    loss=round((PING_COUNT-len(samples))*100.0/PING_COUNT,1)
+    return {
+        'account_no':account,
+        'target_ip':target,
+        'reachable':reachable,
+        'latency_ms':latency,
+        'ping_samples':samples,
+        'packet_loss':loss,
+        'connection_health':classify_health(reachable,latency),
+        'source':PING_SOURCE,
+        'error':None if reachable else 'No ping reply from active PPPoE client'
+    }
+
 def cycle():
     targets=edge({'action':'targets'}) or []
     secrets,active=fetch_router()
@@ -132,7 +196,8 @@ def cycle():
     sec_ip=unique_by(secrets,'remote-address',valid_ip);act_ip=unique_by(active,'address',valid_ip)
     sec_suffix=unique_by(secrets,'name',suffix_key)
     sec_comment=unique_by(secrets,'comment',norm_text)
-    results=[];discovered_ip=0;discovered_name=0;discovered_suffix=0;discovered_comment=0
+    results=[];ping_results=[];ping_jobs=[]
+    discovered_ip=0;discovered_name=0;discovered_suffix=0;discovered_comment=0
     for c in targets:
         account=str(c.get('account_no') or '').strip();client_name=str(c.get('client_name') or '').strip();ip=valid_ip(c.get('remote_address'));username=str(c.get('pppoe_username') or '').strip()
         if not account:continue
@@ -165,17 +230,73 @@ def cycle():
                 username=str(candidate.get('name') or '').strip();secret=candidate;session=act_name.get(username.lower()) if username else None
                 if username:discovered_comment+=1
         if not username:continue
-        results.append({'account_no':account,'pppoe_username':username,'secret_found':secret is not None,'secret_disabled':rb((secret or {}).get('disabled')),'session_active':session is not None,'secret_remote_address':valid_ip((secret or {}).get('remote-address')),'active_address':valid_ip((session or {}).get('address')),'profile':(secret or {}).get('profile') or None,'service':(session or secret or {}).get('service') or None,'caller_id':(session or {}).get('caller-id') or None,'uptime':(session or {}).get('uptime') or None,'source':'mikrotik-api:'+HOST,'error':None})
-    for i in range(0,len(results),250):edge({'action':'pppoe','results':results[i:i+250]})
-    print(time.strftime('%Y-%m-%d %H:%M:%S'),f'matcher={MATCHER_VERSION} targets={len(targets)} router_secrets={len(secrets)} router_active={len(active)} matched={len(results)} unmatched={len(targets)-len(results)} discovered_by_ip={discovered_ip} discovered_by_name={discovered_name} discovered_by_suffix={discovered_suffix} discovered_by_comment={discovered_comment} pppoe_active={sum(1 for r in results if r["session_active"])}',flush=True)
+
+        active_address=valid_ip((session or {}).get('address'))
+        results.append({
+            'account_no':account,
+            'pppoe_username':username,
+            'secret_found':secret is not None,
+            'secret_disabled':rb((secret or {}).get('disabled')),
+            'session_active':session is not None,
+            'secret_remote_address':valid_ip((secret or {}).get('remote-address')),
+            'active_address':active_address,
+            'profile':(secret or {}).get('profile') or None,
+            'service':(session or secret or {}).get('service') or None,
+            'caller_id':(session or {}).get('caller-id') or None,
+            'uptime':(session or {}).get('uptime') or None,
+            'source':'mikrotik-api:'+HOST,
+            'error':None
+        })
+
+        if session is not None and active_address:
+            ping_jobs.append((account,active_address))
+        elif session is None:
+            ping_results.append({
+                'account_no':account,
+                'target_ip':valid_ip((secret or {}).get('remote-address')) or ip,
+                'reachable':False,
+                'latency_ms':None,
+                'ping_samples':[],
+                'packet_loss':100.0,
+                'connection_health':'NO CONNECTION',
+                'source':PING_SOURCE,
+                'error':'PPPoE session inactive'
+            })
+
+    for i in range(0,len(results),250):
+        edge({'action':'pppoe','results':results[i:i+250]})
+
+    ping_errors=0
+    with concurrent.futures.ThreadPoolExecutor(max_workers=PING_WORKERS) as pool:
+        future_map={pool.submit(router_ping,account,target):(account,target) for account,target in ping_jobs}
+        for future in concurrent.futures.as_completed(future_map):
+            account,target=future_map[future]
+            try:
+                ping_results.append(future.result())
+            except Exception as e:
+                ping_errors+=1
+                print(time.strftime('%Y-%m-%d %H:%M:%S'),f'Router ping error account={account} target={target}: {e!r}',file=sys.stderr,flush=True)
+
+    for i in range(0,len(ping_results),100):
+        edge({'action':'ingest','results':ping_results[i:i+100]})
+
+    ping_online=sum(1 for r in ping_results if r.get('reachable') is True)
+    ping_down=sum(1 for r in ping_results if r.get('reachable') is False)
+    print(time.strftime('%Y-%m-%d %H:%M:%S'),
+          f'matcher={MATCHER_VERSION} targets={len(targets)} router_secrets={len(secrets)} router_active={len(active)} '
+          f'matched={len(results)} unmatched={len(targets)-len(results)} discovered_by_ip={discovered_ip} '
+          f'discovered_by_name={discovered_name} discovered_by_suffix={discovered_suffix} discovered_by_comment={discovered_comment} '
+          f'pppoe_active={sum(1 for r in results if r["session_active"])} ping_jobs={len(ping_jobs)} '
+          f'ping_online={ping_online} ping_down={ping_down} ping_errors={ping_errors}',flush=True)
 
 def main():
     if not MONITOR_KEY:raise SystemExit('MONITOR_INGEST_KEY missing')
     if not USER or not PASSWORD:raise SystemExit('MIKROTIK_USER / MIKROTIK_PASSWORD missing')
-    print(f'TechGeekPH MikroTik PPPoE Sync starting: host={HOST}:{PORT} interval={INTERVAL}s matcher={MATCHER_VERSION}',flush=True)
+    print(f'TechGeekPH MikroTik PPPoE Sync starting: host={HOST}:{PORT} interval={INTERVAL}s matcher={MATCHER_VERSION} ping_count={PING_COUNT} ping_workers={PING_WORKERS}',flush=True)
     while True:
         start=time.monotonic()
         try:cycle()
         except Exception as e:print(time.strftime('%Y-%m-%d %H:%M:%S'),'PPPoE sync error:',repr(e),file=sys.stderr,flush=True)
         time.sleep(max(1,INTERVAL-(time.monotonic()-start)))
+
 if __name__=='__main__':main()
