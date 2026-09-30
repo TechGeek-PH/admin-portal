@@ -18,11 +18,13 @@ PORT=int(os.environ.get('MIKROTIK_API_PORT','8728'))
 USER=os.environ.get('MIKROTIK_USER','').strip()
 PASSWORD=os.environ.get('MIKROTIK_PASSWORD','')
 INTERVAL=max(30,int(os.environ.get('PPPOE_SYNC_INTERVAL_SECONDS','60')))
-TIMEOUT=max(2,int(os.environ.get('MIKROTIK_TIMEOUT_SECONDS','8')))
+TIMEOUT=max(5,int(os.environ.get('MIKROTIK_TIMEOUT_SECONDS','15')))
+BIND_INTERFACE=os.environ.get('MIKROTIK_BIND_INTERFACE','wg0').strip()
+SOURCE_IP=os.environ.get('MIKROTIK_SOURCE_IP','10.200.0.1').strip()
 PING_COUNT=max(3,min(10,int(os.environ.get('PPPOE_PING_COUNT','5'))))
-PING_WORKERS=max(1,min(20,int(os.environ.get('PPPOE_PING_WORKERS','10'))))
+PING_WORKERS=max(1,min(20,int(os.environ.get('PPPOE_PING_WORKERS','4'))))
 PING_INTERVAL=os.environ.get('PPPOE_PING_INTERVAL','100ms').strip() or '100ms'
-MATCHER_VERSION='20260930-5'
+MATCHER_VERSION='20260930-6'
 PING_SOURCE='mikrotik-pppoe-ping:'+HOST
 
 def edge(body):
@@ -132,9 +134,23 @@ def account_candidates(account):
         if k not in seen:seen.append(k)
     return seen
 
+def router_connection(timeout=None):
+    timeout=max(5,int(timeout or TIMEOUT))
+    s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    s.settimeout(timeout)
+    try:
+        if BIND_INTERFACE and hasattr(socket,'SO_BINDTODEVICE'):
+            s.setsockopt(socket.SOL_SOCKET,socket.SO_BINDTODEVICE,(BIND_INTERFACE+'\0').encode())
+        if SOURCE_IP:
+            s.bind((SOURCE_IP,0))
+        s.connect((HOST,PORT))
+        return s
+    except Exception:
+        s.close()
+        raise
+
 def fetch_router():
-    with socket.create_connection((HOST,PORT),timeout=TIMEOUT) as s:
-        s.settimeout(TIMEOUT)
+    with router_connection() as s:
         command(s,'/login',{'name':USER,'password':PASSWORD})
         secrets=command(s,'/ppp/secret/print',{'.proplist':'name,disabled,profile,service,remote-address,comment'})
         active=command(s,'/ppp/active/print',{'.proplist':'name,address,uptime,service,caller-id'})
@@ -164,8 +180,7 @@ def classify_health(reachable,latency):
     return 'POOR'
 
 def router_ping(account,target):
-    with socket.create_connection((HOST,PORT),timeout=TIMEOUT) as s:
-        s.settimeout(max(TIMEOUT,5))
+    with router_connection(max(TIMEOUT,15)) as s:
         command(s,'/login',{'name':USER,'password':PASSWORD})
         rows=command(s,'/ping',{'address':target,'count':PING_COUNT,'interval':PING_INTERVAL})
     samples=[]
@@ -190,7 +205,13 @@ def router_ping(account,target):
 
 def cycle():
     targets=edge({'action':'targets'}) or []
-    secrets,active=fetch_router()
+    try:
+        secrets,active=fetch_router()
+    except Exception as e:
+        print(time.strftime('%Y-%m-%d %H:%M:%S'),
+              f'Router API connection failed host={HOST}:{PORT} bind={BIND_INTERFACE or "default"} source_ip={SOURCE_IP or "auto"} error={e!r}',
+              file=sys.stderr,flush=True)
+        raise
     sec_name={str(r.get('name') or '').strip().lower():r for r in secrets if r.get('name')}
     act_name={str(r.get('name') or '').strip().lower():r for r in active if r.get('name')}
     sec_ip=unique_by(secrets,'remote-address',valid_ip);act_ip=unique_by(active,'address',valid_ip)
@@ -292,7 +313,7 @@ def cycle():
 def main():
     if not MONITOR_KEY:raise SystemExit('MONITOR_INGEST_KEY missing')
     if not USER or not PASSWORD:raise SystemExit('MIKROTIK_USER / MIKROTIK_PASSWORD missing')
-    print(f'TechGeekPH MikroTik PPPoE Sync starting: host={HOST}:{PORT} interval={INTERVAL}s matcher={MATCHER_VERSION} ping_count={PING_COUNT} ping_workers={PING_WORKERS}',flush=True)
+    print(f'TechGeekPH MikroTik PPPoE Sync starting: host={HOST}:{PORT} interval={INTERVAL}s matcher={MATCHER_VERSION} ping_count={PING_COUNT} ping_workers={PING_WORKERS} bind={BIND_INTERFACE or "default"} source_ip={SOURCE_IP or "auto"}',flush=True)
     while True:
         start=time.monotonic()
         try:cycle()
