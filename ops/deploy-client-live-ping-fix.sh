@@ -44,7 +44,7 @@ set_env() {
 # Keep the MikroTik API connection on the known WireGuard management path.
 set_env MIKROTIK_HOST 10.200.0.2
 set_env MIKROTIK_API_PORT 8728
-set_env MIKROTIK_BIND_INTERFACE wg0
+set_env MIKROTIK_BIND_INTERFACE ''
 set_env MIKROTIK_SOURCE_IP 10.200.0.1
 set_env MIKROTIK_TIMEOUT_SECONDS 15
 set_env PPPOE_PING_COUNT 5
@@ -69,12 +69,12 @@ if ! systemctl is-active --quiet "$SERVICE"; then
   exit 5
 fi
 
-echo "Client live PPPoE ping monitor v20260930-6 installed and running."
-echo "MikroTik API path is forced to wg0 / 10.200.0.1 -> 10.200.0.2:8728."
+echo "Client live PPPoE ping monitor v20261006-7 installed and running."
+echo "MikroTik API uses source 10.200.0.1 -> 10.200.0.2:8728 without forcing SO_BINDTODEVICE."
 echo "Waiting for the first router/API result..."
 sleep 18
 journalctl -u "$SERVICE" --since '-30 seconds' --no-pager || true
 
 echo
-echo "Success line contains: matcher=20260930-6 ... ping_jobs=... ping_online=... ping_errors=0"
+echo "Success line contains: matcher=20261006-7 ... ping_jobs=... ping_online=... ping_errors=0"
 echo "If the log instead says 'Router API connection failed', send that line back so the remaining issue can be isolated to MikroTik API/WireGuard reachability."
