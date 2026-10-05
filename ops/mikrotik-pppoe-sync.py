@@ -19,12 +19,12 @@ USER=os.environ.get('MIKROTIK_USER','').strip()
 PASSWORD=os.environ.get('MIKROTIK_PASSWORD','')
 INTERVAL=max(30,int(os.environ.get('PPPOE_SYNC_INTERVAL_SECONDS','60')))
 TIMEOUT=max(5,int(os.environ.get('MIKROTIK_TIMEOUT_SECONDS','15')))
-BIND_INTERFACE=os.environ.get('MIKROTIK_BIND_INTERFACE','wg0').strip()
+BIND_INTERFACE=os.environ.get('MIKROTIK_BIND_INTERFACE','').strip()
 SOURCE_IP=os.environ.get('MIKROTIK_SOURCE_IP','10.200.0.1').strip()
 PING_COUNT=max(3,min(10,int(os.environ.get('PPPOE_PING_COUNT','5'))))
 PING_WORKERS=max(1,min(20,int(os.environ.get('PPPOE_PING_WORKERS','4'))))
 PING_INTERVAL=os.environ.get('PPPOE_PING_INTERVAL','100ms').strip() or '100ms'
-MATCHER_VERSION='20260930-6'
+MATCHER_VERSION='20261006-7'
 PING_SOURCE='mikrotik-pppoe-ping:'+HOST
 
 def edge(body):
@@ -139,8 +139,9 @@ def router_connection(timeout=None):
     s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     s.settimeout(timeout)
     try:
-        if BIND_INTERFACE and hasattr(socket,'SO_BINDTODEVICE'):
-            s.setsockopt(socket.SOL_SOCKET,socket.SO_BINDTODEVICE,(BIND_INTERFACE+'\0').encode())
+        # Source-address binding is sufficient for the WireGuard management path.
+        # Do not force SO_BINDTODEVICE: it can time out even when the same source
+        # address can reach the MikroTik API successfully.
         if SOURCE_IP:
             s.bind((SOURCE_IP,0))
         s.connect((HOST,PORT))
