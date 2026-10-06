@@ -3,7 +3,8 @@ set -euo pipefail
 
 SERVICE="techgeekph-pppoe-ping.service"
 OLD_SERVICE="techgeekph-pppoe-monitor.service"
-ENV_FILE="/etc/techgeekph-pppoe-monitor.env"
+PPPOE_ENV="/etc/techgeekph-pppoe-monitor.env"
+MONITOR_ENV="/etc/techgeekph-network-monitor.env"
 DEST_DIR="/opt/techgeekph-network-monitor"
 DEST="$DEST_DIR/mikrotik-pppoe-ping-edge.py"
 VENV="$DEST_DIR/.venv"
@@ -18,14 +19,19 @@ if [[ ${EUID:-$(id -u)} -ne 0 ]]; then
   exit 1
 fi
 
-if [[ ! -f "$ENV_FILE" ]]; then
-  echo "Missing $ENV_FILE. No changes were made."
+if [[ ! -f "$PPPOE_ENV" ]]; then
+  echo "Missing $PPPOE_ENV. No changes were made."
   exit 2
 fi
 
+key_exists() {
+  local key="$1"
+  grep -qE "^${key}=.+" "$PPPOE_ENV" 2>/dev/null || grep -qE "^${key}=.+" "$MONITOR_ENV" 2>/dev/null
+}
+
 for key in MONITOR_INGEST_KEY MIKROTIK_USER MIKROTIK_PASSWORD; do
-  if ! grep -qE "^${key}=.+" "$ENV_FILE"; then
-    echo "Missing $key in $ENV_FILE. No changes were made."
+  if ! key_exists "$key"; then
+    echo "Missing $key in the existing monitor configuration. No changes were made."
     exit 3
   fi
 done
@@ -56,7 +62,8 @@ Wants=network-online.target
 [Service]
 Type=simple
 WorkingDirectory=$DEST_DIR
-EnvironmentFile=$ENV_FILE
+EnvironmentFile=-$MONITOR_ENV
+EnvironmentFile=$PPPOE_ENV
 Environment=PPPOE_PING_MONITOR_INTERVAL_SECONDS=60
 Environment=PPPOE_PING_COUNT=3
 Environment=PPPOE_PING_WORKERS=4
@@ -83,7 +90,7 @@ if ! systemctl is-active --quiet "$SERVICE"; then
 fi
 
 echo "PPPoE ping monitor v3 installed and running."
-echo "Using existing $ENV_FILE credentials and Monitor ingest key."
+echo "Using the existing PPPoE credentials plus the existing network-monitor ingest key."
 echo "No billing, PPP profile, NAP, ONU, ticketing, Messenger, or client-master code was changed."
 echo "Waiting for first complete MikroTik client-ping cycle..."
 sleep 50
