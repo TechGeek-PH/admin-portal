@@ -5,6 +5,7 @@ import json
 import os
 import re
 import socket
+import statistics
 import struct
 import subprocess
 import sys
@@ -18,6 +19,10 @@ INTERVAL=max(20,int(os.environ.get('MONITOR_INTERVAL_SECONDS','20')))
 TIMEOUT=max(1,int(os.environ.get('PING_TIMEOUT_SECONDS','1')))
 WORKERS=max(1,min(100,int(os.environ.get('PING_WORKERS','40'))))
 SOURCE=os.environ.get('MONITOR_SOURCE','digitalocean-wireguard').strip() or 'digitalocean-wireguard'
+BASELINE_TARGET=os.environ.get('LATENCY_BASELINE_TARGET','10.200.0.2').strip()
+BASELINE_COUNT=max(3,min(10,int(os.environ.get('LATENCY_BASELINE_COUNT','5'))))
+CLIENT_PING_COUNT=max(2,min(5,int(os.environ.get('CLIENT_PING_COUNT','3'))))
+PING_INTERVAL=os.environ.get('CLIENT_PING_INTERVAL','0.1').strip() or '0.1'
 MIKROTIK_HOST=os.environ.get('MIKROTIK_HOST','').strip()
 MIKROTIK_PORT=int(os.environ.get('MIKROTIK_API_PORT','8728'))
 MIKROTIK_USER=os.environ.get('MIKROTIK_USER','').strip()
@@ -61,30 +66,61 @@ def valid_target(value):
         return None
 
 
-def ping_one(row):
+def ping_samples(target,count):
+    cmd=['ping','-n','-c',str(count),'-i',PING_INTERVAL,'-W',str(TIMEOUT)]
+    if PING_INTERFACE:
+        cmd += ['-I',PING_INTERFACE]
+    cmd.append(target)
+    p=subprocess.run(cmd,capture_output=True,text=True,timeout=(TIMEOUT+1)*count+2)
+    output=(p.stdout or '')+'\n'+(p.stderr or '')
+    samples=[round(float(x),3) for x in TIME_RE.findall(output)]
+    return p.returncode==0 and bool(samples),samples,output
+
+
+def measure_baseline():
+    target=valid_target(BASELINE_TARGET)
+    if not target:
+        return None
+    try:
+        reachable,samples,_=ping_samples(target,BASELINE_COUNT)
+        if not reachable or not samples:
+            return None
+        return round(float(statistics.median(samples)),3)
+    except Exception:
+        return None
+
+
+def ping_one(row,baseline_ms):
     account=str(row.get('account_no') or '').strip()
     target=valid_target(row.get('remote_address'))
     if not account or not target or is_intentionally_disconnected(row):
         return None
-    cmd=['ping','-n','-c','1','-W',str(TIMEOUT)]
-    if PING_INTERFACE:
-        cmd += ['-I',PING_INTERFACE]
-    cmd.append(target)
-    started=time.monotonic()
     try:
-        p=subprocess.run(cmd,capture_output=True,text=True,timeout=TIMEOUT+2)
-        output=(p.stdout or '')+'\n'+(p.stderr or '')
-        reachable=p.returncode==0
-        latency=None
-        if reachable:
-            m=TIME_RE.search(output)
-            latency=round(float(m.group(1)),2) if m else round((time.monotonic()-started)*1000,2)
+        reachable,samples,output=ping_samples(target,CLIENT_PING_COUNT)
+        raw_latency=round(float(statistics.median(samples)),2) if samples else None
+        latency=raw_latency
+        source=SOURCE
+        if reachable and raw_latency is not None and baseline_ms is not None:
+            # The VPS-to-MikroTik WireGuard RTT is common path latency, not
+            # subscriber last-mile latency. Subtract the same-cycle baseline
+            # and keep a small positive floor for a clean, truthful display.
+            latency=round(max(0.1,raw_latency-baseline_ms),2)
+            source=SOURCE+'-lastmile'
         err=None if reachable else (output.strip().splitlines()[-1][:240] if output.strip() else 'No ping reply')
-        return {'account_no':account,'target_ip':target,'reachable':reachable,'latency_ms':latency,'source':SOURCE,'error':err}
+        return {
+            'account_no':account,
+            'target_ip':target,
+            'reachable':reachable,
+            'latency_ms':latency,
+            'ping_samples':samples,
+            'packet_loss':round((CLIENT_PING_COUNT-len(samples))*100.0/CLIENT_PING_COUNT,1),
+            'source':source,
+            'error':err
+        }
     except subprocess.TimeoutExpired:
-        return {'account_no':account,'target_ip':target,'reachable':False,'latency_ms':None,'source':SOURCE,'error':'Ping timeout'}
+        return {'account_no':account,'target_ip':target,'reachable':False,'latency_ms':None,'ping_samples':[],'packet_loss':100.0,'source':SOURCE+'-lastmile','error':'Ping timeout'}
     except Exception as e:
-        return {'account_no':account,'target_ip':target,'reachable':False,'latency_ms':None,'source':SOURCE,'error':str(e)[:240]}
+        return {'account_no':account,'target_ip':target,'reachable':False,'latency_ms':None,'ping_samples':[],'packet_loss':100.0,'source':SOURCE+'-lastmile','error':str(e)[:240]}
 
 
 def fetch_clients():
@@ -240,9 +276,10 @@ def fetch_mikrotik_pppoe(clients):
 def cycle():
     clients=fetch_clients()
     eligible=[c for c in clients if valid_target(c.get('remote_address')) and not is_intentionally_disconnected(c)]
+    baseline_ms=measure_baseline()
     ping_results=[]
     with concurrent.futures.ThreadPoolExecutor(max_workers=WORKERS) as pool:
-        futures=[pool.submit(ping_one,c) for c in eligible]
+        futures=[pool.submit(ping_one,c,baseline_ms) for c in eligible]
         for f in concurrent.futures.as_completed(futures):
             r=f.result()
             if r:
@@ -266,12 +303,13 @@ def cycle():
 
     print(time.strftime('%Y-%m-%d %H:%M:%S'),
           f'targets={len(clients)} checked={len(ping_results)} online={online} down={len(ping_results)-online} '
+          f'baseline={baseline_ms if baseline_ms is not None else "unavailable"}ms '
           f'pppoe_checked={pppoe_count} pppoe_active={pppoe_active} {pppoe_note}',flush=True)
 
 
 def main():
     mt='enabled '+MIKROTIK_HOST if (MIKROTIK_HOST and MIKROTIK_USER and MIKROTIK_PASSWORD) else 'not configured'
-    print(f'TechGeekPH Network Monitor starting: interval={INTERVAL}s interface={PING_INTERFACE or "route-default"} workers={WORKERS} mikrotik={mt}',flush=True)
+    print(f'TechGeekPH Network Monitor starting: interval={INTERVAL}s interface={PING_INTERFACE or "route-default"} workers={WORKERS} baseline={BASELINE_TARGET} mikrotik={mt}',flush=True)
     while True:
         started=time.monotonic()
         try:
