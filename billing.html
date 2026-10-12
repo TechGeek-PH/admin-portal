@@ -175,7 +175,7 @@
     finally{state.saving.delete(account);select.disabled=false;select.classList.remove("saving")}
   }
 
-  document.addEventListener("click",e=>{const b=e.target.closest("[data-soa-pdf]");if(!b)return;const account=String(b.dataset.account||"").trim(),billing=String(b.dataset.billing||"").trim();if(!account||!billing)return;const url="statement_of_account.html?account_no="+encodeURIComponent(account)+"&billing_id="+encodeURIComponent(billing)+"&auto_pdf=1&from=billing";window.open(url,"_blank","noopener")});
+  document.addEventListener("click",e=>{const b=e.target.closest("[data-soa-pdf]");if(!b)return;const account=String(b.dataset.account||"").trim(),billing=String(b.dataset.billing||"").trim();if(!account||!billing)return;const url="statement_of_account.html?account_no="+encodeURIComponent(account)+"&billing_id="+encodeURIComponent(billing)+"&from=billing";const tab=window.open(url,"_blank");if(tab)tab.opener=null;else window.location.assign(url)});
   document.addEventListener("change",e=>{const s=e.target.closest(".tag-select");if(s)setTag(s.dataset.account,s.value,s)});
   document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{state.tab=b.dataset.tab;render()}));
   $("#search").addEventListener("input",renderRows);$("#period").addEventListener("change",renderRows);$("#refreshBtn").addEventListener("click",load);$("#clearBtn").addEventListener("click",()=>{$("#search").value="";$("#period").value="ALL";state.tab="ALL";render()});
