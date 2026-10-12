@@ -4475,12 +4475,14 @@
         const pdf = new window.jspdf.jsPDF({ orientation: "portrait", unit: "mm", format: "a4", compress: true });
         const image = canvas.toDataURL("image/jpeg", 0.93);
         const scaledHeight = canvas.height * 210 / canvas.width;
-        const pages = Math.ceil(scaledHeight / 297);
+        const pages = Math.max(1, Math.ceil((scaledHeight - 0.5) / 297));
         for (let page = 0; page < pages; page++) {
           if (page) pdf.addPage();
           pdf.addImage(image, "JPEG", 0, -297 * page, 210, scaledHeight, undefined, "FAST");
         }
-        downloadBlob(pdf.output("blob"), fileName);
+        const blob = pdf.output("blob");
+        if (!blob || !blob.size) throw new Error("Generated PDF file is empty.");
+        downloadBlob(blob, fileName);
       } finally {
         if (typeof restoreLogo === "function") restoreLogo();
       }
