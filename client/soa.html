@@ -10,13 +10,13 @@
 </style>
 </head>
 <body>
-<main class="wrap"><section class="card"><img class="logo" src="../assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH"><h1 class="title">Statement of Account</h1><p class="sub">Classic TechGeekPH SOA format • secure client copy</p><div id="msg" class="msg">Loading your paid billing record…</div><div id="summary" class="summary" hidden></div><button id="downloadBtn" class="btn" type="button" hidden>Download SOA PDF</button><a class="back" href="./">← Back to Client Portal</a></section></main>
+<main class="wrap"><section class="card"><img class="logo" src="../assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH"><h1 class="title">Statement of Account</h1><p class="sub">Classic TechGeekPH SOA format • secure client copy</p><div id="msg" class="msg">Loading your paid billing record…</div><div id="summary" class="summary" hidden></div><button id="downloadBtn" class="btn" type="button" hidden>Download SOA PDF</button><a id="openPdfBtn" class="back" href="#" target="_blank" rel="noopener" hidden>Open PDF / Save Manually</a><a class="back" href="./">← Back to Client Portal</a></section></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="../assets/supabase-config.js?v=20260904-soa2"></script>
 <script>
 (()=>{'use strict';
-const TOKEN_KEY='tg_client_portal_token',db=window.TechGeekSupabase,$=id=>document.getElementById(id);let ctx=null;
+const TOKEN_KEY='tg_client_portal_token',db=window.TechGeekSupabase,$=id=>document.getElementById(id);let ctx=null,lastPdfUrl=null;
 const num=v=>Number(v||0),moneyText=v=>num(v).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmtDate=v=>{if(!v)return'--';try{return new Intl.DateTimeFormat('en-PH',{year:'numeric',month:'short',day:'numeric'}).format(new Date(String(v).slice(0,10)+'T00:00:00'))}catch(_){return String(v)}};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -84,9 +84,17 @@ async function makePdf(){if(!ctx)throw new Error('Billing record is not ready.')
  y+=12;txt(pdf,'Received by:',10,y,{bold:true,size:8});line(pdf,92,y+2,153,y+2,.2);txt(pdf,'Signature over Printed Name',122.5,y+7,{size:6.5,align:'center',gray:110});
  y+=17;line(pdf,92,y,153,y,.2);txt(pdf,'Date and Time',122.5,y+5,{size:6.5,align:'center',gray:110});
 
- const safe=String(b.billing_id||c.account_no||'SOA').replace(/[^A-Za-z0-9_-]+/g,'-');pdf.save('TechGeekPH-SOA-'+safe+'.pdf');setMsg('Classic SOA PDF downloaded successfully.','ok')
+ const safe=String(b.billing_id||c.account_no||'SOA').replace(/[^A-Za-z0-9_-]+/g,'-');
+  const pdfBlob=pdf.output('blob');
+  if(!pdfBlob||!pdfBlob.size)throw new Error('Generated PDF file is empty.');
+  if(lastPdfUrl)URL.revokeObjectURL(lastPdfUrl);
+  lastPdfUrl=URL.createObjectURL(pdfBlob);
+  const manual=$('openPdfBtn');manual.href=lastPdfUrl;manual.hidden=false;
+  const link=document.createElement('a');link.href=lastPdfUrl;link.download='TechGeekPH-SOA-'+safe+'.pdf';
+  document.body.appendChild(link);link.click();link.remove();
+  setMsg('SOA PDF prepared. Check Downloads, or tap Open PDF / Save Manually below.','ok')
  }finally{btn.disabled=false;btn.textContent='Download SOA PDF'}}
-async function init(){try{const token=localStorage.getItem(TOKEN_KEY);if(!token)throw new Error('Please sign in to the Client Portal first.');const billingId=new URLSearchParams(location.search).get('billing_id');if(!billingId)throw new Error('Billing ID is missing.');const r=await rpc('client_portal_get_data',{p_token:token});if(!r?.ok)throw new Error(r?.message||'Unable to load client data.');const b=(r.recent_bills||[]).find(x=>String(x.billing_id||'')===String(billingId));if(!b)throw new Error('This billing record was not found in your account.');if(!paid(b))throw new Error('SOA PDF is available only after the bill is fully PAID.');const c=r.client||{},p=paymentFor(r,b);ctx={c,b,p};$('summary').innerHTML=summaryHtml(c,b,p);$('summary').hidden=false;$('downloadBtn').hidden=false;setMsg('Classic SOA ready. Download will start automatically.','ok');setTimeout(()=>makePdf().catch(e=>setMsg('SOA is ready, but automatic download failed: '+(e.message||e)+'. Tap Download SOA PDF.','err')),350)}catch(e){setMsg(e.message||'Unable to prepare SOA.','err')}}
+async function init(){try{const token=localStorage.getItem(TOKEN_KEY);if(!token)throw new Error('Please sign in to the Client Portal first.');const billingId=new URLSearchParams(location.search).get('billing_id');if(!billingId)throw new Error('Billing ID is missing.');const r=await rpc('client_portal_get_data',{p_token:token});if(!r?.ok)throw new Error(r?.message||'Unable to load client data.');const b=(r.recent_bills||[]).find(x=>String(x.billing_id||'')===String(billingId));if(!b)throw new Error('This billing record was not found in your account.');if(!paid(b))throw new Error('SOA PDF is available only after the bill is fully PAID.');const c=r.client||{},p=paymentFor(r,b);ctx={c,b,p};$('summary').innerHTML=summaryHtml(c,b,p);$('summary').hidden=false;$('downloadBtn').hidden=false;setMsg('SOA ready. Tap Download SOA PDF to save it to your device.','ok')}catch(e){setMsg(e.message||'Unable to prepare SOA.','err')}}
 $('downloadBtn').addEventListener('click',()=>makePdf().catch(e=>setMsg(e.message||'Unable to download PDF.','err')));init();
 })();
 </script>
