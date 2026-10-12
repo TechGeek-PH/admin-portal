@@ -2698,6 +2698,7 @@
             <button class="ghost-btn" type="button" id="downloadPngBtn">Download SOA as PNG</button>
             <button class="primary-btn" type="button" id="downloadPdfBtn">Download SOA PDF</button>
             <button class="ghost-btn" type="button" id="downloadReceiptPngBtn">Download Receipt as PNG</button>
+            <button class="ghost-btn" type="button" id="downloadReceiptPdfBtn">Download Receipt PDF</button>
             <button class="primary-btn" type="button" id="printBtn">Print / Save as PDF</button>
           </div>
 
@@ -2985,6 +2986,7 @@
       emailReminderBtn: document.querySelector("#emailReminderBtn"),
       copyReceiptMessageBtn: document.querySelector("#copyReceiptMessageBtn"),
       downloadReceiptPngBtn: document.querySelector("#downloadReceiptPngBtn"),
+      downloadReceiptPdfBtn: document.querySelector("#downloadReceiptPdfBtn"),
       ackReceiptSheet: document.querySelector("#ackReceiptSheet")
     };
 
@@ -3760,7 +3762,7 @@
       document.body.appendChild(link);
       link.click();
       link.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
     }
 
     async function waitForImages(root) {
@@ -4449,19 +4451,64 @@
       m=String(dueDate||"").match(/^(\d{4})-(\d{2})/);return m?m[1]+"-"+m[2]:currentMonthValue();
     }
     function isoDateOnly(value){const m=String(value||"").match(/^(\d{4}-\d{2}-\d{2})/);return m?m[1]:todayISO()}
+    // Download only the displayed printable sheet. Never alter billing or receipt records.
+    async function exportVisibleSheetAsPdf(node, fileName) {
+      if (!node) throw new Error("Printable document was not found.");
+      if (!window.jspdf || !window.jspdf.jsPDF) throw new Error("PDF library is unavailable. Please check your connection.");
+      await ensureHtml2Canvas();
+      let restoreLogo = null;
+      try {
+        restoreLogo = await prepareExactFolderLogoForCapture(node);
+        await waitForImages(node);
+        const width = Math.ceil(node.scrollWidth || node.offsetWidth || 794);
+        const height = Math.ceil(node.scrollHeight || node.offsetHeight || 1123);
+        const canvas = await window.html2canvas(node, {
+          scale: 2, useCORS: true, allowTaint: false,
+          backgroundColor: "#ffffff", logging: false,
+          width, height,
+          windowWidth: Math.max(document.documentElement.clientWidth, width),
+          windowHeight: Math.max(document.documentElement.clientHeight, height),
+          scrollX: -window.scrollX, scrollY: -window.scrollY,
+          imageTimeout: 30000
+        });
+        if (!canvas.width || !canvas.height) throw new Error("PDF preview was empty.");
+        const pdf = new window.jspdf.jsPDF({ orientation: "portrait", unit: "mm", format: "a4", compress: true });
+        const image = canvas.toDataURL("image/jpeg", 0.93);
+        const scaledHeight = canvas.height * 210 / canvas.width;
+        const pages = Math.ceil(scaledHeight / 297);
+        for (let page = 0; page < pages; page++) {
+          if (page) pdf.addPage();
+          pdf.addImage(image, "JPEG", 0, -297 * page, 210, scaledHeight, undefined, "FAST");
+        }
+        downloadBlob(pdf.output("blob"), fileName);
+      } finally {
+        if (typeof restoreLogo === "function") restoreLogo();
+      }
+    }
+
     async function downloadSoaAsPdfDirect(){
       calculateTotals();
-      if(!window.jspdf||!window.jspdf.jsPDF)throw new Error("PDF library is not available.");
-      await initializeVisibleLogoAssets();
-      const old=fields.downloadPdfBtn?fields.downloadPdfBtn.textContent:"";
-      try{
-        if(fields.downloadPdfBtn){fields.downloadPdfBtn.disabled=true;fields.downloadPdfBtn.textContent="Preparing PDF..."}
-        const canvas=await html2canvas(fields.soaSheet,{scale:2,useCORS:true,backgroundColor:"#ffffff",logging:false,imageTimeout:15000});
-        const pdf=new window.jspdf.jsPDF({orientation:"portrait",unit:"mm",format:"a4",compress:true});
-        pdf.addImage(canvas.toDataURL("image/jpeg",.95),"JPEG",0,0,210,297,undefined,"FAST");
-        pdf.save(safeFileName(fields.statementNo.value||fields.accountNo.value||"TechGeekPH-SOA")+".pdf");
-        showNotice("SOA PDF downloaded successfully.","ok");
-      }finally{if(fields.downloadPdfBtn){fields.downloadPdfBtn.disabled=false;fields.downloadPdfBtn.textContent=old||"Download SOA PDF"}}
+      const btn=fields.downloadPdfBtn, old=btn.textContent;
+      btn.disabled=true;btn.textContent="Preparing PDF...";
+      try {
+        await exportVisibleSheetAsPdf(fields.soaSheet, safeFileName(fields.statementNo.value||fields.accountNo.value||"TechGeekPH-SOA")+".pdf");
+        showNotice("SOA PDF generated. Please check your browser Downloads.","ok");
+      } finally {
+        btn.disabled=false;btn.textContent=old||"Download SOA PDF";
+      }
+    }
+
+    async function downloadReceiptAsPdfDirect() {
+      calculateTotals();
+      reserveReceiptNumber(false);
+      const btn=fields.downloadReceiptPdfBtn,old=btn.textContent;
+      btn.disabled=true;btn.textContent="Preparing receipt...";
+      try {
+        await exportVisibleSheetAsPdf(fields.ackReceiptSheet, safeFileName(fields.receiptNo.value||fields.accountNo.value||"TechGeekPH-Receipt")+".pdf");
+        showNotice("Acknowledgement receipt PDF generated. Please check your browser Downloads.","ok");
+      } finally {
+        btn.disabled=false;btn.textContent=old||"Download Receipt PDF";
+      }
     }
     async function initializePaidSoaFromQuery(){
       const q=new URLSearchParams(location.search),account=String(q.get("account_no")||"").trim(),billingId=String(q.get("billing_id")||"").trim();
@@ -4582,6 +4629,7 @@
     fields.downloadPngBtn.addEventListener("click", downloadSoaAsPng);
     fields.downloadPdfBtn.addEventListener("click",()=>downloadSoaAsPdfDirect().catch(e=>showNotice("Unable to generate SOA PDF: "+(e.message||e),"error")));
     fields.downloadReceiptPngBtn.addEventListener("click", downloadAckReceiptAsPng);
+    fields.downloadReceiptPdfBtn.addEventListener("click",()=>downloadReceiptAsPdfDirect().catch(e=>showNotice("Unable to generate receipt PDF: "+(e.message||e),"error")));
     fields.copyMessageBtn.addEventListener("click", copyMessage);
     fields.copyReminderBtn.addEventListener("click", copyReminderMessage);
     fields.smsReminderBtn.addEventListener("click", openSmsReminder);
