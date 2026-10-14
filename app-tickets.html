@@ -15,6 +15,16 @@ dialog{width:min(860px,calc(100% - 18px));max-height:95vh;border:0;border-radius
 .legacy{display:none}.legacy.show{display:block}.tasks{display:grid;gap:8px;margin-top:12px}.task{display:flex;gap:10px;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff}.task input{width:20px;height:20px;flex:0 0 auto}.task span{font-size:.75rem;line-height:1.4}.actions{display:flex;gap:8px;justify-content:flex-end;padding:12px 14px;border-top:1px solid var(--line)}.actions button{min-height:42px;border-radius:10px;padding:0 14px;font-weight:900}.cancel{border:1px solid var(--line);background:#fff}.save{border:0;background:var(--ok);color:#fff}.embed header{display:none}.embed .wrap{padding-top:74px}
 @media(min-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.bar{grid-template-columns:1fr 190px 190px}.bar input{grid-column:auto}.meta{grid-template-columns:repeat(4,1fr)}}@media(max-width:620px){.wizard-steps{grid-template-columns:repeat(2,1fr)}.proof-grid,.cred-grid,.install-summary,.client-grid{grid-template-columns:1fr}.client-grid .wide,.client-section-title{grid-column:1}.proof-preview img{height:190px}.wizard-actions .btn{flex:1}.stats{grid-template-columns:repeat(3,1fr)}.actions{display:grid;grid-template-columns:1fr 1fr}.actions button{width:100%}.embed .wrap{padding-top:68px}}
 </style>
+<style>
+/* New-installation proof-photo feedback and manual-map fallback only. */
+.proof-upload-notice{display:none;margin:10px 0;padding:11px 12px;border:1px solid #b7d6ed;border-radius:10px;background:#eff8ff;color:#134b73;font-size:.74rem;line-height:1.5}
+.proof-upload-notice.show{display:block}.proof-upload-notice.err{border-color:#e6a5b3;background:#fff0f3;color:#96223d}.proof-upload-notice.ok{border-color:#8fceb0;background:#edfaf2;color:#126448}
+.proof-manual-location{margin:10px 0;padding:11px 12px;border:1px solid #d1e1ed;border-radius:11px;background:#f8fbff}
+.proof-manual-location p{margin:4px 0 9px;color:#536a7f;font-size:.69rem;line-height:1.5}
+.proof-manual-location input[type=text]{width:100%;min-height:43px;padding:9px 11px;border:1px solid #c6d6e4;border-radius:9px;background:#fff;font-size:16px}
+.proof-manual-confirm{display:flex;gap:9px;align-items:flex-start;margin-top:9px;font-size:.7rem;line-height:1.5;color:#254d67;cursor:pointer}
+.proof-manual-confirm input{flex:none;margin-top:2px;width:17px;height:17px;accent-color:#075b8e}
+</style>
 </head>
 <body>
 <header><img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH"><a class="back" href="app.html">← App Home</a></header>
@@ -91,7 +101,14 @@ dialog{width:min(860px,calc(100% - 18px));max-height:95vh;border:0;border-radius
         <div class="wizard-actions"><button class="btn ghost" id="backToDetails" type="button">← Back</button><button class="btn warn" id="retryProvision" type="button">Retry / Refresh Provisioning</button><button class="btn success" id="toProof" type="button" disabled>Continue to Proof Photos →</button></div>
       </section>
       <section class="wizard-page" data-page="3">
-        <div class="proof-head"><div><h3 class="step-title">Installation Proof Photos</h3><p class="step-sub">All six photos are required. Every upload captures GPS coordinates and a Google Maps location automatically.</p></div><span id="proofCount" class="proof-count">0/6</span></div>
+        <div class="proof-head"><div><h3 class="step-title">Installation Proof Photos</h3><p class="step-sub">All six photos are required. GPS is preferred; if unavailable, use a confirmed installation map pin. The location source is saved with each photo.</p></div><span id="proofCount" class="proof-count">0/6</span></div>
+        <div id="proofUploadNotice" class="proof-upload-notice" role="status" aria-live="polite"></div>
+        <div class="proof-manual-location">
+          <b style="font-size:.74rem">GPS not working? Enter the exact installation map pin</b>
+          <p>GPS is used by default. If location times out or is blocked, enter latitude and longitude or a full Google Maps URL containing coordinates. Manually entered coordinates will be labeled MANUAL, not GPS verified.</p>
+          <input type="text" id="proofManualCoordinates" aria-label="Manual proof-photo installation coordinates" autocomplete="off" spellcheck="false" placeholder="13.123456, 121.123456">
+          <label class="proof-manual-confirm" for="proofManualConfirm"><input type="checkbox" id="proofManualConfirm"><span>Use this manual pin for photos. I confirm it is the actual installation location.</span></label>
+        </div>
         <div id="proofGrid" class="proof-grid"></div>
         <div class="wizard-actions"><button class="btn ghost" id="backToAccount" type="button">← Back</button><button class="btn success" id="toComplete" type="button" disabled>Continue →</button></div>
       </section>
@@ -120,7 +137,7 @@ dialog{width:min(860px,calc(100% - 18px));max-height:95vh;border:0;border-radius
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="assets/supabase-config.js?v=20260822-ticket4"></script>
 <script>
 (()=>{'use strict';
-const BUILD='20260923-new-install-pppoe-retry-v4',$=id=>document.getElementById(id),db=window.TechGeekSupabase,params=new URLSearchParams(location.search),requestedTicket=String(params.get('ticket')||'').trim();
+const BUILD='20261014-new-install-photo-upload-fix-v1',$=id=>document.getElementById(id),db=window.TechGeekSupabase,params=new URLSearchParams(location.search),requestedTicket=String(params.get('ticket')||'').trim();
 let profile=null,session=null,tickets=[],updates=new Map(),selected=null,requestedOpened=false,clientDetails=null,routerSetup=null,routerPoll=null,wizardStep=1,proofRows=[],proofBusy=new Set(),installFinancial=null;
 const PROOFS=[['front_house','Front House'],['router_position','Router Position'],['sc_reading','SC Reading'],['speedtest','Speedtest'],['valid_id','Client Valid ID'],['proof_billing','Client Proof of Billing']];
 const clientFieldIds=['cuAccount','cuClientName','cuPlan','cuSpeed','cuMonthlyBill','cuPhone','cuEmail','cuAddress','cuPermanent','cuRdBlk','cuLandmark','cuMaps','cuGeo','cuLinePort','cuNetworkPort','cuClientPort','cuRemoteAddress','cuVlan','cuBandSteering','cuModem','cuSerial','cuOnuMac'];
@@ -159,7 +176,7 @@ async function loadRouterSetup(no){const r=await db.rpc('get_new_install_router_
 function scheduleRouterPoll(){if(routerPoll)clearTimeout(routerPoll);routerPoll=setTimeout(async()=>{routerPoll=null;if(!selected||!$('dlg').open||!isInstallation(selected))return;try{await loadRouterSetup(selected.ticket_no)}catch(_){}if(routerSetup&&String(routerSetup.pppoe_status||'').toUpperCase()!=='ACTIVE'&&String(routerSetup.pppoe_status||'').toUpperCase()!=='FAILED')scheduleRouterPoll()},3500)}
 function stopRouterPoll(){if(routerPoll){clearTimeout(routerPoll);routerPoll=null}}
 async function copyText(text,label){if(!text)return;try{await navigator.clipboard.writeText(String(text));note(label+' copied.','ok')}catch(_){note('Unable to copy automatically. Press and hold the value to copy.','err')}}
-function showWizardStep(n,force=false){if(!selected||!isInstallation(selected))return;const closed=stage(selected,updates.get(selected.ticket_no)||{})==='closed';if(closed&&!force)n=4;wizardStep=Math.max(1,Math.min(4,Number(n)||1));document.querySelectorAll('[data-page]').forEach(p=>p.classList.toggle('active',Number(p.dataset.page)===wizardStep));document.querySelectorAll('[data-wstep]').forEach(b=>{const x=Number(b.dataset.wstep);b.classList.toggle('active',x===wizardStep);b.classList.toggle('done',x<wizardStep)});if(wizardStep===2&&selected)loadRouterSetup(selected.ticket_no).catch(e=>note(e.message||'Unable to load PPPoE status.','err'));if(wizardStep===3)loadProofs().catch(e=>note(e.message||'Unable to load proof photos.','err'));if(wizardStep===4){loadFinancialPreview().catch(e=>{installFinancial=null;renderFinancialPreview();note(e.message||'Unable to calculate the prorated bill.','err')});loadProofs().then(renderFinalSummary).catch(()=>renderFinalSummary())}}
+function showWizardStep(n,force=false){if(!selected||!isInstallation(selected))return;const closed=stage(selected,updates.get(selected.ticket_no)||{})==='closed';if(closed&&!force)n=4;wizardStep=Math.max(1,Math.min(4,Number(n)||1));document.querySelectorAll('[data-page]').forEach(p=>p.classList.toggle('active',Number(p.dataset.page)===wizardStep));document.querySelectorAll('[data-wstep]').forEach(b=>{const x=Number(b.dataset.wstep);b.classList.toggle('active',x===wizardStep);b.classList.toggle('done',x<wizardStep)});if(wizardStep===2&&selected)loadRouterSetup(selected.ticket_no).catch(e=>note(e.message||'Unable to load PPPoE status.','err'));if(wizardStep===3){prepareProofManualLocation();loadProofs().catch(e=>{proofUploadStatus(e.message||'Unable to load proof photos.','err');note(e.message||'Unable to load proof photos.','err')})}if(wizardStep===4){loadFinancialPreview().catch(e=>{installFinancial=null;renderFinancialPreview();note(e.message||'Unable to calculate the prorated bill.','err')});loadProofs().then(renderFinalSummary).catch(()=>renderFinalSummary())}}
 function applyInstallTicketDefaults(){
   if(!selected||!isInstallation(selected))return;
   const text=[selected.issue_purpose,selected.concern,selected.ticket_type,selected.service_type].filter(Boolean).join(' ');
@@ -250,9 +267,83 @@ async function capturePageLocation(){
 }
 async function loadProofs(){if(!selected)return;const account=String((routerSetup&&routerSetup.account_no)||$('cuAccount').value||selected.client_account_no||'').trim();if(!account){proofRows=[];renderProofs();return}const r=await db.from('client_proof_photos').select('*').eq('client_account_no',account).eq('source_ticket_no',selected.ticket_no).in('photo_type',PROOFS.map(x=>x[0])).order('created_at',{ascending:false});if(r.error)throw r.error;const seen=new Set();proofRows=[];(r.data||[]).forEach(row=>{if(!seen.has(row.photo_type)){seen.add(row.photo_type);proofRows.push(row)}});await Promise.all(proofRows.map(async row=>{try{const s=await db.storage.from('client-proofs').createSignedUrl(row.storage_path,3600);row._url=s.data&&s.data.signedUrl||''}catch(_){row._url=''}}));renderProofs();renderFinalSummary()}
 function proofFor(type){return proofRows.find(r=>r.photo_type===type)||null}
-function renderProofs(){const count=PROOFS.filter(([t])=>!!proofFor(t)).length;$('proofCount').textContent=count+'/6';$('proofCount').classList.toggle('done',count===6);$('toComplete').disabled=count!==6;$('proofGrid').innerHTML=PROOFS.map(([type,label])=>{const row=proofFor(type),busy=proofBusy.has(type),preview=row&&row._url?`<img src="${esc(row._url)}" alt="${esc(label)}">`:(row?'Uploaded ✓':'No photo yet');const gps=row?`GPS ${Number(row.latitude).toFixed(5)}, ${Number(row.longitude).toFixed(5)}${row.gps_accuracy_m!=null?' · ±'+Math.round(Number(row.gps_accuracy_m))+'m':''}`:'GPS is recorded automatically on upload.';return `<article class="proof-card"><div class="proof-card-head"><b>${esc(label)}</b><span>${row?'SAVED':'REQUIRED'}</span></div><div class="proof-preview">${preview}</div><div class="proof-meta">${esc(gps)}</div><div class="proof-upload"><input id="proof-${esc(type)}" type="file" accept="image/*" capture="environment" data-proof="${esc(type)}"><label class="${busy?'busy':''}" for="proof-${esc(type)}">${busy?'Uploading…':row?'Replace '+esc(label):'Upload '+esc(label)}</label></div></article>`}).join('');document.querySelectorAll('[data-proof]').forEach(inp=>inp.onchange=e=>{const f=e.target.files&&e.target.files[0];if(f)uploadProof(e.target.dataset.proof,f);e.target.value=''})}
+function proofUploadStatus(message,kind='info'){
+  const el=$('proofUploadNotice');if(!el)return;
+  el.textContent=message||'';el.className='proof-upload-notice'+(message?' show '+kind:'');
+}
+function proofPhotoMime(file){
+  const t=String(file?.type||'').trim().toLowerCase(),allowed={'image/jpg':'image/jpeg','image/jpeg':'image/jpeg','image/png':'image/png','image/webp':'image/webp','image/heic':'image/heic','image/heif':'image/heif'};
+  if(allowed[t])return allowed[t];
+  if(t)return '';
+  const ext=String(file?.name||'').split('.').pop().toLowerCase();
+  return {jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',heic:'image/heic',heif:'image/heif'}[ext]||'';
+}
+function proofLocation(){
+  const raw=$('proofManualCoordinates').value.trim(),confirmed=$('proofManualConfirm').checked;
+  if(raw||confirmed){
+    if(!confirmed)throw new Error('Please confirm the manual location checkbox before uploading.');
+    const point=geoFromText(raw)||geoFromMapsUrl(raw);
+    if(!point)throw new Error('Enter valid Latitude, Longitude or a full Google Maps URL containing coordinates.');
+    return Promise.resolve({lat:Number(point[0]),lng:Number(point[1]),accuracy:null,source:'manual'});
+  }
+  return getPosition().then(p=>{
+    const lat=Number(p.coords.latitude),lng=Number(p.coords.longitude);
+    if(!Number.isFinite(lat)||!Number.isFinite(lng)||Math.abs(lat)>90||Math.abs(lng)>180)throw new Error('GPS returned invalid coordinates.');
+    return {lat,lng,accuracy:p.coords.accuracy==null?null:Number(p.coords.accuracy),source:'device'};
+  }).catch(err=>{
+    const existing=geoFromText($('cuGeo').value)||geoFromMapsUrl($('cuMaps').value);
+    if(existing&&!$('proofManualCoordinates').value.trim())$('proofManualCoordinates').value=existing.join(', ');
+    const reason=err?.geoCode===1?'Location permission was denied.':err?.geoCode===3?'GPS timed out.':err?.geoCode===11?'GPS is blocked by the embedded browser.':'Automatic GPS is unavailable.';
+    throw new Error(reason+' Enter or confirm the installation coordinates above, check the manual-location box, then choose the photo again.');
+  });
+}
+function prepareProofManualLocation(){
+  const field=$('proofManualCoordinates');
+  if(!field||field.value.trim())return;
+  const point=geoFromText($('cuGeo').value)||geoFromMapsUrl($('cuMaps').value);
+  if(point)field.value=point.join(', ');
+}
+function renderProofs(){const count=PROOFS.filter(([t])=>!!proofFor(t)).length;$('proofCount').textContent=count+'/6';$('proofCount').classList.toggle('done',count===6);$('toComplete').disabled=count!==6;$('proofGrid').innerHTML=PROOFS.map(([type,label])=>{const row=proofFor(type),busy=proofBusy.has(type),preview=row&&row._url?`<img src="${esc(row._url)}" alt="${esc(label)}">`:(row?'Uploaded ✓':'No photo yet');const gps=row?`${row.gps_source==='manual'?'MANUAL MAP PIN':'GPS'} ${Number(row.latitude).toFixed(5)}, ${Number(row.longitude).toFixed(5)}${row.gps_accuracy_m!=null?' · ±'+Math.round(Number(row.gps_accuracy_m))+'m':''}`:'GPS captured on upload. Manual map pin is available above if GPS fails.';return `<article class="proof-card"><div class="proof-card-head"><b>${esc(label)}</b><span>${row?'SAVED':'REQUIRED'}</span></div><div class="proof-preview">${preview}</div><div class="proof-meta">${esc(gps)}</div><div class="proof-upload"><input id="proof-${esc(type)}" type="file" accept="image/*" capture="environment" data-proof="${esc(type)}"><label class="${busy?'busy':''}" for="proof-${esc(type)}">${busy?'Uploading…':row?'Replace '+esc(label):'Upload '+esc(label)}</label></div></article>`}).join('');document.querySelectorAll('[data-proof]').forEach(inp=>inp.onchange=e=>{const f=e.target.files&&e.target.files[0];if(f)uploadProof(e.target.dataset.proof,f);e.target.value=''})}
 function fileExt(file){const fromName=String(file.name||'').split('.').pop().toLowerCase();if(/^[a-z0-9]{2,5}$/.test(fromName))return fromName;const m={'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/heic':'heic','image/heif':'heif'};return m[file.type]||'jpg'}
-async function uploadProof(type,file){if(!selected||proofBusy.has(type))return;const account=String((routerSetup&&routerSetup.account_no)||$('cuAccount').value||selected.client_account_no||'').trim();if(!account)return note('Generate the Account No. first.','err');proofBusy.add(type);renderProofs();note('Capturing GPS and uploading photo…','info');let newPath='';try{if(!file.type.startsWith('image/'))throw new Error('Please select an image file.');const p=await getPosition(),lat=Number(p.coords.latitude),lng=Number(p.coords.longitude),safeTicket=String(selected.ticket_no).replace(/[^a-zA-Z0-9_-]/g,'_'),safeType=String(type).replace(/[^a-z0-9_-]/gi,'_');newPath=`${account}/${safeTicket}/${safeType}-${Date.now()}.${fileExt(file)}`;const up=await db.storage.from('client-proofs').upload(newPath,file,{upsert:false,contentType:file.type||'image/jpeg',cacheControl:'3600'});if(up.error)throw up.error;const old=proofFor(type);const ins=await db.from('client_proof_photos').insert({client_account_no:account,source_ticket_no:selected.ticket_no,photo_type:type,storage_path:newPath,latitude:lat,longitude:lng,gps_accuracy_m:p.coords.accuracy==null?null:Number(p.coords.accuracy),gps_source:'device',map_link:`https://www.google.com/maps?q=${lat},${lng}`,original_name:file.name||null,mime_type:file.type||null,file_size:file.size||null,uploaded_by_user_id:session.user.id,uploaded_by_name:profile.full_name||null,captured_at:new Date().toISOString()}).select('*').single();if(ins.error)throw ins.error;if(old){await db.from('client_proof_photos').delete().eq('id',old.id);try{await db.storage.from('client-proofs').remove([old.storage_path])}catch(_){}}note('Photo saved with GPS location.','ok');await loadProofs()}catch(e){if(newPath){try{await db.storage.from('client-proofs').remove([newPath])}catch(_){}}note(e.message||'Unable to upload proof photo.','err')}finally{proofBusy.delete(type);renderProofs()}}
+async function uploadProof(type,file){
+  if(!selected||proofBusy.has(type))return;
+  const account=String((routerSetup&&routerSetup.account_no)||$('cuAccount').value||selected.client_account_no||'').trim();
+  if(!account){proofUploadStatus('Generate the Account No. before uploading photos.','err');return}
+  const mime=proofPhotoMime(file);
+  if(!mime){proofUploadStatus('Unsupported file. Choose JPG, PNG, WEBP, HEIC or HEIF photo.','err');return}
+  if(!file.size||file.size>12582912){proofUploadStatus('Photo must not be empty or exceed 12 MB. Please choose a smaller image.','err');return}
+  proofBusy.add(type);renderProofs();proofUploadStatus('Checking location for photo upload…','info');
+  let newPath='',metadataSaved=false;
+  try{
+    const point=await proofLocation(),lat=point.lat,lng=point.lng;
+    const safeTicket=String(selected.ticket_no).replace(/[^a-zA-Z0-9_-]/g,'_'),safeType=String(type).replace(/[^a-z0-9_-]/gi,'_');
+    newPath=`${account}/${safeTicket}/${safeType}-${Date.now()}.${fileExt(file)}`;
+    proofUploadStatus('Location ready. Uploading photo…','info');
+    const up=await db.storage.from('client-proofs').upload(newPath,file,{upsert:false,contentType:mime,cacheControl:'3600'});
+    if(up.error)throw up.error;
+    const old=proofFor(type);
+    const ins=await db.from('client_proof_photos').insert({
+      client_account_no:account,source_ticket_no:selected.ticket_no,photo_type:type,storage_path:newPath,
+      latitude:lat,longitude:lng,gps_accuracy_m:point.accuracy,gps_source:point.source,
+      map_link:`https://www.google.com/maps?q=${lat},${lng}`,original_name:file.name||null,
+      mime_type:mime,file_size:file.size,uploaded_by_user_id:session.user.id,
+      uploaded_by_name:profile.full_name||null,captured_at:new Date().toISOString()
+    }).select('*').single();
+    if(ins.error)throw ins.error;
+    metadataSaved=true;
+    // The database trigger replaces the old proof row. Remove its file only after save.
+    if(old&&old.storage_path!==newPath){
+      try{await db.storage.from('client-proofs').remove([old.storage_path])}catch(_){}
+    }
+    proofUploadStatus('Photo saved with '+(point.source==='manual'?'confirmed MANUAL map coordinates.':'device GPS coordinates.'),'ok');
+    try{await loadProofs()}catch(_){
+      proofUploadStatus('Photo saved, but its preview did not refresh. Reopen the ticket to view it.','err');
+    }
+  }catch(e){
+    if(newPath&&!metadataSaved){try{await db.storage.from('client-proofs').remove([newPath])}catch(_){}}
+    proofUploadStatus(e?.message||'Unable to upload proof photo. Please try again.','err');
+  }finally{proofBusy.delete(type);renderProofs()}
+}
 function money(v){const n=Number(v||0);return '₱'+n.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}
 function dateLabel(v){if(!v)return '—';try{return new Intl.DateTimeFormat('en-PH',{timeZone:'Asia/Manila',month:'short',day:'numeric',year:'numeric'}).format(new Date(String(v)+'T00:00:00+08:00'))}catch(_){return String(v)}}
 function paymentChoiceKey(){return selected?'tg_install_prorated_paid_'+selected.ticket_no:''}
