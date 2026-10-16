@@ -126,7 +126,7 @@
     .notice.ok { border-color: rgba(31,138,102,.24); background: #eefaf5; color: #126247; }
     .is-hidden { display: none !important; }
 
-    .summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .summary-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
     .card, .panel { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow); overflow: hidden; }
     .card { min-height: 112px; padding: 16px; }
     .card span, .card strong, .card small { display: block; }
@@ -556,7 +556,7 @@
           <div class="panel-head">
             <div>
               <h2>Investor Filter</h2>
-              <p>Default setup: Morwin Gapud, SATR account prefix, 20% operational allocation, then 10% share.</p>
+              <p>Verified SATR paid subscriptions, 1.5% Payment Center, 20% operations, then 10% monitoring share. Client coverage follows the agreed contract dates.</p>
             </div>
             <span class="mode-chip" id="recordCount">0 records</span>
           </div>
@@ -572,6 +572,13 @@
               <input id="monthFilter" type="month">
             </div>
             <div class="field">
+              <label for="basisFilter">Report basis</label>
+              <select id="basisFilter">
+                <option value="billing">Paid Billing Period (historical)</option>
+                <option value="cash">Actual Payment Date (cash collections)</option>
+              </select>
+            </div>
+            <div class="field">
               <label for="accountPrefix">Account Prefix</label>
               <input id="accountPrefix" value="SATR" placeholder="SATR">
             </div>
@@ -585,15 +592,15 @@
             </div>
             <div class="field">
               <label for="investmentStartDate">Investment Start</label>
-              <input id="investmentStartDate" type="date" value="2024-10-25">
+              <input id="investmentStartDate" type="date" value="2024-10-25" readonly>
             </div>
             <div class="field">
               <label for="investmentEndDate">10% Share Start</label>
-              <input id="investmentEndDate" type="date" value="2026-03-25">
+              <input id="investmentEndDate" type="date" value="2026-03-25" readonly>
             </div>
             <div class="field">
               <label for="installFromDate">Install From</label>
-              <input id="installFromDate" type="date" value="2024-10-01">
+              <input id="installFromDate" type="date" value="2024-10-01" readonly>
             </div>
             <div class="field">
               <label for="installToDate">Install To (Auto Today)</label>
@@ -601,9 +608,9 @@
             </div>
             <div class="field">
               <label for="maxClientCount">Max Covered Clients</label>
-              <input id="maxClientCount" type="number" value="500" min="1" step="1">
+              <input id="maxClientCount" type="number" value="500" min="500" max="500" step="1" readonly>
             </div>
-            <p class="scope-hint">Morwin setup: investment start is Oct 25, 2024. The 10% share starts on Mar 25, 2026. Client installation coverage starts from Oct 1, 2024 up to today. Computation stops at the first 500 covered clients; client #501 and above are excluded from the investor count.</p>
+            <p class="scope-hint">Morwin Gapud: covered SATR clients with valid start dates beginning 2024-10-01 (up to 500, earliest first). Verified PAID bills only; VOIDED/REVERSED excluded. 1.5% Payment Center provision then 20% operations and 10% investor share. Share commences March 25, 2026. "Cash month" excludes undated historical payments.</p>
             <button class="primary-btn" type="button" id="refreshBtn">Generate</button>
             <button class="ghost-btn" type="button" id="printBtn">Print</button>
             <button class="ghost-btn" type="button" id="exportBtn">Export CSV</button>
@@ -612,10 +619,11 @@
         </section>
 
         <div class="summary-grid">
-          <article class="card"><span>Total Income</span><strong id="totalIncome">₱0.00</strong><small>Sum of matching Clients monthly bill / invoice totals</small></article>
-          <article class="card"><span>Less 20% Operational</span><strong id="operationalAllocation">₱0.00</strong><small>Operational allocation before investor share</small></article>
-          <article class="card"><span>Balance After Operational</span><strong id="balanceAfterOperational">₱0.00</strong><small>Total income less operational allocation</small></article>
-          <article class="card share"><span>10% Investor Share</span><strong id="investorShare">₱0.00</strong><small>Morwin Gapud monthly share</small></article>
+          <article class="card"><span>Paid Subscription Income</span><strong id="totalIncome">₱0.00</strong><small>Verified SATR base subscription only</small></article>
+          <article class="card"><span>Less 1.5% Payment Center</span><strong id="paymentCenterFee">₱0.00</strong><small>Deducted once from eligible subscription income</small></article>
+          <article class="card"><span>Less 20% Operations</span><strong id="operationalAllocation">₱0.00</strong><small>20% of income after Payment Center deduction</small></article>
+          <article class="card"><span>Eligible Net</span><strong id="balanceAfterOperational">₱0.00</strong><small>Net of the 1.5% and 20% deductions</small></article>
+          <article class="card share"><span>10% Investor Monitoring Share</span><strong id="investorShare">₱0.00</strong><small>Payable only after contractual income start</small></article>
         </div>
 
         <section class="panel" id="reportPanel">
@@ -629,11 +637,15 @@
           <div class="formula-grid">
             <div class="formula-box">
               <b>Computation Summary</b>
-              <div class="formula-line"><span>Total Income</span><strong id="fTotalIncome">₱0.00</strong></div>
+              <div class="formula-line"><span>Gross PAID Bills</span><strong id="fGrossCollections">₱0.00</strong></div>
+              <div class="formula-line"><span>Less Other Charges / Above Base</span><strong id="fOtherExcluded">₱0.00</strong></div>
+              <div class="formula-line"><span>Eligible Subscription Income</span><strong id="fTotalIncome">₱0.00</strong></div>
+              <div class="formula-line"><span>Less 1.5% Payment Center</span><strong id="fPaymentCenterFee">₱0.00</strong></div>
               <div class="formula-line"><span>Less 20% Operational Allocation</span><strong id="fOperationalAllocation">₱0.00</strong></div>
-              <div class="formula-line"><span>Balance After Operational Allocation</span><strong id="fBalanceAfterOperational">₱0.00</strong></div>
-              <div class="formula-line"><span>10% Share</span><strong id="fInvestorShare">₱0.00</strong></div>
-              <p class="formula-note">Formula: Total Income - 20% operational allocation = balance. Investor share is 10% of the remaining balance.</p>
+              <div class="formula-line"><span>Eligible Net</span><strong id="fBalanceAfterOperational">₱0.00</strong></div>
+              <div class="formula-line"><span>10% Monitoring Share</span><strong id="fInvestorShare">₱0.00</strong></div>
+              <div class="formula-line"><span>Currently Payable for Selected Month</span><strong id="fPayableShare">₱0.00</strong></div>
+              <p class="formula-note">Computation: (verified paid subscription - 1.5% Payment Center) - 20% operations, then 10% investor share. Other charges are excluded. Contractual waiting periods control payable amounts. Monthly amounts are rounded to centavos.</p>
             </div>
             <div class="formula-box">
               <b>Investor Scope</b>
@@ -647,8 +659,10 @@
               <div class="formula-line"><span>Max Covered Clients</span><strong id="scopeMaxClients">500</strong></div>
               <div class="formula-line"><span>Excluded After 500 Cap</span><strong id="scopeCapExcluded">0</strong></div>
               <div class="formula-line"><span>Missing Installation Date</span><strong id="scopeMissingInstall">0</strong></div>
+              <div class="formula-line"><span>Owner Excluded SATR Accounts</span><strong id="scopeOwnerExcluded">0</strong></div>
+              <div class="formula-line"><span>PAID Bills Missing Payment Date</span><strong id="scopeMissingPaymentDate">0</strong></div>
               <div class="formula-line"><span>Outside Install Scope</span><strong id="scopeOutsideInstall">0</strong></div>
-              <p class="formula-note">Main source: <b>Clients sheet</b>. Payment status, payment date/reference, and installation date are matched from <b>Investor Client List</b> by Account No. Rows are filtered by account prefix, collection basis, client installation date scope, and the 500-client maximum cap.</p>
+              <p class="formula-note">Source: live <b>Supabase clients, billing ledger, payment status, and owner-excluded SATR accounts</b>. Billing Period uses PAID bills under the chosen bill month. Actual Payment Date uses payment-date month only. Historical payments without dates are flagged, not invented. Monthly subscription fees are never counted twice.</p>
             </div>
           </div>
         </section>
@@ -657,7 +671,7 @@
           <div class="panel-head">
             <div>
               <h2>Covered Client Records</h2>
-              <p>Client records from Clients sheet, matched with payment status from Investor Client List.</p>
+              <p>Verified paid invoices from live billing ledger; use All Records to audit unpaid and excluded payment statuses.</p>
             </div>
             <span class="mode-chip" id="tableCount">0 rows</span>
           </div>
@@ -693,6 +707,8 @@
     </section>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/supabase-config.js"></script>
   <script>
     const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxDY5TsonrB58YaN8LGbrrrc_ZD1QVpF1WK0p6jToIR2FBSqGaHfsgaE1CCiH1MvukV/exec";
     const SESSION_KEY = "techgeekph_admin_session";
@@ -705,6 +721,7 @@
       userRole: document.querySelector("#userRole"),
       investorName: document.querySelector("#investorName"),
       monthFilter: document.querySelector("#monthFilter"),
+      basisFilter: document.querySelector("#basisFilter"),
       accountPrefix: document.querySelector("#accountPrefix"),
       statusFilter: document.querySelector("#statusFilter"),
       investmentStartDate: document.querySelector("#investmentStartDate"),
@@ -725,6 +742,13 @@
       reportMonth: document.querySelector("#reportMonth"),
       totalIncome: document.querySelector("#totalIncome"),
       operationalAllocation: document.querySelector("#operationalAllocation"),
+      paymentCenterFee: document.querySelector("#paymentCenterFee"),
+      fPaymentCenterFee: document.querySelector("#fPaymentCenterFee"),
+      fGrossCollections: document.querySelector("#fGrossCollections"),
+      fOtherExcluded: document.querySelector("#fOtherExcluded"),
+      fPayableShare: document.querySelector("#fPayableShare"),
+      scopeOwnerExcluded: document.querySelector("#scopeOwnerExcluded"),
+      scopeMissingPaymentDate: document.querySelector("#scopeMissingPaymentDate"),
       balanceAfterOperational: document.querySelector("#balanceAfterOperational"),
       investorShare: document.querySelector("#investorShare"),
       fTotalIncome: document.querySelector("#fTotalIncome"),
@@ -780,13 +804,14 @@
       fields.avatar.textContent = initialsFrom(name);
     }
 
-    function setDefaultMonth() {
-      // Blank means All Periods, so the page can show the full Clients sheet based investor coverage by default.
-      // Select a Month / Period only when you want a monthly report.
-      fields.monthFilter.value = "";
+function setDefaultMonth() {
+      const ph = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Manila" });
+      const [year, month] = ph.split("-").map(Number);
+      const previous = new Date(Date.UTC(year, month - 2, 1));
+      fields.monthFilter.value = previous.getUTCFullYear() + "-" + String(previous.getUTCMonth() + 1).padStart(2, "0");
     }
 
-    function showNotice(message, type) {
+        function showNotice(message, type) {
       fields.notice.textContent = message;
       fields.notice.classList.remove("is-hidden", "ok");
       if (type === "ok") fields.notice.classList.add("ok");
@@ -825,20 +850,30 @@
       return date.toLocaleDateString("en-PH", { month: "long", year: "numeric" });
     }
 
-    async function callBackend(action, payload) {
-      const data = Object.assign({}, payload || {}, { action, method: action });
-      if (!data.token && !data.sessionToken) data.token = getSessionToken();
-      const params = new URLSearchParams();
-      Object.keys(data).forEach(key => {
-        if (data[key] !== undefined && data[key] !== null) params.set(key, data[key]);
+async function callBackend(action, payload) {
+      const client = window.TechGeekSupabase;
+      if (!client) throw new Error("Supabase client unavailable. Refresh the page.");
+      const { data: auth, error: sessionError } = await client.auth.getSession();
+      if (sessionError || !auth || !auth.session) throw new Error("Admin login expired. Sign in again.");
+      const { data, error } = await client.functions.invoke("investor-report", {
+        body: {
+          investor: payload.investorName === "Morwin Gapud" ? "morwin" : "marivie",
+          month: payload.month || "",
+          basis: payload.basis || "billing",
+          statusFilter: payload.statusFilter || "PAID"
+        }
       });
-      const response = await fetch(BACKEND_URL + "?" + params.toString(), { method: "GET", redirect: "follow" });
-      const text = await response.text();
-      if (/^[\s\r\n]*[\[{]/.test(text)) return JSON.parse(text);
-      return { success: false, ok: false, message: text.trim() || "Unexpected backend response." };
+      if (error) {
+        let detail = error.message || "Investor data service error";
+        if (error.context && typeof error.context.json === "function") {
+          try { const server = await error.context.json(); detail = server.message || detail; } catch (_) {}
+        }
+        throw new Error(detail);
+      }
+      return data;
     }
 
-    function formatDateOnlyLabel(value) {
+        function formatDateOnlyLabel(value) {
       if (!value) return "-";
       const parsed = new Date(value + "T00:00:00");
       if (!Number.isNaN(parsed.getTime())) {
@@ -860,32 +895,35 @@
       return value.substring(0, 8) + "01";
     }
 
-    function syncInstallScopeFromInvestment() {
-      if (fields.investmentStartDate && fields.investmentStartDate.value && !fields.installFromDate.dataset.manual) {
-        fields.installFromDate.value = firstDayOfMonth(fields.investmentStartDate.value);
-      }
-
-      // Install To must always follow current date.
-      if (fields.installToDate) {
-        fields.installToDate.value = todayDateLocal();
-      }
+function syncInstallScopeFromInvestment() {
+      fields.investmentStartDate.value = "2024-10-25";
+      fields.investmentEndDate.value = "2026-03-25";
+      fields.installFromDate.value = "2024-10-01";
+      fields.installToDate.value = todayDateLocal();
+      fields.maxClientCount.value = 500;
+      fields.accountPrefix.value = "SATR";
     }
 
-    function renderSummary(result) {
+        function renderSummary(result) {
       const summary = result.summary || {};
       const profile = result.profile || {};
       currentSummary = summary;
 
       const coveredCount = Number(summary.totalClients || 0);
       const computationCount = Number(summary.computationClients || 0);
-      const basisText = fields.statusFilter.options[fields.statusFilter.selectedIndex].text;
+      const basisText = fields.basisFilter.options[fields.basisFilter.selectedIndex].text + " / " + fields.statusFilter.options[fields.statusFilter.selectedIndex].text;
 
       fields.totalIncome.textContent = money(summary.totalIncome);
       fields.operationalAllocation.textContent = money(summary.operationalAllocation);
+      fields.paymentCenterFee.textContent = money(summary.paymentCenterFee);
       fields.balanceAfterOperational.textContent = money(summary.balanceAfterOperational);
       fields.investorShare.textContent = money(summary.investorShare);
 
       fields.fTotalIncome.textContent = money(summary.totalIncome);
+      fields.fGrossCollections.textContent = money(summary.grossCollections);
+      fields.fOtherExcluded.textContent = money(summary.otherIncomeExcluded);
+      fields.fPaymentCenterFee.textContent = money(summary.paymentCenterFee);
+      fields.fPayableShare.textContent = summary.payableShare === null || summary.payableShare === undefined ? "Select a month" : money(summary.payableShare);
       fields.fOperationalAllocation.textContent = money(summary.operationalAllocation);
       fields.fBalanceAfterOperational.textContent = money(summary.balanceAfterOperational);
       fields.fInvestorShare.textContent = money(summary.investorShare);
@@ -903,6 +941,8 @@
       if (fields.scopeAllRows) fields.scopeAllRows.textContent = Number(summary.allPrefixAndMonthClients || 0).toLocaleString();
       if (fields.scopeMissingInstall) fields.scopeMissingInstall.textContent = Number(summary.missingInstallationDateCount || 0).toLocaleString();
       if (fields.scopeOutsideInstall) fields.scopeOutsideInstall.textContent = Number(summary.outsideInstallScopeCount || 0).toLocaleString();
+      fields.scopeOwnerExcluded.textContent = Number(summary.ownerExcludedCount || 0).toLocaleString();
+      fields.scopeMissingPaymentDate.textContent = Number(summary.missingPaymentDateCount || 0).toLocaleString();
       if (fields.scopeMaxClients) fields.scopeMaxClients.textContent = Number(summary.maxClientCount || fields.maxClientCount.value || 500).toLocaleString();
       if (fields.scopeCapExcluded) fields.scopeCapExcluded.textContent = Number(summary.capExcludedCount || 0).toLocaleString();
 
@@ -914,7 +954,7 @@
       fields.reportMonth.textContent = monthLabel(result.month || fields.monthFilter.value);
       fields.recordCount.textContent = coveredCount + " records";
       fields.tableCount.textContent = coveredCount + " rows";
-      fields.totalTableAmount.textContent = money(summary.coveredTotal || 0) + " covered total";
+      fields.totalTableAmount.textContent = money(summary.coveredTotal || 0) + " eligible subscription";
     }
 
     function filteredRows() {
@@ -1037,6 +1077,7 @@
         const result = await callBackend("getInvestorReport", {
           investorName: fields.investorName.value,
           month: fields.monthFilter.value,
+          basis: fields.basisFilter.value,
           accountPrefix: fields.accountPrefix.value,
           statusFilter: fields.statusFilter.value,
           investmentStartDate: fields.investmentStartDate.value,
@@ -1049,7 +1090,8 @@
         currentRows = result.rows || result.data || []; // full covered rows, not limited to paid/unpaid computation rows
         renderSummary(result);
         renderRows();
-        hideNotice();
+        if (result.warnings && result.warnings.length) showNotice(result.warnings.join(" "));
+        else hideNotice();
       } catch (error) {
         currentRows = [];
         renderRows();
@@ -1063,10 +1105,14 @@
       const csvRows = [headers];
       rows.forEach(row => csvRows.push(headers.map(h => key(row, [h, h + "."]))));
       csvRows.push([]);
-      csvRows.push(["Total Income", currentSummary.totalIncome || 0]);
-      csvRows.push(["Less 20% Operational Allocation", currentSummary.operationalAllocation || 0]);
-      csvRows.push(["Balance After Operational Allocation", currentSummary.balanceAfterOperational || 0]);
-      csvRows.push(["10% Share", currentSummary.investorShare || 0]);
+      csvRows.push(["Gross PAID Bills", currentSummary.grossCollections || 0]);
+      csvRows.push(["Excluded Other Income", currentSummary.otherIncomeExcluded || 0]);
+      csvRows.push(["Eligible Subscription", currentSummary.totalIncome || 0]);
+      csvRows.push(["Less 1.5% Payment Center", currentSummary.paymentCenterFee || 0]);
+      csvRows.push(["Less 20% Operations", currentSummary.operationalAllocation || 0]);
+      csvRows.push(["Eligible Net", currentSummary.balanceAfterOperational || 0]);
+      csvRows.push(["10% Monitoring Share", currentSummary.investorShare || 0]);
+      csvRows.push(["Currently Payable", currentSummary.payableShare == null ? "Select month" : currentSummary.payableShare]);
       const csv = csvRows.map(row => row.map(value => '"' + String(value || "").replace(/"/g, '""') + '"').join(",")).join("\n");
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
@@ -1079,9 +1125,7 @@
       URL.revokeObjectURL(url);
     }
 
-    fields.investmentStartDate.addEventListener("change", function() { fields.installFromDate.dataset.manual = ""; syncInstallScopeFromInvestment(); });
-    fields.investmentEndDate.addEventListener("change", function() { syncInstallScopeFromInvestment(); });
-    fields.installFromDate.addEventListener("change", function() { fields.installFromDate.dataset.manual = "1"; });
+    // Contract start dates and the 500-client cap are read-only, fixed server-side.
     
     fields.refreshBtn.addEventListener("click", generateReport);
     fields.searchInput.addEventListener("input", renderRows);
