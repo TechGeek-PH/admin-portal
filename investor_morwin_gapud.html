@@ -592,15 +592,15 @@
             </div>
             <div class="field">
               <label for="investmentStartDate">Investment Start</label>
-              <input id="investmentStartDate" type="date" value="2025-12-23" readonly>
+              <input id="investmentStartDate" type="date" value="2024-10-25" readonly>
             </div>
             <div class="field">
               <label for="investmentEndDate">10% Share Start</label>
-              <input id="investmentEndDate" type="date" value="2027-06-23" readonly>
+              <input id="investmentEndDate" type="date" value="2026-03-25" readonly>
             </div>
             <div class="field">
               <label for="installFromDate">Install From</label>
-              <input id="installFromDate" type="date" value="2025-12-23" readonly>
+              <input id="installFromDate" type="date" value="2024-10-01" readonly>
             </div>
             <div class="field">
               <label for="installToDate">Install To (Auto Today)</label>
@@ -610,7 +610,7 @@
               <label for="maxClientCount">Max Covered Clients</label>
               <input id="maxClientCount" type="number" value="500" min="500" max="500" step="1" readonly>
             </div>
-            <p class="scope-hint">Morwin Gapud: covered SATR clients with valid start dates beginning 2025-12-23 (up to 500, earliest first). Verified PAID bills only; VOIDED/REVERSED excluded. 1.5% Payment Center provision then 20% operations and 10% investor share. 10% share is monitoring only until June 23, 2027; currently payable ₱0.00. "Cash month" excludes undated historical payments.</p>
+            <p class="scope-hint">Morwin Gapud: covered SATR clients with valid start dates beginning 2024-10-01 (up to 500, earliest first). Verified PAID bills only; VOIDED/REVERSED excluded. 1.5% Payment Center provision then 20% operations and 10% investor share. Investment start: October 25, 2024. Share commencement: March 25, 2026, under Morwin's separate agreement. "Cash month" excludes undated historical payments.</p>
             <button class="primary-btn" type="button" id="refreshBtn">Generate</button>
             <button class="ghost-btn" type="button" id="printBtn">Print</button>
             <button class="ghost-btn" type="button" id="exportBtn">Export CSV</button>
@@ -653,8 +653,8 @@
               <div class="formula-line"><span>Covered Account Prefix</span><strong id="scopePrefix">SATR</strong></div>
               <div class="formula-line"><span>Operational Allocation</span><strong id="scopeOps">20%</strong></div>
               <div class="formula-line"><span>Share Rate</span><strong id="scopeShare">10%</strong></div>
-              <div class="formula-line"><span>Investment / Share Start</span><strong id="scopeTerm">Dec 23, 2025 / Jun 23, 2027</strong></div>
-              <div class="formula-line"><span>Client Install Scope</span><strong id="scopeInstall">Dec 23, 2025 - Today</strong></div>
+              <div class="formula-line"><span>Investment / Share Start</span><strong id="scopeTerm">Oct 25, 2024 / Mar 25, 2026</strong></div>
+              <div class="formula-line"><span>Client Install Scope</span><strong id="scopeInstall">Oct 1, 2024 - Today</strong></div>
               <div class="formula-line"><span>Rows Before Install Filter</span><strong id="scopeAllRows">0</strong></div>
               <div class="formula-line"><span>Max Covered Clients</span><strong id="scopeMaxClients">500</strong></div>
               <div class="formula-line"><span>Excluded After 500 Cap</span><strong id="scopeCapExcluded">0</strong></div>
@@ -896,9 +896,9 @@ async function callBackend(action, payload) {
     }
 
 function syncInstallScopeFromInvestment() {
-      fields.investmentStartDate.value = "2025-12-23";
-      fields.investmentEndDate.value = "2027-06-23";
-      fields.installFromDate.value = "2025-12-23";
+      fields.investmentStartDate.value = "2024-10-25";
+      fields.investmentEndDate.value = "2026-03-25";
+      fields.installFromDate.value = "2024-10-01";
       fields.installToDate.value = todayDateLocal();
       fields.maxClientCount.value = 500;
       fields.accountPrefix.value = "SATR";
