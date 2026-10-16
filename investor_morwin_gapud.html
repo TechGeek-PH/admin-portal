@@ -574,8 +574,8 @@
             <div class="field">
               <label for="basisFilter">Report basis</label>
               <select id="basisFilter">
-                <option value="billing">Paid Billing Period (historical)</option>
-                <option value="cash">Actual Payment Date (cash collections)</option>
+                <option value="cash" selected>Actual Payment Date (cash collections)</option>
+                <option value="billing">Paid Billing Period (historical / undated bills)</option>
               </select>
             </div>
             <div class="field">
@@ -710,7 +710,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/supabase-config.js"></script>
   <script>
-    const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxDY5TsonrB58YaN8LGbrrrc_ZD1QVpF1WK0p6jToIR2FBSqGaHfsgaE1CCiH1MvukV/exec";
+    // Investor data is provided by the authenticated Supabase Edge Function only.
     const SESSION_KEY = "techgeekph_admin_session";
     const LEGACY_SESSION_KEY = "techgeekph_admin_session";
 
