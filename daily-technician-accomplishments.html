@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#064f83">
+<title>Daily Technician Accomplishments · TechGeekPH</title>
+<style>
+:root{--blue:#064f83;--deep:#023d6b;--ink:#172438;--muted:#657386;--line:#dbe4ee;--bg:#f3f6fa;--ok:#16865e;--warn:#a66800;--bad:#b72b4c;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink)}button,input,select,textarea{font:inherit}button{cursor:pointer}
+.wrap{max-width:1160px;padding:16px 14px 80px;margin:auto}.hero{padding:20px;border-radius:17px;background:linear-gradient(120deg,var(--deep),var(--blue) 65%,#5a0b77);color:white}.hero h1{font-size:1.25rem;margin:0}.hero p{font-size:.77rem;color:#dfebfa;line-height:1.5;margin:7px 0 0}
+.section{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px;margin-top:13px}.section h2{font-size:1rem;margin:0 0 8px}.hint{font-size:.72rem;line-height:1.5;color:var(--muted)}.notice{font-size:.72rem;padding:10px 12px;border:1px solid #b6d9eb;background:#edf8ff;border-radius:10px;margin-top:12px;color:#07527a}.notice.error{color:#a11940;border-color:#e9b6c3;background:#fff0f4}.notice.success{color:#136d4e;border-color:#a0d9c4;background:#edfbf4}.hidden{display:none!important}
+.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr)) 1.3fr 1fr;gap:9px}.field label{display:block;font-weight:850;color:#52677b;text-transform:uppercase;font-size:.62rem;letter-spacing:.03em;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;min-height:42px;border:1px solid #ccdae7;background:#fff;border-radius:9px;padding:9px 10px;font-size:.82rem;color:var(--ink)}.field textarea{min-height:91px;resize:vertical}.field.span2{grid-column:span 2}.field.full{grid-column:1/-1}.quick{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.btn{min-height:41px;padding:0 13px;border-radius:9px;border:1px solid var(--line);background:white;font-size:.72rem;color:var(--blue);font-weight:850}.btn.primary{border-color:var(--blue);background:var(--blue);color:#fff}.btn:disabled{opacity:.5;cursor:wait}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:13px}.stat{padding:13px 10px;background:white;border:1px solid var(--line);border-radius:12px}.stat span,.stat b,.stat small{display:block}.stat span{font-weight:850;color:var(--muted);font-size:.59rem}.stat b{font-size:1.32rem;color:var(--blue);margin-top:7px}.stat small{color:var(--muted);font-size:.61rem;line-height:1.45;margin-top:4px}
+.day{margin-top:19px}.day h2{font-size:1rem;margin:0 0 9px}.list{display:grid;gap:10px}.tech{background:white;border:1px solid var(--line);border-radius:13px;padding:14px}.techhead{display:flex;align-items:flex-start;justify-content:space-between;gap:9px}.techhead h3{font-size:.88rem;margin:0}.techhead p{font-size:.69rem;color:var(--muted);margin:4px 0 0}.pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.pill{font-size:.62rem;font-weight:850;background:#eff4fa;color:#466177;padding:6px 8px;border-radius:8px}.pill.good{background:#e7f7ed;color:#116d4e}.pill.bad{background:#fff0f4;color:#a51d43}.tag{font-size:.56rem;letter-spacing:.04em;font-weight:950;padding:6px 8px;background:#ecf5ff;color:#07527a;border-radius:8px;white-space:nowrap}.tag.manual{background:#fff4e4;color:#8b5a00}
+details{margin-top:11px;border-top:1px solid #e8edf3;padding-top:9px}summary{cursor:pointer;font-size:.71rem;font-weight:850;color:var(--blue);padding:3px 0}.entry{border-left:3px solid #9abada;margin-top:10px;padding:7px 10px;background:#f8fbfe;border-radius:0 8px 8px 0}.entry.done{border-color:#1d9670}.entry.blocked{border-color:#c1405b}.entry.manual{background:#fffaf2}.entry b{font-size:.75rem}.entry small{font-size:.62rem;color:#6a798b;display:block;margin-top:4px}.entry p{font-size:.7rem;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;margin:6px 0 0}.entry a{font-size:.69rem;color:var(--blue)}.empty{padding:24px;text-align:center;border:1px dashed #cdd9e4;border-radius:12px;background:#fff;font-size:.75rem;color:var(--muted)}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.form-footer{display:flex;align-items:center;gap:12px;justify-content:flex-end;margin-top:11px}.form-footer small{font-size:.64rem;color:var(--muted);max-width:500px;line-height:1.45}
+@media(max-width:760px){.controls{grid-template-columns:repeat(2,minmax(0,1fr))}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.form-footer{align-items:stretch;flex-direction:column-reverse}.form-footer button{width:100%}}
+@media(max-width:420px){.wrap{padding:10px 9px 80px}.controls{grid-template-columns:1fr 1fr}.controls .employee-filter,.controls .status-filter{grid-column:1/-1}.formgrid{grid-template-columns:1fr}.field.span2{grid-column:1/-1}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="hero"><h1>📋 Daily Technician Accomplishments</h1><p>Per-technician daily work: verified ticket activity, duty attendance, and separate technician-submitted reports. Philippine time (Asia/Manila).</p></section>
+<div id="notice" class="notice">Checking staff access and loading daily records…</div>
+<section class="section">
+  <h2>Daily report filters</h2>
+  <div class="controls">
+    <div class="field"><label for="from">From</label><input id="from" type="date"></div>
+    <div class="field"><label for="to">To</label><input id="to" type="date"></div>
+    <div class="field employee-filter" id="employeeFilter"><label for="employee">Technician</label><select id="employee"><option value="">All technicians</option></select></div>
+    <div class="field status-filter"><label for="show">Show</label><select id="show"><option value="all">All activity</option><option value="verified">With completed tickets</option><option value="manual">With manual reports</option><option value="blocked">With blocked work</option><option value="none">No recorded activity</option></select></div>
+  </div>
+  <div class="quick"><button class="btn" data-period="today">Today</button><button class="btn" data-period="yesterday">Yesterday</button><button class="btn" data-period="week">Last 7 days</button><button id="load" class="btn primary">Apply filters</button><button id="csv" class="btn" disabled>↓ Export CSV</button></div>
+  <p class="hint">Verified records come from the existing ticket/attendance activity system. Manual work reports are marked separately and are not treated as verified ticket completions. Maximum date range: 32 days.</p>
+</section>
+<section id="stats" class="stats" aria-label="Daily summary"></section>
+<section id="report" aria-live="polite"><div class="empty">Loading technician work records…</div></section>
+<section id="submitSection" class="section hidden">
+<h2>Submit my field accomplishment</h2>
+<p class="hint">Use this for work done without a ticket, including OSP, splicing, maintenance and site support. Submit one entry per task. Ticket work is already tracked automatically—do not submit it again unless you need to add details. Submitted records are permanent and show the submission timestamp.</p>
+<form id="workForm">
+<div class="formgrid">
+<div class="field"><label for="workDate">Work date *</label><input id="workDate" type="date" required></div>
+<div class="field"><label for="workType">Work type *</label><select id="workType" required><option value="INSTALL">Installation</option><option value="REPAIR">Repair</option><option value="RELOCATION">Relocation</option><option value="MAINTENANCE">Network maintenance</option><option value="OSP">OSP / cable laying</option><option value="SPLICING">Fiber splicing</option><option value="SUPPORT">Site support</option><option value="OTHER">Other assigned work</option></select></div>
+<div class="field"><label for="workStatus">Status *</label><select id="workStatus"><option value="DONE">Completed</option><option value="IN_PROGRESS">Ongoing</option><option value="BLOCKED">Blocked / delayed</option></select></div>
+<div class="field"><label for="site">Location / area</label><input id="site" maxlength="220" placeholder="e.g. LP3, Brgy. Sta. Ana"></div>
+<div class="field"><label for="ticketNo">Ticket # (if applicable)</label><input id="ticketNo" maxlength="90" placeholder="e.g. TKT-…"></div>
+<div class="field"><label for="accountNo">Client account # (if applicable)</label><input id="accountNo" maxlength="90" placeholder="e.g. SATR…"></div>
+<div class="field full"><label for="summary">What exactly was done? *</label><textarea id="summary" minlength="5" maxlength="2000" required placeholder="Describe actual work, quantity, test result, area/route, who assisted, and outcome."></textarea></div>
+<div class="field full"><label for="blocker">Reason / next action (required if blocked)</label><textarea id="blocker" maxlength="800" placeholder="What prevented completion and what is needed next?"></textarea></div>
+<div class="field full"><label for="proof">Proof photo / documentation link (optional)</label><input id="proof" type="url" maxlength="2048" placeholder="https://…"></div>
+</div>
+<div class="form-footer"><small>Only your own account can submit this record. You can report work from today or the last 30 days. Time In/Out and ticket status are not altered by this form.</small><button id="submit" class="btn primary" type="submit">Submit accomplishment</button></div>
+</form>
+</section>
+</main>
+<script>
+(function(){
+'use strict';
+const BASE='https://tcexzfztdgximrzuosqs.supabase.co',KEY='sb_publishable_8H8_S7NTWvzPCLvYUe2C4g_k3Ltjfiz';
+const STORE='tg_session_v3',SBSTORE='sb-tcexzfztdgximrzuosqs-auth-token',$=id=>document.getElementById(id);
+let session=null,me=null,staff=[],history=[],manual=[],visible=[],isAdmin=false,loaded=false;
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function phDate(offset){const d=new Date(Date.now()+(offset||0)*86400000),p=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Manila',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d),o={};p.forEach(x=>{if(x.type!=='literal')o[x.type]=x.value});return o.year+'-'+o.month+'-'+o.day}
+function fmtTime(v){if(!v)return'—';const d=new Date(v);return isNaN(d.getTime())?'—':d.toLocaleTimeString('en-PH',{timeZone:'Asia/Manila',hour:'numeric',minute:'2-digit'})}
+function fmtTimestamp(v){if(!v)return'—';const d=new Date(v);return isNaN(d.getTime())?'—':d.toLocaleString('en-PH',{timeZone:'Asia/Manila',month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'})}
+function fmtDate(s){const d=new Date(String(s)+'T12:00:00+08:00');return isNaN(d.getTime())?s:d.toLocaleDateString('en-PH',{timeZone:'Asia/Manila',weekday:'short',year:'numeric',month:'short',day:'numeric'})}
+function clean(v){return String(v==null?'':v).trim()}
+function safeUrl(v){try{const u=new URL(clean(v));return u.protocol==='https:'||u.protocol==='http:'?u.href:''}catch(_){return''}}
+function note(msg,type){const n=$('notice');n.textContent=msg;n.className='notice'+(type?' '+type:'');n.classList.remove('hidden')}
+function hideNote(){$('notice').classList.add('hidden')}
+function readSession(){for(const key of [SBSTORE,STORE]){try{const v=JSON.parse(localStorage.getItem(key)||'null');if(v&&v.access_token&&v.user)return v}catch(_){}}return null}
+async function renew(){if(!session||!session.refresh_token)return false;try{const r=await fetch(BASE+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:session.refresh_token})});if(!r.ok)return false;const s=await r.json();if(!s.access_token)return false;session=s;localStorage.setItem(STORE,JSON.stringify(s));localStorage.setItem(SBSTORE,JSON.stringify(s));return true}catch(_){return false}}
+async function req(path,opt,retry){const h=Object.assign({'apikey':KEY,'Content-Type':'application/json'},(opt&&opt.headers)||{});if(session&&session.access_token)h.Authorization='Bearer '+session.access_token;const r=await fetch(BASE+path,Object.assign({},opt||{},{headers:h}));if(r.status===401&&retry!==false&&await renew())return req(path,opt,false);const txt=await r.text();let d=null;try{d=txt?JSON.parse(txt):null}catch(_){d=txt}if(!r.ok)throw Error((d&&(d.message||d.error_description||d.details))||'Request failed '+r.status);return d}
+function uniqueTickets(e,type){const codes=new Set();(e||[]).filter(x=>x.event_type===type).forEach(x=>codes.add(clean(x.ticket_no)||clean(x.event_at)));return codes.size}
+function eventsFor(r){return Array.isArray(r.events)?r.events:[]}
+function reportRows(){const map=new Map(),add=(date,id,name)=>{const key=date+'|'+id;if(!map.has(key))map.set(key,{date:date,id:id,name:name||id,events:[],tasks:[],time_in:null,time_out:null,duty_status:''});return map.get(key)};
+history.forEach(r=>{const o=add(r.attendance_date,r.employee_id,r.employee_name);o.events.push.apply(o.events,eventsFor(r));o.time_in=r.time_in||o.time_in;o.time_out=r.time_out||o.time_out;o.duty_status=r.status||o.duty_status});
+manual.forEach(m=>{const person=staff.find(s=>s.employee_id===m.employee_id);add(m.work_date,m.employee_id,(person&&person.full_name)||m.employee_id).tasks.push(m)});
+if($('from').value===$('to').value){const d=$('from').value;staff.filter(s=>String(s.role||'').toUpperCase()==='EMPLOYEE'&&s.employee_id).forEach(s=>add(d,s.employee_id,s.full_name))}
+let rows=[...map.values()];const id=$('employee').value,mode=$('show').value;
+rows=rows.filter(r=>!id||r.id===id).filter(r=>{const done=uniqueTickets(r.events,'TICKET_DONE');if(mode==='verified')return done>0;if(mode==='manual')return r.tasks.length>0;if(mode==='blocked')return r.tasks.some(t=>t.work_status==='BLOCKED');if(mode==='none')return !r.time_in&&!r.events.length&&!r.tasks.length;return true});
+rows.sort((a,b)=>b.date.localeCompare(a.date)||a.name.localeCompare(b.name));return rows}
+function eventHtml(e){const t=e.event_type||'',m=e.metadata&&typeof e.metadata==='object'?e.metadata:{},name=t==='TICKET_DONE'?'Ticket completed':t==='TICKET_CLAIMED'?'Ticket started':t==='COLLECTION_UPDATE'?'Collection update':t==='TIME_IN'?'Time In':t==='TIME_OUT'?'Time Out':t.replace(/_/g,' ');
+const details=[e.ticket_no,e.account_no,e.ticket_label,m.note].filter(Boolean).map(esc).join(' · ');
+return '<div class="entry '+(t==='TICKET_DONE'?'done':'')+'"><b>'+esc(name)+'</b><small>'+esc(fmtTime(e.event_at))+' · VERIFIED SYSTEM ACTIVITY</small>'+(details?'<p>'+details+'</p>':'')+'</div>'}
+function manualHtml(m){const types={INSTALL:'Installation',REPAIR:'Repair',RELOCATION:'Relocation',MAINTENANCE:'Network maintenance',OSP:'OSP / cable laying',SPLICING:'Fiber splicing',SUPPORT:'Site support',OTHER:'Other'},link=safeUrl(m.proof_url);
+return '<div class="entry manual '+(m.work_status==='BLOCKED'?'blocked':m.work_status==='DONE'?'done':'')+'"><b>'+esc(types[m.work_type]||m.work_type)+' · '+esc(m.work_status.replace(/_/g,' '))+'</b><small>TECHNICIAN-REPORTED · submitted '+esc(fmtTimestamp(m.submitted_at))+'</small><p>'+esc(m.work_summary)+'</p>'+(m.site?'<p>Location: '+esc(m.site)+'</p>':'')+((m.ticket_no||m.account_no)?'<p>'+[m.ticket_no,m.account_no].filter(Boolean).map(esc).join(' · ')+'</p>':'')+(m.blocker?'<p>Blocker / next action: '+esc(m.blocker)+'</p>':'')+(link?'<p><a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer">View attached proof ↗</a></p>':'')+'</div>'}
+function stat(label,value,hint){return '<article class="stat"><span>'+esc(label)+'</span><b>'+esc(value)+'</b><small>'+esc(hint)+'</small></article>'}
+function render(){if(!loaded)return;visible=reportRows();const all=visible,uniquePeople=new Set(all.map(r=>r.id)),verified=all.reduce((n,r)=>n+uniqueTickets(r.events,'TICKET_DONE'),0),manualCount=all.reduce((n,r)=>n+r.tasks.length,0),blocked=all.reduce((n,r)=>n+r.tasks.filter(t=>t.work_status==='BLOCKED').length,0);
+$('stats').innerHTML=stat('TECHNICIANS IN VIEW',uniquePeople.size,'Staff with records / selected day')+stat('TICKET COMPLETION CREDITS',verified,'Team tickets may credit each technician')+stat('MANUAL REPORTS',manualCount,'Self-reported; not ticket completions')+stat('BLOCKED WORK',blocked,'Manual reports requiring follow-up');
+$('csv').disabled=!all.length;
+const group={};all.forEach(r=>(group[r.date]||(group[r.date]=[])).push(r));const dates=Object.keys(group).sort().reverse();if(!dates.length){$('report').innerHTML='<div class="empty" style="margin-top:14px">No records match these filters.</div>';return}
+$('report').innerHTML=dates.map(date=>'<section class="day"><h2>'+esc(fmtDate(date))+' · '+group[date].length+' tech(s)</h2><div class="list">'+group[date].map(r=>{const done=uniqueTickets(r.events,'TICKET_DONE'),claimed=uniqueTickets(r.events,'TICKET_CLAIMED'),collections=r.events.filter(e=>e.event_type==='COLLECTION_UPDATE').length,empty=!r.time_in&&!r.events.length&&!r.tasks.length;
+return '<article class="tech"><div class="techhead"><div><h3>'+esc(r.name)+'</h3><p>'+esc(r.time_in?'In '+fmtTime(r.time_in):'No Time In')+' · '+esc(r.time_out?'Out '+fmtTime(r.time_out):(r.time_in?'On Duty / no Time Out':'No Time Out'))+'</p></div><span class="tag '+(empty?'manual':'')+'">'+(empty?'NO ACTIVITY':done?'TICKET DONE':r.tasks.length?'REPORTED':'ACTIVITY')+'</span></div><div class="pills"><span class="pill good">'+done+' ticket(s) done</span><span class="pill">'+claimed+' started</span><span class="pill">'+collections+' collection update(s)</span><span class="pill">'+r.tasks.length+' manual report(s)</span>'+ (r.tasks.some(t=>t.work_status==='BLOCKED')?'<span class="pill bad">Has blocked work</span>':'')+'</div>'+(empty?'<p class="hint">No recorded work or attendance for this day. This does not prove the technician did no work.</p>':'<details><summary>View '+(r.events.length+r.tasks.length)+' recorded activity item(s)</summary>'+r.events.slice().sort((a,b)=>String(a.event_at).localeCompare(String(b.event_at))).map(eventHtml).join('')+r.tasks.slice().sort((a,b)=>String(a.submitted_at).localeCompare(String(b.submitted_at))).map(manualHtml).join('')+'</details>')+'</article>'}).join('')+'</div></section>').join('')}
+function csvCell(x){let s=String(x==null?'':x);if(/^[\s]*[=+\-@]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'}
+function exportCsv(){if(!visible.length)return;const records=[['Date','Employee ID','Technician','Source','Activity type','Status','Ticket','Account','Location','Details','Event/submission time','Proof URL']];visible.forEach(r=>{r.events.forEach(e=>records.push([r.date,r.id,r.name,'SYSTEM',e.event_type,e.status||'',e.ticket_no||'',e.account_no||'','',e.ticket_label||(e.metadata&&e.metadata.note)||'',e.event_at||'','']));r.tasks.forEach(m=>records.push([r.date,r.id,r.name,'SELF_REPORTED',m.work_type,m.work_status,m.ticket_no||'',m.account_no||'',m.site||'',m.work_summary+(m.blocker?' | Blocker: '+m.blocker:''),m.submitted_at||'',m.proof_url||'']))});
+const csv='\ufeff'+records.map(row=>row.map(csvCell).join(',')).join('\r\n'),u=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=u;a.download='TechGeekPH-Daily-Accomplishments-'+$('from').value+'-to-'+$('to').value+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),3000)}
+async function load(){const from=$('from').value,to=$('to').value;if(!from||!to||from>to)return note('Select a valid date range.','error');if(to>phDate(0))return note('Future dates cannot be loaded.','error');const diff=Math.round((Date.parse(to+'T12:00:00Z')-Date.parse(from+'T12:00:00Z'))/86400000);if(diff>31)return note('Maximum range is 32 days.','error');
+try{$('load').disabled=true;note('Loading verified timeline and technician reports…');
+const out=await Promise.all([req('/rest/v1/rpc/app_duty_history',{method:'POST',body:JSON.stringify({p_from_date:from,p_to_date:to})}),req('/rest/v1/tech_daily_accomplishments?select=*&work_date=gte.'+encodeURIComponent(from)+'&work_date=lte.'+encodeURIComponent(to)+'&order=submitted_at.desc&limit=3000',{method:'GET'})]);history=Array.isArray(out[0]&&out[0].records)?out[0].records:[];manual=Array.isArray(out[1])?out[1]:[];loaded=true;hideNote();render()
+}catch(e){note('Unable to load daily accomplishments: '+(e.message||e),'error');$('report').innerHTML='<div class="empty" style="margin-top:14px">Report unavailable. Existing ticket and attendance records are unchanged.</div>'}finally{$('load').disabled=false}}
+async function submit(e){e.preventDefault();if(!me||String(me.role).toUpperCase()!=='EMPLOYEE')return;const date=$('workDate').value,type=$('workType').value,status=$('workStatus').value,summary=clean($('summary').value),blocker=clean($('blocker').value),proof=clean($('proof').value);
+if(date>phDate(0)||date<phDate(-30))return note('Select today or a date within the last 30 days.','error');
+if(summary.length<5)return note('Describe the actual work completed (at least 5 characters).','error');
+if(status==='BLOCKED'&&!blocker)return note('Explain the blocker and required next action.','error');
+if(proof&&!safeUrl(proof))return note('Enter a valid http/https documentation link.','error');
+const payload={work_date:date,work_type:type,work_status:status,work_summary:summary,ticket_no:clean($('ticketNo').value)||null,account_no:clean($('accountNo').value)||null,site:clean($('site').value)||null,blocker:blocker||null,proof_url:proof||null};
+const btn=$('submit');btn.disabled=true;try{await req('/rest/v1/tech_daily_accomplishments',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify(payload)});$('workForm').reset();$('workDate').value=phDate(0);if(date<$('from').value||date>$('to').value){$('from').value=date;$('to').value=date}note('Accomplishment submitted successfully. Reloading the report…','success');await load();note('Accomplishment saved. It is shown as a technician-reported entry.','success')}catch(err){note('Submission failed: '+(err.message||err),'error')}finally{btn.disabled=false}}
+async function boot(){session=readSession();if(!session){note('Staff login required. Sign in to your TechGeekPH Admin or Employee Portal, then reopen this module.','error');$('report').innerHTML='';return}
+try{const mine=await req('/rest/v1/staff_profiles?select=employee_id,full_name,role,active&user_id=eq.'+encodeURIComponent(session.user.id)+'&limit=1',{method:'GET'});me=Array.isArray(mine)&&mine[0];if(!me||!me.active)throw Error('Active staff account is required.');isAdmin=['OWNER','ADMIN'].includes(String(me.role).toUpperCase());
+if(isAdmin){const people=await req('/rest/v1/staff_profiles?select=employee_id,full_name,role,active&active=eq.true&order=full_name.asc&limit=100',{method:'GET'});staff=Array.isArray(people)?people:[]}else{staff=[me];$('submitSection').classList.remove('hidden');$('employeeFilter').classList.add('hidden')}
+$('employee').innerHTML='<option value="">All technicians</option>'+staff.filter(x=>x.employee_id&&String(x.role).toUpperCase()==='EMPLOYEE').map(s=>'<option value="'+esc(s.employee_id)+'">'+esc(s.full_name)+'</option>').join('');
+const today=phDate(0);$('from').value=today;$('to').value=today;$('from').max=today;$('to').max=today;$('workDate').max=today;$('workDate').min=phDate(-30);$('workDate').value=today;
+await load()
+}catch(e){note('Unable to initialize technician report: '+(e.message||e),'error');$('report').innerHTML='<div class="empty">Please reopen this module after signing in.</div>'}}
+$('show').addEventListener('change',render);$('employee').addEventListener('change',render);$('load').onclick=load;$('csv').onclick=exportCsv;$('workForm').addEventListener('submit',submit);
+document.querySelectorAll('[data-period]').forEach(b=>b.onclick=()=>{const p=b.dataset.period;$('from').value=phDate(p==='week'?-6:p==='yesterday'?-1:0);$('to').value=phDate(p==='yesterday'?-1:0);load()});
+boot();
+})();
+</script>
+</body>
+</html>
