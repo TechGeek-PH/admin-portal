@@ -27,6 +27,7 @@
       label: "Operations",
       items: [
         { label: "Tickets", href: "tickets.html" },
+        { label: "Daily Technician Accomplishments", href: "daily-technician-accomplishments.html" },
         { label: "Network Monitor", href: "network-monitor.html" },
         { label: "Client Proof Photos", href: "client-proof-photos.html" },
         { label: "Clients", href: "clients.html" },
