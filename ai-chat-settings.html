@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Chat Support Settings - TechGeekPH</title><meta name="robots" content="noindex,nofollow">
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#172033;background:#f3f6fb}
+*{box-sizing:border-box}body{margin:0}.container{max-width:850px;padding:22px;margin:0 auto}
+.header{display:flex;align-items:center;gap:16px;justify-content:space-between;margin-bottom:22px}
+h1{font-size:1.65rem;margin:0}h2{font-size:1rem;margin:0 0 12px}p{color:#64748b;line-height:1.6}
+.panel{background:#fff;border:1px solid #dce4ec;border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 4px 12px #142b4810}
+label.toggle{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid #e8eef5}
+label.toggle:last-of-type{border-bottom:none}label span{display:grid;gap:4px}small{color:#64748b}
+input[type=checkbox]{width:24px;height:24px;accent-color:#064f83;flex:none}
+.button{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:9px;background:#064f83;color:#fff;padding:12px 16px;cursor:pointer;text-decoration:none;font:inherit;font-weight:750}
+.button.secondary{background:#e7eff7;color:#064f83}.button:disabled{opacity:.55;cursor:wait}.buttons{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+.status{padding:11px 14px;border-radius:9px;background:#eef5fa;color:#245271;font-size:.85rem;margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.stat{border:1px solid #e4eaf1;border-radius:10px;padding:14px}.stat strong{display:block;font-size:1.1rem;margin-top:6px}
+.bad{color:#ae2440}.good{color:#117753}.muted{color:#64748b}
+.row{display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e8edf4;padding:10px 0;gap:9px;flex-wrap:wrap}
+.mono{font-family:ui-monospace,Consolas,monospace;font-size:.8rem}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.header{align-items:flex-start;flex-direction:column}.container{padding:14px}}
+</style></head><body>
+<main class="container">
+ <div class="header"><div><h1>AI Chat Support</h1><p>Owner / Admin controls · TechGeekPH Client Portal</p></div>
+ <a class="button secondary" href="telegram-settings.html">Telegram Settings</a></div>
+ <section class="panel">
+ <h2>Live readiness</h2>
+ <div id="info" class="status">Checking access and configuration…</div>
+ <div class="grid">
+   <div class="stat"><small>OpenAI model credential</small><strong id="modelStatus">Checking…</strong></div>
+   <div class="stat"><small>Telegram private admin approval</small><strong id="telegramStatus">Checking…</strong></div>
+   <div class="stat"><small>Pending approval requests</small><strong id="pendingCount">—</strong></div>
+   <div class="stat"><small>AI support mode</small><strong id="modeStatus">—</strong></div>
+ </div></section>
+ <section class="panel">
+  <h2>Automation switches</h2>
+  <label class="toggle"><span><b>Enable Chat Assistant</b><small>Respond or route new client messages in the existing Client Chat Center.</small></span><input id="enabled" type="checkbox"></label>
+  <label class="toggle"><span><b>Allow AI answers to routine questions</b><small>Uses OpenAI only if a backend API key is configured. Sensitive requests still require admin review.</small></span><input id="auto" type="checkbox"></label>
+  <p><small>Telegram approval is always enforced for sensitive client changes. Approve creates a support ticket for staff; it does not independently change billing or network accounts.</small></p>
+  <div class="buttons"><button class="button" id="save" type="button" disabled>Save Settings</button><button class="button secondary" id="refresh" type="button">Refresh</button></div>
+ </section>
+ <section class="panel"><h2>Recent AI conversation processing</h2><div id="recent"><p>Loading…</p></div></section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/auth-session-bridge-v2.js?v=20260824-sequence1"></script>
+<script>
+(()=>{
+"use strict";
+const BASE="https://tcexzfztdgximrzuosqs.supabase.co",KEY="sb_publishable_8H8_S7NTWvzPCLvYUe2C4g_k3Ltjfiz";
+const $=x=>document.getElementById(x);let session=null;
+const safe=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+async function api(action,body={}){
+ if(!session?.access_token)throw Error("Please sign in as Owner/Admin.");
+ const r=await fetch(BASE+"/functions/v1/tg-ai-support-admin",{
+  method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+session.access_token,"Content-Type":"application/json"},
+  body:JSON.stringify({action,...body})
+ });
+ const data=await r.json().catch(()=>({}));if(!r.ok||!data.ok)throw Error(data.message||"Request failed");return data;
+}
+function render(data){
+ $("enabled").checked=data.settings.enabled;$("auto").checked=data.settings.allow_auto_replies;
+ $("modelStatus").textContent=data.readiness.openai_key_configured?"Configured":"Missing key";
+ $("modelStatus").className=data.readiness.openai_key_configured?"good":"bad";
+ $("telegramStatus").textContent=data.readiness.telegram_configured?"Ready":"Needs setup";
+ $("telegramStatus").className=data.readiness.telegram_configured?"good":"bad";
+ $("pendingCount").textContent=data.pending_count;$("modeStatus").textContent=data.settings.enabled?"Enabled":"Disabled";
+ $("save").disabled=false;
+ $("recent").innerHTML=(data.recent||[]).length?(data.recent||[]).map(r=>
+  '<div class="row"><span class="mono">#'+safe(r.source_message_id)+"</span><span>"+safe(r.request_type)+
+  "</span><b>"+safe(r.status)+"</b><small>"+safe(new Date(r.created_at).toLocaleString("en-PH"))+"</small></div>"
+ ).join(""):'<p>No AI requests yet.</p>';
+ $("info").textContent=data.readiness.openai_key_configured?
+  "AI model credential is present. New routine chat messages can use the model when enabled.":
+  "OpenAI API key is not configured. The system can use safe fallback replies and route requests to staff, but full AI-generated answers are not yet available.";
+}
+async function load(){
+ $("info").textContent="Checking configuration…";
+ try{render(await api("GET_STATUS"))}catch(e){$("info").textContent=e.message||"Unable to load settings";$("save").disabled=true}
+}
+$("save").onclick=async()=>{
+ $("save").disabled=true;
+ try{const result=await api("SAVE_SETTINGS",{enabled:$("enabled").checked,allow_auto_replies:$("auto").checked});render(result);$("info").textContent="Settings saved successfully."}
+ catch(e){$("info").textContent=e.message||"Could not save settings"}finally{$("save").disabled=false}
+};
+$("refresh").onclick=load;
+(async()=>{
+ try{session=await(window.TechGeekAuthReady||Promise.resolve(null));
+ if(!session&&window.TechGeekEnsureSupabaseSession)session=await window.TechGeekEnsureSupabaseSession();
+ if(!session)throw Error("Admin login required.");
+ await load();
+ }catch(e){$("info").textContent=e.message||"Access denied"}
+})();
+})();
+</script>
+</body></html>
