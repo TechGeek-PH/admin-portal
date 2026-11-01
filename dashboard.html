@@ -64,6 +64,7 @@
             <button class="action" type="button" data-page="daily_time_record.html"><span class="action-icon">D</span><span><b>My Time Record</b><span>Employee daily time record</span></span></button>
             <button class="action" type="button" data-page="expense_approval.html"><span class="action-icon">₱</span><span><b>Expense Approval</b><span>Review and approve requests</span></span></button>
             <button class="action billing-highlight" type="button" data-page="payroll-loans.html"><span class="action-icon">₱</span><span><b>Payroll & Loans</b><span>Payroll, payslips and employee loans in one workspace</span></span></button>
+            <button class="action" type="button" data-page="routers.html"><span class="action-icon">R</span><span><b>Routers Inventory</b><span>Models, condition, deployment and recovery</span></span></button>
             <button class="action" type="button" data-page="consumable_stock.html"><span class="action-icon">I</span><span><b>Inventory</b><span>Stock and company assets</span></span></button>
           </div>
         </section>
@@ -79,5 +80,6 @@
   document.querySelectorAll('[data-page]').forEach(function(button){button.addEventListener('click',function(){window.location.href=button.dataset.page;});});
 </script>
 <script src="assets/admin-shell.js?v=20260813-4"></script>
+<script src="assets/dashboard-router-summary.js?v=20261101-1"></script>
 </body>
 </html>
