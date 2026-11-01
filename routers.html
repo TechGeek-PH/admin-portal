@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#064f83"><title>Routers Inventory | TechGeekPH</title>
+<link rel="stylesheet" href="assets/admin-shell.css?v=20260813-2">
+<style>
+:root{--blue:#064f83;--ink:#172033;--muted:#657386;--line:#dbe4ee;--bg:#f4f7fb;--good:#126a4d;--bad:#ab2648;font-family:Inter,system-ui,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink)}button,input,select,textarea{font:inherit}button{cursor:pointer}
+.app{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:100vh}.sidebar{position:sticky;top:0;height:100vh;overflow:auto;background:linear-gradient(170deg,#023d6b,#064f83);padding:18px;display:flex;flex-direction:column;gap:17px;color:#fff}.brand-logo{padding:8px;border-radius:8px;background:#fff;width:134px}.brand-logo img{display:block;width:100%}.brand strong{display:block;margin-top:13px;font-size:.85rem}.nav{display:grid;gap:7px}.sidebar-footer{margin-top:auto}.logout{width:100%;height:43px;border-radius:8px;border:1px solid #ffffff50;background:none;color:white;font-weight:800}
+.main{min-width:0}.topbar{background:white;border-bottom:1px solid var(--line);padding:16px 22px}.topbar h1{font-size:1.5rem;margin:0}.topbar p{margin:5px 0 0;color:var(--muted);font-size:.76rem}.content{max-width:1590px;margin:auto;padding:20px;display:grid;gap:15px}
+.panel,.metric{min-width:0;background:white;border:1px solid var(--line);border-radius:12px}.panel{overflow:hidden}.head{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:15px;border-bottom:1px solid var(--line)}.head h2{font-size:.95rem;margin:0}.head p{font-size:.7rem;color:var(--muted);margin:4px 0 0}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.metric{padding:14px}.metric span{display:block;color:var(--muted);font-size:.66rem;font-weight:800}.metric strong{display:block;font-size:1.55rem;color:var(--blue);margin-top:8px}.metric small{display:block;color:var(--muted);margin-top:3px;font-size:.62rem}.notice{padding:12px 14px;border-radius:10px;border:1px solid #b8d9eb;background:#eaf6ff;color:#07537f;font-size:.78rem;line-height:1.45}.notice.error{border-color:#ecc2cc;background:#fff0f4;color:var(--bad)}.notice.ok{border-color:#b3dec8;background:#effaf4;color:var(--good)}
+.forms{display:grid;grid-template-columns:1fr 1fr;gap:15px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:15px}.field{min-width:0}.field.full{grid-column:1/-1}.field label{display:block;font-size:.67rem;font-weight:800;color:#506176;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;min-height:42px;border:1px solid #cad6e2;border-radius:8px;padding:9px;background:white;color:var(--ink)}.field textarea{min-height:64px;resize:vertical}.field small{display:block;color:var(--muted);font-size:.62rem;margin-top:4px}.primary,.secondary{border-radius:8px;min-height:42px;padding:0 13px;font-weight:800}.primary{border:1px solid var(--blue);background:var(--blue);color:white}.secondary{border:1px solid var(--line);background:white;color:var(--blue)}.formactions{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;align-items:center}.formactions small{color:var(--muted);font-size:.68rem}button:disabled{opacity:.55;cursor:wait}
+.toolbar{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr auto;gap:8px;padding:13px}.toolbar input,.toolbar select,.toolbar button{min-height:39px;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:white;min-width:0}
+.tablewrap{overflow:auto}table{min-width:850px;width:100%;border-collapse:collapse}td,th{border-top:1px solid #e9eef4;text-align:left;padding:11px;font-size:.72rem;vertical-align:top}th{font-size:.61rem;letter-spacing:.03em;color:#566679;background:#f8fbfe;text-transform:uppercase}.badge{display:inline-block;border-radius:12px;padding:4px 8px;font-weight:800;font-size:.61rem;background:#edf2f8;color:#496178}.badge.good{background:#e6f6ee;color:var(--good)}.badge.bad{background:#ffedf2;color:var(--bad)}.badge.warn{background:#fff4df;color:#986500}.models{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px}.model{border:1px solid var(--line);padding:11px;border-radius:9px}.model span{display:block;font-size:.69rem;color:var(--muted)}.model strong{font-size:1.25rem;color:var(--blue)}.empty{padding:22px;color:var(--muted);font-size:.77rem}.hint{font-size:.72rem;color:var(--muted);line-height:1.5;padding:0 15px 15px;margin:0}
+@media(max-width:1100px){.app{grid-template-columns:200px minmax(0,1fr)}.metrics{grid-template-columns:repeat(2,1fr)}.forms{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr 1fr}}@media(max-width:860px){.app{display:block}.sidebar{height:auto;position:relative}.content{padding:12px}.nav{grid-template-columns:1fr 1fr}}@media(max-width:540px){.metrics,.formgrid,.models{grid-template-columns:1fr 1fr}.toolbar{grid-template-columns:1fr}.field.full,.formactions{grid-column:1/-1}.models{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="app"><aside class="sidebar" data-admin-sidebar><div class="brand"><div class="brand-logo"><img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH"></div><strong>TechGeekPH Admin</strong></div><nav class="nav" aria-label="Admin navigation"></nav><div class="sidebar-footer"><button class="logout" id="logoutBtn" type="button">Log out</button></div></aside>
+<section class="main"><header class="topbar"><h1>Routers Inventory</h1><p>Serial-level tracking • Installation / replacement / recovery • Condition inspection</p></header>
+<div class="content">
+<div id="notice" class="notice" role="status">Checking owner/admin access and inventory…</div>
+<section class="metrics" aria-label="Router inventory overview">
+<div class="metric"><span>Registered Units</span><strong id="registered">—</strong><small>All physical router records</small></div>
+<div class="metric"><span>Ready to Use</span><strong id="ready">—</strong><small>In stock + tested Good</small></div>
+<div class="metric"><span>Defective</span><strong id="defective">—</strong><small>In stock + defective</small></div>
+<div class="metric"><span>For Testing</span><strong id="untested">—</strong><small>Recovered or not yet inspected</small></div>
+<div class="metric"><span>Currently Deployed</span><strong id="deployed">—</strong><small>Assigned to a client</small></div>
+<div class="metric"><span>Total Used</span><strong id="usedTotal">—</strong><small>New installation + replacement events recorded</small></div>
+<div class="metric"><span>Total Recovered</span><strong id="recoveredTotal">—</strong><small>Change-router + pullout recovery events</small></div>
+<div class="metric"><span>Selected Month</span><input id="month" type="month" aria-label="Reporting month"><small id="monthMetrics">Used — • Recovered —</small></div>
+</section>
+<section class="panel"><div class="head"><div><h2>Router Models</h2><p>Count of physical units by model, independent of client entries</p></div></div><div class="models"><div class="model"><span>ZTE F670L V1</span><strong id="modelV1">—</strong></div><div class="model"><span>ZTE F670L V9</span><strong id="modelV9">—</strong></div><div class="model"><span>ZTE F6600P</span><strong id="model6600">—</strong></div></div><p class="hint" id="otherModels"></p></section>
+<div class="forms">
+<section class="panel"><div class="head"><div><h2>Register a Router</h2><p>Add one actual unit per unique serial number</p></div></div>
+<form id="registerForm" class="formgrid">
+<div class="field"><label for="serial">Serial Number *</label><input id="serial" required maxlength="120" minlength="4" autocomplete="off" placeholder="Scan / type router serial"></div>
+<div class="field"><label for="model">Router Model *</label><select id="model" required><option value="ZTE F670L V1">ZTE F670L V1</option><option value="ZTE F670L V9">ZTE F670L V9</option><option value="ZTE F6600P">ZTE F6600P</option><option value="OTHER">Other model…</option></select></div>
+<div class="field full" id="otherModelWrap" hidden><label for="otherModel">Other Model Name *</label><input id="otherModel" maxlength="80"></div>
+<div class="field"><label for="condition">Condition</label><select id="condition"><option value="UNTESTED">For Testing</option><option value="GOOD">Good (inspected)</option><option value="DEFECTIVE">Defective</option></select></div>
+<div class="field"><label for="initialLocation">Initial Location</label><select id="initialLocation"><option value="STOCK">Stock / Warehouse</option><option value="DEPLOYED">Already with client (baseline)</option></select></div>
+<div class="field full" id="baselineWrap" hidden><label for="baselineAccount">Existing SATR Account *</label><input id="baselineAccount" placeholder="SATR0001" maxlength="40"></div>
+<div class="field full"><label for="initialNote">Remarks (optional)</label><textarea id="initialNote" maxlength="800" placeholder="Physical stock count, source, initial audit…"></textarea></div>
+<div class="formactions"><button class="primary" type="submit" id="registerBtn">Add Router</button><small>Existing deployed units are a baseline, not counted as new installations.</small></div></form></section>
+<section class="panel"><div class="head"><div><h2>Router Movement / Inspection</h2><p>Every saved action creates an audit event</p></div></div>
+<form id="moveForm" class="formgrid">
+<div class="field full"><label for="routerSelect">Select Router *</label><select id="routerSelect" required><option value="">Select a serial number</option></select><small id="routerCurrent">Current location and condition appear here.</small></div>
+<div class="field full"><label for="action">Action *</label><select id="action" required><option value="NEW_INSTALL">Issue • New Client Installation</option><option value="REPLACEMENT_INSTALL">Issue • Replacement Router</option><option value="RECOVER_REPLACEMENT">Recover • Router Change</option><option value="RECOVER_PULLOUT">Recover • Client Pullout</option><option value="INSPECT">Inspect / Update Condition</option><option value="RETIRE">Retire Defective Router</option></select></div>
+<div class="field" id="accountWrap"><label for="account">Client Account No. *</label><input id="account" placeholder="SATR0576" maxlength="40"></div>
+<div class="field" id="inspectionWrap" hidden><label for="inspectedCondition">Inspection Result</label><select id="inspectedCondition"><option value="GOOD">Good</option><option value="DEFECTIVE">Defective</option><option value="UNTESTED">For Testing</option></select></div>
+<div class="field"><label for="ticket">Ticket / Reference (optional)</label><input id="ticket" maxlength="100" placeholder="TKT-…"></div>
+<div class="field full"><label for="note">Reason / Remarks (optional)</label><textarea id="note" maxlength="800" placeholder="Replacement reason, test results, recovered from whom…"></textarea></div>
+<div class="formactions"><button class="primary" id="moveBtn" type="submit">Save Movement</button><small>Recovery automatically marks the unit For Testing until inspected.</small></div>
+</form></section>
+</div>
+<section class="panel"><div class="head"><div><h2>All Router Units</h2><p>Search by serial, model, client, or condition</p></div><button class="secondary" id="refresh" type="button">↻ Refresh</button></div>
+<div class="toolbar"><input id="search" type="search" placeholder="Search serial / client / model"><select id="modelFilter" aria-label="Model"><option value="">All models</option><option>ZTE F670L V1</option><option>ZTE F670L V9</option><option>ZTE F6600P</option></select><select id="locationFilter" aria-label="Location"><option value="">All locations</option><option value="STOCK">In Stock</option><option value="DEPLOYED">With Client</option><option value="RETIRED">Retired</option></select><select id="conditionFilter" aria-label="Condition"><option value="">All conditions</option><option value="GOOD">Good</option><option value="DEFECTIVE">Defective</option><option value="UNTESTED">For Testing</option></select><span id="rowCount" style="align-self:center;font-size:.7rem;color:#657386"></span></div>
+<div class="tablewrap"><table><thead><tr><th>Serial</th><th>Model</th><th>Condition</th><th>Location</th><th>Client Account</th><th>Last Action</th><th>Updated</th><th></th></tr></thead><tbody id="routerRows"><tr><td colspan="8">Loading inventory…</td></tr></tbody></table></div>
+</section>
+<section class="panel"><div class="head"><div><h2>Router Movement History</h2><p>Latest 75 audit events; no manual event deletion</p></div></div>
+<div class="tablewrap"><table><thead><tr><th>Date / Time (PH)</th><th>Serial</th><th>Action</th><th>From → To</th><th>Condition</th><th>Account</th><th>Ticket</th><th>Remarks</th></tr></thead><tbody id="eventRows"><tr><td colspan="8">Loading events…</td></tr></tbody></table></div></section>
+<p class="hint">Inventory and usage totals include only units registered here. Historical client modem entries are not auto-counted because one client may have had multiple replacements; add physical routers and baseline existing deployments after reconciliation. All times use Asia/Manila.</p>
+</div></section></main>
+<script src="assets/admin-nav.js?v=20261101-routers1"></script>
+<script src="assets/auth-session-bridge-v2.js?v=20260824-sequence1"></script>
+<script src="assets/routers-inventory.js?v=20261101-1"></script>
+</body></html>
