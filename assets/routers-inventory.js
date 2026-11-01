@@ -1,5 +1,6 @@
 (function () {
 "use strict";
+if(window.parent!==window||new URLSearchParams(location.search).get('embed')==='1'||new URLSearchParams(location.search).get('source')==='app-embed')document.documentElement.classList.add('tg-embedded');
 const $=id=>document.getElementById(id);
 const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
 let db=null, routers=[],summary=null, busy=false;
