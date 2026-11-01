@@ -52,6 +52,7 @@
       label: "Stock & Assets",
       items: [
         { label: "Consumable Stock", href: "consumable_stock.html" },
+        { label: "Routers Inventory", href: "routers.html" },
         { label: "Company Assets", href: "company_assets.html" }
       ]
     },
