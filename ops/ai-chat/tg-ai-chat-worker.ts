@@ -138,7 +138,8 @@ Deno.serve(async (req: Request) => {
         await createMessage(db,source,suggested,{route:"HUMAN",reason:"TELEGRAM_NOT_AVAILABLE"});
       } else {
         expiresAt=new Date(Date.now()+24*3600*1000).toISOString();
-        await db.from("tg_ai_chat_requests").update({status:"PENDING_APPROVAL",request_type:requestTypeName,request_summary:summary,expires_at:expiresAt,updated_at:now()}).eq("source_message_id",messageId);
+        const approvalNonce=crypto.randomUUID().replaceAll("-","").slice(0,24);
+        await db.from("tg_ai_chat_requests").update({status:"PENDING_APPROVAL",request_type:requestTypeName,request_summary:summary,approval_nonce:approvalNonce,expires_at:expiresAt,updated_at:now()}).eq("source_message_id",messageId);
         const message=["🔐 <b>TechGeekPH Client Request — Admin Approval</b>","",
           "<b>Account:</b> "+esc(client.account_no),
           "<b>Request:</b> "+esc(requestTypeName),
@@ -147,8 +148,8 @@ Deno.serve(async (req: Request) => {
           "","Approval authorizes staff processing only. No automatic router, payment or billing changes. Expires in 24 hours."].join("\n");
         const tgMessageId=await telegram(s(tg.bot_token),s(tg.admin_chat_id),{text:message,reply_markup:{
           inline_keyboard:[
-            [{text:"✅ Approve for Processing",callback_data:"ai:approve:"+messageId},{text:"❌ Reject",callback_data:"ai:reject:"+messageId}],
-            [{text:"👤 Review Manually",callback_data:"ai:review:"+messageId}]
+            [{text:"✅ Approve for Processing",callback_data:"ai:approve:"+messageId+":"+approvalNonce},{text:"❌ Reject",callback_data:"ai:reject:"+messageId+":"+approvalNonce}],
+            [{text:"👤 Review Manually",callback_data:"ai:review:"+messageId+":"+approvalNonce}]
           ]
         }});
         await db.from("tg_ai_chat_requests").update({telegram_message_id:tgMessageId,updated_at:now()}).eq("source_message_id",messageId);
