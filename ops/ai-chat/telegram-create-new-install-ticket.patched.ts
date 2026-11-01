@@ -61,17 +61,17 @@ Deno.serve(async(req)=>{
 
     // AI approval workflow: bind action to exact private admin, message and pending record.
     if(data.startsWith("ai:")){
-      const parts=data.split(":"),action=parts[1],sourceId=Number(parts[2]),sender=clean(cq?.from?.id);
+      const parts=data.split(":"),action=parts[1],sourceId=Number(parts[2]),nonce=clean(parts[3]),sender=clean(cq?.from?.id);
       if(!["approve","reject","review"].includes(action)||!Number.isSafeInteger(sourceId)||sourceId<=0) return new Response("ok");
       if(!/^[0-9]+$/.test(admin)||sender!==admin){
         if(cq?.id)await tg(bot,"answerCallbackQuery",{callback_query_id:cq.id,text:"Only the authorized admin can approve.",show_alert:true}).catch(()=>null);
         return new Response("ok");
       }
       const {data:entry}=await sb.from("tg_ai_chat_requests")
-        .select("source_message_id,conversation_id,client_id,status,telegram_message_id,request_type,expires_at")
+        .select("source_message_id,conversation_id,client_id,status,telegram_message_id,approval_nonce,request_type,expires_at")
         .eq("source_message_id",sourceId).maybeSingle();
       const messageId=Number(cq?.message?.message_id||0);
-      if(!entry||!messageId||Number(entry.telegram_message_id)!==messageId){
+      if(!entry||!messageId||Number(entry.telegram_message_id)!==messageId||!nonce||nonce!==clean(entry.approval_nonce)){
         if(cq?.id)await tg(bot,"answerCallbackQuery",{callback_query_id:cq.id,text:"This approval message is not valid.",show_alert:true}).catch(()=>null);
         return new Response("ok");
       }
