@@ -82,5 +82,6 @@ $('showPw').onclick=()=>{$('password').type=$('password').type==='password'?'tex
 (async()=>{try{let s=JSON.parse(localStorage.getItem(STORE)||localStorage.getItem(SBSTORE)||'null');if(s&&s.access_token){session=s;await enter(s)}}catch(e){console.warn('Saved session restore failed',e);clearSession();$('login').classList.remove('hidden');$('shell').classList.add('hidden')}})();
 })();
 </script>
+<script src="assets/app-router-summary.js?v=20261101-1"></script>
 </body>
 </html>
