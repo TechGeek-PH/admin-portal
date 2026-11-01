@@ -44,6 +44,7 @@ function render(){
   $('routerSelect').innerHTML='<option value="">Select a serial number</option>'+routers.map(r=>'<option value="'+r.id+'">'+esc(r.serial_no)+' — '+esc(r.model)+' ['+esc(r.location)+' / '+esc(r.condition)+']</option>').join('');
   if(routers.some(r=>String(r.id)===selected))$('routerSelect').value=selected;
   describeRouter();
+  renderReplacementOptions();
   renderRows();
 }
 function renderRows(){
@@ -74,6 +75,12 @@ async function reload(){
   }catch(e){message('Unable to load routers: '+String(e.message||e),'error');}
   finally{setBusy(false);}
 }
+function renderReplacementOptions(){
+  const chosen=$('replacementRouter').value;
+  const options=routers.filter(r=>r.location==='STOCK'&&r.condition==='GOOD').map(r=>'<option value="'+r.id+'">'+esc(r.serial_no)+' — '+esc(r.model)+'</option>').join('');
+  $('replacementRouter').innerHTML='<option value="">Select inspected GOOD stock router</option>'+options;
+  if(routers.some(r=>String(r.id)===chosen&&r.location==='STOCK'&&r.condition==='GOOD'))$('replacementRouter').value=chosen;
+}
 function describeRouter(){
   const r=routers.find(x=>String(x.id)===$('routerSelect').value);
   $('routerCurrent').textContent=r?'Current: '+r.location+' • '+r.condition+(r.assigned_account_no?' • '+r.assigned_account_no:''):'Select a unit registered in inventory.';
@@ -85,8 +92,10 @@ function refreshAction(){
   const issuing=['NEW_INSTALL','REPLACEMENT_INSTALL'].includes(action);
   $('accountWrap').hidden=!issuing;
   $('inspectionWrap').hidden=action!=='INSPECT';
+  $('replacementWrap').hidden=action!=='SWAP_ROUTER';
+  $('replacementRouter').required=action==='SWAP_ROUTER';
   $('account').required=issuing;
-  $('moveBtn').textContent=action==='INSPECT'?'Save Inspection':action==='RETIRE'?'Retire Router':action.startsWith('RECOVER')?'Recover Router':'Record Router Use';
+  $('moveBtn').textContent=action==='SWAP_ROUTER'?'Swap Both Routers':action==='INSPECT'?'Save Inspection':action==='RETIRE'?'Retire Router':action.startsWith('RECOVER')?'Recover Router':'Record Router Use';
   const r=routers.find(x=>String(x.id)===$('routerSelect').value);
   if(r&&action==='INSPECT')$('inspectedCondition').value=r.condition;
 }
@@ -116,6 +125,24 @@ async function move(evt){
   const r=routers.find(x=>String(x.id)===$('routerSelect').value);
   if(!r){message('Select a router first.','error');return;}
   const action=$('action').value,account=$('account').value.trim().toUpperCase();
+  if(action==='SWAP_ROUTER'){
+    const newRouter=routers.find(x=>String(x.id)===$('replacementRouter').value);
+    if(!newRouter||newRouter.location!=='STOCK'||newRouter.condition!=='GOOD'||newRouter.id===r.id){
+      message('Select a different GOOD router in stock for replacement.','error');return;
+    }
+    if(r.location!=='DEPLOYED'||!r.assigned_account_no){message('Old router must be deployed to a client.','error');return;}
+    if(!window.confirm('Replace '+r.serial_no+' with '+newRouter.serial_no+' for '+r.assigned_account_no+'? Both movements will save in one transaction.'))return;
+    setBusy(true);
+    let ok=false;
+    try{
+      const {error}=await db.rpc('tg_router_swap',{p_old_router_id:r.id,p_new_router_id:newRouter.id,p_ticket_no:$('ticket').value.trim()||null,p_note:$('note').value.trim()||null});
+      if(error)throw error;
+      ok=true;$('moveForm').reset();message('Replacement issued and old router recovered for testing.','ok');
+    }catch(e){message('Router swap failed: '+String(e.message||e),'error');}
+    finally{setBusy(false);}
+    if(ok)await reload();
+    return;
+  }
   const patch={last_action:action,last_ticket_no:$('ticket').value.trim()||null,last_note:$('note').value.trim()||null};
   if(['NEW_INSTALL','REPLACEMENT_INSTALL'].includes(action)){
     if(!/^SATR\d+$/i.test(account)){message('Provide a valid SATR client account.','error');return}
