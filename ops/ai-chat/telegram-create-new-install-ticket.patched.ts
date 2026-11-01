@@ -95,8 +95,26 @@ Deno.serve(async(req)=>{
         if(cq?.id)await tg(bot,"answerCallbackQuery",{callback_query_id:cq.id,text:"Unable to finalize; retry or check status.",show_alert:true}).catch(()=>null);
         return new Response("ok");
       }
+      // Approved requests become existing support tickets, never direct billing/network mutations.
+      let approvedTicketNo="";
+      let ticketCreateFailed=false;
+      if(action==="approve"){
+        const types:{[k:string]:string}={
+          RECONNECT:"OTHER",PLAN_CHANGE:"OTHER",BILLING_ADJUSTMENT:"BILLING",
+          REFUND:"PAYMENT",DISCONNECT:"TERMINATE",RELOCATION:"RELOCATE",
+          OTHER_CHANGE:"OTHER",GENERAL:"OTHER"
+        };
+        const code=types[clean(entry.request_type)]||"OTHER";
+        const {data:ticketResult,error:ticketErr}=await sb.rpc("telegram_create_client_chat_ticket",{
+          p_source_message_id:sourceId,p_ticket_code:code
+        });
+        if(ticketErr||!ticketResult?.ok){
+          ticketCreateFailed=true;
+          console.error("TG_AI_APPROVED_TICKET_CREATE",ticketErr?.code||clean(ticketResult?.code)||"unknown");
+        }else approvedTicketNo=clean(ticketResult.ticket_no);
+      }
       const response=action==="approve"
-        ?"Na-approve na po ng admin ang request ninyo para sa processing. I-aasikaso ito ng authorized staff; hindi pa po ibig sabihin ay completed na ang reconnection, billing adjustment, o account change. Mag-uupdate po kami kapag tapos na."
+        ?("Na-approve na po ng admin ang request ninyo para sa processing. "+(approvedTicketNo?"Support ticket: "+approvedTicketNo+". ":"")+"I-aasikaso ito ng authorized staff; hindi pa po ibig sabihin ay completed na ang reconnection, billing adjustment, o account change. Mag-uupdate po kami kapag tapos na.")
         :action==="reject"
         ?"Na-review po ng admin ang inyong request ngunit hindi ito na-approve sa ngayon. Maaari po kayong mag-message para makipag-usap sa staff tungkol sa ibang options."
         :"Naka-manual review po ang request ninyo sa TechGeekPH Admin. Magbibigay po kami ng update matapos itong masuri.";
@@ -110,7 +128,7 @@ Deno.serve(async(req)=>{
       await sb.from("client_chat_conversations").update({updated_at:stamp,last_message_at:stamp}).eq("id",entry.conversation_id);
       await tg(bot,"editMessageReplyMarkup",{chat_id:admin,message_id:messageId,reply_markup:{inline_keyboard:[]}}).catch(()=>null);
       const notice=action==="approve"
-        ?"✅ <b>Approved for staff processing</b> — no automatic network or financial changes were made."
+        ?("✅ <b>Approved for staff processing</b> — no automatic network or financial changes were made."+(approvedTicketNo?"\nTicket: "+esc(approvedTicketNo):"\n⚠️ Ticket creation needs manual action."))
         :action==="reject"?"❌ <b>Rejected</b> — client notified."
         :"👤 <b>Manual review</b> — staff intervention required.";
       await tg(bot,"sendMessage",{chat_id:admin,text:notice+"\nRequest: "+esc(clean(entry.request_type))+"\nMessage ID: "+sourceId,parse_mode:"HTML",reply_to_message_id:messageId}).catch(()=>null);
