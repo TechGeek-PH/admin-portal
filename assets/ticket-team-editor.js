@@ -29,7 +29,7 @@
       if(!no||!meta)return;
       var rows=cachedTeams.get(no.textContent.trim());
       if(!rows||!rows.length)return;
-      var cell=Array.from(meta.children).find(function(n){return n.textContent.trim().indexOf('Assigned')===0;});
+      var cell=Array.from(meta.children).find(function(n){return /^(Assigned|Team)/.test(n.textContent.trim());});
       if(cell)cell.innerHTML='<b>Team</b><br>'+esc(teamLabel(rows));
     });
   }
