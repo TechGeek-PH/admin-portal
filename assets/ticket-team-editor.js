@@ -128,7 +128,7 @@
       if(n!==currentNo)return;
       currentRows=Array.isArray(r.data)?r.data:[];
       cachedTeams.set(n,currentRows);
-      showSummary();message('Ticket partners updated and saved.','false'===true);
+      showSummary();message('Ticket partners updated and saved.',false);
       await refreshTeams();
     }catch(e){message('Unable to save partners: '+(e.message||e),true);}
     finally{if(btn.isConnected){btn.disabled=false;btn.textContent='Save Partners';}}
