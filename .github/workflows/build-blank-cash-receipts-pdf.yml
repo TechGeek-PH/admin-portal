@@ -1,0 +1,47 @@
+name: Build blank cash acknowledgement receipts PDF
+
+on:
+  push:
+    paths:
+      - '.github/workflows/build-blank-cash-receipts-pdf.yml'
+      - 'printables/TechGeekPH_Blank_Cash_Receipts_Long_Bond_8.5x13.svg'
+
+permissions:
+  contents: write
+
+jobs:
+  build-pdf:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install PDF converter and validator
+        run: python3 -m pip install --quiet cairosvg pypdf
+      - name: Render original-logo receipt SVG to 8.5 x 13 PDF
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from cairosvg import svg2pdf
+          from pypdf import PdfReader
+          source = Path('printables/TechGeekPH_Blank_Cash_Receipts_Long_Bond_8.5x13.svg')
+          target = Path('printables/TechGeekPH_Blank_Cash_Receipts_Long_Bond_8.5x13.pdf')
+          contents = source.read_text(encoding='utf-8')
+          assert 'width="8.5in" height="13in"' in contents
+          assert 'data:image/png;base64,' in contents
+          assert contents.count('<use href="#blankReceipt"') == 3
+          svg2pdf(url=str(source), write_to=str(target))
+          reader = PdfReader(str(target))
+          assert len(reader.pages) == 1
+          page = reader.pages[0]
+          assert abs(float(page.mediabox.width) - 612.0) < 1.0
+          assert abs(float(page.mediabox.height) - 936.0) < 1.0
+          assert target.stat().st_size > 50000
+          print('PDF verified: 8.5 x 13 inches, one page, three blank receipts.')
+          PY
+      - name: Commit print-ready PDF
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add printables/TechGeekPH_Blank_Cash_Receipts_Long_Bond_8.5x13.pdf
+          git commit -m 'Add print-ready original-logo cash receipt PDF' || exit 0
+          git push
