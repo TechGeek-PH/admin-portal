@@ -2523,6 +2523,27 @@
       filter: none !important;
     }
 
+    /* Acknowledgement Receipt only: clean, sharp logo in preview and print. */
+    #ackReceiptSheet .ack-logo-row {
+      min-width: 0;
+      min-height: 20mm;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    #ackReceiptSheet .ack-logo-row img[data-asset="logo"] {
+      display: block !important;
+      width: auto !important;
+      max-width: 100% !important;
+      height: 20mm !important;
+      max-height: 20mm !important;
+      object-fit: contain !important;
+      object-position: left center !important;
+      filter: none !important;
+      image-rendering: auto;
+    }
+
   </style>
   <link rel="stylesheet" href="assets/admin-shell.css">
 </head>
@@ -2871,7 +2892,7 @@
                 <section class="ack-main">
                   <header class="ack-header">
                     <div class="ack-logo-row">
-                      <img src="./assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH" data-capture-img data-asset="logo">
+                      <img src="./assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH Solutions &amp; Services Inc." data-capture-img data-asset="logo" width="1668" height="596" loading="eager" decoding="sync">
                     </div>
                     <div class="ack-company-contact">
                       <div>Lt. 74, Road 4, Purok 1,</div>
@@ -4363,7 +4384,7 @@
         const height = Math.ceil(node.scrollHeight || node.offsetHeight || 1123);
 
         const canvas = await window.html2canvas(node, {
-          scale: 2.5,
+          scale: node.id === "ackReceiptSheet" ? 3.5 : 2.5,
           useCORS: true,
           allowTaint: false,
           foreignObjectRendering: false,
@@ -4462,8 +4483,9 @@
         await waitForImages(node);
         const width = Math.ceil(node.scrollWidth || node.offsetWidth || 794);
         const height = Math.ceil(node.scrollHeight || node.offsetHeight || 1123);
+        const isAckReceipt = node.id === "ackReceiptSheet";
         const canvas = await window.html2canvas(node, {
-          scale: 2, useCORS: true, allowTaint: false,
+          scale: isAckReceipt ? 3.5 : 2, useCORS: true, allowTaint: false,
           backgroundColor: "#ffffff", logging: false,
           width, height,
           windowWidth: Math.max(document.documentElement.clientWidth, width),
@@ -4473,12 +4495,13 @@
         });
         if (!canvas.width || !canvas.height) throw new Error("PDF preview was empty.");
         const pdf = new window.jspdf.jsPDF({ orientation: "portrait", unit: "mm", format: "a4", compress: true });
-        const image = canvas.toDataURL("image/jpeg", 0.93);
+        const imageFormat = isAckReceipt ? "PNG" : "JPEG";
+        const image = isAckReceipt ? canvas.toDataURL("image/png") : canvas.toDataURL("image/jpeg", 0.93);
         const scaledHeight = canvas.height * 210 / canvas.width;
         const pages = Math.max(1, Math.ceil((scaledHeight - 0.5) / 297));
         for (let page = 0; page < pages; page++) {
           if (page) pdf.addPage();
-          pdf.addImage(image, "JPEG", 0, -297 * page, 210, scaledHeight, undefined, "FAST");
+          pdf.addImage(image, imageFormat, 0, -297 * page, 210, scaledHeight, undefined, isAckReceipt ? "NONE" : "FAST");
         }
         const blob = pdf.output("blob");
         if (!blob || !blob.size) throw new Error("Generated PDF file is empty.");
