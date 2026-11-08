@@ -2,7 +2,7 @@
 import concurrent.futures, ipaddress, json, os, re, statistics, sys, time
 import requests, routeros_api
 
-VERSION="20261006-edge-v1"
+VERSION="20261108-edge-v2-safe-encoding"
 FUNCTION_URL=os.environ.get("MONITOR_FUNCTION_URL","https://tcexzfztdgximrzuosqs.supabase.co/functions/v1/network-monitor-ingest").strip()
 MONITOR_KEY=os.environ.get("MONITOR_INGEST_KEY","").strip()
 HOST=os.environ.get("MIKROTIK_HOST","10.200.0.2").strip()
@@ -39,20 +39,35 @@ def candidates(account):
     return list(dict.fromkeys(x.lower() for x in out if x))
 
 def ms(v):
-    s=str(v or "").strip().lower()
-    m=re.fullmatch(r"([0-9.]+)\s*(ns|us|µs|ms|s)",s)
-    if not m:return None
-    n=float(m.group(1));u=m.group(2)
-    if u=="ns":return n/1000000
-    if u in ("us","µs"):return n/1000
-    if u=="ms":return n
-    return n*1000
+    # RouterOS may return 14ms612us, 1s3ms, 230us, or 00:00:00.014.
+    s=str(v or "").strip().lower().replace("µs","us").replace("μs","us")
+    if not s:return None
+    clock=re.fullmatch(r"(?:(\d+):)?(\d+):(\d+(?:\.\d+)?)",s)
+    if clock:
+        h,minute,seconds=clock.groups()
+        return (int(h or 0)*3600+int(minute)*60+float(seconds))*1000
+    parts=re.findall(r"(\d+(?:\.\d+)?)(ns|us|ms|s)",s)
+    if not parts or "".join(n+u for n,u in parts)!=s:return None
+    factors={"ns":0.000001,"us":0.001,"ms":1.0,"s":1000.0}
+    return sum(float(n)*factors[u] for n,u in parts)
+
+def decode_router_field(value):
+    if isinstance(value,bytes):
+        try:return value.decode("utf-8")
+        except UnicodeDecodeError:return value.decode("cp1252",errors="replace")
+    return str(value) if value is not None else ""
 
 def snapshot():
     p=pool()
     try:
         api=p.get_api()
-        return list(api.get_resource("/ppp/active").get()),list(api.get_resource("/ppp/secret").get())
+        # Request only fields the ping monitor needs. PPP secret comments may
+        # contain legacy non-UTF-8 characters; never decode them or read passwords.
+        # Binary resource avoids UTF-8 decoding failures in older routeros_api.
+        active=api.get_binary_resource("/ppp/active").call("print",{".proplist":b"name,address"})
+        secrets=api.get_binary_resource("/ppp/secret").call("print",{".proplist":b"name,remote-address"})
+        decode=lambda rows:[{decode_router_field(k):decode_router_field(v) for k,v in row.items()} for row in rows]
+        return decode(active),decode(secrets)
     finally:p.disconnect()
 
 def ping_chunk(jobs):
