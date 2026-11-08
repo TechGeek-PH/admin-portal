@@ -158,20 +158,19 @@ def fetch_router():
     return secrets,active
 
 def parse_ping_ms(value):
-    s=str(value or '').strip().lower()
+    """Parse RouterOS RTT including combined units (e.g. 2ms830us)."""
+    s=str(value or '').strip().lower().replace('µs','us').replace('μs','us')
     if not s:return None
-    m=re.fullmatch(r'([0-9.]+)\s*(ns|us|µs|ms|s)',s)
-    if m:
-        n=float(m.group(1));unit=m.group(2)
-        if unit=='ns':return round(n/1000000,3)
-        if unit in ('us','µs'):return round(n/1000,3)
-        if unit=='ms':return round(n,3)
-        return round(n*1000,3)
-    m=re.fullmatch(r'(?:(\d+):)?(\d+):(\d+(?:\.\d+)?)',s)
-    if m:
-        h=int(m.group(1) or 0);minute=int(m.group(2));sec=float(m.group(3))
-        return round((h*3600+minute*60+sec)*1000,3)
-    return None
+
+    clock=re.fullmatch(r'(?:(\d+):)?(\d+):(\d+(?:\.\d+)?)',s)
+    if clock:
+        h,minute,seconds=clock.groups()
+        return round((int(h or 0)*3600+int(minute)*60+float(seconds))*1000,3)
+
+    units=re.findall(r'(\d+(?:\.\d+)?)(ns|us|ms|s)',s)
+    if not units or ''.join(n+unit for n,unit in units)!=s:return None
+    factors={'ns':0.000001,'us':0.001,'ms':1.0,'s':1000.0}
+    return round(sum(float(n)*factors[unit] for n,unit in units),3)
 
 def classify_health(reachable,latency):
     if not reachable:return 'NO CONNECTION'

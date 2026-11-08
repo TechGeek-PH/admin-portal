@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - 'ops/mikrotik-pppoe-ping-edge.py'
+      - 'ops/mikrotik-pppoe-sync.py'
+      - 'tests/test_pppoe_sync_ping_time.py'
       - 'tests/test_pppoe_ping_edge.py'
       - '.github/workflows/verify-pppoe-ping-monitor.yml'
   workflow_dispatch:
@@ -15,6 +17,6 @@ jobs:
         with:
           python-version: '3.12'
       - name: Compile agent
-        run: python -m py_compile ops/mikrotik-pppoe-ping-edge.py
+        run: python -m py_compile ops/mikrotik-pppoe-ping-edge.py ops/mikrotik-pppoe-sync.py
       - name: Run regression tests (no network, no router credentials)
-        run: python -m unittest discover -s tests -p test_pppoe_ping_edge.py -v
+        run: python -m unittest discover -s tests -p 'test_pppoe_*.py' -v
