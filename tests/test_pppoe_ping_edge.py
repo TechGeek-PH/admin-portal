@@ -21,7 +21,7 @@ class FakeBinaryResource:
         if self.path=="/ppp/active":
             return [{b"name":b"TGPHSATR0562",b"address":b"104.98.10.20"}]
         return [{b"name":b"TGPHSATR0562",b"remote-address":b"104.98.10.20",
-                 b"comment":b"Renante Dasmari\xf1as"}]
+                 b"comment":b"legacy_\xf1"}]
 
 class FakeAPI:
     def __init__(self,events):self.events=events
@@ -52,7 +52,7 @@ class PingEdgeRegressionTests(unittest.TestCase):
         self.assertTrue(fake.disconnected)
         self.assertEqual(active[0]["address"],"104.98.10.20")
         self.assertEqual(secrets[0]["name"],"TGPHSATR0562")
-        self.assertEqual(secrets[0]["comment"],"Renante Dasmariñas")
+        self.assertEqual(secrets[0]["comment"],"legacy_ñ")
         self.assertEqual(events,[
             ("/ppp/active","print",{".proplist":b"name,address"}),
             ("/ppp/secret","print",{".proplist":b"name,remote-address"})
