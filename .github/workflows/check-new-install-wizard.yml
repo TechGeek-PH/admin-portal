@@ -1,0 +1,24 @@
+name: Validate New Installation Technician Wizard
+
+on:
+  push:
+    paths:
+      - app-tickets.html
+      - ops/check-new-install-wizard.mjs
+      - .github/workflows/check-new-install-wizard.yml
+  pull_request:
+    paths:
+      - app-tickets.html
+      - ops/check-new-install-wizard.mjs
+      - .github/workflows/check-new-install-wizard.yml
+
+jobs:
+  technician-wizard-regression:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out current source
+        uses: actions/checkout@v4
+      - name: Validate inline JavaScript and payment-preview safeguards
+        run: node ops/check-new-install-wizard.mjs
