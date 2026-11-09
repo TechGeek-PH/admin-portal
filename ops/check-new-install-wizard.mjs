@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { Script } from "node:vm";
 
 const html = readFileSync(new URL("../app-tickets.html", import.meta.url), "utf8");
-const inlineScripts = [...html.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi)]
+const inlineScripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
   .map((match) => match[1].trim())
   .filter(Boolean);
 
