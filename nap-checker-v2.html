@@ -289,6 +289,7 @@ async function confirmRelease(row,portNo,n){
 /* Optical readings: no writes during scan; writes only via the existing department-classified ticket RPC. */
 const readingState={rows:[],open:new Map(),creating:new Set(),busy:false,limits:{warning:-24,critical:-27,stale:15}};
 function readingSeverity(o){
+  if(['OFFLINE','DYINGGASP'].includes(norm(o?.signal_status))||['OFFLINE','DYINGGASP'].includes(norm(o?.onu_status)))return'NO DATA';
   const raw=o?.onu_rx_dbm;
   if(raw===null||raw===undefined||raw==='')return'NO DATA';
   const n=Number(raw);
