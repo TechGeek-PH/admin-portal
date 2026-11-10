@@ -25,6 +25,33 @@ dialog{width:min(860px,calc(100% - 18px));max-height:95vh;border:0;border-radius
 .proof-manual-confirm{display:flex;gap:9px;align-items:flex-start;margin-top:9px;font-size:.7rem;line-height:1.5;color:#254d67;cursor:pointer}
 .proof-manual-confirm input{flex:none;margin-top:2px;width:17px;height:17px;accent-color:#075b8e}
 </style>
+
+<style>
+/* Dedicated NAP/Network Equipment field report; subscriber modules remain untouched. */
+.nap-work{display:none;margin:0 0 13px;padding:13px;border:1px solid #b8d5e9;border-radius:12px;background:#f2f8fc}
+.nap-work.show{display:block}
+.nap-work h3{margin:0;color:#064f83;font-size:.91rem}
+.nap-work p{font-size:.68rem;line-height:1.5;color:#596d7c;margin:5px 0 11px}
+.nap-work .nap-info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:9px 0}
+.nap-work .nap-info-grid div{border:1px solid #d4e4f0;border-radius:9px;padding:9px;background:#fff}
+.nap-work .nap-info-grid span,.nap-work .nap-info-grid b{display:block;overflow-wrap:anywhere}
+.nap-work .nap-info-grid span{font-size:.57rem;color:#5e7385;font-weight:800}
+.nap-work .nap-info-grid b{font-size:.72rem;margin-top:4px;color:#203a52}
+.nap-work .nap-fields{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.nap-work label{font-size:.7rem;font-weight:850;display:block;color:#263f56}
+.nap-work label.wide{grid-column:1/-1}
+.nap-work input,.nap-work select,.nap-work textarea{display:block;margin-top:5px;width:100%;min-height:40px;padding:9px;border-radius:9px;border:1px solid #cdddea;background:#fff;color:#172438;font-size:16px}
+.nap-work textarea{min-height:76px}
+.nap-work .nap-port-area{margin-top:12px;border-top:1px solid #d5e2ee;padding-top:10px}
+.nap-work .nap-port-area h4{margin:0 0 6px;font-size:.76rem;color:#064f83}
+.nap-work .nap-port-row{display:grid;grid-template-columns:55px 1fr 1fr minmax(95px,1.2fr);gap:7px;align-items:end;margin:8px 0;padding:9px;border-radius:9px;background:#fff;border:1px solid #d9e4ef}
+.nap-work .nap-port-row b{font-size:.73rem;padding-bottom:12px}
+.nap-work .nap-port-row label{font-size:.56rem}
+.nap-work .nap-port-row input,.nap-work .nap-port-row select{min-width:0}
+.nap-work .nap-help{font-size:.63rem;line-height:1.55;color:#536d83;margin-top:8px}
+.nap-work .nap-error{color:#a92541;font-weight:850}
+@media(max-width:620px){.nap-work .nap-fields{grid-template-columns:1fr}.nap-work label.wide{grid-column:1}.nap-work .nap-port-row{grid-template-columns:50px 1fr 1fr}.nap-work .nap-port-row label:last-child{grid-column:2/-1}}
+</style>
 </head>
 <body>
 <header><img src="assets/TechGeekPH%20-%20logo.png" alt="TechGeekPH"><a class="back" href="app.html">← App Home</a></header>
@@ -127,7 +154,24 @@ dialog{width:min(860px,calc(100% - 18px));max-height:95vh;border:0;border-radius
     </section>
     <section id="legacyPanel" class="legacy">
       <section id="legacyClientMount"></section>
-      <div id="tasks" class="tasks"></div>
+      
+<section id="napWorkPanel" class="nap-work" aria-label="NAP box technician field report">
+  <h3>NAP Box / Network Equipment Work Update</h3>
+  <p>No client account, subscriber plan, router or PPPoE details are required for this ticket. Record the actual network box repair, test each affected port, then complete the regular technician checklist.</p>
+  <div class="nap-info-grid" id="napBoxFacts"><div>Loading NAP box details…</div></div>
+  <div class="nap-fields">
+    <label class="wide">Confirmed cause / Diagnosis <small>(required to close)</small><textarea id="napDiagnosis" placeholder="e.g. Damaged NAP adapter / damaged pigtail / broken fiber at port"></textarea></label>
+    <label class="wide">Repair / Work performed <small>(required to close)</small><textarea id="napRepairDone" placeholder="e.g. Re-spliced ports, re-terminated connector and verified optical level"></textarea></label>
+    <label>Fusion splices completed <input id="napFusionQty" type="number" min="0" max="1000" step="1" inputmode="numeric" value="0"></label>
+    <label>Observed splitter ratio <input id="napSplitterObserved" placeholder="e.g. 1:16"></label>
+    <label class="wide">Materials used <textarea id="napMaterials" placeholder="e.g. 2 pigtails, 2 SC adapters, splice protector"></textarea></label>
+  </div>
+  <div class="nap-port-area"><h4>Per-port Optical Reading & Repair Status</h4>
+    <div id="napPortFields">Loading affected ports…</div>
+    <div class="nap-help">Before/after readings in dBm are optional if no optical meter is available. To mark this equipment ticket Done, every listed affected port must be checked and marked Restored. Use For Checking if work is still incomplete.</div>
+  </div>
+</section>
+<div id="tasks" class="tasks"></div>
       <div class="field"><label>Work status</label><select id="work"><option>Pending</option><option>On Going</option><option>For Checking</option><option>Done</option></select></div>
       <div class="field"><label>Work Done / Technician Remarks / Materials / Test Result</label><textarea id="remarks" placeholder="Describe what was installed, repaired, relocated, replaced, configured, tested, materials used, and the final result."></textarea><div class="hint">To close a non-installation ticket, complete every checklist item and enter the final work done/result.</div></div>
     </section>
@@ -137,7 +181,7 @@ dialog{width:min(860px,calc(100% - 18px));max-height:95vh;border:0;border-radius
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="assets/supabase-config.js?v=20260822-ticket4"></script>
 <script>
 (()=>{'use strict';
-const BUILD='20261014-new-install-photo-upload-fix-v1',$=id=>document.getElementById(id),db=window.TechGeekSupabase,params=new URLSearchParams(location.search),requestedTicket=String(params.get('ticket')||'').trim();
+const BUILD='20261110-nap-box-workflow-fix',$=id=>document.getElementById(id),db=window.TechGeekSupabase,params=new URLSearchParams(location.search),requestedTicket=String(params.get('ticket')||'').trim();
 let profile=null,session=null,tickets=[],updates=new Map(),selected=null,requestedOpened=false,clientDetails=null,routerSetup=null,routerPoll=null,wizardStep=1,proofRows=[],proofBusy=new Set(),installFinancial=null;
 const PROOFS=[['front_house','Front House'],['router_position','Router Position'],['sc_reading','SC Reading'],['speedtest','Speedtest'],['valid_id','Client Valid ID'],['proof_billing','Client Proof of Billing']];
 const clientFieldIds=['cuAccount','cuClientName','cuPlan','cuSpeed','cuMonthlyBill','cuPhone','cuEmail','cuAddress','cuPermanent','cuRdBlk','cuLandmark','cuMaps','cuGeo','cuLinePort','cuNetworkPort','cuClientPort','cuRemoteAddress','cuVlan','cuBandSteering','cuModem','cuSerial','cuOnuMac'];
@@ -366,8 +410,80 @@ async function loadFinancialPreview(){if(!selected)return null;const r=await db.
 function renderFinalSummary(){if(!$('finalStatus'))return;const st=String(routerSetup&&routerSetup.pppoe_status||'WAITING').toUpperCase(),count=PROOFS.filter(([t])=>!!proofFor(t)).length,closed=selected&&stage(selected,updates.get(selected.ticket_no)||{})==='closed';$('finalStatus').innerHTML=`<span class="${st==='ACTIVE'?'ok':''}">MikroTik: ${esc(st)}</span><span class="${count===6?'ok':''}">Proof: ${count}/6</span><span class="${closed?'ok':''}">Ticket: ${closed?'DONE':'OPEN'}</span>`;const d=routerSetup||clientDetails||{};$('finalSummary').innerHTML=fieldHtml('Account No.',d.account_no||selected&&selected.client_account_no)+fieldHtml('Client',d.client_name||selected&&selected.client_name)+fieldHtml('Plan',d.plan)+fieldHtml('Speed',d.speed)+fieldHtml('Remote Address',d.remote_address)+fieldHtml('PPPoE Username',d.pppoe_username,true);if(closed){$('installRemarks').value=(updates.get(selected.ticket_no)||{}).remarks||selected.tech_remarks||'';$('installRemarks').readOnly=true;$('completeInstall').style.display='none';$('backToProof').style.display='none'}else{$('installRemarks').readOnly=false;$('completeInstall').style.display='';$('backToProof').style.display=''}renderFinancialPreview()}
 async function completeInstall(){if(!selected)return;const remarks=$('installRemarks').value.trim();if(!remarks)return note('Enter the Technician Remarks / Work Done before closing.','err');const count=PROOFS.filter(([t])=>!!proofFor(t)).length;if(count<6)return note('All 6 installation proof photos are required.','err');if(String(routerSetup&&routerSetup.pppoe_status||'').toUpperCase()!=='ACTIVE')return note('MikroTik PPPoE account must be ACTIVE before closing.','err');try{if(!installFinancial)await loadFinancialPreview()}catch(e){return note(e.message||'Unable to calculate the prorated bill.','err')}const proratedPaid=$('proratedPaymentStatus').value==='paid',btn=$('completeInstall');btn.disabled=true;btn.textContent='Closing Ticket…';try{const r=await db.rpc('complete_new_install_wizard',{p_ticket_no:selected.ticket_no,p_remarks:remarks,p_prorated_paid:proratedPaid});if(r.error)throw r.error;clearDraft();clearPaymentChoice();stopRouterPoll();$('dlg').close();await load();const b=r.data||{};note(`Installation completed. Cashout ${money(b.cashout_amount??800)} · prorated bill ${money(b.prorated_amount)} ${String(b.billing_status||'OPEN').toUpperCase()}.`,'ok')}catch(e){note(e.message||'Unable to complete installation.','err')}finally{btn.disabled=false;btn.textContent='Complete Installation & Close Ticket'}}
 async function resumeWizard(){let setup=null;try{setup=await loadRouterSetup(selected.ticket_no)}catch(_){setup=null}const closed=stage(selected,updates.get(selected.ticket_no)||{})==='closed';if(closed){await loadProofs().catch(()=>{});showWizardStep(4,true);return}if(!setup||!setup.ready){showWizardStep(1,true);return}const st=String(setup.pppoe_status||'').toUpperCase();if(st!=='ACTIVE'){showWizardStep(2,true);return}await loadProofs().catch(()=>{});const count=PROOFS.filter(([t])=>!!proofFor(t)).length;showWizardStep(count===6?4:3,true)}
-async function openTicket(id){selected=tickets.find(t=>t.ticket_no===id);if(!selected)return;stopRouterPoll();proofRows=[];routerSetup=null;installFinancial=null;const u=updates.get(id)||{},sg=stage(selected,u),mu=mapUrl(selected),ro=sg==='closed'&&String(profile.role).toUpperCase()==='EMPLOYEE',kind=isNapEquipmentTicket(selected)?'NAP BOX WORK':isInstallation(selected)?'NEW INSTALLATION':isRelocation(selected)?'RELOCATION':isRepair(selected)?'REPAIR':stageLabel(sg);$('dlgTitle').textContent=id+' · '+kind;$('ticketInfo').innerHTML=`<b>${esc(selected.client_name||(isNapEquipmentTicket(selected)?'NAP Box / Distribution Equipment':''))}</b><br>${esc(selected.client_account_no||(isNapEquipmentTicket(selected)?'No subscriber account':'Account pending'))} · ${esc(selected.contact_number||(isNapEquipmentTicket(selected)?'Network equipment work':'No contact'))}<br><b>Assigned:</b> ${esc(selected.assigned_tech||'—')}<br><b>Address:</b> ${esc([selected.rd_blk,selected.address].filter(Boolean).join(' · ')||'—')}<br><b>Issue:</b> ${esc(selected.issue_purpose||selected.concern||'—')}${selected.admin_remarks?'<br><b>Admin remarks:</b> '+esc(selected.admin_remarks):''}${mu?'<a class="map" href="'+esc(mu)+'" target="_blank" rel="noopener">📍 Open Client in Google Maps</a>':''}`;$('installWizard').classList.toggle('show',isInstallation(selected));$('legacyPanel').classList.toggle('show',!isInstallation(selected));$('legacyActions').style.display=isInstallation(selected)?'none':'';$('clientUpdate').classList.remove('show');clientDetails=null;if(allowsClientUpdate(selected)){try{clientDetails=await getClientDetails(id);fillClientPanel(clientDetails,selected,ro)}catch(e){note('Client details could not be loaded: '+(e.message||e),'err')}}if(isInstallation(selected)){document.querySelector('[data-page="1"]').prepend($('clientUpdate'));restoreDraft();clientFieldIds.forEach(fid=>{$(fid).oninput=saveDraft});$('saveInstallDetails').textContent=$('cuAccount').value.trim()?'Save Changes & Continue':'Generate Account & Save';$('installRemarks').value=u.remarks||selected.tech_remarks||'';$('dlg').showModal();await resumeWizard();return}$('legacyClientMount').appendChild($('clientUpdate'));const items=Array.isArray(u.checklist_items)&&u.checklist_items.length?u.checklist_items:tasksFor(selected),checks=Array.isArray(u.checks)&&u.checks.length===items.length?u.checks:items.map(()=>false);$('tasks').innerHTML=items.map((x,i)=>`<label class="task"><input type="checkbox" data-check="${i}" ${checks[i]?'checked':''} ${ro?'disabled':''}><span><b>${i+1}.</b> ${esc(x)}</span></label>`).join('');$('work').value=u.work_status||selected.status||'Pending';if(![...$('work').options].some(o=>o.value===$('work').value))$('work').value=sg==='closed'?'Done':'Pending';$('remarks').value=u.remarks||selected.tech_remarks||'';$('work').disabled=ro;$('remarks').readOnly=ro;$('save').style.display=ro?'none':'';$('dlg').showModal()}
-async function saveLegacy(){if(!selected)return;const btn=$('save');btn.disabled=true;btn.textContent='Saving…';try{const items=[...document.querySelectorAll('#tasks .task span')].map(x=>x.textContent.replace(/^\d+\.\s*/,'')),checks=[...document.querySelectorAll('#tasks [data-check]')].map(x=>x.checked),details=!isNapEquipmentTicket(selected)&&allowsClientUpdate(selected)?collectClientDetails():{};const r=await db.rpc('save_technician_ticket_update_v3',{p_ticket_no:selected.ticket_no,p_checklist_items:items,p_checks:checks,p_work_status:$('work').value,p_remarks:$('remarks').value.trim()||null,p_client_details:details});if(r.error)throw r.error;$('dlg').close();await load();note((r.data&&r.data.client_updated?'Client master + ':'')+'ticket update saved successfully.','ok')}catch(e){note(e.message||'Unable to save ticket update.','err')}finally{btn.disabled=false;btn.textContent='Save Update'}}
+
+let napWorkContext=null;
+function napWorkSummary(data){
+  const facts=[
+    ['Registered NAP',data.nap_name||data.nap_id||'-'],
+    ['NAP Box ID',data.nap_id||'-'],
+    ['Location / Area',data.area||'-'],
+    ['Affected Ports',(data.affected_ports||[]).join(', ')||'Box-wide'],
+    ['Recorded Splitter',data.splitter||'-'],
+    ['NAP Status',data.nap_status||'-']
+  ];
+  $('napBoxFacts').innerHTML=facts.map(([k,v])=>'<div><span>'+esc(k)+'</span><b>'+esc(v)+'</b></div>').join('');
+}
+async function loadNapWorkPanel(ticket,readonly){
+  const panel=$('napWorkPanel');
+  panel.classList.add('show');
+  $('napBoxFacts').textContent='Loading registered NAP box...';
+  $('napPortFields').textContent='Checking affected ports...';
+  napWorkContext=null;
+  const response=await db.rpc('tg_employee_get_nap_ticket_work',{p_ticket_no:ticket.ticket_no});
+  if(response.error)throw response.error;
+  const data=response.data;
+  if(!data||data.ticket_no!==ticket.ticket_no)throw Error('NAP target does not match the selected ticket');
+  napWorkContext={ticketNo:ticket.ticket_no,data};
+  napWorkSummary(data);
+  const report=data.report||{};
+  $('napDiagnosis').value=report.diagnosis||'';
+  $('napRepairDone').value=report.work_performed||'';
+  $('napFusionQty').value=String(report.fusion_quantity??0);
+  $('napSplitterObserved').value=report.observed_splitter_ratio||data.recorded_observed_ratio||'';
+  $('napMaterials').value=report.materials_used||'';
+  for(const field of ['napDiagnosis','napRepairDone','napFusionQty','napSplitterObserved','napMaterials']) $(field).disabled=readonly;
+  const previous=new Map((Array.isArray(report.port_readings)?report.port_readings:[]).map(x=>[Number(x.port),x]));
+  const ports=Array.isArray(data.affected_ports)?data.affected_ports:[];
+  $('napPortFields').innerHTML=ports.length?ports.map(port=>{
+    const p=Number(port),r=previous.get(p)||{},before=r.before_dbm??'',after=r.after_dbm??'',state=r.result||'NOT_TESTED';
+    const opt=[['NOT_TESTED','Not tested'],['RESTORED','Restored / passed'],['FAULT_REMAINS','Fault remains']].map(([v,label])=>'<option value="'+v+'"'+(state===v?' selected':'')+'>'+label+'</option>').join('');
+    return '<div class="nap-port-row" data-nap-port-row="'+esc(p)+'"><b>Port '+esc(p)+'</b>'+
+      '<label>Before dBm<input data-nap-before type="number" step="0.01" min="-60" max="10" value="'+esc(before)+'"'+(readonly?' disabled':'')+'></label>'+
+      '<label>After dBm<input data-nap-after type="number" step="0.01" min="-60" max="10" value="'+esc(after)+'"'+(readonly?' disabled':'')+'></label>'+
+      '<label>Port result<select data-nap-result'+(readonly?' disabled':'')+'>'+opt+'</select></label></div>';
+  }).join(''):'<div class="nap-help">No individual affected ports listed; document box-wide diagnosis and optical test results in the report above.</div>';
+}
+function collectNapReport(){
+  if(!selected||!napWorkContext||napWorkContext.ticketNo!==selected.ticket_no)throw Error('NAP target was not verified. Reopen the ticket.');
+  const portReadings=[...document.querySelectorAll('#napPortFields [data-nap-port-row]')].map(el=>({
+    port:Number(el.dataset.napPortRow),
+    before_dbm:el.querySelector('[data-nap-before]').value.trim()||null,
+    after_dbm:el.querySelector('[data-nap-after]').value.trim()||null,
+    result:el.querySelector('[data-nap-result]').value
+  }));
+  const fusion=$('napFusionQty').value.trim();
+  if(fusion!==''&&(!/^\d+$/.test(fusion)||Number(fusion)>1000))throw Error('Fusion quantity must be a whole number from 0 to 1000.');
+  if($('work').value==='Done'){
+    if($('napDiagnosis').value.trim().length<8||$('napRepairDone').value.trim().length<8)
+      throw Error('Enter at least 8 characters each for diagnosis and work performed.');
+    if(portReadings.some(p=>p.result!=='RESTORED'))
+      throw Error('Mark all affected NAP ports Restored before setting Done. Otherwise choose For Checking.');
+  }
+  return {
+    diagnosis:$('napDiagnosis').value.trim(),
+    work_performed:$('napRepairDone').value.trim(),
+    fusion_quantity:fusion===''?'0':fusion,
+    observed_splitter_ratio:$('napSplitterObserved').value.trim(),
+    materials_used:$('napMaterials').value.trim(),
+    port_readings:portReadings
+  };
+}
+
+async function openTicket(id){selected=tickets.find(t=>t.ticket_no===id);if(!selected)return;napWorkContext=null;$('napWorkPanel').classList.remove('show');stopRouterPoll();proofRows=[];routerSetup=null;installFinancial=null;const u=updates.get(id)||{},sg=stage(selected,u),mu=mapUrl(selected),ro=sg==='closed'&&String(profile.role).toUpperCase()==='EMPLOYEE',kind=isNapEquipmentTicket(selected)?'NAP BOX WORK':isInstallation(selected)?'NEW INSTALLATION':isRelocation(selected)?'RELOCATION':isRepair(selected)?'REPAIR':stageLabel(sg);$('dlgTitle').textContent=id+' · '+kind;$('ticketInfo').innerHTML=`<b>${esc(selected.client_name||(isNapEquipmentTicket(selected)?'NAP Box / Distribution Equipment':''))}</b><br>${esc(selected.client_account_no||(isNapEquipmentTicket(selected)?'No subscriber account':'Account pending'))} · ${esc(selected.contact_number||(isNapEquipmentTicket(selected)?'Network equipment work':'No contact'))}<br><b>Assigned:</b> ${esc(selected.assigned_tech||'—')}<br><b>Address:</b> ${esc([selected.rd_blk,selected.address].filter(Boolean).join(' · ')||'—')}<br><b>Issue:</b> ${esc(selected.issue_purpose||selected.concern||'—')}${selected.admin_remarks?'<br><b>Admin remarks:</b> '+esc(selected.admin_remarks):''}${mu?'<a class="map" href="'+esc(mu)+'" target="_blank" rel="noopener">📍 Open Client in Google Maps</a>':''}`;$('installWizard').classList.toggle('show',isInstallation(selected));$('legacyPanel').classList.toggle('show',!isInstallation(selected));$('legacyActions').style.display=isInstallation(selected)?'none':'';$('clientUpdate').classList.remove('show');clientDetails=null;if(allowsClientUpdate(selected)){try{clientDetails=await getClientDetails(id);fillClientPanel(clientDetails,selected,ro)}catch(e){note('Client details could not be loaded: '+(e.message||e),'err')}}if(isInstallation(selected)){document.querySelector('[data-page="1"]').prepend($('clientUpdate'));restoreDraft();clientFieldIds.forEach(fid=>{$(fid).oninput=saveDraft});$('saveInstallDetails').textContent=$('cuAccount').value.trim()?'Save Changes & Continue':'Generate Account & Save';$('installRemarks').value=u.remarks||selected.tech_remarks||'';$('dlg').showModal();await resumeWizard();return}$('legacyClientMount').appendChild($('clientUpdate'));if(isNapEquipmentTicket(selected)){try{await loadNapWorkPanel(selected,ro)}catch(e){$('napBoxFacts').textContent='NAP target unavailable: '+(e.message||e);$('napPortFields').innerHTML='<div class="nap-error">Cannot safely save this network equipment ticket until the NAP target loads.</div>';note('Unable to load NAP box work details: '+(e.message||e),'err')}}const items=Array.isArray(u.checklist_items)&&u.checklist_items.length?u.checklist_items:tasksFor(selected),checks=Array.isArray(u.checks)&&u.checks.length===items.length?u.checks:items.map(()=>false);$('tasks').innerHTML=items.map((x,i)=>`<label class="task"><input type="checkbox" data-check="${i}" ${checks[i]?'checked':''} ${ro?'disabled':''}><span><b>${i+1}.</b> ${esc(x)}</span></label>`).join('');$('work').value=u.work_status||selected.status||'Pending';if(![...$('work').options].some(o=>o.value===$('work').value))$('work').value=sg==='closed'?'Done':'Pending';$('remarks').value=u.remarks||selected.tech_remarks||'';$('work').disabled=ro;$('remarks').readOnly=ro;$('save').style.display=ro?'none':'';$('dlg').showModal()}
+async function saveLegacy(){if(!selected)return;const btn=$('save');btn.disabled=true;btn.textContent='Saving…';try{const items=[...document.querySelectorAll('#tasks .task span')].map(x=>x.textContent.replace(/^\d+\.\s*/,'')),checks=[...document.querySelectorAll('#tasks [data-check]')].map(x=>x.checked),details=!isNapEquipmentTicket(selected)&&allowsClientUpdate(selected)?collectClientDetails():{};const params={p_ticket_no:selected.ticket_no,p_checklist_items:items,p_checks:checks,p_work_status:$('work').value,p_remarks:$('remarks').value.trim()||null};
+const r=isNapEquipmentTicket(selected)
+  ?await db.rpc('tg_employee_save_nap_ticket_work',{...params,p_report:collectNapReport()})
+  :await db.rpc('save_technician_ticket_update_v3',{...params,p_client_details:details});if(r.error)throw r.error;$('dlg').close();await load();note((r.data&&r.data.client_updated?'Client master + ':'')+'ticket update saved successfully.','ok')}catch(e){note(e.message||'Unable to save ticket update.','err')}finally{btn.disabled=false;btn.textContent='Save Update'}}
 function closeDialog(){stopRouterPoll();$('dlg').close()}
 $('q').oninput=render;$('month').onchange=render;$('status').onchange=render;$('close').onclick=$('cancel').onclick=closeDialog;$('save').onclick=saveLegacy;$('captureLocation').onclick=capturePageLocation;$('manualGeoBtn').onclick=useManualGeo;$('saveInstallDetails').onclick=saveInstallDetails;$('installClose1').onclick=closeDialog;$('backToDetails').onclick=()=>showWizardStep(1,true);$('backToAccount').onclick=()=>showWizardStep(2,true);$('backToProof').onclick=()=>showWizardStep(3,true);$('toProof').onclick=()=>showWizardStep(3,true);$('toComplete').onclick=()=>showWizardStep(4,true);$('retryProvision').onclick=async()=>{if(!selected)return;const btn=$('retryProvision');btn.disabled=true;btn.textContent='Retrying…';try{const r=await db.rpc('retry_new_install_provisioning',{p_ticket_no:selected.ticket_no});if(r.error)throw r.error;renderRouterSetup(r.data||null);note((r.data&&r.data.message)||'Existing PPPoE account requeued for MikroTik provisioning.','ok');if(String(r.data&&r.data.pppoe_status||'').toUpperCase()!=='ACTIVE')scheduleRouterPoll()}catch(e){note(e.message||'Unable to retry MikroTik provisioning.','err')}finally{btn.disabled=false;btn.textContent='Retry / Refresh Provisioning'}};$('proratedPaymentStatus').onchange=savePaymentChoice;$('completeInstall').onclick=completeInstall;$('copyUser').onclick=()=>copyText(routerSetup&&routerSetup.pppoe_username,'PPPoE username');$('copyPass').onclick=()=>copyText(routerSetup&&routerSetup.pppoe_password,'PPPoE password');$('copyPppoe').onclick=()=>copyText(routerSetup?`Account: ${routerSetup.account_no||''}\nUsername: ${routerSetup.pppoe_username||''}\nPassword: ${routerSetup.pppoe_password||''}\nLocal Address: ${routerSetup.local_address||''}\nRemote Address: ${routerSetup.remote_address||''}\nProfile: ${routerSetup.pppoe_profile||''}\nService: ${routerSetup.pppoe_service||'pppoe'}\nComment: ${routerSetup.pppoe_comment||''}`:'','PPPoE details');
 document.querySelectorAll('[data-wstep]').forEach(b=>b.onclick=()=>{if(selected&&stage(selected,updates.get(selected.ticket_no)||{})==='closed')return;const target=Number(b.dataset.wstep);if(target<wizardStep)showWizardStep(target,true);else if(target===2&&$('cuAccount').value.trim())showWizardStep(2,true);else if(target===3&&String(routerSetup&&routerSetup.pppoe_status||'').toUpperCase()==='ACTIVE')showWizardStep(3,true);else if(target===4&&PROOFS.filter(([t])=>!!proofFor(t)).length===6)showWizardStep(4,true)});
