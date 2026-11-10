@@ -70,13 +70,35 @@
 .port.conflict .port-dbm{color:#8b5800}
 @media(max-width:420px){.port .port-dbm{font-size:.52rem}.port .port-fiber-state{font-size:.37rem}}
 
+
+/* Added reading-check controls (isolated from port assignments) */
+.reading-review{margin-bottom:12px}
+.reading-review .read-summary{padding:12px;font-size:.69rem;line-height:1.6;border-bottom:1px solid var(--line)}
+.reading-review .read-controls{display:flex;gap:8px;padding:9px;flex-wrap:wrap}
+.reading-review .read-controls input,.reading-review .read-controls select{min-height:37px;border:1px solid var(--line);border-radius:8px;padding:0 10px;background:#fff;font-size:.69rem}
+.reading-review .read-controls input{flex:1;min-width:160px}
+.read-table-wrap{overflow:auto}
+.read-table{width:100%;border-collapse:collapse;font-size:.65rem}
+.read-table th,.read-table td{text-align:left;border-bottom:1px solid var(--line);padding:10px;white-space:nowrap}
+.read-table th{background:#f4f7fa;font-size:.59rem;text-transform:uppercase}
+.read-table small{display:block;color:var(--muted)}
+.read-table .critical{font-weight:900;color:var(--red)}.read-table .warning{font-weight:900;color:#a65c00}
+.read-create{min-height:34px;border:0;border-radius:7px;background:var(--blue);color:#fff;font-weight:850;font-size:.64rem;padding:0 10px;cursor:pointer}
+.read-create:disabled{background:#e0e8f0;color:#53657c}
+@media(max-width:650px){.toolbar{grid-template-columns:1fr 1fr}.toolbar #search{grid-column:1/-1}}
+
 </style>
 </head>
 <body>
 <main class="page">
-<div class="top"><div><h1>NAP Map, Port &amp; Fiber Checker</h1><span class="build">Build: 20260920-nap-occupancy-guard</span></div><span id="authChip" class="chip">Loading</span></div>
+<div class="top"><div><h1>NAP Map, Port &amp; Fiber Checker</h1><span class="build">Build: 20261110-nap-reading-check</span></div><span id="authChip" class="chip">Loading</span></div>
 <div id="notice" class="notice"></div>
-<div class="toolbar"><input id="search" placeholder="Search NAP, client, SATR, IP, ONU serial..."><select id="lpFilter"><option value="">All LP</option></select><select id="statusFilter"><option value="">All Status</option><option>ACTIVE</option><option>MAINTENANCE</option><option>INACTIVE</option><option>PLANNED</option></select><button id="refresh" type="button">Refresh Live Data</button></div>
+<div class="toolbar"><input id="search" placeholder="Search NAP, client, SATR, IP, ONU serial..."><select id="lpFilter"><option value="">All LP</option></select><select id="statusFilter"><option value="">All Status</option><option>ACTIVE</option><option>MAINTENANCE</option><option>INACTIVE</option><option>PLANNED</option></select><button id="refresh" type="button">Refresh Live Data</button><button id="readingCheck" type="button">Reading Check</button></div>
+
+<section class="panel reading-review hidden" id="readingPanel"><div class="head"><div><h2>Reading Check — ONU Optical RX</h2><p>Weak readings by client, with safe per-client ticket creation. Offline, stale and unmapped ONUs are counted separately.</p></div><span class="chip" id="readingAt">Not scanned</span></div>
+<div class="read-summary" id="readingStats">Click Reading Check to scan clients with verified ONU bindings.</div>
+<div class="read-controls"><input id="readingQuery" placeholder="Search account, name, NAP, port" aria-label="Filter optical reading results"><select id="readingStatus"><option value="">Warning &amp; Critical</option><option value="CRITICAL">Critical</option><option value="WARNING">Warning</option></select></div>
+<div class="read-table-wrap"><table class="read-table"><thead><tr><th>Client / Account</th><th>NAP / Port</th><th>ONU RX</th><th>Status</th><th>Measured</th><th>Action</th></tr></thead><tbody id="readingResults"><tr><td colspan="6">Not scanned yet.</td></tr></tbody></table></div></section>
 <div class="layout">
 <section class="panel"><div class="head"><div><h2>NAP Coverage Map</h2><p>Click a pin to open physical ports and live fiber signal.</p></div><span id="mapCount" class="chip">0 pins</span></div><div id="map"></div><div class="legend"><span><i class="dot green"></i>Below 50%</span><span><i class="dot orange"></i>50–79%</span><span><i class="dot red"></i>80%+</span><span><i class="dot purple"></i>Maintenance</span><span><i class="dot gray"></i>Inactive / Planned</span></div></section>
 <div class="side">
@@ -91,7 +113,7 @@
 <script>
 (function(){
 'use strict';
-const BUILD='20260920-nap-occupancy-guard',LIVE_REFRESH_MS=10000,FULL_REFRESH_MS=60000,db=window.TechGeekSupabase,$=id=>document.getElementById(id);
+const BUILD='20261110-nap-reading-check',LIVE_REFRESH_MS=10000,FULL_REFRESH_MS=60000,db=window.TechGeekSupabase,$=id=>document.getElementById(id);
 const ui={notice:$('notice'),auth:$('authChip'),search:$('search'),lp:$('lpFilter'),status:$('statusFilter'),refresh:$('refresh'),mapCount:$('mapCount'),select:$('napSelect'),empty:$('napEmpty'),info:$('napInfo'),name:$('napName'),sub:$('napSub'),nstatus:$('napStatus'),used:$('used'),total:$('total'),free:$('free'),income:$('income'),fGood:$('fGood'),fWarn:$('fWarn'),fBad:$('fBad'),fNone:$('fNone'),editToggle:$('editToggle'),editor:$('editor'),eName:$('eName'),eStatus:$('eStatus'),eTotal:$('eTotal'),eArea:$('eArea'),eLat:$('eLat'),eLng:$('eLng'),pinMode:$('pinMode'),saveNap:$('saveNap'),selectedChip:$('selectedChip'),portHost:$('portHost')};
 let map,layer,naps=[],clients=[],bindings=[],opticals=[],selected=null,pinPick=false,pingCache=new Map(),pppoeCache=new Map(),bindingByClient=new Map(),opticalByKey=new Map(),markers=new Map(),selectedPort='',sessionUser=null,sessionRole='',dataReliable=false,refreshTimer=null,liveRefreshTimer=null,liveRefreshBusy=false;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -263,6 +285,117 @@ async function confirmRelease(row,portNo,n){
   }catch(e){msg('Unable to confirm port: '+(e.message||e),'error')}
   finally{const b=$('markPortAvailable');if(b){b.disabled=false;b.textContent='Mark Port Available'}}
 }
+
+/* Optical readings: no writes during scan; writes only via the existing department-classified ticket RPC. */
+const readingState={rows:[],open:new Map(),creating:new Set(),busy:false,limits:{warning:-24,critical:-27,stale:15}};
+function readingSeverity(o){
+  const raw=o?.onu_rx_dbm;
+  if(raw===null||raw===undefined||raw==='')return'NO DATA';
+  const n=Number(raw);
+  if(!Number.isFinite(n))return'NO DATA';
+  return n<=readingState.limits.critical?'CRITICAL':n<=readingState.limits.warning?'WARNING':'GOOD';
+}
+function readingFresh(o){
+  const ms=Date.now()-new Date(o?.last_checked_at||'').getTime();
+  return Number.isFinite(ms)&&ms>=-300000&&ms<=readingState.limits.stale*60000;
+}
+function readingRelated(t){const x=norm([t.category,t.issue_purpose,t.admin_remarks].join(' '));return x.includes('NAP_READING_CHECK')||x.includes('HIGH OPTICAL LOSS')||x.includes('LOW RX POWER')}
+function readingOpen(t){return !['DONE','CLOSED','RESOLVED','COMPLETED','CANCELLED','CANCELED'].includes(norm(t.status))}
+function readingNap(r){const n=naps.find(x=>p2(x.line_port)===p2(r.line_port)&&p2(x.network_port)===p2(r.network_port));return n?.display_name||n?.nap_id||'Unmapped NAP'}
+function readingRender(){
+  const q=norm($('readingQuery').value),level=$('readingStatus').value;
+  const rows=readingState.rows.filter(x=>(!level||x.severity===level)&&(!q||norm([x.client.client_name,x.client.account_no,x.nap,x.client.client_port].join(' ')).includes(q)));
+  $('readingResults').innerHTML=rows.length?rows.map(x=>{
+    const c=x.client,id=String(c.id),ticket=readingState.open.get(id),busy=readingState.creating.has(id);
+    const action=ticket?'<small>Existing open ticket: '+esc(ticket)+'</small>':
+      '<button class="read-create" type="button" data-reading-client="'+esc(id)+'"'+(busy?' disabled':'')+'>'+(busy?'Creating...':'Create Ticket')+'</button>';
+    return '<tr><td><b>'+esc(c.client_name||'-')+'</b><small>'+esc(c.account_no||'-')+'</small></td>'+
+      '<td>'+esc(x.nap)+'<small>Port '+esc(c.client_port||'-')+'</small></td>'+
+      '<td><b>'+Number(x.optical.onu_rx_dbm).toFixed(2)+' dBm</b></td>'+
+      '<td class="'+(x.severity==='CRITICAL'?'critical':'warning')+'">'+x.severity+'</td>'+
+      '<td>'+esc(fmtDate(x.optical.last_checked_at))+'</td><td>'+action+'</td></tr>'
+  }).join(''):'<tr><td colspan="6">No matching weak readings.</td></tr>';
+}
+async function runReadingCheck(){
+  if(readingState.busy)return;
+  readingState.busy=true;
+  const b=$('readingCheck');b.disabled=true;b.textContent='Scanning...';
+  $('readingPanel').classList.remove('hidden');
+  $('readingResults').innerHTML='<tr><td colspan="6">Refreshing monitor data and checking open tickets...</td></tr>';
+  try{
+    await loadData(false,selected?.id);
+    if(!dataReliable)throw Error('Fresh NAP/OLT data could not be loaded.');
+    const [cfg,tx]=await Promise.all([
+      db.from('olt_monitor_settings').select('warning_rx_dbm,critical_rx_dbm,stale_after_minutes').limit(1).maybeSingle(),
+      db.from('support_tickets').select('ticket_no,client_id,status,category,issue_purpose,admin_remarks').order('created_at',{ascending:false}).limit(5000)
+    ]);
+    if(tx.error)throw tx.error;
+    if(!cfg.error&&cfg.data){
+      const w=Number(cfg.data.warning_rx_dbm),c=Number(cfg.data.critical_rx_dbm),s=Number(cfg.data.stale_after_minutes);
+      if(Number.isFinite(w)&&Number.isFinite(c)&&c<w)readingState.limits={warning:w,critical:c,stale:Number.isFinite(s)&&s>0?s:15};
+    }
+    readingState.open=new Map();
+    for(const t of tx.data||[])if(t.client_id&&readingOpen(t)&&readingRelated(t)&&!readingState.open.has(String(t.client_id)))readingState.open.set(String(t.client_id),t.ticket_no);
+    const counts={active:0,bound:0,unbound:0,stale:0,offline:0,good:0,warning:0,critical:0},items=[];
+    for(const c of clients){
+      if(disconnected(c)||!norm(c.account_status).startsWith('ACTIVE'))continue;
+      counts.active++;
+      const bind=bindingFor(c);if(!bind){counts.unbound++;continue}
+      counts.bound++;
+      const optical=opticalFor(c);
+      if(!optical||!readingFresh(optical)){counts.stale++;continue}
+      const level=readingSeverity(optical);
+      if(level==='NO DATA'){counts.offline++;continue}
+      if(level==='GOOD'){counts.good++;continue}
+      counts[level.toLowerCase()]++;
+      items.push({client:c,bind,optical,severity:level,nap:readingNap(c)});
+    }
+    items.sort((a,b)=>a.severity===b.severity?Number(a.optical.onu_rx_dbm)-Number(b.optical.onu_rx_dbm):a.severity==='CRITICAL'?-1:1);
+    readingState.rows=items;
+    $('readingStats').textContent='Active: '+counts.active+' | ONU mapped: '+counts.bound+' | Critical: '+counts.critical+' | Warning: '+counts.warning+' | Good: '+counts.good+' | Offline/no RX: '+counts.offline+' | Stale/missing: '+counts.stale+' | Unbound: '+counts.unbound+'. Warning ≤ '+readingState.limits.warning+' dBm; critical ≤ '+readingState.limits.critical+' dBm. Stale > '+readingState.limits.stale+' min excluded.';
+    $('readingAt').textContent='Scanned '+fmtDate(new Date().toISOString());readingRender();
+    msg('Reading Check complete. Review and create tickets only for confirmed client bindings.','ok');
+  }catch(e){readingState.rows=[];readingRender();$('readingStats').textContent='Scan failed: '+(e.message||e);msg('Reading scan unavailable: '+(e.message||e),'error')}
+  finally{readingState.busy=false;b.disabled=false;b.textContent='Reading Check'}
+}
+async function createReadingTicket(clientId){
+  const item=readingState.rows.find(x=>Number(x.client.id)===Number(clientId)),id=String(clientId);
+  if(!item||readingState.creating.has(id)||readingState.open.has(id))return;
+  if(!confirm('Create a technician visit ticket for '+(item.client.account_no||item.client.client_name)+'?\n\nOptical RX: '+Number(item.optical.onu_rx_dbm).toFixed(2)+' dBm, '+item.severity+'.\nClassification: FTTH / Level 1 / Fiber Signal Diagnosis / High Optical Loss – For Investigation.'))return;
+  readingState.creating.add(id);readingRender();
+  try{
+    await authorize();
+    const [bd,cv,open]=await Promise.all([
+      db.from('client_onu_bindings').select('*').eq('client_id',clientId).maybeSingle(),
+      db.from('clients').select('id,account_no,client_name,account_status,service_status,phone,service_address,google_maps_link').eq('id',clientId).single(),
+      db.from('support_tickets').select('ticket_no,status,category,issue_purpose,admin_remarks').eq('client_id',clientId).order('created_at',{ascending:false}).limit(100)
+    ]);
+    if(bd.error)throw bd.error;if(cv.error)throw cv.error;if(open.error)throw open.error;
+    if(disconnected(cv.data)||!norm(cv.data.account_status).startsWith('ACTIVE'))throw Error('Client is no longer active.');
+    if(!bd.data||okKey(bd.data.olt_id,bd.data.pon_port,bd.data.onu_id)!==okKey(item.bind.olt_id,item.bind.pon_port,item.bind.onu_id))throw Error('Client ONU binding changed; rescan.');
+    const recheck=await db.from('onu_optical_status').select('*').eq('olt_id',bd.data.olt_id).eq('pon_port',bd.data.pon_port).eq('onu_id',bd.data.onu_id).maybeSingle();
+    if(recheck.error)throw recheck.error;
+    if(!recheck.data||!readingFresh(recheck.data)||!['CRITICAL','WARNING'].includes(readingSeverity(recheck.data)))throw Error('Reading is normal, stale or missing now; rescan.');
+    const duplicate=(open.data||[]).find(x=>readingOpen(x)&&readingRelated(x));
+    if(duplicate){readingState.open.set(id,duplicate.ticket_no);throw Error('Open reading ticket already exists: '+duplicate.ticket_no)}
+    const severity=readingSeverity(recheck.data),rx=Number(recheck.data.onu_rx_dbm).toFixed(2);
+    const details='NAP_READING_CHECK: '+severity+' optical loss. ONU RX '+rx+' dBm, checked '+fmtDate(recheck.data.last_checked_at)+'. NAP '+item.nap+', port '+(item.client.client_port||'-')+', OLT '+bd.data.olt_id+', PON '+bd.data.pon_port+', ONU '+bd.data.onu_id+'. Verify ONT and NAP optical power, inspect connectors/drop fiber, record before/after reading and update level after confirmed diagnosis.';
+    const args={p_department:'FTTH',p_level_id:'REPAIR_L1',p_type_id:'L1_T04',p_category_id:'L1_T04_C05',p_lead_employee_id:null,p_partner_employee_id:null,p_project_id:null,
+      p_data:{client_id:cv.data.id,client_account_no:cv.data.account_no,client_name:cv.data.client_name,contact_number:cv.data.phone,address:cv.data.service_address,google_maps_link:cv.data.google_maps_link,
+        category:'High Optical Loss – For Investigation',concern:'Fiber Signal Diagnosis',ticket_type:'Fiber Signal Diagnosis',service_type:'LEVEL 1 – BASIC TROUBLESHOOTING',
+        priority:severity==='CRITICAL'?'High':'Normal',status:'New',issue_purpose:details,admin_remarks:'NAP_READING_CHECK; preliminary Level 1 diagnosis. Admin must verify actual cause before changing repair/pay level.'}};
+    const result=await db.rpc('tg_admin_create_department_ticket',args);
+    if(result.error)throw result.error;
+    const no=result.data?.ticket_no;if(!no)throw Error('Ticket number missing in response; inspect Ticket Queue before retrying.');
+    readingState.open.set(id,no);msg('Created '+no+' for '+(cv.data.account_no||cv.data.client_name)+'.','ok');
+  }catch(e){msg('Reading ticket not created: '+(e.message||e),'error')}
+  finally{readingState.creating.delete(id);readingRender()}
+}
+$('readingCheck').addEventListener('click',runReadingCheck);
+$('readingQuery').addEventListener('input',readingRender);
+$('readingStatus').addEventListener('change',readingRender);
+$('readingResults').addEventListener('click',e=>{const btn=e.target.closest('button[data-reading-client]');if(btn)createReadingTicket(Number(btn.dataset.readingClient))});
+
 async function saveNap(){if(!selected)return;const total=Number(ui.eTotal.value),lat=String(ui.eLat.value).trim(),lng=String(ui.eLng.value).trim();if(!Number.isFinite(total)||total<1||total>64)return msg('Total Ports must be 1–64.','error');if((!lat)!==(!lng))return msg('Latitude and longitude must both be filled or both blank.','error');const payload={display_name:String(ui.eName.value||'').trim()||selected.nap_id,status:ui.eStatus.value,total_ports:total,area:String(ui.eArea.value||'').trim()||null,latitude:lat?Number(lat):null,longitude:lng?Number(lng):null};ui.saveNap.disabled=true;try{const r=await db.from('nap_boxes').update(payload).eq('id',selected.id).select('*').single();if(r.error)throw r.error;msg('NAP changes saved.','ok');await loadData(false,selected.id)}catch(e){msg('Unable to save NAP: '+(e.message||e),'error')}finally{ui.saveNap.disabled=false}}
 async function authorize(){if(!db)throw Error('Supabase unavailable');const s=await db.auth.getSession();if(s.error)throw s.error;if(!s.data.session){location.replace('index.html');return false}sessionUser=s.data.session.user;const p=await db.from('staff_profiles').select('full_name,role,active').eq('user_id',sessionUser.id).single();if(p.error)throw p.error;const role=norm(p.data.role);if(!p.data.active||!['OWNER','ADMIN'].includes(role))throw Error('Owner/Admin access required');sessionRole=role;ui.auth.textContent=role;return true}
 async function loadData(fit,reselect){ui.refresh.disabled=true;dataReliable=false;if(selected)renderPorts(selected);msg('Loading NAP, ping and live OLT optical data...');try{await authorize();const[nr,cr,br,or]=await Promise.all([db.from('nap_boxes').select('*').order('line_port').order('network_port'),db.from('clients').select('id,account_no,client_name,account_status,service_status,line_port,network_port,client_port,pending_client_port,port_release_status,port_release_requested_at,port_release_confirmed_at,remote_address,monthly_bill,modem_serial_no,onu_mac').limit(3000),db.from('client_onu_bindings').select('*').limit(3000),db.from('onu_optical_status').select('*').limit(3000)]);if(nr.error)throw nr.error;if(cr.error)throw cr.error;if(br.error)throw br.error;if(or.error)throw or.error;naps=nr.data||[];clients=cr.data||[];bindings=br.data||[];opticals=or.data||[];bindingByClient=new Map(bindings.map(x=>[String(x.client_id),x]));opticalByKey=new Map(opticals.map(x=>[okKey(x.olt_id,x.pon_port,x.onu_id),x]));dataReliable=true;populate();renderMarkers(fit);msg('');const id=reselect||selected?.id;if(id)await selectNap(id,false)}catch(e){dataReliable=false;console.error(e);if(selected)renderPorts(selected);msg('Unable to load NAP Checker: '+(e.message||e),'error')}finally{ui.refresh.disabled=false}}
