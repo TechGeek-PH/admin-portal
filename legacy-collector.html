@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Legacy Admin/Collector | TechGeekPH</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f7fa;color:#152f46;font:16px/1.5 system-ui,sans-serif}header,main{padding:18px max(5vw,calc((100vw - 1080px)/2))}header{background:white;border-bottom:1px solid #d7dfe7;display:flex;align-items:center;justify-content:space-between}header img{height:38px;max-width:55vw;object-fit:contain}h1{margin:.65em 0 .2em;font-size:clamp(27px,4vw,43px)}p{margin:.4em 0 1.3em}button,input,select{font:inherit;border:1px solid #acbdca;padding:8px 12px;border-radius:6px;background:white}button{cursor:pointer;color:#124d77;font-weight:600}button:disabled{opacity:.55}form{max-width:420px;background:white;padding:24px;border-radius:12px}label{display:block;margin-bottom:15px}input{display:block;width:100%}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:18px 0}.card,.scroll{background:white;border:1px solid #d5dfe6;border-radius:10px}.card{padding:16px}.card strong{display:block;font-size:24px}.scroll{overflow:auto}table{border-collapse:collapse;width:100%;text-align:left;font-size:14px}th,td{padding:12px;border-bottom:1px solid #e4eaf0;white-space:nowrap}th{background:#edf3f7}small{display:block;color:#4e6372}.tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap}#msg{color:#884417}[hidden]{display:none!important}
+</style></head><body><header><img src="assets/logo.png" alt="TechGeekPH"><button id="logout" hidden>Sign out</button></header><main><h1>Legacy Admin/Collector</h1><p>Client payouts · ₱200 per account</p><div id="msg" role="status"></div>
+<form id="login" hidden><h2>Sign in</h2><label>Email<input id="email" type="email" autocomplete="username" required></label><label>Password<input id="pw" type="password" autocomplete="current-password" required></label><button>Sign in</button></form>
+<section id="ledger" hidden><div class="tools"><label>Collector <select id="which"></select></label><button id="refresh">Refresh</button></div><div class="cards" id="cards"></div><div class="scroll"><table><thead><tr><th>Account</th><th>Client</th><th>Amount</th><th>Payout status</th><th>Action</th></tr></thead><tbody id="rows"></tbody></table></div></section></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="assets/supabase-config.js"></script><script>
+const db=window.TechGeekSupabase, el=id=>document.getElementById(id);
+const money=n=>new Intl.NumberFormat('en-PH',{style:'currency',currency:'PHP',maximumFractionDigits:0}).format(n);
+const date=t=>new Date(t).toLocaleString('en-PH',{timeZone:'Asia/Manila',dateStyle:'medium',timeStyle:'short'});
+let records=[];
+function node(tag,value){const item=document.createElement(tag);item.textContent=value;return item}
+function render(){
+ const list=records.filter(r=>r.collector===el('which').value);
+ const total=items=>items.reduce((s,r)=>s+Number(r.amount),0);
+ el('cards').replaceChildren();el('rows').replaceChildren();
+ for(const [label,value] of [['Clients',list.length],['For release',money(total(list.filter(r=>!r.released_at)))],['Awaiting receipt',money(total(list.filter(r=>r.released_at&&!r.received_at)))],['Received',money(total(list.filter(r=>r.received_at)))]]){
+ const card=node('div',label);card.className='card';card.append(node('strong',value));el('cards').append(card)}
+ for(const r of list){const tr=node('tr','');for(const v of [r.account_no,r.client_name,money(r.amount)])tr.append(node('td',v));
+ const status=node('td',r.received_at?'Paid · Received':r.released_at?'Paid · Awaiting receipt':'For release');tr.append(status);
+ if(r.released_at)status.append(node('small','Released '+date(r.released_at)));
+ if(r.received_at)status.append(node('small','Received '+date(r.received_at)));
+ const action=node('td','');tr.append(action);const release=r.is_owner&&!r.released_at,receive=!r.is_owner&&r.released_at&&!r.received_at;
+ if(release||receive){const btn=node('button',release?'Mark as given':'Confirm received');action.append(btn);
+ btn.onclick=async()=>{if(!confirm(btn.textContent+' — '+money(r.amount)+' · '+r.account_no+' · '+r.client_name+'?'))return;btn.disabled=true;
+ const {error}=await db.rpc('legacy_client_payout_action',{p_account:r.account_no,p_action:release?'release':'receive'});await load();if(error)el('msg').textContent=error.message;};}
+ el('rows').append(tr);}
+}
+async function load(){el('msg').textContent='';const {data,error}=await db.auth.getSession();if(error)throw error;
+ const signed=!!data.session;el('login').hidden=signed;el('logout').hidden=!signed;el('ledger').hidden=true;records=[];
+ if(!signed)return;
+ const res=await db.rpc('legacy_client_ledger');if(res.error){el('msg').textContent=res.error.message;return}
+ records=res.data;if(!records.length){el('msg').textContent='This login has no linked collector list.';return}
+ const select=el('which'),previous=select.value;select.replaceChildren(...[...new Set(records.map(r=>r.collector))].map(v=>new Option(v,v)));if(records.some(r=>r.collector===previous))select.value=previous;
+ render();el('ledger').hidden=false;}
+el('login').onsubmit=async e=>{e.preventDefault();const {error}=await db.auth.signInWithPassword({email:el('email').value.trim(),password:el('pw').value});if(error){el('msg').textContent=error.message;return}el('pw').value='';await load()};
+el('which').onchange=render;el('refresh').onclick=load;el('logout').onclick=async()=>{await db.auth.signOut();await load()};load().catch(()=>el('msg').textContent='Unable to connect. Reload to retry.');
+</script></body></html>
