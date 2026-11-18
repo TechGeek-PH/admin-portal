@@ -60,6 +60,7 @@
       type: "group",
       label: "Administration",
       items: [
+        { label: "Legacy Admin/Collector", href: "legacy-collector.html" },
         { label: "User Accounts", href: "admin_accounts.html" },
         { label: "Telegram Settings", href: "telegram-settings.html" }
       ]
