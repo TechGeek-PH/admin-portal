@@ -189,8 +189,8 @@ body.drawer-open{overflow:hidden}
     <h1>Client Portal</h1>
     <p class="muted login-help">Access your billing, payment history, service status, support tickets and account information.</p>
     <div id="loginNotice" class="notice"></div>
-    <div class="field"><label>Account Number</label><input id="accountNo" autocomplete="username" placeholder="SATR0001"></div>
-    <div class="field"><label>Registered Mobile Number</label><input id="phone" inputmode="tel" autocomplete="tel" placeholder="09XXXXXXXXX"></div>
+    <div class="field"><label for="accountNo">Account Name or Account Number</label><input id="accountNo" autocomplete="username" placeholder="Full account name or SATR0001"></div>
+    <div class="field"><label for="phone">Registered Mobile Number</label><input id="phone" inputmode="tel" autocomplete="tel" placeholder="09XXXXXXXXX, 63... or +63..."></div>
     <button id="loginBtn" class="btn primary" style="width:100%;margin-top:15px">Sign In</button>
     <div class="login-foot">TechGeekPH Solutions &amp; Services Inc. · Sta. Ana Branch, Taytay, Rizal</div>
   </div>
@@ -324,7 +324,7 @@ body.drawer-open{overflow:hidden}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../assets/supabase-config.js?v=20260904-drawer1"></script>
-<script src="app.js?v=20260912-multi1"></script>
+<script src="app.js?v=20261126-login1"></script>
 <script src="chat-center.js?v=20260904-drawer1"></script>
 <script id="tgMultiAccountFallback">
 (()=>{'use strict';
